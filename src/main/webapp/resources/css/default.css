@@ -1,0 +1,13 @@
+.ui-widget {font-size: 90%}
+.ui-widget .ui-widget {font-size: 100%}
+
+.ui-datatable table, .ui-datatable-resizable table {table-layout: auto !important;}
+.ui-datatable-scrollable table {table-layout: fixed !important;}
+
+.columnRight {text-align: right}
+.columnCenter {text-align: center}
+.width100 {width: 100%}
+.width38px {width: 38px}
+.labelNoWrap {white-space: nowrap}
+
+.collectedTable {height: 305px; background-color: lightgray;}

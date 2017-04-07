@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='Windows-1251'?>
+<Context>
+  <Manager pathname="" />
+
+  <!--  ORACLE database   -->
+<!--
+  <Resource name="jdbc/database" 
+    auth="Container"
+    type="javax.sql.DataSource"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+    validationQuery="SELECT 1 FROM DUAL"
+    defaultAutoCommit="false"
+    initialSize="10"
+    maxTotal="100"
+    maxIdle="20"
+    minIdle="10"
+    maxWaitMillis="60000"
+    removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="60"
+    logAbandoned="true"
+    driverClassName="oracle.jdbc.OracleDriver"
+    url="jdbc:oracle:thin:@10.124.5.82:1521:orcl"
+    username="doc"
+    password="3"/>
+-->
+
+  <!--  H2 database   -->
+
+  <Resource name="jdbc/database"
+            auth="Container"
+            type="javax.sql.DataSource"
+            factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+            validationQuery="SELECT 1 FROM DUAL"
+            defaultAutoCommit="false"
+            initialSize="10"
+            maxTotal="100"
+            maxIdle="20"
+            minIdle="10"
+            maxWaitMillis="10000"
+            removeAbandonedOnBorrow="true"
+            removeAbandonedTimeout="60"
+            logAbandoned="true"
+            driverClassName="org.h2.Driver"
+            url="jdbc:h2:D:\database\database2;IFEXISTS=TRUE;MVCC=TRUE;LOCK_TIMEOUT=10000"
+            username="doc"
+            password="PioneerDoc#7740"/>
+-->
+
+  <!--  MSSQL database    -->
+<!--
+  <Resource name="jdbc/database"
+    auth="Container"
+    type="javax.sql.DataSource"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+    validationQuery="SELECT 1"
+    defaultAutoCommit="false"
+    initialSize="10"
+    maxTotal="100"
+    maxIdle="20"
+    minIdle="10"
+    maxWaitMillis="10000"
+    removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="60"
+    logAbandoned="true"
+    driverClassName="net.sourceforge.jtds.jdbc.Driver"
+    url="jdbc:jtds:sqlserver://correqts1:1433/pioneer-doc;useCursors=true;"
+    username="doc"
+    password="3"/>
+-->
+
+  <!--  PostgreSQL database   -->
+<!--
+  <Resource name="jdbc/database"
+    auth="Container"
+    type="javax.sql.DataSource"
+    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+    validationQuery="SELECT 1"
+    defaultAutoCommit="false"
+    initialSize="10"
+    maxTotal="100"
+    maxIdle="20"
+    minIdle="10"
+    maxWaitMillis="10000"
+    removeAbandonedOnBorrow="true"
+    removeAbandonedTimeout="60"
+    logAbandoned="true"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://localhost:5432/postgres"
+    username="doc"
+    password="3"/>
+-->
+  
+  <Parameter name="mail.ews.url" value="https://mail.server/ews/exchange.asmx"/>
+  
+  <Parameter name="channelSN.processing" value="false"/>
+  <Parameter name="channelSN.slip.period" value="60"/>
+  <Parameter name="channelSN.properties" value="
+  	server.back.ref=http://webServer:8080/pioneer-doc
+    channel.mail.address=mail1@yandex.ru
+    channel.mail.personal=Система\u0020Пионер
+    channel.mail.trash=Trash
+    mail.smtp.host=smtp.yandex.ru
+    mail.smtp.port=465
+    mail.smtp.starttls.enable=false
+    mail.smtp.ssl.enable=true
+    mail.smtp.auth=true
+    mail.smtp.dsn.notify=SUCCESS,FAILURE,DELAY
+    mail.smtp.dsn.ret=HDRS
+    mail.smtp.allow8bitmime=true
+    mail.imap.host=imap.yandex.ru
+    mail.imap.port=993
+    mail.imap.starttls.enable=false
+    mail.imap.ssl.enable=true
+    mail.imap.auth=true
+    mail.username=mail1@yandex.ru
+    mail.password=pass
+    mail.debug=false"/>
+  
+  <Parameter name="channelMC.processing" value="false"/>
+  <Parameter name="channelMC.slip.period" value="60"/>
+  <Parameter name="channelMC.properties" value="
+    channel.mail.address=mail2@yandex.ru
+    channel.mail.trash=Trash
+    mail.imap.host=imap.yandex.ru
+    mail.imap.port=993
+    mail.imap.starttls.enable=false
+    mail.imap.ssl.enable=true
+    mail.imap.auth=true
+    mail.username=mail2@yandex.ru
+    mail.password=pass
+    mail.debug=false"/>
+  
+  <Parameter name="channelCD.processing" value="false"/>
+  <Parameter name="channelCD.slip.period" value="60"/>
+  <Parameter name="channelCD.properties" value="
+    channel.mail.trash=Trash
+    mail.imap.host=imap.yandex.ru
+    mail.imap.port=993
+    mail.imap.starttls.enable=false
+    mail.imap.ssl.enable=true
+    mail.imap.auth=true
+    mail.username=mail3@yandex.ru
+    mail.password=pass
+    mail.debug=false"/>
+  
+  <Parameter name="mail.template.id" value="1"/>
+  <Parameter name="mail.size.max" value="1048576"/>
+  <Parameter name="file.size.max" value="524288"/>
+  
+  <Parameter name="calendar.pattern" value="dd/MM/yyyy"/>
+  <Parameter name="date.pattern" value="dd-MM-yyyy HH:mm:ss"/>
+  
+  <Parameter name="LDAP.SECURITY_PRINCIPAL" value="domain\user"/>
+  <Parameter name="LDAP.SECURITY_CREDENTIALS" value="pass"/>
+  <Parameter name="LDAP.PROVIDER_URL" value="ldap://domaincontroller:389"/>
+  <Parameter name="LDAP.DC" value="domain"/>
+  <Parameter name="LDAP.DC1" value="local"/>
+
+  
+  <Parameter name="lists.newUser.autoRecordToBase" value="true"/>
+  <Parameter name="lists.default.noticeDocStatusChange" value="true"/>
+  <Parameter name="lists.default.noticeDocIncome" value="true"/>
+  <Parameter name="lists.default.createPersonalGroup" value="true"/>
+  
+  <Parameter name="lists.updateFromAD.strategy" value="database"/>
+
+  <Parameter name="docs.style.template" value="list"/>
+  <Parameter name="docs.style.public" value="tree"/>
+
+  <Parameter name="session.max.inactive" value="30"/>
+
+  <Parameter name="page.data.autorefresh" value="100000"/>
+</Context>

@@ -1,0 +1,27 @@
+<ui:composition 
+	xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:h="http://java.sun.com/jsf/html" 
+	xmlns:f="http://java.sun.com/jsf/core" 
+	xmlns:ui="http://java.sun.com/jsf/facelets" 
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:panelGrid columns="2">
+		<p:selectOneMenu value="#{localeBean.language}" onchange="submit()">
+			<f:selectItem itemValue="ru" itemLabel="Русский"/>
+			<f:selectItem itemValue="en" itemLabel="English"/>
+		</p:selectOneMenu>
+		<h:panelGroup>
+			<h:outputText value="#{currentUser.user.name}"/>
+			<p:menuButton value="#{currentUser.user.name}">
+				<p:menuitem value="#{text['login.signIn.name']}" icon="fa fa-fw fa-sign-in"
+							oncomplete="PF('loginDialog').show()" rendered="#{!currentUser.logged}"/>
+				<p:menuitem value="#{text['login.signOut.name']}" icon="fa fa-fw fa-sign-out"
+							actionListener="#{session.invalidate()}" action="main.jsf?faces-redirect=true"
+							rendered="#{currentUser.logged}"/>
+				<p:menuitem value="#{text['login.changePass.name']}" icon="fa fa-fw fa-key"
+							oncomplete="PF('changePassDialog').show()" rendered="#{currentUser.logged}"/>
+			</p:menuButton>
+		</h:panelGroup>
+	</h:panelGrid>
+
+</ui:composition>

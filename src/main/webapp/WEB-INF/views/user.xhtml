@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h2 align="center"><h:outputLabel value="#{text['user.title']}"/></h2>
+
+	<p:panel>
+		<p:dataTable id="usersTable" value="#{userView.userList}" var="user" rows="20"
+					 selectionMode="single" selection="#{userView.selectedUser}" rowKey="#{user.id}"
+					 filteredValue="#{userView.filteredUserList}" emptyMessage="#{text['table.empty']}"
+					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{user.name}">
+
+			<p:ajax event="rowDblselect" listener="#{userView.editDialog}" update=":editDialog"
+					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+
+			<p:column headerText="#{text['user.col.name']}" filterBy="#{user.name}" filterMatchMode="contains">
+                <h:outputText value="#{user.name}"/>
+	        </p:column>
+
+			<p:column headerText="#{text['user.col.login']}" filterBy="#{user.login}" filterMatchMode="contains">
+				<h:outputText value="#{user.login}"/>
+			</p:column>
+
+			<p:column headerText="#{text['user.col.email']}" filterBy="#{user.email}" filterMatchMode="contains">
+				<h:outputText value="#{user.email}"/>
+			</p:column>
+
+			<p:column headerText="#{text['user.col.activity']}" filterBy="#{user.stateName}" filterMatchMode="contains">
+				<h:outputText value="#{user.stateName}"/>
+			</p:column>
+		</p:dataTable>
+
+		<f:facet name="footer">
+			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
+                             actionListener="#{userView.newDialog}"
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
+                             actionListener="#{userView.editDialog}"
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="usersTable"
+							 actionListener="#{userView.lockAction}"/>
+			<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="usersTable"
+							 actionListener="#{userView.unlockAction}"/>
+			<p:commandButton value="#{text['button.set.pass']}" icon="fa fa-fw fa-key" update=":setPassDialog"
+							 actionListener="#{userView.setPassDialog}"
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+		</f:facet>
+	</p:panel>
+</ui:composition>

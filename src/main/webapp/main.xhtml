@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="#{localeBean.language}"
+	  xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:p="http://primefaces.org/ui">
+
+	<f:view contentType="text/html" locale="#{localeBean.locale}">
+		<f:metadata>
+			<!--<f:viewParam name="curDocID" value="#{login.curDocID}"/>-->
+			<!--<f:viewParam name="curMenuID" value="#{login.curMenuID}"/>-->
+		</f:metadata>
+
+		<h:head>
+			<f:facet name="first">
+				<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+				<title>#{text['system.name']}</title>
+				<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
+			</f:facet>
+
+			<h:outputStylesheet name="css/default.css"/>
+			<h:outputScript name="js/script.js"/>
+		</h:head>
+
+		<h:body>
+			<p:layout id="layout" fullPage="true">
+				<p:layoutUnit position="north">
+					<h:form id="northPanel">
+						<ui:include src="WEB-INF/views/north.xhtml" />
+					</h:form>
+				</p:layoutUnit>
+
+				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
+					<h:form id="leftPanel">
+						<p:accordionPanel>
+							<p:tab title="Настройка">
+
+							</p:tab>
+						</p:accordionPanel>
+					</h:form>
+				</p:layoutUnit>
+
+				<p:layoutUnit position="center">
+					<h:form id="centerPanel">
+						<ui:include src="WEB-INF/views/user.xhtml"/>
+					</h:form>
+				</p:layoutUnit>
+			</p:layout>
+
+			<h:panelGroup id="dialogsPanel">
+				<ui:include src="WEB-INF/dialogs/user.xhtml"/>
+			</h:panelGroup>
+
+			<ui:include src="WEB-INF/dialogs/login.xhtml"/>
+			<h:form>
+				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
+			</h:form>
+
+			<p:growl id="growl" showDetail="true" sticky="true" autoUpdate="true"/>
+		</h:body>
+	</f:view>
+</html>
