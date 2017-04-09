@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Repository(value = "UserDao")
+@Repository(value = "userDao")
 public class UserDaoImpl implements UserDao {
     private static final int LOCKED = 0;
     private static final int ACTIVE = 1;

@@ -27,7 +27,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     private static final String UPDATE_LIST = "UPDATE DOC.LISTS SET NAME = ? WHERE ID = ?";
     private static final String DELETE_LIST = "UPDATE DOC.LISTS SET STATE = ? WHERE ID = ?";
     private static final String DELETE_LIST_FIELD = "DELETE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE = ? AND ID = ?";
+    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE ID = ?";
     private static final String SELECT_LIST_FIELD = "SELECT VALUE FROM DOC.LISTS_FIELD WHERE ID = ?";
     private static final String SELECT_LIST_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE = ? AND COMPANY = ?";
 
@@ -41,7 +41,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     public ChoiceList get(int id) throws DataAccessException {
         ChoiceList choiceList = jdbcTemplate.queryForObject(SELECT_LIST,
-                new Object[]{EXISTS, id},
+                new Object[]{id},
                 new ChoiceListMapper()
         );
 

@@ -13,7 +13,7 @@ import ru.pioneersystem.pioneer2.model.Company;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-@Repository(value = "CompanyDao")
+@Repository(value = "companyDao")
 public class CompanyDaoImpl implements CompanyDao {
     private static final int LOCKED = 0;
     private static final int ACTIVE = 1;
