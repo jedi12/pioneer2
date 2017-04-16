@@ -18,8 +18,6 @@ import java.util.Locale;
 @Service("companyService")
 public class CompanyServiceImpl implements CompanyService {
     private Logger log = LoggerFactory.getLogger(CompanyServiceImpl.class);
-    private static final int COMPANY_STATUS_LOCKED = 0;
-    private static final int COMPANY_STATUS_ACTIVE = 1;
 
     private CompanyDao companyDao;
     private MessageSource messageSource;
@@ -99,10 +97,10 @@ public class CompanyServiceImpl implements CompanyService {
 
     private Company setCompanyStateName(Company company, Locale locale) {
         switch (company.getState()) {
-            case COMPANY_STATUS_LOCKED:
+            case Company.State.LOCKED:
                 company.setStateName(messageSource.getMessage("status.locked", null, locale));
                 break;
-            case COMPANY_STATUS_ACTIVE:
+            case Company.State.ACTIVE:
                 company.setStateName(messageSource.getMessage("status.active", null, locale));
                 break;
             default:

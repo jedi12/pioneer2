@@ -5,11 +5,41 @@ public class Role {
     private String name;
     private int state;
     private int type;
-    private boolean create;
-    private boolean publish;
-    private boolean comment;
-    private boolean edit;
-    private boolean changeRoute;
+    private String acceptButton;
+    private String rejectButton;
+
+    public static class State {
+        public static final int DELETED = 0;
+        public static final int EXISTS = 1;
+        public static final int SYSTEM = 2;
+    }
+
+    public static class Type {
+        public static final int SUPER = 1;
+        public static final int ADMIN = 2;
+        public static final int USER = 3;
+        public static final int REZ1 = 4;
+        public static final int PUBLIC = 5;
+        public static final int COMMENT = 6;
+        public static final int EDIT = 7;
+        public static final int REZ2 = 8;
+        public static final int CREATE = 9;
+        public static final int ROUTE = 10;
+    }
+
+    public static class Id {
+        public static final int SUPER = 1;
+        public static final int ADMIN = 2;
+        public static final int USER = 3;
+        public static final int REZ1 = 4;
+        public static final int PUBLIC = 5;
+        public static final int COMMENT = 6;
+        public static final int EDIT = 7;
+        public static final int REZ2 = 8;
+        public static final int CREATE = 9;
+        public static final int ON_COORDINATION = 10;
+        public static final int ON_EXECUTION = 11;
+    }
 
     public int getId() {
         return id;
@@ -43,43 +73,19 @@ public class Role {
         this.type = type;
     }
 
-    public boolean isCreate() {
-        return create;
+    public String getAcceptButton() {
+        return acceptButton;
     }
 
-    public void setCreate(boolean create) {
-        this.create = create;
+    public void setAcceptButton(String acceptButton) {
+        this.acceptButton = acceptButton;
     }
 
-    public boolean isPublish() {
-        return publish;
+    public String getRejectButton() {
+        return rejectButton;
     }
 
-    public void setPublish(boolean publish) {
-        this.publish = publish;
-    }
-
-    public boolean isComment() {
-        return comment;
-    }
-
-    public void setComment(boolean comment) {
-        this.comment = comment;
-    }
-
-    public boolean isEdit() {
-        return edit;
-    }
-
-    public void setEdit(boolean edit) {
-        this.edit = edit;
-    }
-
-    public boolean isChangeRoute() {
-        return changeRoute;
-    }
-
-    public void setChangeRoute(boolean changeRoute) {
-        this.changeRoute = changeRoute;
+    public void setRejectButton(String rejectButton) {
+        this.rejectButton = rejectButton;
     }
 }

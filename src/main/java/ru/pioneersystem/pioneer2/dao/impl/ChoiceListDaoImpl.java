@@ -119,12 +119,6 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     @Transactional
     public void delete(int id) throws DataAccessException {
-        // TODO: 28.02.2017 Сделать проверку, используется ли данный список в шаблоне или нет
-        // пример:
-        // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
-        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
-
         jdbcTemplate.update(DELETE_LIST, DELETED, id);
         jdbcTemplate.update(DELETE_LIST_FIELD, id);
     }

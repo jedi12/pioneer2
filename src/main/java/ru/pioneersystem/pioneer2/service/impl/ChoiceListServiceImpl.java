@@ -65,6 +65,11 @@ public class ChoiceListServiceImpl implements ChoiceListService {
 
     @Override
     public void deleteChoiceList(int id) throws ServiceException {
+        // TODO: 28.02.2017 Сделать проверку, используется ли данный список в шаблоне или нет
+        // пример:
+        // установить @Transactional(rollbackForClassName = DaoException.class)
+        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             choiceListDao.delete(id);
         } catch (DataAccessException e) {

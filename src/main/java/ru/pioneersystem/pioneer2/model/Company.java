@@ -13,6 +13,11 @@ public class Company {
     private int state;
     private String stateName;
 
+    public static class State {
+        public static final int LOCKED = 0;
+        public static final int ACTIVE = 1;
+    }
+
     public int getId() {
         return id;
     }
