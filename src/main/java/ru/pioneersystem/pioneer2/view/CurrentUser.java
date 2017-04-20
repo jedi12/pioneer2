@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.model.User;
+import ru.pioneersystem.pioneer2.service.MenuService;
 import ru.pioneersystem.pioneer2.service.SessionListener;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
@@ -18,9 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
-@Service
+@Service("currentUser")
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CurrentUser implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -30,14 +33,18 @@ public class CurrentUser implements Serializable {
     private String newPass;
     private boolean logged;
     private User user;
+    private List<Menu> userMenu;
+    private String currPage = "welcome.xhtml";
 
     private UserService userService;
+    private MenuService menuService;
     private LocaleBean localeBean;
     private HttpServletRequest request;
 
     @Autowired
-    public CurrentUser(UserService userService, LocaleBean localeBean, HttpServletRequest request) {
+    public CurrentUser(UserService userService, MenuService menuService, LocaleBean localeBean, HttpServletRequest request) {
         this.userService = userService;
+        this.menuService = menuService;
         this.localeBean = localeBean;
         this.request = request;
     }
@@ -56,6 +63,8 @@ public class CurrentUser implements Serializable {
                 showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.company.locked");
                 return;
             }
+
+            userMenu = menuService.getUserMenu(userId, localeBean.getLocale());
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -100,6 +109,15 @@ public class CurrentUser implements Serializable {
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
+    public void setCurrPage(String currPage) {
+        if (currPage == null || currPage.equals("")) {
+            return;
+        }
+        this.currPage = currPage;
+        RequestContext.getCurrentInstance().update("centerPanel");
+        RequestContext.getCurrentInstance().update("dialogsPanel");
+    }
+
     public String getLogin() {
         return login;
     }
@@ -130,5 +148,13 @@ public class CurrentUser implements Serializable {
 
     public User getUser() {
         return user;
+    }
+
+    public List<Menu> getUserMenu() {
+        return userMenu;
+    }
+
+    public String getCurrPage() {
+        return currPage;
     }
 }
