@@ -9,9 +9,9 @@ import java.util.List;
 public interface ChoiceListService {
     ChoiceList getChoiceList(int id) throws ServiceException;
 
-    List<ChoiceList> getChoiceListList(int companyId) throws ServiceException;
+    List<ChoiceList> getChoiceListList() throws ServiceException;
 
-    void createChoiceList(ChoiceList choiceList, int companyId) throws ServiceException;
+    void createChoiceList(ChoiceList choiceList) throws ServiceException;
 
     void updateChoiceList(ChoiceList choiceList) throws ServiceException;
 

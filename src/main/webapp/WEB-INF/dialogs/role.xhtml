@@ -35,9 +35,14 @@
 					<p:message for="reject" display="icon" styleClass="width38px"/>
 
 					<p:outputLabel value="#{text['role.edit.status']}" for="status"/>
-					<p:inputText id="status" value="#{roleView.currStatus.name}" styleClass="width100" maxlength="30"
+					<p:inputText id="status" value="#{roleView.currRole.statusName}" styleClass="width100" maxlength="30"
 								 validator="notEmptyString"/>
 					<p:message for="status" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.menu']}" for="menu"/>
+					<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="30"
+								 validator="notEmptyString"/>
+					<p:message for="menu" display="icon" styleClass="width38px"/>
 				</h:panelGrid>
 
 				<f:facet name="footer">
@@ -54,13 +59,17 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog header="#{text['role.del.header']} (ID: #{roleView.currRole.id})" widgetVar="deleteDialog"
-				  resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-share-alt"/>
+				<p:outputLabel value=" #{text['role.edit.header']} (ID: #{roleView.selectedRole.id})"/>
+			</f:facet>
+
 			<h2 align="center"><h:outputLabel value="#{text['role.del.delete']}"/></h2>
 			<p:panel>
 				<h:panelGrid columns="2" cellpadding="5">
 					<p:outputLabel value="#{text['role.del.title']}"/>
-					<p:outputLabel value="#{roleView.currRole.name}" style="font-weight: bold"/>
+					<p:outputLabel value="#{roleView.selectedRole.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
 				<hr/>

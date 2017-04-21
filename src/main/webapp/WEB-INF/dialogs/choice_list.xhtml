@@ -73,13 +73,17 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog header="#{text['choiceList.del.header']} (ID: #{choiceListView.currChoiceList.id})" widgetVar="deleteDialog"
-				  resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-list"/>
+				<p:outputLabel value=" #{text['choiceList.edit.header']} (ID: #{choiceListView.selectedChoiceList.id})"/>
+			</f:facet>
+
 			<h2 align="center"><h:outputLabel value="#{text['choiceList.del.delete']}"/></h2>
 			<p:panel>
 				<h:panelGrid columns="2" cellpadding="5">
 					<p:outputLabel value="#{text['choiceList.del.title']}"/>
-					<p:outputLabel value="#{choiceListView.currChoiceList.name}" style="font-weight: bold"/>
+					<p:outputLabel value="#{choiceListView.selectedChoiceList.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
 				<hr/>

@@ -4,16 +4,15 @@ import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
-import java.util.Locale;
 
 public interface MenuService {
-    Menu getMenu(int id, Locale locale) throws ServiceException;
+    Menu getMenu(int id) throws ServiceException;
 
-    List<Menu> getMenuList(int companyId, Locale locale) throws ServiceException;
+    List<Menu> getMenuList() throws ServiceException;
 
-    List<Menu> getUserMenu(int userId, Locale locale) throws ServiceException;
+    List<Menu> getUserMenu(int userId) throws ServiceException;
 
-    void createMenu(Menu menu, int companyId) throws ServiceException;
+    void createMenu(Menu menu) throws ServiceException;
 
     void updateMenu(Menu menu) throws ServiceException;
 

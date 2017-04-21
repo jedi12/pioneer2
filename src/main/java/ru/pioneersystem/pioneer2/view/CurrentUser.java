@@ -52,7 +52,7 @@ public class CurrentUser implements Serializable {
     public void signIn() {
         try {
             int userId = userService.getUserId(login, pass);
-            user = userService.getUserWithCompany(userId, localeBean.getLocale());
+            user = userService.getUserWithCompany(userId);
 
             if (user.getState() == 0) {
                 showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.user.locked");
@@ -64,7 +64,7 @@ public class CurrentUser implements Serializable {
                 return;
             }
 
-            userMenu = menuService.getUserMenu(userId, localeBean.getLocale());
+            userMenu = menuService.getUserMenu(userId);
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 

@@ -8,30 +8,34 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.RoleDao;
 import ru.pioneersystem.pioneer2.model.Role;
-import ru.pioneersystem.pioneer2.model.Status;
 import ru.pioneersystem.pioneer2.service.RoleService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
+import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.List;
-import java.util.Locale;
 
 @Service("roleService")
 public class RoleServiceImpl implements RoleService {
     private Logger log = LoggerFactory.getLogger(RoleServiceImpl.class);
 
     private RoleDao roleDao;
+    private LocaleBean localeBean;
+    private CurrentUser currentUser;
     private MessageSource messageSource;
 
     @Autowired
-    public RoleServiceImpl(RoleDao roleDao, MessageSource messageSource) {
+    public RoleServiceImpl(RoleDao roleDao, LocaleBean localeBean, CurrentUser currentUser, MessageSource messageSource) {
         this.roleDao = roleDao;
+        this.localeBean = localeBean;
+        this.currentUser = currentUser;
         this.messageSource = messageSource;
     }
 
     @Override
-    public Role getRole(int id, Locale locale) throws ServiceException {
+    public Role getRole(int id) throws ServiceException {
         try {
-            return setRoleName(roleDao.get(id), locale);
+            return setLocalizedRoleName(roleDao.get(id));
         } catch (DataAccessException e) {
             log.error("Can't get Role by id", e);
             throw new ServiceException("Can't get Role by id", e);
@@ -39,11 +43,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<Role> getRoleList(int companyId, Locale locale) throws ServiceException {
+    public List<Role> getRoleList() throws ServiceException {
         try {
-            List<Role> roles = roleDao.getList(companyId);
+            List<Role> roles = roleDao.getList(currentUser.getUser().getCompanyId());
             for (Role role : roles) {
-                setRoleName(role, locale);
+                setLocalizedRoleName(role);
             }
             return roles;
         } catch (DataAccessException e) {
@@ -53,9 +57,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void createRole(Role role, Status status, int companyId) throws ServiceException {
+    public void createRole(Role role) throws ServiceException {
         try {
-            roleDao.create(role, status, companyId);
+            roleDao.create(role, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             log.error("Can't create Role", e);
             throw new ServiceException("Can't create Role", e);
@@ -63,9 +67,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void updateRole(Role role, Status status) throws ServiceException {
+    public void updateRole(Role role) throws ServiceException {
         try {
-            roleDao.update(role, status);
+            roleDao.update(role);
         } catch (DataAccessException e) {
             log.error("Can't update Role", e);
             throw new ServiceException("Can't update Role", e);
@@ -87,41 +91,41 @@ public class RoleServiceImpl implements RoleService {
         }
     }
 
-    private Role setRoleName(Role role, Locale locale) {
+    private Role setLocalizedRoleName(Role role) {
         if (role.getState() == Role.State.SYSTEM) {
             switch (role.getId()) {
                 case Role.Id.SUPER:
-                    role.setName(messageSource.getMessage("role.name.super", null, locale));
+                    role.setName(messageSource.getMessage("role.name.super", null, localeBean.getLocale()));
                     break;
                 case Role.Id.ADMIN:
-                    role.setName(messageSource.getMessage("role.name.admin", null, locale));
+                    role.setName(messageSource.getMessage("role.name.admin", null, localeBean.getLocale()));
                     break;
                 case Role.Id.USER:
-                    role.setName(messageSource.getMessage("role.name.user", null, locale));
+                    role.setName(messageSource.getMessage("role.name.user", null, localeBean.getLocale()));
                     break;
                 case Role.Id.REZ1:
-                    role.setName(messageSource.getMessage("role.name.rez1", null, locale));
+                    role.setName(messageSource.getMessage("role.name.rez1", null, localeBean.getLocale()));
                     break;
                 case Role.Id.PUBLIC:
-                    role.setName(messageSource.getMessage("role.name.public", null, locale));
+                    role.setName(messageSource.getMessage("role.name.public", null, localeBean.getLocale()));
                     break;
                 case Role.Id.COMMENT:
-                    role.setName(messageSource.getMessage("role.name.comment", null, locale));
+                    role.setName(messageSource.getMessage("role.name.comment", null, localeBean.getLocale()));
                     break;
                 case Role.Id.EDIT:
-                    role.setName(messageSource.getMessage("role.name.edit", null, locale));
+                    role.setName(messageSource.getMessage("role.name.edit", null, localeBean.getLocale()));
                     break;
                 case Role.Id.REZ2:
-                    role.setName(messageSource.getMessage("role.name.rez2", null, locale));
+                    role.setName(messageSource.getMessage("role.name.rez2", null, localeBean.getLocale()));
                     break;
                 case Role.Id.CREATE:
-                    role.setName(messageSource.getMessage("role.name.create", null, locale));
+                    role.setName(messageSource.getMessage("role.name.create", null, localeBean.getLocale()));
                     break;
                 case Role.Id.ON_COORDINATION:
-                    role.setName(messageSource.getMessage("role.name.coordinate", null, locale));
+                    role.setName(messageSource.getMessage("role.name.coordinate", null, localeBean.getLocale()));
                     break;
                 case Role.Id.ON_EXECUTION:
-                    role.setName(messageSource.getMessage("role.name.execute", null, locale));
+                    role.setName(messageSource.getMessage("role.name.execute", null, localeBean.getLocale()));
                     break;
                 default:
                     role.setName("Unknown");

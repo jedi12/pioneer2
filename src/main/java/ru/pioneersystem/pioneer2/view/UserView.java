@@ -37,9 +37,6 @@ public class UserView implements Serializable {
     @ManagedProperty("#{localeBean}")
     private LocaleBean localeBean;
 
-    @ManagedProperty("#{currentUser}")
-    private CurrentUser currentUser;
-
     @PostConstruct
     public void init()  {
         refreshList();
@@ -47,7 +44,7 @@ public class UserView implements Serializable {
 
     private void refreshList() {
         try {
-            userList = userService.getUserList(currentUser.getUser().getCompanyId(), localeBean.getLocale());
+            userList = userService.getUserList();
         }
         catch (Exception e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
@@ -70,7 +67,7 @@ public class UserView implements Serializable {
         }
 
         try {
-            currUser = userService.getUserWithCompany(selectedUser.getId(), localeBean.getLocale());
+            currUser = userService.getUserWithCompany(selectedUser.getId());
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
@@ -81,7 +78,7 @@ public class UserView implements Serializable {
     public void saveAction() {
         try {
             if (createFlag) {
-                userService.createUser(currUser, currentUser.getUser().getCompanyId());
+                userService.createUser(currUser);
             } else {
                 userService.updateUser(currUser);
             }
@@ -119,7 +116,7 @@ public class UserView implements Serializable {
         }
 
         try {
-            userService.unlockUser(selectedUser.getId(), currentUser.getUser().getCompanyId());
+            userService.unlockUser(selectedUser.getId());
             refreshList();
         }
         catch (RestrictionException e) {
@@ -164,10 +161,6 @@ public class UserView implements Serializable {
 
     public void setLocaleBean(LocaleBean localeBean) {
         this.localeBean = localeBean;
-    }
-
-    public void setCurrentUser(CurrentUser currentUser) {
-        this.currentUser = currentUser;
     }
 
     public List<User> getUserList() {

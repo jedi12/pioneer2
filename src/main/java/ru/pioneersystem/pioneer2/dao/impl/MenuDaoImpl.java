@@ -29,7 +29,7 @@ public class MenuDaoImpl implements MenuDao {
     private static final String SELECT_SUB_MENU =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE PARENT = ?";
     private static final String SELECT_MENU_LIST =
-            "SELECT ID, NAME FROM DOC.MENU WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY NUM ASC";
+            "SELECT ID, NAME, STATE FROM DOC.MENU WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY NUM ASC";
     private static final String SELECT_USER_MENU_LIST =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ROLE_ID IN(" +
                     "SELECT ROLE_ID FROM DOC.GROUPS WHERE ID IN (" +
@@ -90,6 +90,7 @@ public class MenuDaoImpl implements MenuDao {
                     Menu menu = new Menu();
                     menu.setId(rs.getInt("ID"));
                     menu.setName(rs.getString("NAME"));
+                    menu.setState(rs.getInt("STATE"));
                     return menu;
                 }
         );

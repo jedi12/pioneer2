@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RoleDao;
+import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.Status;
 
@@ -20,16 +21,26 @@ public class RoleDaoImpl implements RoleDao {
             "INSERT INTO DOC.ROLES (NAME, STATE, COMPANY, TYPE, ACCEPT, REJECT) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String INSERT_STATUS =
             "INSERT INTO DOC.DOCUMENTS_STATUS (ID, NAME, STATE, TYPE, COMPANY) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_MENU =
+            "INSERT INTO DOC.MENU (NAME, PAGE, NUM, PARENT, ROLE_ID, STATE, COMPANY) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_ROLE =
             "UPDATE DOC.ROLES SET NAME = ?, TYPE = ?, ACCEPT = ?, REJECT = ? WHERE ID = ?";
     private static final String UPDATE_STATUS =
             "UPDATE DOC.DOCUMENTS_STATUS SET NAME = ? WHERE ID = ?";
+    private static final String UPDATE_MENU =
+            "UPDATE DOC.MENU SET NAME = ? WHERE ROLE_ID = ?";
     private static final String DELETE_ROLE =
             "UPDATE DOC.ROLES SET STATE = ? WHERE ID = ?";
     private static final String DELETE_STATUS =
             "UPDATE DOC.DOCUMENTS_STATUS SET STATE = ? WHERE ID = ?";
+    private static final String DELETE_MENU =
+            "UPDATE DOC.MENU SET STATE = ? WHERE ROLE_ID = ?";
     private static final String SELECT_ROLE =
-            "SELECT ID, NAME, STATE, TYPE, ACCEPT, REJECT FROM DOC.ROLES WHERE ID = ?";
+            "SELECT R.ID AS R_ID, R.NAME AS R_NAME, R.STATE AS R_STATE, R.TYPE AS R_TYPE, R.ACCEPT AS R_ACCEPT, " +
+                    "R.REJECT AS R_REJECT, DS.NAME AS STATUS_NAME, M.NAME AS MENU_NAME FROM DOC.ROLES R " +
+                    "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON R.ID = DS.ID " +
+                    "LEFT JOIN DOC.MENU M ON R.ID = M.ROLE_ID " +
+                    "WHERE R.ID = ?";
     private static final String SELECT_ROLE_LIST =
             "SELECT ID, NAME, STATE, TYPE FROM DOC.ROLES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
 
@@ -46,12 +57,14 @@ public class RoleDaoImpl implements RoleDao {
                 new Object[]{id},
                 (rs, rowNum) -> {
                     Role role = new Role();
-                    role.setId(rs.getInt("ID"));
-                    role.setName(rs.getString("NAME"));
-                    role.setState(rs.getInt("STATE"));
-                    role.setType(rs.getInt("TYPE"));
-                    role.setAcceptButton(rs.getString("ACCEPT"));
-                    role.setRejectButton(rs.getString("REJECT"));
+                    role.setId(rs.getInt("R_ID"));
+                    role.setName(rs.getString("R_NAME"));
+                    role.setState(rs.getInt("R_STATE"));
+                    role.setType(rs.getInt("R_TYPE"));
+                    role.setAcceptButton(rs.getString("R_ACCEPT"));
+                    role.setRejectButton(rs.getString("R_REJECT"));
+                    role.setStatusName(rs.getString("STATUS_NAME"));
+                    role.setMenuName(rs.getString("MENU_NAME"));
                     return role;
                 }
         );
@@ -74,7 +87,7 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     @Transactional
-    public void create(Role role, Status status, int company) throws DataAccessException {
+    public void create(Role role, int company) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -91,20 +104,34 @@ public class RoleDaoImpl implements RoleDao {
 
         jdbcTemplate.update(
                 connection -> {
-                    PreparedStatement pstmt = connection.prepareStatement(INSERT_STATUS, new String[] {"id"});
+                    PreparedStatement pstmt = connection.prepareStatement(INSERT_STATUS);
                     pstmt.setInt(1, keyHolder.getKey().intValue());
-                    pstmt.setString(2, status.getName());
+                    pstmt.setString(2, role.getStatusName());
                     pstmt.setInt(3, Status.State.EXISTS);
                     pstmt.setInt(4, Status.Type.MEDIUM);
                     pstmt.setInt(5, company);
                     return pstmt;
-                }, keyHolder
+                }
+        );
+
+        jdbcTemplate.update(
+                connection -> {
+                    PreparedStatement pstmt = connection.prepareStatement(INSERT_MENU);
+                    pstmt.setString(1, role.getMenuName());
+                    pstmt.setString(2, "onRouteDocs.xhtml");
+                    pstmt.setInt(3, keyHolder.getKey().intValue());
+                    pstmt.setInt(4, 0);
+                    pstmt.setInt(5, keyHolder.getKey().intValue());
+                    pstmt.setInt(6, Menu.State.CREATED_BY_ROLE);
+                    pstmt.setInt(7, company);
+                    return pstmt;
+                }
         );
     }
 
     @Override
     @Transactional
-    public void update(Role role, Status status) throws DataAccessException {
+    public void update(Role role) throws DataAccessException {
         jdbcTemplate.update(UPDATE_ROLE,
                 role.getName(),
                 role.getType(),
@@ -114,7 +141,12 @@ public class RoleDaoImpl implements RoleDao {
         );
 
         jdbcTemplate.update(UPDATE_STATUS,
-                status.getName(),
+                role.getStatusName(),
+                role.getId()
+        );
+
+        jdbcTemplate.update(UPDATE_MENU,
+                role.getMenuName(),
                 role.getId()
         );
     }
@@ -124,5 +156,6 @@ public class RoleDaoImpl implements RoleDao {
     public void delete(int id) throws DataAccessException {
         jdbcTemplate.update(DELETE_ROLE, Role.State.DELETED, id);
         jdbcTemplate.update(DELETE_STATUS, Status.State.DELETED, id);
+        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, id);
     }
 }

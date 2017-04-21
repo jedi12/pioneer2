@@ -30,9 +30,6 @@ public class ChoiceListView implements Serializable {
     @ManagedProperty("#{choiceListService}")
     private ChoiceListService choiceListService;
 
-    @ManagedProperty("#{currentUser}")
-    private CurrentUser currentUser;
-
     @PostConstruct
     public void init()  {
         refreshList();
@@ -40,7 +37,7 @@ public class ChoiceListView implements Serializable {
 
     private void refreshList() {
         try {
-            choiceListList = choiceListService.getChoiceListList(currentUser.getUser().getCompanyId());
+            choiceListList = choiceListService.getChoiceListList();
         }
         catch (Exception e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
@@ -86,7 +83,7 @@ public class ChoiceListView implements Serializable {
     public void saveAction() {
         try {
             if (createFlag) {
-                choiceListService.createChoiceList(currChoiceList, currentUser.getUser().getCompanyId());
+                choiceListService.createChoiceList(currChoiceList);
             } else {
                 choiceListService.updateChoiceList(currChoiceList);
             }
@@ -128,10 +125,6 @@ public class ChoiceListView implements Serializable {
 
     public void setChoiceListService(ChoiceListService choiceListService) {
         this.choiceListService = choiceListService;
-    }
-
-    public void setCurrentUser(CurrentUser currentUser) {
-        this.currentUser = currentUser;
     }
 
     public List<ChoiceList> getChoiceListList() {

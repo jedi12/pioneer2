@@ -9,6 +9,7 @@ import ru.pioneersystem.pioneer2.dao.ChoiceListDao;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
+import ru.pioneersystem.pioneer2.view.CurrentUser;
 
 import java.util.List;
 
@@ -17,10 +18,12 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     private Logger log = LoggerFactory.getLogger(ChoiceListServiceImpl.class);
 
     private ChoiceListDao choiceListDao;
+    private CurrentUser currentUser;
 
     @Autowired
-    public void setChoiceListDao(ChoiceListDao choiceListDao) {
+    public void setChoiceListDao(ChoiceListDao choiceListDao, CurrentUser currentUser) {
         this.choiceListDao = choiceListDao;
+        this.currentUser = currentUser;
     }
 
     @Override
@@ -34,9 +37,9 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
-    public List<ChoiceList> getChoiceListList(int companyId) throws ServiceException {
+    public List<ChoiceList> getChoiceListList() throws ServiceException {
         try {
-            return choiceListDao.getList(companyId);
+            return choiceListDao.getList(currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             log.error("Can't get list of ChoiceList", e);
             throw new ServiceException("Can't get list of ChoiceList", e);
@@ -44,9 +47,9 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
-    public void createChoiceList(ChoiceList choiceList, int companyId) throws ServiceException {
+    public void createChoiceList(ChoiceList choiceList) throws ServiceException {
         try {
-            choiceListDao.create(choiceList, companyId);
+            choiceListDao.create(choiceList, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             log.error("Can't create ChoiceList", e);
             throw new ServiceException("Can't create ChoiceList", e);

@@ -7,6 +7,8 @@ public class Role {
     private int type;
     private String acceptButton;
     private String rejectButton;
+    private String statusName;
+    private String menuName;
 
     public static class State {
         public static final int DELETED = 0;
@@ -87,5 +89,21 @@ public class Role {
 
     public void setRejectButton(String rejectButton) {
         this.rejectButton = rejectButton;
+    }
+
+    public String getStatusName() {
+        return statusName;
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
+    public String getMenuName() {
+        return menuName;
+    }
+
+    public void setMenuName(String menuName) {
+        this.menuName = menuName;
     }
 }

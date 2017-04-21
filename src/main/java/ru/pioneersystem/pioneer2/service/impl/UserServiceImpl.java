@@ -16,9 +16,10 @@ import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
+import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @Service("userService")
@@ -29,21 +30,26 @@ public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
     private CompanyDao companyDao;
+    private LocaleBean localeBean;
+    private CurrentUser currentUser;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, CompanyDao companyDao, MessageSource messageSource, SessionListener sessionListener) {
+    public UserServiceImpl(UserDao userDao, CompanyDao companyDao, CurrentUser currentUser, LocaleBean localeBean,
+                           MessageSource messageSource, SessionListener sessionListener) {
         this.userDao = userDao;
+        this.companyDao = companyDao;
+        this.localeBean = localeBean;
+        this.currentUser = currentUser;
         this.messageSource = messageSource;
         this.sessionListener = sessionListener;
-        this.companyDao = companyDao;
     }
 
     @Override
-    public User getUser(int id, Locale locale) throws ServiceException {
+    public User getUser(int id) throws ServiceException {
         try {
-            return setUserStateName(userDao.get(id), locale);
+            return setLocalizedStateName(userDao.get(id));
         } catch (DataAccessException e) {
             log.error("Can't get User by id", e);
             throw new ServiceException("Can't get User by id", e);
@@ -51,9 +57,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserWithCompany(int id, Locale locale) throws ServiceException {
+    public User getUserWithCompany(int id) throws ServiceException {
         try {
-            return setUserStateName(userDao.getWithCompany(id), locale);
+            return setLocalizedStateName(userDao.getWithCompany(id));
         } catch (DataAccessException e) {
             log.error("Can't get User by id", e);
             throw new ServiceException("Can't get User by id", e);
@@ -61,11 +67,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserList(int companyId, Locale locale) throws ServiceException {
+    public List<User> getUserList() throws ServiceException {
         try {
-            List<User> users = userDao.getList(companyId);
+            List<User> users = userDao.getList(currentUser.getUser().getCompanyId());
             for (User user : users) {
-                setUserStateName(user, locale);
+                setLocalizedStateName(user);
             }
             return users;
         } catch (DataAccessException e) {
@@ -75,15 +81,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUser(User user, int companyId) throws ServiceException, RestrictionException {
+    public void createUser(User user) throws ServiceException, RestrictionException {
         try {
-            int currentUserCount = userDao.getCount(companyId, USER_STATUS_ACTIVE);
-            int maxUserCount = companyDao.getMaxUserCount(companyId);
+            int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), USER_STATUS_ACTIVE);
+            int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
 
             if (currentUserCount >= maxUserCount) {
                 throw new RestrictionException("License max users restriction");
             }
-            userDao.create(user, companyId);
+            userDao.create(user, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             log.error("Can't create User", e);
             throw new ServiceException("Can't create User", e);
@@ -112,10 +118,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void unlockUser(int id, int companyId) throws ServiceException, RestrictionException {
+    public void unlockUser(int id) throws ServiceException, RestrictionException {
         try {
-            int currentUserCount = userDao.getCount(companyId, USER_STATUS_ACTIVE);
-            int maxUserCount = companyDao.getMaxUserCount(companyId);
+            int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), USER_STATUS_ACTIVE);
+            int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
 
             if (currentUserCount >= maxUserCount) {
                 throw new RestrictionException("License max users restriction");
@@ -172,13 +178,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private User setUserStateName(User user, Locale locale) {
+    private User setLocalizedStateName(User user) {
         switch (user.getState()) {
             case USER_STATUS_LOCKED:
-                user.setStateName(messageSource.getMessage("status.locked", null, locale));
+                user.setStateName(messageSource.getMessage("status.locked", null, localeBean.getLocale()));
                 break;
             case USER_STATUS_ACTIVE:
-                user.setStateName(messageSource.getMessage("status.active", null, locale));
+                user.setStateName(messageSource.getMessage("status.active", null, localeBean.getLocale()));
                 break;
             default:
                 user.setStateName("Unknown");
