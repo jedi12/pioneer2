@@ -13,7 +13,9 @@ import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("roleService")
 public class RoleServiceImpl implements RoleService {
@@ -54,6 +56,15 @@ public class RoleServiceImpl implements RoleService {
             log.error("Can't get list of Role", e);
             throw new ServiceException("Can't get list of Role", e);
         }
+    }
+
+    @Override
+    public Map<String, Integer> getRoleMap() throws ServiceException {
+        Map<String, Integer> roles = new LinkedHashMap<>();
+        for (Role roleList : getRoleList()) {
+            roles.put(roleList.getName(), roleList.getId());
+        }
+        return roles;
     }
 
     @Override

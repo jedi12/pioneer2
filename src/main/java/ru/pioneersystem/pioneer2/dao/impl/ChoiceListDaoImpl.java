@@ -19,9 +19,6 @@ import java.util.List;
 
 @Repository(value = "choiceListDao")
 public class ChoiceListDaoImpl implements ChoiceListDao {
-    private static final int DELETED = 0;
-    private static final int EXISTS = 1;
-
     private static final String INSERT_LIST = "INSERT INTO DOC.LISTS (NAME, STATE, COMPANY) VALUES (?, ?, ?)";
     private static final String INSERT_LIST_FIELD = "INSERT INTO DOC.LISTS_FIELD (ID, VALUE) VALUES (?, ?)";
     private static final String UPDATE_LIST = "UPDATE DOC.LISTS SET NAME = ? WHERE ID = ?";
@@ -57,7 +54,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     public List<ChoiceList> getList(int company) throws DataAccessException {
         List<ChoiceList> choiceList = jdbcTemplate.query(SELECT_LIST_LIST,
-                new Object[]{EXISTS, company},
+                new Object[]{ChoiceList.State.EXISTS, company},
                 new ChoiceListMapper()
         );
 
@@ -72,7 +69,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                 connection -> {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_LIST, new String[] {"id"});
                     pstmt.setString(1, choiceList.getName());
-                    pstmt.setInt(2, EXISTS);
+                    pstmt.setInt(2, ChoiceList.State.EXISTS);
                     pstmt.setInt(3, company);
                     return pstmt;
                 }, keyHolder
@@ -119,7 +116,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     @Transactional
     public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_LIST, DELETED, id);
+        jdbcTemplate.update(DELETE_LIST, ChoiceList.State.DELETED, id);
         jdbcTemplate.update(DELETE_LIST_FIELD, id);
     }
 

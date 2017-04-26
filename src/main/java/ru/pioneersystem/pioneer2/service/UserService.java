@@ -6,6 +6,7 @@ import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     User getUser(int id) throws ServiceException;
@@ -13,6 +14,8 @@ public interface UserService {
     User getUserWithCompany(int id) throws ServiceException;
 
     List<User> getUserList() throws ServiceException;
+
+    Map<String, Integer> getUserMap() throws ServiceException;
 
     void createUser(User user) throws ServiceException, RestrictionException;
 

@@ -19,6 +19,7 @@ import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +79,15 @@ public class UserServiceImpl implements UserService {
             log.error("Can't get list of User", e);
             throw new ServiceException("Can't get list of User", e);
         }
+    }
+
+    @Override
+    public Map<String, Integer> getUserMap() throws ServiceException {
+        Map<String, Integer> users = new LinkedHashMap<>();
+        for (User user : getUserList()) {
+            users.put(user.getName(), user.getId());
+        }
+        return users;
     }
 
     @Override

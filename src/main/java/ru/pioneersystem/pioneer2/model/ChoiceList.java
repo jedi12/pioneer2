@@ -7,6 +7,11 @@ public class ChoiceList {
     private String name;
     private List<String> values;
 
+    public static class State {
+        public static final int DELETED = 0;
+        public static final int EXISTS = 1;
+    }
+
     public int getId() {
         return id;
     }

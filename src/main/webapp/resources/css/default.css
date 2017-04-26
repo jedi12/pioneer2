@@ -3,7 +3,9 @@
 
 .ui-datatable table, .ui-datatable-resizable table {table-layout: auto !important;}
 .ui-datatable-scrollable table {table-layout: fixed !important;}
-
+.ui-datatable .ui-editable-column {padding: 2px 10px;}
+input[type=checkbox] {width: 19px; height: 19px}
+.ui-state-disabled {opacity:1 !important;}
 
 
 .columnRight {text-align: right}

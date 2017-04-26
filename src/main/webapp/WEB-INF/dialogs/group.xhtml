@@ -1,0 +1,133 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="editDialog" target="_blank">
+		<p:dialog widgetVar="editDialog" resizable="true" width="1024" modal="true">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-users"/>
+				<p:outputLabel value=" #{text['group.edit.header']} (ID: #{groupView.currGroup.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{groupView.createFlag ? text['group.edit.create'] : text['group.edit.change']}"/>
+			</h2>
+
+			<p:panel>
+				<h:panelGrid id="groupNameGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<p:outputLabel value="#{text['group.edit.name.label']}" for="groupName"/>
+					<p:inputText id="groupName" value="#{groupView.currGroup.name}" styleClass="width100" maxlength="50"
+								 validator="notEmptyString" disabled="#{groupView.currGroup.state > 1}"/>
+					<p:message for="groupName" display="icon" styleClass="width38px"/>
+
+					<h:outputLabel value="#{text['group.edit.role.label']}" for="roleName"/>
+					<p:selectOneMenu id="roleName" value="#{groupView.currGroup.roleId}" disabled="#{groupView.currGroup.state > 1}">
+						<f:selectItems value="#{groupView.selectRole}"/>
+					</p:selectOneMenu>
+					<h:outputLabel/>
+				</h:panelGrid>
+
+				<hr/>
+				<h4 align="center">#{text['group.edit.title']}</h4>
+
+				<p:dataTable id="listsTable" value="#{groupView.currGroup.linkUsers}" var="collectedList" rows="10"
+							 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.user.name}"
+							 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+                             {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false"
+							 editable="true" editMode="cell">
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{text['group.edit.col.name']}" />
+						</f:facet>
+						<h:outputText value="#{collectedList.user.name}" />
+					</p:column>
+
+					<p:column width="15%" styleClass="columnCenter">
+						<f:facet name="header">
+							<h:outputText value="#{text['group.edit.col.actorType']}" />
+						</f:facet>
+						<p:cellEditor>
+							<f:facet name="output">
+								<p:selectBooleanCheckbox value="#{collectedList.participant}" disabled="true"/>
+							</f:facet>
+							<f:facet name="input">
+								<h:inputHidden value="#{collectedList.participant}"/>
+								<h:selectBooleanCheckbox value="#{collectedList.participant}"
+														 onclick="$(this).prev().val(this.checked)"/>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+
+					<p:column width="15%" styleClass="columnCenter">
+						<f:facet name="header">
+							<h:outputText value="#{text['operation.name']}" />
+						</f:facet>
+						<p:commandLink value="#{text['operation.delete']}" update="listsTable :editDialog:addValueGrid"
+									   actionListener="#{groupView.removeValue(collectedList)}"	process="@this">
+							<p:collector value="#{collectedList}" removeFrom="#{groupView.currGroup.linkUsers}" unique="true"/>
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>
+
+				<br />
+
+				<p:panel styleClass="ui-widget-header">
+					<h:panelGrid id="addValueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+						<p:outputLabel value="#{text['group.edit.add.label']}" for="addValue"/>
+						<p:selectOneMenu id="addValue" value="#{groupView.selectedUser}" styleClass="width100" effect="fade" filter="true"
+										 filterMatchMode="contains">
+							<f:selectItems value="#{groupView.selectUser}" />
+						</p:selectOneMenu>
+						<p:message for="addValue" display="icon" styleClass="width38px"/>
+						<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="listsTable addValueGrid"
+										 process="listsTable addValueGrid" actionListener="#{groupView.addValue}"/>
+					</h:panelGrid>
+				</p:panel>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check" update=":centerPanel:groupTable groupNameGrid"
+										 actionListener="#{groupView.saveAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('editDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+
+	<h:form id="deleteDialog" target="_blank">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-users"/>
+				<p:outputLabel value=" #{text['group.edit.header']} (ID: #{groupView.selectedGroup.id})"/>
+			</f:facet>
+
+			<h2 align="center"><h:outputLabel value="#{text['group.del.delete']}"/></h2>
+			<p:panel>
+				<h:panelGrid columns="2" cellpadding="5">
+					<p:outputLabel value="#{text['group.del.title']}"/>
+					<p:outputLabel value="#{groupView.selectedGroup.name}" style="font-weight: bold"/>
+				</h:panelGrid>
+
+				<hr/>
+
+				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять группу.-->
+				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
+				<!--и отключить кнопку удаления.-->
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check" update=":centerPanel:groupTable"
+										 actionListener="#{groupView.deleteAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('deleteDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+</ui:composition>
