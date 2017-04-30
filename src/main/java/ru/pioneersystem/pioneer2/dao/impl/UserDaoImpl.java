@@ -82,6 +82,7 @@ public class UserDaoImpl implements UserDao {
                     user.setCompanyId(rs.getInt("U_COMPANY"));
                     user.setComment(rs.getString("U_COMMENT"));
                     user.setState(rs.getInt("U_STATE"));
+
                     Company comp = new Company();
                     comp.setId(rs.getInt("C_ID"));
                     comp.setName(rs.getString("C_NAME"));
@@ -93,6 +94,7 @@ public class UserDaoImpl implements UserDao {
                     comp.setSite(rs.getString("C_SITE"));
                     comp.setComment(rs.getString("C_COMMENT"));
                     comp.setState(rs.getInt("C_STATE"));
+
                     user.setCompany(comp);
                     return user;
                 }

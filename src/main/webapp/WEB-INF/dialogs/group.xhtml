@@ -5,7 +5,7 @@
 	xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="true" width="1024" modal="true">
+		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-users"/>
 				<p:outputLabel value=" #{text['group.edit.header']} (ID: #{groupView.currGroup.id})"/>
@@ -75,10 +75,10 @@
 				<br />
 
 				<p:panel styleClass="ui-widget-header">
-					<h:panelGrid id="addValueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<h:panelGrid id="addValueGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
 						<p:outputLabel value="#{text['group.edit.add.label']}" for="addValue"/>
-						<p:selectOneMenu id="addValue" value="#{groupView.selectedUser}" styleClass="width100" effect="fade" filter="true"
-										 filterMatchMode="contains">
+						<p:selectOneMenu id="addValue" value="#{groupView.selectedUser}" styleClass="width100" effect="fade"
+										 filter="true" filterMatchMode="contains">
 							<f:selectItems value="#{groupView.selectUser}" />
 						</p:selectOneMenu>
 						<p:message for="addValue" display="icon" styleClass="width38px"/>

@@ -11,7 +11,9 @@ import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("groupService")
 public class GroupServiceImpl implements GroupService {
@@ -43,6 +45,25 @@ public class GroupServiceImpl implements GroupService {
         } catch (DataAccessException e) {
             log.error("Can't get list of Group", e);
             throw new ServiceException("Can't get list of Group", e);
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getGroupMap() throws ServiceException {
+        Map<String, Integer> groups = new LinkedHashMap<>();
+        for (Group group : getGroupList()) {
+            groups.put(group.getName(), group.getId());
+        }
+        return groups;
+    }
+
+    @Override
+    public Map<String, Group> getPointMap() throws ServiceException {
+        try {
+            return groupDao.getRouteGroup(currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            log.error("Can't get list of Group", e);
+            throw new ServiceException("Can't get map of routes Group", e);
         }
     }
 

@@ -5,11 +5,16 @@ import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GroupService {
     Group getGroup(int id) throws ServiceException;
 
     List<Group> getGroupList() throws ServiceException;
+
+    Map<String, Integer> getGroupMap() throws ServiceException;
+
+    Map<String, Group> getPointMap() throws ServiceException;
 
     void createGroup(Group role) throws ServiceException;
 

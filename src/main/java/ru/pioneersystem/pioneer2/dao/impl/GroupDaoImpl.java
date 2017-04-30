@@ -10,12 +10,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.GroupDao;
 import ru.pioneersystem.pioneer2.model.Group;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Repository(value = "groupDao")
 public class GroupDaoImpl implements GroupDao {
@@ -36,6 +39,10 @@ public class GroupDaoImpl implements GroupDao {
                     "LEFT JOIN DOC.USERS U ON GU.USER_ID = U.ID WHERE GU.ID = ? ORDER BY NAME ASC";
     private static final String SELECT_GROUP_LIST =
             "SELECT ID, NAME, STATE FROM DOC.GROUPS WHERE STATE > 0 AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_POINT_MAP =
+            "SELECT G.ID AS GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
+                    "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID \nWHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
+                    "ORDER BY GROUP_NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -66,11 +73,13 @@ public class GroupDaoImpl implements GroupDao {
                         User user = new User();
                         user.setId(rs.getInt("USER_ID"));
                         user.setName(rs.getString("NAME"));
+
                         Group.LinkUser linkUser = new Group.LinkUser();
                         linkUser.setUser(user);
                         linkUser.setGroupId(id);
                         linkUser.setUserId(rs.getInt("USER_ID"));
                         linkUser.setParticipant(rs.getInt("ACTOR_TYPE") == Group.ActorType.PARTICIPANT);
+
                         linkUsers.add(linkUser);
                     }
                     return linkUsers;
@@ -91,6 +100,28 @@ public class GroupDaoImpl implements GroupDao {
                     group.setName(rs.getString("NAME"));
                     group.setState(rs.getInt("STATE"));
                     return group;
+                }
+        );
+    }
+
+    @Override
+    public Map<String, Group> getRouteGroup(int company) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_POINT_MAP,
+                new Object[]{company},
+                rs -> {
+                    Map<String, Group> groups = new LinkedHashMap<>();
+                    while(rs.next()){
+                        Role role = new Role();
+                        role.setId(rs.getInt("ROLE_ID"));
+                        role.setName(rs.getString("ROLE_NAME"));
+
+                        Group group = new Group();
+                        group.setId(rs.getInt("GROUP_ID"));
+                        group.setRole(role);
+
+                        groups.put(rs.getString("GROUP_NAME"), group);
+                    }
+                    return groups;
                 }
         );
     }
