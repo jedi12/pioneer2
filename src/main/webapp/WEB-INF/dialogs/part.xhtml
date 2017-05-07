@@ -1,0 +1,129 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="editDialog" target="_blank">
+		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-folder-open"/>
+				<p:outputLabel value=" #{text['part.edit.header']} (ID: #{partView.currPart.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{partView.createFlag ? text['part.edit.create'] : text['part.edit.change']}"/>
+			</h2>
+
+			<p:panel>
+				<h:panelGrid id="partNameGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<p:outputLabel value="#{text['part.edit.label.name']}" for="partName"/>
+					<p:inputText id="partName" value="#{partView.currPart.name}" styleClass="width100" maxlength="50"
+								 validator="notEmptyString" disabled="#{partView.currPart.state > 1}"/>
+					<p:message for="partName" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['part.edit.label.parent']}" for="parentPart"/>
+					<p:selectOneMenu id="parentPart" value="#{partView.currPart.parent}" styleClass="width100" effect="fade"
+									 filter="true" filterMatchMode="contains" disabled="#{!partView.createFlag}">
+						<f:selectItems value="#{partView.selectParentPart}" />
+					</p:selectOneMenu>
+					<p:outputLabel/>
+
+					<p:outputLabel value="#{text['part.edit.label.owner']}" for="partOwner"/>
+					<p:selectOneMenu id="partOwner" value="#{partView.currPart.ownerGroup}" styleClass="width100" effect="fade"
+									 filter="true" filterMatchMode="contains">
+						<f:selectItems value="#{partView.selectPublishGroup}" />
+					</p:selectOneMenu>
+					<p:outputLabel/>
+				</h:panelGrid>
+				<hr/>
+
+				<p:tabView id="tabView">
+					<p:tab title="#{text['part.edit.tab.restriction']}">
+						<p:dataTable id="resTable" value="#{partView.currPart.groups}" var="collectedGroup" rows="10"
+									 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.name}"
+									 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+									 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false">
+
+							<p:column>
+								<f:facet name="header">
+									<h:outputText value="#{text['part.edit.col.group.name']}"/>
+								</f:facet>
+								<h:outputText value="#{collectedGroup.name}"/>
+							</p:column>
+
+							<p:column width="15%" styleClass="columnCenter">
+								<f:facet name="header">
+									<h:outputText value="#{text['operation.name']}"/>
+								</f:facet>
+								<p:commandLink value="#{text['operation.delete']}" update="resTable :editDialog:tabView:addGroupGrid"
+											   actionListener="#{partView.removeGroup(collectedGroup)}" process="@this">
+									<p:collector value="#{collectedGroup}" removeFrom="#{partView.currPart.groups}" unique="true"/>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+
+						<br />
+
+						<p:panel>
+							<h:panelGrid id="addGroupGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<p:outputLabel value="#{text['part.edit.label.group']}" for="addGroupValue"/>
+								<p:selectOneMenu id="addGroupValue" value="#{partView.selectedGroup}" styleClass="width100" effect="fade"
+												 filter="true" filterMatchMode="contains">
+									<f:selectItems value="#{partView.selectGroup}" />
+								</p:selectOneMenu>
+								<p:message for="addGroupValue" display="icon" styleClass="width38px"/>
+
+								<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="resTable addGroupGrid"
+												 process="resTable addGroupGrid" actionListener="#{partView.addGroup}"/>
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+				</p:tabView>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
+										 update=":centerPanel:partTree partNameGrid"
+										 actionListener="#{partView.saveAction}" process="@this partNameGrid"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('editDialog').hide();"/>
+						</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+
+	<h:form id="deleteDialog" target="_blank">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-folder-open"/>
+				<p:outputLabel value=" #{text['part.del.header']} (ID: #{partView.selectedNode.data.id})"/>
+			</f:facet>
+
+			<h2 align="center"><h:outputLabel value="#{text['part.del.delete']}"/></h2>
+			<p:panel>
+				<h:panelGrid columns="2" cellpadding="5">
+					<p:outputLabel value="#{text['part.del.title']}"/>
+					<p:outputLabel value="#{partView.selectedNode.data.name}" style="font-weight: bold"/>
+				</h:panelGrid>
+
+				<hr/>
+
+				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять раздел. Проверять права на удаление дочерних разделов-->
+				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
+				<!--и отключить кнопку удаления.-->
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check" update=":centerPanel:partTree"
+										 actionListener="#{partView.deleteAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('deleteDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+</ui:composition>

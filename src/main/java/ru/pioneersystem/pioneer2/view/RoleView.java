@@ -3,7 +3,6 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.RoleService;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -27,14 +26,14 @@ public class RoleView implements Serializable {
     private boolean createFlag;
     private Role currRole;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{roleService}")
     private RoleService roleService;
 
-    @ManagedProperty("#{localeBean}")
-    private LocaleBean localeBean;
-
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
@@ -119,17 +118,12 @@ public class RoleView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setRoleService(RoleService roleService) {
         this.roleService = roleService;
-    }
-
-    public void setLocaleBean(LocaleBean localeBean) {
-        this.localeBean = localeBean;
     }
 
     public List<Role> getRoleList() {

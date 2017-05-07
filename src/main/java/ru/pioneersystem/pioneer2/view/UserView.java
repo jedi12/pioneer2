@@ -5,7 +5,6 @@ import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -31,14 +30,14 @@ public class UserView implements Serializable {
 
     private String newPass;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{userService}")
     private UserService userService;
 
-    @ManagedProperty("#{localeBean}")
-    private LocaleBean localeBean;
-
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
@@ -150,17 +149,12 @@ public class UserView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    public void setLocaleBean(LocaleBean localeBean) {
-        this.localeBean = localeBean;
     }
 
     public List<User> getUserList() {

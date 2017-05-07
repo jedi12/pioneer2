@@ -27,11 +27,14 @@ public class ChoiceListView implements Serializable {
     private String addElement;
     private ChoiceList currChoiceList;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{choiceListService}")
     private ChoiceListService choiceListService;
 
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
@@ -118,7 +121,6 @@ public class ChoiceListView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }

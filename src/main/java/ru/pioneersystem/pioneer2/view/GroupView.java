@@ -36,6 +36,8 @@ public class GroupView implements Serializable {
     private Map<String, Integer> selectUserDefault;
     private String selectedUser;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{groupService}")
     private GroupService groupService;
 
@@ -46,7 +48,8 @@ public class GroupView implements Serializable {
     private UserService userService;
 
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
@@ -157,7 +160,6 @@ public class GroupView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }

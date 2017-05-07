@@ -62,8 +62,18 @@ public class GroupServiceImpl implements GroupService {
         try {
             return groupDao.getRouteGroup(currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of Group", e);
+            log.error("Can't get map of routes Group", e);
             throw new ServiceException("Can't get map of routes Group", e);
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getUserPublishMap() throws ServiceException {
+        try {
+            return groupDao.getUserPublishGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't get list of publish Group", e);
+            throw new ServiceException("Can't get map of publish Group", e);
         }
     }
 

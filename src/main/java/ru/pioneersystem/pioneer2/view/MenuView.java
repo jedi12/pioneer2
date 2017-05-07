@@ -3,7 +3,6 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.service.MenuService;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -27,14 +26,14 @@ public class MenuView implements Serializable {
     private boolean createFlag;
     private Menu currMenu;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{menuService}")
     private MenuService menuService;
 
-    @ManagedProperty("#{localeBean}")
-    private LocaleBean localeBean;
-
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
@@ -126,10 +125,6 @@ public class MenuView implements Serializable {
 
     public void setMenuService(MenuService menuService) {
         this.menuService = menuService;
-    }
-
-    public void setLocaleBean(LocaleBean localeBean) {
-        this.localeBean = localeBean;
     }
 
     public List<Menu> getMenuList() {

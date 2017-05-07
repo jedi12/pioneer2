@@ -16,6 +16,8 @@ public interface GroupService {
 
     Map<String, Group> getPointMap() throws ServiceException;
 
+    Map<String, Integer> getUserPublishMap() throws ServiceException;
+
     void createGroup(Group role) throws ServiceException;
 
     void updateGroup(Group role) throws ServiceException;

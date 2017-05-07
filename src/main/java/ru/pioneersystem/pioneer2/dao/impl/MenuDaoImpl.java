@@ -13,10 +13,10 @@ import ru.pioneersystem.pioneer2.model.Menu;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
-
-import static ru.pioneersystem.pioneer2.model.Menu.State.DELETED;
-import static ru.pioneersystem.pioneer2.model.Role.State.EXISTS;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Repository(value = "menuDao")
 public class MenuDaoImpl implements MenuDao {
@@ -30,6 +30,7 @@ public class MenuDaoImpl implements MenuDao {
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE PARENT = ?";
     private static final String SELECT_MENU_LIST =
             "SELECT ID, NAME, STATE FROM DOC.MENU WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY NUM ASC";
+    // TODO: 01.05.2017 Заменить на поиск без подзапросов (по списку ролей или групп)
     private static final String SELECT_USER_MENU_LIST =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ROLE_ID IN(" +
                     "SELECT ROLE_ID FROM DOC.GROUPS WHERE ID IN (" +
@@ -145,7 +146,7 @@ public class MenuDaoImpl implements MenuDao {
                     pstmt.setInt(3, 1000);
                     pstmt.setInt(4, 0);
                     pstmt.setInt(5, menu.getRoleId());
-                    pstmt.setInt(6, EXISTS);
+                    pstmt.setInt(6, Menu.State.EXISTS);
                     pstmt.setInt(7, company);
                     return pstmt;
                 }, keyHolder
@@ -158,7 +159,7 @@ public class MenuDaoImpl implements MenuDao {
                         pstmt.setInt(3, menu.getSubMenu().get(i).getNum());
                         pstmt.setInt(4, keyHolder.getKey().intValue());
                         pstmt.setInt(5, menu.getSubMenu().get(i).getRoleId());
-                        pstmt.setInt(6, EXISTS);
+                        pstmt.setInt(6, Menu.State.EXISTS);
                         pstmt.setInt(7, company);
                     }
                     public int getBatchSize() {
@@ -197,6 +198,6 @@ public class MenuDaoImpl implements MenuDao {
     @Override
     @Transactional
     public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_MENU, DELETED, id, id);
+        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, id, id);
     }
 }

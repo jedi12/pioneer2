@@ -39,6 +39,8 @@ public class RouteView implements Serializable {
     private Map<String, Integer> selectGroupDefault;
     private String selectedGroup;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{routeService}")
     private RouteService routeService;
 
@@ -46,7 +48,8 @@ public class RouteView implements Serializable {
     private GroupService groupService;
 
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
@@ -187,7 +190,6 @@ public class RouteView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
