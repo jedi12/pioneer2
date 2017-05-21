@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.service.RouteService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("routeService")
 public class RouteServiceImpl implements RouteService {
@@ -44,6 +47,15 @@ public class RouteServiceImpl implements RouteService {
             log.error("Can't get list of Route", e);
             throw new ServiceException("Can't get list of Route", e);
         }
+    }
+
+    @Override
+    public Map<String, Route> getRouteMap() throws ServiceException {
+        Map<String, Route> routes = new LinkedHashMap<>();
+        for (Route routeList : getRouteList()) {
+            routes.put(routeList.getName(), routeList);
+        }
+        return routes;
     }
 
     @Override

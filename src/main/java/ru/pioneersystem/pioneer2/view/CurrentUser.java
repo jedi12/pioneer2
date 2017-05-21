@@ -81,7 +81,7 @@ public class CurrentUser implements Serializable {
             RequestContext.getCurrentInstance().update(
                     new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel"})));
         } catch (PasswordException e) {
-            showGrowl(FacesMessage.SEVERITY_ERROR, "error", "error.login.or.pass.not.valid");
+            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.login.or.pass.not.valid");
         } catch (ServiceException e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.pass.not.checked");
         }

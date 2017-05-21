@@ -11,7 +11,9 @@ import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("choiceListService")
 public class ChoiceListServiceImpl implements ChoiceListService {
@@ -44,6 +46,15 @@ public class ChoiceListServiceImpl implements ChoiceListService {
             log.error("Can't get list of ChoiceList", e);
             throw new ServiceException("Can't get list of ChoiceList", e);
         }
+    }
+
+    @Override
+    public Map<String, ChoiceList> getChoiceListMap() throws ServiceException {
+        Map<String, ChoiceList> choiceLists = new LinkedHashMap<>();
+        for (ChoiceList choiceList : getChoiceListList()) {
+            choiceLists.put(choiceList.getName(), choiceList);
+        }
+        return choiceLists;
     }
 
     @Override

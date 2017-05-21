@@ -5,11 +5,14 @@ import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ChoiceListService {
     ChoiceList getChoiceList(int id) throws ServiceException;
 
     List<ChoiceList> getChoiceListList() throws ServiceException;
+
+    Map<String, ChoiceList> getChoiceListMap() throws ServiceException;
 
     void createChoiceList(ChoiceList choiceList) throws ServiceException;
 
