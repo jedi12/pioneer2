@@ -14,7 +14,7 @@ public interface PartService {
 
     Map<String, Integer> getPartMap(int type) throws ServiceException;
 
-    List<Part> getUserPartList(int userId, int type) throws ServiceException;
+    List<Part> getUserPartList(int type) throws ServiceException;
 
     void createPart(Part part, int type) throws ServiceException;
 

@@ -11,6 +11,8 @@ public interface TemplateDao {
 
     List<Template> getList(int company) throws DataAccessException;
 
+    List<Template> getListByPartId(int partId) throws DataAccessException;
+
     void create(Template template, int company) throws DataAccessException;
 
     void update(Template template) throws DataAccessException;

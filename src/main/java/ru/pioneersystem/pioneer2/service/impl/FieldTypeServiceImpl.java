@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.FieldTypeDao;
+import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.FieldType;
 import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.FieldTypeService;
@@ -66,7 +67,7 @@ public class FieldTypeServiceImpl implements FieldTypeService {
     }
 
     public Template setLocalizedFieldTypeName(Template template) {
-        for (Template.Field field: template.getFields()) {
+        for (Document.Field field: template.getFields()) {
             field.setTypeName(getLocalizedFieldTypeName(field.getTypeId()));
             if (field.getTypeId() == FieldType.Id.LIST) {
                 field.setTypeName(field.getTypeName() + " (" + field.getChoiceListName() + ")");

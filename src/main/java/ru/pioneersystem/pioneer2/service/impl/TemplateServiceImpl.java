@@ -23,7 +23,7 @@ public class TemplateServiceImpl implements TemplateService {
     private CurrentUser currentUser;
 
     @Autowired
-    public void setChoiceListDao(TemplateDao templateDao, FieldTypeService fieldTypeService, CurrentUser currentUser) {
+    public TemplateServiceImpl(TemplateDao templateDao, FieldTypeService fieldTypeService, CurrentUser currentUser) {
         this.templateDao = templateDao;
         this.fieldTypeService = fieldTypeService;
         this.currentUser = currentUser;
@@ -46,6 +46,16 @@ public class TemplateServiceImpl implements TemplateService {
         } catch (DataAccessException e) {
             log.error("Can't get list of Template", e);
             throw new ServiceException("Can't get list of Template", e);
+        }
+    }
+
+    @Override
+    public List<Template> getTemplateList(int partId) throws ServiceException {
+        try {
+            return templateDao.getListByPartId(partId);
+        } catch (DataAccessException e) {
+            log.error("Can't get list of Template by part id", e);
+            throw new ServiceException("Can't get list of Template by part id", e);
         }
     }
 

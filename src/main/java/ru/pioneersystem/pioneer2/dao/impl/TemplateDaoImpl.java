@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
+import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.model.Template;
@@ -44,6 +45,8 @@ public class TemplateDaoImpl implements TemplateDao {
                     "P.ID AS PART_ID, P.NAME AS PART_NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.ROUTES R " +
                     "ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID WHERE T.STATE > 0 AND T.COMPANY = ? " +
                     "ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_TEMPLATE_LIST_BY_PART =
+            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? ORDER BY NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -66,12 +69,12 @@ public class TemplateDaoImpl implements TemplateDao {
                 }
         );
 
-        LinkedList<Template.Field> resultFields = jdbcTemplate.query(SELECT_TEMPLATE_FIELD,
+        LinkedList<Document.Field> resultFields = jdbcTemplate.query(SELECT_TEMPLATE_FIELD,
                 new Object[]{id},
                 rs -> {
-                    LinkedList<Template.Field> fields = new LinkedList<>();
+                    LinkedList<Document.Field> fields = new LinkedList<>();
                     while(rs.next()){
-                        Template.Field field = new Template.Field();
+                        Document.Field field = new Document.Field();
                         field.setName(rs.getString("FIELD_NAME"));
                         field.setNum(rs.getInt("FIELD_NUM"));
                         field.setTypeId(rs.getInt("FIELD_TYPE"));
@@ -84,12 +87,12 @@ public class TemplateDaoImpl implements TemplateDao {
                 }
         );
 
-        List<Template.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
+        List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
                 new Object[]{id},
                 rs -> {
-                    List<Template.Condition> conditions = new LinkedList<>();
+                    List<Document.Condition> conditions = new LinkedList<>();
                     while(rs.next()){
-                        Template.Condition condition = new Template.Condition();
+                        Document.Condition condition = new Document.Condition();
                         condition.setCondNum(rs.getInt("COND_NUM"));
                         condition.setFieldNum(rs.getInt("FIELD_NUM"));
                         condition.setFieldName(rs.getString("FIELD_NAME"));
@@ -128,6 +131,19 @@ public class TemplateDaoImpl implements TemplateDao {
                     template.setState(rs.getInt("STATE"));
                     template.setRoute(route);
                     template.setPart(part);
+                    return template;
+                }
+        );
+    }
+
+    @Override
+    public List<Template> getListByPartId(int partId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_LIST_BY_PART,
+                new Object[]{partId},
+                (rs, rowNum) -> {
+                    Template template = new Template();
+                    template.setId(rs.getInt("ID"));
+                    template.setName(rs.getString("NAME"));
                     return template;
                 }
         );

@@ -1,0 +1,29 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	#{documentCreateView.refreshTemplateList()}
+
+	<h2 align="center"><h:outputLabel value="#{text['document.docCreate']}"/></h2>
+
+	<p:tree id="partTempTree" value="#{documentCreateView.partTempTree}" var="node" animate="true" selectionMode="single"
+			selection="#{documentCreateView.selectedNode}" style="width: auto" dynamic="true" cache="true">
+
+		<p:ajax event="expand" listener="#{documentCreateView.onNodeExpand}" />
+
+		<p:treeNode type="default" styleClass="emptyTreeNode"/>
+
+		<p:treeNode type="folder">
+			<h:graphicImage value="#{resource['images/folder32x32.png']}" height="24" width="24" style="padding-right: 5px;"/>
+			<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
+		</p:treeNode>
+
+		<p:treeNode type="document">
+			<h:graphicImage value="#{resource['images/document32x32.png']}" height="24" width="24" style="padding-right: 5px;"/>
+			<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
+		</p:treeNode>
+	</p:tree>
+
+</ui:composition>

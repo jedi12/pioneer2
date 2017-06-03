@@ -44,7 +44,7 @@ public class TemplateView implements Serializable {
     private boolean addChoiceListRendered;
     private boolean addFieldNameRendered;
     private int condNum;
-    private Map<String, Template.Field> selectFieldNameDefault;
+    private Map<String, Document.Field> selectFieldNameDefault;
     private List<String> selectFieldName;
     private String selectedFieldName;
     private String condValue;
@@ -92,7 +92,7 @@ public class TemplateView implements Serializable {
             selectFieldType = toSelectItemList(selectFieldTypeDefault);
             selectChoiceListDefault = choiceListService.getChoiceListMap();
             selectChoiceList = new ArrayList<>(selectChoiceListDefault.keySet());
-            selectCond = Template.Condition.Operation.LIST;
+            selectCond = Document.Condition.Operation.LIST;
         }
         catch (Exception e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
@@ -102,7 +102,7 @@ public class TemplateView implements Serializable {
     public void newDialog() {
         createFlag = true;
         currTemplate = new Template();
-        currTemplate.setFields(new LinkedList<Template.Field>());
+        currTemplate.setFields(new LinkedList<Document.Field>());
         currTemplate.setConditions(new LinkedList<>());
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
@@ -164,7 +164,7 @@ public class TemplateView implements Serializable {
     }
 
     public void addField() {
-        Template.Field field = new Template.Field();
+        Document.Field field = new Document.Field();
         if (currTemplate.getFields().isEmpty()) {
             field.setNum(1);
         } else {
@@ -198,7 +198,7 @@ public class TemplateView implements Serializable {
                 stringCondValue = condValue;
         }
 
-        Template.Condition condition = new Template.Condition();
+        Document.Condition condition = new Document.Condition();
         condition.setCondNum(condNum);
         condition.setFieldNum(selectFieldNameDefault.get(selectedFieldName).getNum());
         condition.setFieldName(selectedFieldName);
@@ -276,7 +276,7 @@ public class TemplateView implements Serializable {
         selectFieldName = new LinkedList<>();
         selectedFieldName = null;
 
-        for (Template.Field field : currTemplate.getFields()) {
+        for (Document.Field field : currTemplate.getFields()) {
             if (field.getTypeId() == FieldType.Id.TEXT_STRING
                     || field.getTypeId() == FieldType.Id.LIST
                     || field.getTypeId() == FieldType.Id.CALENDAR
@@ -289,10 +289,10 @@ public class TemplateView implements Serializable {
             }
         }
 
-        List<Template.Condition> condForDelete = new ArrayList<>();
-        for (Template.Condition condition : currTemplate.getConditions()) {
+        List<Document.Condition> condForDelete = new ArrayList<>();
+        for (Document.Condition condition : currTemplate.getConditions()) {
             boolean hasField = false;
-            for (Template.Field field : currTemplate.getFields()) {
+            for (Document.Field field : currTemplate.getFields()) {
                 if (field.getName().equals(condition.getFieldName())) {
                     hasField = true;
                     break;

@@ -23,7 +23,7 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     private CurrentUser currentUser;
 
     @Autowired
-    public void setChoiceListDao(ChoiceListDao choiceListDao, CurrentUser currentUser) {
+    public ChoiceListServiceImpl(ChoiceListDao choiceListDao, CurrentUser currentUser) {
         this.choiceListDao = choiceListDao;
         this.currentUser = currentUser;
     }

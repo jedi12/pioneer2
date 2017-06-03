@@ -13,6 +13,7 @@ input[type=checkbox] {width: 18px; height: 18px}
 .width100 {width: 100%}
 .width38px {width: 38px}
 .labelNoWrap {white-space: nowrap}
+.emptyTreeNode {display: none}
 
 .lightGrey {background-color:#E8E8E8}
 

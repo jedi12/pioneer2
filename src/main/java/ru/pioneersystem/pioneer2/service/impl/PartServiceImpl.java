@@ -58,9 +58,9 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public List<Part> getUserPartList(int userId, int type) throws ServiceException {
+    public List<Part> getUserPartList(int type) throws ServiceException {
         try {
-            return partDao.getUserPart(type, userId);
+            return partDao.getUserPart(type, currentUser.getUser().getId());
         } catch (DataAccessException e) {
             log.error("Can't get list of user Part", e);
             throw new ServiceException("Can't get list of user Part", e);

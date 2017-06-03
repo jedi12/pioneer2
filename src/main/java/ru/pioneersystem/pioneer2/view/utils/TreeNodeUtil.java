@@ -2,7 +2,9 @@ package ru.pioneersystem.pioneer2.view.utils;
 
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
+import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Part;
+import ru.pioneersystem.pioneer2.model.Template;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +31,10 @@ public class TreeNodeUtil {
                 if (part.getId() == ((Part) childNode.getData()).getParent()) {
                     node.getChildren().add(childNode);
                 }
+            }
+
+            if (node.getChildren().isEmpty()) {
+                node.getChildren().add(new DefaultTreeNode());
             }
 
             nodes.add(node);
@@ -63,6 +69,24 @@ public class TreeNodeUtil {
             toList(childNode, partList, treeLevelOffset);
         }
         return partList;
+    }
+
+    public static List<TreeNode> toTemplateTreeNodeList(List<Template> templates) {
+        List<TreeNode> nodes = new LinkedList<>();
+        for (Template template : templates) {
+            DefaultTreeNode node = new DefaultTreeNode(DOCUMENT_TYPE, template, null);
+            nodes.add(node);
+        }
+        return nodes;
+    }
+
+    public static List<TreeNode> toDocumentTreeNodeList(List<Document> documents) {
+        List<TreeNode> nodes = new LinkedList<>();
+        for (Document document : documents) {
+            DefaultTreeNode node = new DefaultTreeNode(DOCUMENT_TYPE, document, null);
+            nodes.add(node);
+        }
+        return nodes;
     }
 
     public static Part setTreeLevel(Part currPart, List<Part> partList) {

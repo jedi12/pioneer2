@@ -11,6 +11,8 @@ public interface TemplateService {
 
     List<Template> getTemplateList() throws ServiceException;
 
+    List<Template> getTemplateList(int partId) throws ServiceException;
+
     void createTemplate(Template template) throws ServiceException;
 
     void updateTemplate(Template template) throws ServiceException;
