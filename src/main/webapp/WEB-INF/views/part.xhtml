@@ -18,7 +18,9 @@
 		<p:tree id="partTree" value="#{partView.partTree}" var="node" animate="true" selectionMode="single"
 				selection="#{partView.selectedNode}" style="width: auto"
                 draggable="true" droppable="true">
+
 			<p:ajax event="dragdrop" listener="#{partView.onDragDrop}"/>
+
 			<p:treeNode type="folder">
 				<h:graphicImage value="#{resource['images/folder32x32.png']}" height="24" width="24"
 								style="padding-right: 5px;"/>

@@ -36,7 +36,7 @@
 				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
 					<h:form id="leftPanel">
 						<p:accordionPanel value="#{currentUser.userMenu}" var="menu" onTabChange="onTabChange(panel)"
-										  activeIndex="-1">
+										  activeIndex="#{currentUser.currMenuIndex}">
 							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu.page)}"/>
 
 							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_BLANC')}">

@@ -63,7 +63,7 @@ public class PartView implements Serializable {
         try {
             currPart = new Part();
             partList = partService.getPartList(partType);
-            partTree = TreeNodeUtil.toTree(partList);
+            partTree = TreeNodeUtil.toTree(partList, false);
 
             selectParentPart = toPartMapAndSort(partList);
             selectPublishGroup = groupService.getUserPublishMap();

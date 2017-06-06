@@ -1,6 +1,5 @@
 package ru.pioneersystem.pioneer2.view;
 
-
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.TreeNode;
 import ru.pioneersystem.pioneer2.model.Part;
@@ -16,7 +15,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.util.*;
+import java.util.List;
+import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
@@ -41,7 +41,7 @@ public class DocumentCreateView implements Serializable {
 
     public void refreshTemplateList() {
         try {
-            partTempTree = TreeNodeUtil.toTree(partService.getUserPartList(Part.Type.FOR_TEMPLATES));
+            partTempTree = TreeNodeUtil.toTree(partService.getUserPartList(Part.Type.FOR_TEMPLATES), true);
         } catch (ServiceException e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
         }

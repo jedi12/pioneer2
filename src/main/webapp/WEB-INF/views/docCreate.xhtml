@@ -6,7 +6,7 @@
 
 	#{documentCreateView.refreshTemplateList()}
 
-	<h2 align="center"><h:outputLabel value="#{text['document.docCreate']}"/></h2>
+	<h2 align="center"><h:outputLabel value="#{currentUser.currMenu.name}"/></h2>
 
 	<p:tree id="partTempTree" value="#{documentCreateView.partTempTree}" var="node" animate="true" selectionMode="single"
 			selection="#{documentCreateView.selectedNode}" style="width: auto" dynamic="true" cache="true">

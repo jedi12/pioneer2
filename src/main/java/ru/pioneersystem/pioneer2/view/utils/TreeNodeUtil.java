@@ -13,7 +13,7 @@ public class TreeNodeUtil {
     public static final String FOLDER_TYPE = "folder";
     public static final String DOCUMENT_TYPE = "document";
 
-    public static TreeNode toTree(List<Part> parts) {
+    public static TreeNode toTree(List<Part> parts, boolean setExpandable) {
         int level = 0;
         List<DefaultTreeNode> nodes = new LinkedList<>();
         List<DefaultTreeNode> rootNodes = new LinkedList<>();
@@ -33,7 +33,7 @@ public class TreeNodeUtil {
                 }
             }
 
-            if (node.getChildren().isEmpty()) {
+            if (setExpandable && node.getChildren().isEmpty()) {
                 node.getChildren().add(new DefaultTreeNode());
             }
 

@@ -8,10 +8,12 @@ public class Document {
     private int id;
     private String name;
     private int statusId;
+    private String statusName;
     private Date changeDate;
     private int templateId;
     private int changeUserId;
     private int documentGroupId;
+    private String documentGroupName;
     private int partId;
     private int routeId;
     private List<Field> fields;
@@ -323,6 +325,14 @@ public class Document {
         this.statusId = statusId;
     }
 
+    public String getStatusName() {
+        return statusName;
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
     public Date getChangeDate() {
         return changeDate;
     }
@@ -353,6 +363,14 @@ public class Document {
 
     public void setDocumentGroupId(int documentGroupId) {
         this.documentGroupId = documentGroupId;
+    }
+
+    public String getDocumentGroupName() {
+        return documentGroupName;
+    }
+
+    public void setDocumentGroupName(String documentGroupName) {
+        this.documentGroupName = documentGroupName;
     }
 
     public int getPartId() {

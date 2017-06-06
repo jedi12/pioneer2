@@ -9,13 +9,11 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
-import ru.pioneersystem.pioneer2.model.Document;
-import ru.pioneersystem.pioneer2.model.Part;
-import ru.pioneersystem.pioneer2.model.Route;
-import ru.pioneersystem.pioneer2.model.Template;
+import ru.pioneersystem.pioneer2.model.*;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,8 +43,25 @@ public class DocumentDaoImpl implements DocumentDao {
                     "P.ID AS PART_ID, P.NAME AS PART_NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.ROUTES R " +
                     "ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID WHERE T.STATE > 0 AND T.COMPANY = ? " +
                     "ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_ON_ROUTE_DOCUMENT_LIST =
+            "SELECT D.ID AS ID, D.NAME AS NAME, U_DATE FROM DOC.DOCUMENTS D, DOC.GROUPS G " +
+                    "WHERE D.DOC_GROUP = G.ID AND D.ID IN (SELECT ID FROM DOC.DOCUMENTS_SIGN  WHERE ACTIVE = 1 " +
+                    "AND ROLE_ID = ? AND SIGNED = 0 AND GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER " +
+                    "WHERE USER_ID = ?)) ORDER BY U_DATE";
     private static final String SELECT_DOCUMENT_LIST_BY_PART =
-            "SELECT ID, NAME FROM DOC.DOCUMENTS WHERE PUB_PART = ? ORDER BY NAME ASC";
+            "SELECT ID, NAME FROM DOC.DOCUMENTS WHERE PUB_PART = ? AND STATUS = ? ORDER BY NAME ASC";
+    private static final String SELECT_MY_ON_DATE_DOCUMENT_LIST =
+            "SELECT D.ID AS ID, D.NAME AS NAME, DS.NAME AS STATUS_NAME, G.NAME AS GROUP_NAME FROM DOC.DOCUMENTS D " +
+                    "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON D.STATUS = DS.ID LEFT JOIN DOC.GROUPS G ON D.DOC_GROUP = G.ID " +
+                    "WHERE DS.ID <> 1 AND D.U_DATE >= ? AND D.U_DATE < ? AND D.DOC_GROUP IN (SELECT G.ID FROM " +
+                    "DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID AND USER_ID = ? AND ROLE_ID = 9 " +
+                    "AND STATE > 0) ORDER BY D.U_DATE DESC";
+    private static final String SELECT_MY_ON_WORK_DOCUMENT_LIST =
+            "SELECT D.ID AS ID, D.NAME AS NAME, DS.NAME AS STATUS_NAME, G.NAME AS GROUP_NAME FROM DOC.DOCUMENTS D " +
+                    "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON D.STATUS = DS.ID LEFT JOIN DOC.GROUPS G ON D.DOC_GROUP = G.ID " +
+                    "WHERE D.STATUS >= 9 AND D.DOC_GROUP IN (SELECT G.ID FROM " +
+                    "DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID AND USER_ID = ? AND ROLE_ID = 9 " +
+                    "AND STATE > 0) ORDER BY D.U_DATE DESC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -114,38 +129,57 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public List<Document> getList(int company) throws DataAccessException {
-//        return jdbcTemplate.query(SELECT_TEMPLATE_LIST,
-//                new Object[]{company},
-//                (rs, rowNum) -> {
-//                    Route route = new Route();
-//                    route.setId(rs.getInt("ROUTE_ID"));
-//                    route.setName(rs.getString("ROUTE_NAME"));
-//
-//                    Part part = new Part();
-//                    part.setId(rs.getInt("PART_ID"));
-//                    part.setName(rs.getString("PART_NAME"));
-//
-//                    Template template = new Template();
-//                    template.setId(rs.getInt("ID"));
-//                    template.setName(rs.getString("NAME"));
-//                    template.setState(rs.getInt("STATE"));
-//                    template.setRoute(route);
-//                    template.setPart(part);
-//                    return template;
-//                }
-//        );
-        return null;
+    public List<Document> getOnRouteList(int roleId, int userId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_ON_ROUTE_DOCUMENT_LIST,
+                new Object[]{roleId, userId},
+                (rs, rowNum) -> {
+                    Document document = new Document();
+                    document.setId(rs.getInt("ID"));
+                    document.setName(rs.getString("NAME"));
+                    document.setChangeDate(rs.getTimestamp("U_DATE"));
+                    return document;
+                }
+        );
     }
 
     @Override
     public List<Document> getListByPartId(int partId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_DOCUMENT_LIST_BY_PART,
-                new Object[]{partId},
+                new Object[]{partId, Status.Id.PUBLISHED},
                 (rs, rowNum) -> {
                     Document document = new Document();
                     document.setId(rs.getInt("ID"));
                     document.setName(rs.getString("NAME"));
+                    return document;
+                }
+        );
+    }
+
+    @Override
+    public List<Document> getMyOnDateList(Date beginDate, Date endDate, int userId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_MY_ON_DATE_DOCUMENT_LIST,
+                new Object[]{beginDate, endDate, userId},
+                (rs, rowNum) -> {
+                    Document document = new Document();
+                    document.setId(rs.getInt("ID"));
+                    document.setName(rs.getString("NAME"));
+                    document.setStatusName(rs.getString("STATUS_NAME"));
+                    document.setDocumentGroupName(rs.getString("GROUP_NAME"));
+                    return document;
+                }
+        );
+    }
+
+    @Override
+    public List<Document> getMyOnWorkingList(int userId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_MY_ON_WORK_DOCUMENT_LIST,
+                new Object[]{userId},
+                (rs, rowNum) -> {
+                    Document document = new Document();
+                    document.setId(rs.getInt("ID"));
+                    document.setName(rs.getString("NAME"));
+                    document.setStatusName(rs.getString("STATUS_NAME"));
+                    document.setDocumentGroupName(rs.getString("GROUP_NAME"));
                     return document;
                 }
         );

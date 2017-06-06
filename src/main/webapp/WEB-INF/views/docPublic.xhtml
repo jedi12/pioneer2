@@ -6,7 +6,7 @@
 
 	#{documentPublicView.refreshTemplateList()}
 
-	<h2 align="center"><h:outputLabel value="#{text['document.docPublic']}"/></h2>
+	<h2 align="center"><h:outputLabel value="#{currentUser.currMenu.name}"/></h2>
 
 	<p:tree id="partTempTree" value="#{documentPublicView.partDocTree}" var="node" animate="true" selectionMode="single"
 			selection="#{documentPublicView.selectedNode}" style="width: auto" dynamic="true" cache="true">

@@ -1,0 +1,34 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	#{documentOnRouteView.refreshOnRouteDocumentList()}
+
+	<h2 align="center"><h:outputLabel value="#{currentUser.currMenu.name}"/></h2>
+
+	<p:panel>
+
+		<p:dataTable id="docOnRouteTable" value="#{documentOnRouteView.documentList}" var="doc" rows="20"
+					 selectionMode="single" selection="#{documentOnRouteView.selectedDocument}" rowKey="#{doc.id}"
+					 filteredValue="#{documentOnRouteView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
+					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{doc.changeDate}">
+
+			<p:column headerText="#{text['document.col.id']}" filterBy="#{doc.id}" filterMatchMode="contains">
+				<h:outputText value="#{doc.id}"/>
+			</p:column>
+
+			<p:column headerText="#{text['document.col.name']}" filterBy="#{doc.name}" filterMatchMode="contains">
+				<h:outputText value="#{doc.name}"/>
+			</p:column>
+
+			<p:column headerText="#{text['document.col.date']}" filterBy="#{doc.changeDate}" filterMatchMode="contains">
+				<h:outputText value="#{doc.changeDate}"/>
+			</p:column>
+		</p:dataTable>
+
+	</p:panel>
+</ui:composition>

@@ -13,6 +13,9 @@ import ru.pioneersystem.pioneer2.service.FieldTypeService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 
+import java.sql.Timestamp;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 
 @Service("documentService")
@@ -42,23 +45,44 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<Document> getDocumentList() throws ServiceException {
-//        try {
-//            return templateDao.getList(currentUser.getUser().getCompanyId());
-//        } catch (DataAccessException e) {
-//            log.error("Can't get list of Template", e);
-//            throw new ServiceException("Can't get list of Template", e);
-//        }
-        return null;
+    public List<Document> getOnRouteDocumentList() throws ServiceException {
+        try {
+            return documentDao.getOnRouteList(currentUser.getCurrMenu().getRoleId(), currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't get list of on route Document", e);
+            throw new ServiceException("Can't get list of on route Document", e);
+        }
     }
 
     @Override
-    public List<Document> getDocumentList(int partId) throws ServiceException {
+    public List<Document> getDocumentListByPatrId(int partId) throws ServiceException {
         try {
             return documentDao.getListByPartId(partId);
         } catch (DataAccessException e) {
             log.error("Can't get list of Document by part id", e);
             throw new ServiceException("Can't get list of Document by part id", e);
+        }
+    }
+
+    @Override
+    public List<Document> getMyDocumentListOnDate(Date dateIn) throws ServiceException {
+        try {
+            Timestamp beginDate = Timestamp.from(dateIn.toInstant());
+            Timestamp endDate = Timestamp.from(dateIn.toInstant().plus(1, ChronoUnit.DAYS));
+            return documentDao.getMyOnDateList(beginDate, endDate, currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't get list of my Document on date", e);
+            throw new ServiceException("Can't get list of my Document on date", e);
+        }
+    }
+
+    @Override
+    public List<Document> getMyWorkingDocumentList() throws ServiceException {
+        try {
+            return documentDao.getMyOnWorkingList(currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't get list of my working Document", e);
+            throw new ServiceException("Can't get list of my working Document", e);
         }
     }
 

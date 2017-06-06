@@ -35,6 +35,8 @@ public class CurrentUser implements Serializable {
     private User user;
     private List<Menu> userMenu;
     private String currPage = "welcome.xhtml";
+    private int currMenuIndex = -1;
+    private Menu currMenu;
 
     private UserService userService;
     private MenuService menuService;
@@ -156,5 +158,18 @@ public class CurrentUser implements Serializable {
 
     public String getCurrPage() {
         return currPage;
+    }
+
+    public int getCurrMenuIndex() {
+        return currMenuIndex;
+    }
+
+    public void setCurrMenuIndex(int currMenuIndex) {
+        this.currMenuIndex = currMenuIndex;
+        this.currMenu = userMenu.get(currMenuIndex);
+    }
+
+    public Menu getCurrMenu() {
+        return currMenu;
     }
 }
