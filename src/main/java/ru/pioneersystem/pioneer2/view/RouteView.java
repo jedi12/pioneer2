@@ -137,21 +137,19 @@ public class RouteView implements Serializable {
             return;
         }
 
-        Group group = new Group();
-        group.setName(selectedPoint);
-        group.setRole(selectPointDefault.get(selectedPoint).getRole());
-
         Route.Point point = new Route.Point();
-        point.setGroup(group);
         point.setStage(stage);
         point.setGroupId(selectPointDefault.get(selectedPoint).getId());
+        point.setGroupName(selectedPoint);
+        point.setRoleId(selectPointDefault.get(selectedPoint).getRoleId());
+        point.setRoleName(selectPointDefault.get(selectedPoint).getRoleName());
         currRoute.getPoints().add(point);
 
         selectPoint.remove(selectedPoint);
     }
 
     public void removeValue(Route.Point collectedList) {
-        selectPoint.add(collectedList.getGroup().getName());
+        selectPoint.add(collectedList.getGroupName());
     }
 
     public void addGroup() {
@@ -159,23 +157,23 @@ public class RouteView implements Serializable {
             return;
         }
 
-        Group group = new Group();
-        group.setName(selectedGroup);
-        group.setId(selectGroupDefault.get(selectedGroup));
-        currRoute.getGroups().add(group);
+        Route.LinkGroup linkGroup = new Route.LinkGroup();
+        linkGroup.setGroupId(selectGroupDefault.get(selectedGroup));
+        linkGroup.setGroupName(selectedGroup);
+        currRoute.getGroups().add(linkGroup);
 
         selectGroup.remove(selectedGroup);
     }
 
-    public void removeGroup(Group collectedGroup) {
-        selectGroup.add(collectedGroup.getName());
+    public void removeGroup(Route.LinkGroup collectedGroup) {
+        selectGroup.add(collectedGroup.getGroupName());
     }
 
     private List<String> getCurrSelectPoint(Route currRoute) {
         List<String> currSelectRoute = new LinkedList<>();
         currSelectRoute.addAll(selectPointDefault.keySet());
         for (Route.Point point: currRoute.getPoints()) {
-            currSelectRoute.remove(point.getGroup().getName());
+            currSelectRoute.remove(point.getGroupName());
         }
         return currSelectRoute;
     }
@@ -183,8 +181,8 @@ public class RouteView implements Serializable {
     private List<String> getCurrSelectGroup(Route currRoute) {
         List<String> currSelectGroup = new LinkedList<>();
         currSelectGroup.addAll(selectGroupDefault.keySet());
-        for (Group group: currRoute.getGroups()) {
-            currSelectGroup.remove(group.getName());
+        for (Route.LinkGroup linkGroup : currRoute.getGroups()) {
+            currSelectGroup.remove(linkGroup.getGroupName());
         }
         return currSelectGroup;
     }

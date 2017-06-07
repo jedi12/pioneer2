@@ -43,14 +43,14 @@
 								<f:facet name="header">
 									<h:outputText value="#{text['route.edit.col.point.name']}"/>
 								</f:facet>
-								<h:outputText value="#{collectedList.group.name}"/>
+								<h:outputText value="#{collectedList.groupName}"/>
 							</p:column>
 
 							<p:column>
 								<f:facet name="header">
 									<h:outputText value="#{text['route.edit.col.role']}"/>
 								</f:facet>
-								<h:outputText value="#{collectedList.group.role.name}"/>
+								<h:outputText value="#{collectedList.roleName}"/>
 							</p:column>
 
 							<p:column width="15%" styleClass="columnCenter">
@@ -88,7 +88,7 @@
 
 					<p:tab title="#{text['route.edit.tab.restriction']}">
 						<p:dataTable id="resTable" value="#{routeView.currRoute.groups}" var="collectedGroup" rows="10"
-									 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.name}"
+									 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.groupName}"
 									 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
 									 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 									 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false">
@@ -97,7 +97,7 @@
 								<f:facet name="header">
 									<h:outputText value="#{text['route.edit.col.group.name']}"/>
 								</f:facet>
-								<h:outputText value="#{collectedGroup.name}"/>
+								<h:outputText value="#{collectedGroup.groupName}"/>
 							</p:column>
 
 							<p:column width="15%" styleClass="columnCenter">

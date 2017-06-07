@@ -65,22 +65,22 @@ public class PartDaoImpl implements PartDao {
                 }
         );
 
-        List<Group> resultGroups = jdbcTemplate.query(SELECT_PART_GROUP,
+        List<Part.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_PART_GROUP,
                 new Object[]{id},
                 rs -> {
-                    List<Group> groups = new LinkedList<>();
+                    List<Part.LinkGroup> linkGroups = new LinkedList<>();
                     while(rs.next()){
-                        Group group = new Group();
-                        group.setId(rs.getInt("GROUP_ID"));
-                        group.setName(rs.getString("NAME"));
+                        Part.LinkGroup linkGroup = new Part.LinkGroup();
+                        linkGroup.setGroupId(rs.getInt("GROUP_ID"));
+                        linkGroup.setGroupName(rs.getString("NAME"));
 
-                        groups.add(group);
+                        linkGroups.add(linkGroup);
                     }
-                    return groups;
+                    return linkGroups;
                 }
         );
 
-        resultPart.setGroups(resultGroups);
+        resultPart.setLinkGroups(resultGroups);
         return resultPart;
     }
 
@@ -140,10 +140,10 @@ public class PartDaoImpl implements PartDao {
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
                         pstmt.setInt(1, keyHolder.getKey().intValue());
-                        pstmt.setInt(2, part.getGroups().get(i).getId());
+                        pstmt.setInt(2, part.getLinkGroups().get(i).getGroupId());
                     }
                     public int getBatchSize() {
-                        return part.getGroups().size();
+                        return part.getLinkGroups().size();
                     }
                 }
         );
@@ -168,10 +168,10 @@ public class PartDaoImpl implements PartDao {
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
                         pstmt.setInt(1, part.getId());
-                        pstmt.setInt(2, part.getGroups().get(i).getId());
+                        pstmt.setInt(2, part.getLinkGroups().get(i).getGroupId());
                     }
                     public int getBatchSize() {
-                        return part.getGroups().size();
+                        return part.getLinkGroups().size();
                     }
                 }
         );

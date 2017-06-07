@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.GroupDao;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Role;
-import ru.pioneersystem.pioneer2.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -74,14 +73,9 @@ public class GroupDaoImpl implements GroupDao {
                 rs -> {
                     List<Group.LinkUser> linkUsers = new LinkedList<>();
                     while(rs.next()){
-                        User user = new User();
-                        user.setId(rs.getInt("USER_ID"));
-                        user.setName(rs.getString("NAME"));
-
                         Group.LinkUser linkUser = new Group.LinkUser();
-                        linkUser.setUser(user);
-                        linkUser.setGroupId(id);
                         linkUser.setUserId(rs.getInt("USER_ID"));
+                        linkUser.setUserName(rs.getString("NAME"));
                         linkUser.setParticipant(rs.getInt("ACTOR_TYPE") == Group.ActorType.PARTICIPANT);
 
                         linkUsers.add(linkUser);
@@ -115,13 +109,10 @@ public class GroupDaoImpl implements GroupDao {
                 rs -> {
                     Map<String, Group> groups = new LinkedHashMap<>();
                     while(rs.next()){
-                        Role role = new Role();
-                        role.setId(rs.getInt("ROLE_ID"));
-                        role.setName(rs.getString("ROLE_NAME"));
-
                         Group group = new Group();
                         group.setId(rs.getInt("GROUP_ID"));
-                        group.setRole(role);
+                        group.setRoleId(rs.getInt("ROLE_ID"));
+                        group.setRoleName(rs.getString("ROLE_NAME"));
 
                         groups.put(rs.getString("GROUP_NAME"), group);
                     }

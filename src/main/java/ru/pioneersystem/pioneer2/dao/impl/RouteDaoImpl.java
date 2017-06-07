@@ -9,8 +9,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
-import ru.pioneersystem.pioneer2.model.Group;
-import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.Route;
 
 import java.sql.PreparedStatement;
@@ -71,20 +69,12 @@ public class RouteDaoImpl implements RouteDao {
                 rs -> {
                     List<Route.Point> points = new LinkedList<>();
                     while(rs.next()){
-                        Role role = new Role();
-                        role.setId(rs.getInt("ROLE_ID"));
-                        role.setName(rs.getString("ROLE_NAME"));
-
-                        Group group = new Group();
-                        group.setId(rs.getInt("GROUP_ID"));
-                        group.setName(rs.getString("GROUP_NAME"));
-                        group.setRole(role);
-
                         Route.Point point = new Route.Point();
-                        point.setRouteId(rs.getInt("ID"));
                         point.setStage(rs.getInt("STAGE"));
                         point.setGroupId(rs.getInt("GROUP_ID"));
-                        point.setGroup(group);
+                        point.setGroupName(rs.getString("GROUP_NAME"));
+                        point.setRoleId(rs.getInt("ROLE_ID"));
+                        point.setRoleName(rs.getString("ROLE_NAME"));
 
                         points.add(point);
                     }
@@ -92,18 +82,18 @@ public class RouteDaoImpl implements RouteDao {
                 }
         );
 
-        List<Group> resultGroups = jdbcTemplate.query(SELECT_ROUTE_GROUP,
+        List<Route.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_ROUTE_GROUP,
                 new Object[]{id},
                 rs -> {
-                    List<Group> groups = new LinkedList<>();
+                    List<Route.LinkGroup> linkGroups = new LinkedList<>();
                     while(rs.next()){
-                        Group group = new Group();
-                        group.setId(rs.getInt("GROUP_ID"));
-                        group.setName(rs.getString("NAME"));
+                        Route.LinkGroup linkGroup = new Route.LinkGroup();
+                        linkGroup.setGroupId(rs.getInt("GROUP_ID"));
+                        linkGroup.setGroupName(rs.getString("NAME"));
 
-                        groups.add(group);
+                        linkGroups.add(linkGroup);
                     }
-                    return groups;
+                    return linkGroups;
                 }
         );
 
@@ -157,7 +147,7 @@ public class RouteDaoImpl implements RouteDao {
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
                         pstmt.setInt(1, keyHolder.getKey().intValue());
-                        pstmt.setInt(2, route.getGroups().get(i).getId());
+                        pstmt.setInt(2, route.getGroups().get(i).getGroupId());
                     }
                     public int getBatchSize() {
                         return route.getGroups().size();
@@ -199,7 +189,7 @@ public class RouteDaoImpl implements RouteDao {
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
                         pstmt.setInt(1, route.getId());
-                        pstmt.setInt(2, route.getGroups().get(i).getId());
+                        pstmt.setInt(2, route.getGroups().get(i).getGroupId());
                     }
                     public int getBatchSize() {
                         return route.getGroups().size();

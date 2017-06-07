@@ -6,7 +6,7 @@ public class Route {
     private int id;
     private String name;
     private int state;
-    private List<Group> groups;
+    private List<LinkGroup> groups;
     private List<Point> points;
 
     public static class State {
@@ -15,26 +15,40 @@ public class Route {
         public static final int SYSTEM = 2;
     }
 
-    public static class Point {
-        private Group group;
-        private int routeId;
+    public static class LinkGroup {
         private int groupId;
+        private String groupName;
+
+        public int getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(int groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+    }
+
+    public static class Point {
         private int stage;
+        private int groupId;
+        private String groupName;
+        private int roleId;
+        private String roleName;
 
-        public Group getGroup() {
-            return group;
+        public int getStage() {
+            return stage;
         }
 
-        public void setGroup(Group group) {
-            this.group = group;
-        }
-
-        public int getRouteId() {
-            return routeId;
-        }
-
-        public void setRouteId(int routeId) {
-            this.routeId = routeId;
+        public void setStage(int stage) {
+            this.stage = stage;
         }
 
         public int getGroupId() {
@@ -45,12 +59,28 @@ public class Route {
             this.groupId = groupId;
         }
 
-        public int getStage() {
-            return stage;
+        public String getGroupName() {
+            return groupName;
         }
 
-        public void setStage(int stage) {
-            this.stage = stage;
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+
+        public int getRoleId() {
+            return roleId;
+        }
+
+        public void setRoleId(int roleId) {
+            this.roleId = roleId;
+        }
+
+        public String getRoleName() {
+            return roleName;
+        }
+
+        public void setRoleName(String roleName) {
+            this.roleName = roleName;
         }
     }
 
@@ -78,11 +108,11 @@ public class Route {
         this.state = state;
     }
 
-    public List<Group> getGroups() {
+    public List<LinkGroup> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<Group> groups) {
+    public void setGroups(List<LinkGroup> groups) {
         this.groups = groups;
     }
 

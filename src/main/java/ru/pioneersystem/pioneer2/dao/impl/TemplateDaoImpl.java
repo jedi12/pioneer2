@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
 import ru.pioneersystem.pioneer2.model.Document;
-import ru.pioneersystem.pioneer2.model.Part;
-import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
@@ -117,20 +115,14 @@ public class TemplateDaoImpl implements TemplateDao {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST,
                 new Object[]{company},
                 (rs, rowNum) -> {
-                    Route route = new Route();
-                    route.setId(rs.getInt("ROUTE_ID"));
-                    route.setName(rs.getString("ROUTE_NAME"));
-
-                    Part part = new Part();
-                    part.setId(rs.getInt("PART_ID"));
-                    part.setName(rs.getString("PART_NAME"));
-
                     Template template = new Template();
                     template.setId(rs.getInt("ID"));
                     template.setName(rs.getString("NAME"));
                     template.setState(rs.getInt("STATE"));
-                    template.setRoute(route);
-                    template.setPart(part);
+                    template.setRouteId(rs.getInt("ROUTE_ID"));
+                    template.setRouteName(rs.getString("ROUTE_NAME"));
+                    template.setPartId(rs.getInt("PART_ID"));
+                    template.setPartName(rs.getString("PART_NAME"));
                     return template;
                 }
         );

@@ -7,7 +7,7 @@ public class Group {
     private String name;
     private int state;
     private int roleId;
-    private Role role;
+    private String roleName;
     private List<LinkUser> linkUsers;
 
     public static class State {
@@ -22,26 +22,9 @@ public class Group {
     }
 
     public static class LinkUser {
-        private User user;
-        private int groupId;
         private int userId;
+        private String userName;
         private boolean isParticipant;
-
-        public User getUser() {
-            return user;
-        }
-
-        public int getGroupId() {
-            return groupId;
-        }
-
-        public void setGroupId(int groupId) {
-            this.groupId = groupId;
-        }
-
-        public void setUser(User user) {
-            this.user = user;
-        }
 
         public int getUserId() {
             return userId;
@@ -49,6 +32,14 @@ public class Group {
 
         public void setUserId(int userId) {
             this.userId = userId;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
         }
 
         public boolean isParticipant() {
@@ -92,12 +83,12 @@ public class Group {
         this.roleId = roleId;
     }
 
-    public Role getRole() {
-        return role;
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     public List<LinkUser> getLinkUsers() {

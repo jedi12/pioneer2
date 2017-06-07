@@ -33,7 +33,7 @@
 				<h4 align="center">#{text['group.edit.title']}</h4>
 
 				<p:dataTable id="listsTable" value="#{groupView.currGroup.linkUsers}" var="collectedList" rows="10"
-							 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.user.name}"
+							 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.userName}"
 							 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
                              {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 							 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false"
@@ -42,7 +42,7 @@
 						<f:facet name="header">
 							<h:outputText value="#{text['group.edit.col.name']}" />
 						</f:facet>
-						<h:outputText value="#{collectedList.user.name}" />
+						<h:outputText value="#{collectedList.userName}" />
 					</p:column>
 
 					<p:column width="15%" styleClass="columnCenter">

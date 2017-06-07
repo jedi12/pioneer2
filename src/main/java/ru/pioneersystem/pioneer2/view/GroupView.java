@@ -2,7 +2,6 @@ package ru.pioneersystem.pioneer2.view;
 
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Group;
-import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RoleService;
 import ru.pioneersystem.pioneer2.service.UserService;
@@ -135,11 +134,9 @@ public class GroupView implements Serializable {
             return;
         }
 
-        User user = new User();
-        user.setName(selectedUser);
         Group.LinkUser linkUser = new Group.LinkUser();
-        linkUser.setUser(user);
         linkUser.setUserId(selectUserDefault.get(selectedUser));
+        linkUser.setUserName(selectedUser);
         linkUser.setParticipant(true);
         currGroup.getLinkUsers().add(linkUser);
 
@@ -147,14 +144,14 @@ public class GroupView implements Serializable {
     }
 
     public void removeValue(Group.LinkUser collectedList) {
-        selectUser.add(collectedList.getUser().getName());
+        selectUser.add(collectedList.getUserName());
     }
 
     private List<String> getCurrSelectUser(Group currGroup) {
         List<String> currSelectUser = new LinkedList<>();
         currSelectUser.addAll(selectUserDefault.keySet());
         for (Group.LinkUser linkUser: currGroup.getLinkUsers()) {
-            currSelectUser.remove(linkUser.getUser().getName());
+            currSelectUser.remove(linkUser.getUserName());
         }
         return currSelectUser;
     }

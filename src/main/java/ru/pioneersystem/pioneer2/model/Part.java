@@ -9,7 +9,7 @@ public class Part {
     private int parent;
     private int treeLevel;
     private int ownerGroup;
-    private List<Group> groups;
+    private List<LinkGroup> linkGroups;
 
     public static class State {
         public static final int DELETED = 0;
@@ -20,6 +20,27 @@ public class Part {
     public static class Type {
         public static final int FOR_TEMPLATES = 1;
         public static final int FOR_DOCUMENTS = 2;
+    }
+
+    public static class LinkGroup {
+        private int groupId;
+        private String groupName;
+
+        public int getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(int groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
     }
 
     public int getId() {
@@ -70,11 +91,11 @@ public class Part {
         this.ownerGroup = ownerGroup;
     }
 
-    public List<Group> getGroups() {
-        return groups;
+    public List<LinkGroup> getLinkGroups() {
+        return linkGroups;
     }
 
-    public void setGroups(List<Group> groups) {
-        this.groups = groups;
+    public void setLinkGroups(List<LinkGroup> linkGroups) {
+        this.linkGroups = linkGroups;
     }
 }

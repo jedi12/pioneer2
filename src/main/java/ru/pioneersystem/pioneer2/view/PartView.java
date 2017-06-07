@@ -83,7 +83,7 @@ public class PartView implements Serializable {
         if (selectedNode != null) {
             currPart.setParent(((Part) selectedNode.getData()).getId());
         }
-        currPart.setGroups(new LinkedList<>());
+        currPart.setLinkGroups(new LinkedList<>());
         selectGroup = getCurrSelectPart(currPart);
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
@@ -179,23 +179,23 @@ public class PartView implements Serializable {
             return;
         }
 
-        Group group = new Group();
-        group.setName(selectedGroup);
-        group.setId(selectGroupDefault.get(selectedGroup));
-        currPart.getGroups().add(group);
+        Part.LinkGroup linkGroup = new Part.LinkGroup();
+        linkGroup.setGroupId(selectGroupDefault.get(selectedGroup));
+        linkGroup.setGroupName(selectedGroup);
+        currPart.getLinkGroups().add(linkGroup);
 
         selectGroup.remove(selectedGroup);
     }
 
-    public void removeGroup(Group collectedGroup) {
-        selectGroup.add(collectedGroup.getName());
+    public void removeGroup(Part.LinkGroup collectedGroup) {
+        selectGroup.add(collectedGroup.getGroupName());
     }
 
     private List<String> getCurrSelectPart(Part currPart) {
         List<String> currSelectGroup = new LinkedList<>();
         currSelectGroup.addAll(selectGroupDefault.keySet());
-        for (Group group: currPart.getGroups()) {
-            currSelectGroup.remove(group.getName());
+        for (Part.LinkGroup linkGroup: currPart.getLinkGroups()) {
+            currSelectGroup.remove(linkGroup.getGroupName());
         }
         return currSelectGroup;
     }

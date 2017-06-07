@@ -40,8 +40,8 @@
 
 				<p:tabView id="tabView">
 					<p:tab title="#{text['part.edit.tab.restriction']}">
-						<p:dataTable id="resTable" value="#{partView.currPart.groups}" var="collectedGroup" rows="10"
-									 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.name}"
+						<p:dataTable id="resTable" value="#{partView.currPart.linkGroups}" var="collectedGroup" rows="10"
+									 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.groupName}"
 									 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
 									 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 									 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false">
@@ -50,7 +50,7 @@
 								<f:facet name="header">
 									<h:outputText value="#{text['part.edit.col.group.name']}"/>
 								</f:facet>
-								<h:outputText value="#{collectedGroup.name}"/>
+								<h:outputText value="#{collectedGroup.groupName}"/>
 							</p:column>
 
 							<p:column width="15%" styleClass="columnCenter">
@@ -59,7 +59,7 @@
 								</f:facet>
 								<p:commandLink value="#{text['operation.delete']}" update="resTable :editDialog:tabView:addGroupGrid"
 											   actionListener="#{partView.removeGroup(collectedGroup)}" process="@this">
-									<p:collector value="#{collectedGroup}" removeFrom="#{partView.currPart.groups}" unique="true"/>
+									<p:collector value="#{collectedGroup}" removeFrom="#{partView.currPart.linkGroups}" unique="true"/>
 								</p:commandLink>
 							</p:column>
 						</p:dataTable>

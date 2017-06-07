@@ -1,5 +1,6 @@
 package ru.pioneersystem.pioneer2.view;
 
+import org.primefaces.context.RequestContext;
 import org.primefaces.event.NodeExpandEvent;
 import org.primefaces.model.TreeNode;
 import ru.pioneersystem.pioneer2.model.Part;
@@ -54,6 +55,24 @@ public class DocumentCreateView implements Serializable {
             event.getTreeNode().getChildren().addAll(treeNodes);
         } catch (ServiceException e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+        }
+    }
+
+    public void newDialog() {
+//        createFlag = false;
+
+        if (selectedNode == null || !selectedNode.getType().equals(TreeNodeUtil.DOCUMENT_TYPE)) {
+            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            return;
+        }
+
+        try {
+
+
+            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        }
+        catch (Exception e) {
+            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
         }
     }
 

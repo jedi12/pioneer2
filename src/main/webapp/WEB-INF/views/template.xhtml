@@ -22,12 +22,12 @@
                 <h:outputText value="#{templateList.name}"/>
 	        </p:column>
 
-			<p:column headerText="#{text['template.col.part']}" filterBy="#{templateList.part.name}" filterMatchMode="contains">
-				<h:outputText value="#{templateList.part.name}"/>
+			<p:column headerText="#{text['template.col.part']}" filterBy="#{templateList.partName}" filterMatchMode="contains">
+				<h:outputText value="#{templateList.partName}"/>
 			</p:column>
 
-			<p:column headerText="#{text['template.col.route']}" filterBy="#{templateList.route.name}" filterMatchMode="contains">
-				<h:outputText value="#{templateList.route.name}"/>
+			<p:column headerText="#{text['template.col.route']}" filterBy="#{templateList.routeName}" filterMatchMode="contains">
+				<h:outputText value="#{templateList.routeName}"/>
 			</p:column>
 		</p:dataTable>
 

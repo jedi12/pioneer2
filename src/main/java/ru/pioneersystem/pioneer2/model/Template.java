@@ -7,9 +7,9 @@ public class Template {
     private int id;
     private String name;
     private int routeId;
-    private Route route;
+    private String routeName;
     private int partId;
-    private Part part;
+    private String partName;
     private int state;
     private LinkedList<Document.Field> fields;
     private List<Document.Condition> conditions;
@@ -44,12 +44,12 @@ public class Template {
         this.routeId = routeId;
     }
 
-    public Route getRoute() {
-        return route;
+    public String getRouteName() {
+        return routeName;
     }
 
-    public void setRoute(Route route) {
-        this.route = route;
+    public void setRouteName(String routeName) {
+        this.routeName = routeName;
     }
 
     public int getPartId() {
@@ -60,12 +60,12 @@ public class Template {
         this.partId = partId;
     }
 
-    public Part getPart() {
-        return part;
+    public String getPartName() {
+        return partName;
     }
 
-    public void setPart(Part part) {
-        this.part = part;
+    public void setPartName(String partName) {
+        this.partName = partName;
     }
 
     public int getState() {
