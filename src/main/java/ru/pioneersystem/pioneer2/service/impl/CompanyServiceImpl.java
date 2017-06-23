@@ -11,31 +11,32 @@ import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.service.CompanyService;
 import ru.pioneersystem.pioneer2.service.SessionListener;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.List;
-import java.util.Locale;
 
 @Service("companyService")
 public class CompanyServiceImpl implements CompanyService {
     private Logger log = LoggerFactory.getLogger(CompanyServiceImpl.class);
-    private static final int COMPANY_STATUS_LOCKED = 0;
-    private static final int COMPANY_STATUS_ACTIVE = 1;
 
     private CompanyDao companyDao;
+    private LocaleBean localeBean;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
     @Autowired
-    public CompanyServiceImpl(CompanyDao companyDao, MessageSource messageSource, SessionListener sessionListener) {
+    public CompanyServiceImpl(CompanyDao companyDao, LocaleBean localeBean, MessageSource messageSource,
+                              SessionListener sessionListener) {
         this.companyDao = companyDao;
+        this.localeBean = localeBean;
         this.messageSource = messageSource;
         this.sessionListener = sessionListener;
     }
 
     @Override
-    public Company getCompany(int id, Locale locale) throws ServiceException {
+    public Company getCompany(int id) throws ServiceException {
         try {
-            return setCompanyStateName(companyDao.get(id), locale);
+            return setLocalizedStateName(companyDao.get(id));
         } catch (DataAccessException e) {
             log.error("Can't get Company by id", e);
             throw new ServiceException("Can't get Company by id", e);
@@ -43,11 +44,11 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public List<Company> getCompanyList(Locale locale) throws ServiceException {
+    public List<Company> getCompanyList() throws ServiceException {
         try {
             List<Company> companies = companyDao.getList();
             for (Company company : companies) {
-                setCompanyStateName(company, locale);
+                setLocalizedStateName(company);
             }
             return companies;
         } catch (DataAccessException e) {
@@ -97,13 +98,13 @@ public class CompanyServiceImpl implements CompanyService {
         }
     }
 
-    private Company setCompanyStateName(Company company, Locale locale) {
+    private Company setLocalizedStateName(Company company) {
         switch (company.getState()) {
-            case COMPANY_STATUS_LOCKED:
-                company.setStateName(messageSource.getMessage("status.locked", null, locale));
+            case Company.State.LOCKED:
+                company.setStateName(messageSource.getMessage("status.locked", null, localeBean.getLocale()));
                 break;
-            case COMPANY_STATUS_ACTIVE:
-                company.setStateName(messageSource.getMessage("status.active", null, locale));
+            case Company.State.ACTIVE:
+                company.setStateName(messageSource.getMessage("status.active", null, localeBean.getLocale()));
                 break;
             default:
                 company.setStateName("Unknown");

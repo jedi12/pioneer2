@@ -27,20 +27,20 @@ public class ChoiceListView implements Serializable {
     private String addElement;
     private ChoiceList currChoiceList;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{choiceListService}")
     private ChoiceListService choiceListService;
 
-    @ManagedProperty("#{currentUser}")
-    private CurrentUser currentUser;
-
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
     private void refreshList() {
         try {
-            choiceListList = choiceListService.getChoiceListList(currentUser.getUser().getCompanyId());
+            choiceListList = choiceListService.getChoiceListList();
         }
         catch (Exception e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
@@ -86,7 +86,7 @@ public class ChoiceListView implements Serializable {
     public void saveAction() {
         try {
             if (createFlag) {
-                choiceListService.createChoiceList(currChoiceList, currentUser.getUser().getCompanyId());
+                choiceListService.createChoiceList(currChoiceList);
             } else {
                 choiceListService.updateChoiceList(currChoiceList);
             }
@@ -121,17 +121,12 @@ public class ChoiceListView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setChoiceListService(ChoiceListService choiceListService) {
         this.choiceListService = choiceListService;
-    }
-
-    public void setCurrentUser(CurrentUser currentUser) {
-        this.currentUser = currentUser;
     }
 
     public List<ChoiceList> getChoiceListList() {

@@ -12,7 +12,12 @@ import java.util.ResourceBundle;
 public class NotEmptyString implements Validator {
     @Override
     public void validate(FacesContext context, UIComponent component, Object value) throws ValidatorException {
-        if (value == null || ((String) value).trim().equals("")) {
+        if  (
+                value == null
+                || (value instanceof String && ((String) value).trim().equals(""))
+                || (value instanceof Integer && ((Integer) value) == 0)
+            )
+        {
             ResourceBundle bundle = ResourceBundle.getBundle("text", context.getViewRoot().getLocale());
             throw new ValidatorException(new FacesMessage(
                     FacesMessage.SEVERITY_ERROR, bundle.getString("error"), bundle.getString("validator.value_required")));

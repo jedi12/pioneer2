@@ -1,0 +1,92 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="editDialog" target="_blank">
+		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-cubes"/>
+				<p:outputLabel value=" #{text['role.edit.header']} (ID: #{roleView.currRole.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{roleView.createFlag ? text['role.edit.create'] : text['role.edit.change']}"/>
+			</h2>
+
+			<p:panel>
+				<h:panelGrid id="roleGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<p:outputLabel value="#{text['role.edit.name']}" for="name"/>
+					<p:inputText id="name" value="#{roleView.currRole.name}" styleClass="width100" maxlength="50"
+								 validator="notEmptyString"/>
+					<p:message for="name" display="icon" styleClass="width38px"/>
+				</h:panelGrid>
+				<hr/>
+				<h:panelGrid id="valueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<p:outputLabel value="#{text['role.edit.accept']}" for="accept"/>
+					<p:inputText id="accept" value="#{roleView.currRole.acceptButton}" styleClass="width100" maxlength="30"
+								 validator="notEmptyString"/>
+					<p:message for="accept" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.reject']}" for="reject"/>
+					<p:inputText id="reject" value="#{roleView.currRole.rejectButton}" styleClass="width100" maxlength="30"
+								 validator="notEmptyString"/>
+					<p:message for="reject" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.status']}" for="status"/>
+					<p:inputText id="status" value="#{roleView.currRole.statusName}" styleClass="width100" maxlength="30"
+								 validator="notEmptyString"/>
+					<p:message for="status" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.menu']}" for="menu"/>
+					<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="30"
+								 validator="notEmptyString"/>
+					<p:message for="menu" display="icon" styleClass="width38px"/>
+				</h:panelGrid>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
+										 update=":centerPanel:roleTable roleGrid valueGrid"
+										 actionListener="#{roleView.saveAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('editDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+
+	<h:form id="deleteDialog" target="_blank">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-share-alt"/>
+				<p:outputLabel value=" #{text['role.del.header']} (ID: #{roleView.selectedRole.id})"/>
+			</f:facet>
+
+			<h2 align="center"><h:outputLabel value="#{text['role.del.delete']}"/></h2>
+			<p:panel>
+				<h:panelGrid columns="2" cellpadding="5">
+					<p:outputLabel value="#{text['role.del.title']}"/>
+					<p:outputLabel value="#{roleView.selectedRole.name}" style="font-weight: bold"/>
+				</h:panelGrid>
+
+				<hr/>
+
+				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять роль.-->
+				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
+				<!--и отключить кнопку удаления.-->
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check" update=":centerPanel:roleTable"
+										 actionListener="#{roleView.deleteAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('deleteDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+</ui:composition>

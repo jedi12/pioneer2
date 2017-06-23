@@ -2,6 +2,13 @@ function getScreen() {
 
 }
 
+function onTabChange(panel) {
+    if (panel[0].textContent == '') {
+        panel[0].style.padding = '0';
+        panel[0].style.margin = '0';
+    }
+}
+
 function setScrollBottom() {
     var scrollBody = PF('collectedTable').scrollBody[0];
     scrollBody.scrollTop = scrollBody.scrollHeight;

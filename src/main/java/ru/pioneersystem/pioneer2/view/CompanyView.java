@@ -3,7 +3,6 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.service.CompanyService;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -27,20 +26,20 @@ public class CompanyView implements Serializable {
     private boolean createFlag;
     private Company currCompany;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{companyService}")
     private CompanyService companyService;
 
-    @ManagedProperty("#{localeBean}")
-    private LocaleBean localeBean;
-
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
     private void refreshList() {
         try {
-            companyList = companyService.getCompanyList(localeBean.getLocale());
+            companyList = companyService.getCompanyList();
         }
         catch (Exception e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
@@ -63,7 +62,7 @@ public class CompanyView implements Serializable {
         }
 
         try {
-            currCompany = companyService.getCompany(selectedCompany.getId(), localeBean.getLocale());
+            currCompany = companyService.getCompany(selectedCompany.getId());
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
@@ -118,17 +117,12 @@ public class CompanyView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setCompanyService(CompanyService companyService) {
         this.companyService = companyService;
-    }
-
-    public void setLocaleBean(LocaleBean localeBean) {
-        this.localeBean = localeBean;
     }
 
     public List<Company> getCompanyList() {

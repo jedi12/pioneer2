@@ -5,7 +5,6 @@ import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -31,23 +30,20 @@ public class UserView implements Serializable {
 
     private String newPass;
 
+    private ResourceBundle bundle;
+
     @ManagedProperty("#{userService}")
     private UserService userService;
 
-    @ManagedProperty("#{localeBean}")
-    private LocaleBean localeBean;
-
-    @ManagedProperty("#{currentUser}")
-    private CurrentUser currentUser;
-
     @PostConstruct
-    public void init()  {
+    public void init() {
+        bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         refreshList();
     }
 
     private void refreshList() {
         try {
-            userList = userService.getUserList(currentUser.getUser().getCompanyId(), localeBean.getLocale());
+            userList = userService.getUserList();
         }
         catch (Exception e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
@@ -70,7 +66,7 @@ public class UserView implements Serializable {
         }
 
         try {
-            currUser = userService.getUserWithCompany(selectedUser.getId(), localeBean.getLocale());
+            currUser = userService.getUserWithCompany(selectedUser.getId());
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
@@ -81,7 +77,7 @@ public class UserView implements Serializable {
     public void saveAction() {
         try {
             if (createFlag) {
-                userService.createUser(currUser, currentUser.getUser().getCompanyId());
+                userService.createUser(currUser);
             } else {
                 userService.updateUser(currUser);
             }
@@ -119,7 +115,7 @@ public class UserView implements Serializable {
         }
 
         try {
-            userService.unlockUser(selectedUser.getId(), currentUser.getUser().getCompanyId());
+            userService.unlockUser(selectedUser.getId());
             refreshList();
         }
         catch (RestrictionException e) {
@@ -153,21 +149,12 @@ public class UserView implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    public void setLocaleBean(LocaleBean localeBean) {
-        this.localeBean = localeBean;
-    }
-
-    public void setCurrentUser(CurrentUser currentUser) {
-        this.currentUser = currentUser;
     }
 
     public List<User> getUserList() {

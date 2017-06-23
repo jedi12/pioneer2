@@ -38,7 +38,7 @@
 						<h:outputText value="#{collectedList}" />
 					</p:column>
 
-					<p:column width="10%" styleClass="columnCenter">
+					<p:column width="15%" styleClass="columnCenter">
 						<f:facet name="header">
 							<h:outputText value="#{text['operation.name']}" />
 						</f:facet>
@@ -51,7 +51,7 @@
 				<br />
 
 				<p:panel styleClass="addPanelColor">
-					<h:panelGrid id="addValueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<h:panelGrid id="addValueGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
 						<p:outputLabel value="#{text['choiceList.edit.add.label']}" for="addValue"/>
 						<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="100"/>
 						<p:message for="addValue" display="icon" styleClass="width38px"/>
@@ -73,13 +73,17 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog header="#{text['choiceList.del.header']} (ID: #{choiceListView.currChoiceList.id})" widgetVar="deleteDialog"
-				  resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-list"/>
+				<p:outputLabel value=" #{text['choiceList.del.header']} (ID: #{choiceListView.selectedChoiceList.id})"/>
+			</f:facet>
+
 			<h2 align="center"><h:outputLabel value="#{text['choiceList.del.delete']}"/></h2>
 			<p:panel>
 				<h:panelGrid columns="2" cellpadding="5">
 					<p:outputLabel value="#{text['choiceList.del.title']}"/>
-					<p:outputLabel value="#{choiceListView.currChoiceList.name}" style="font-weight: bold"/>
+					<p:outputLabel value="#{choiceListView.selectedChoiceList.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
 				<hr/>

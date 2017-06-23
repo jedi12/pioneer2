@@ -19,15 +19,12 @@ import java.util.List;
 
 @Repository(value = "choiceListDao")
 public class ChoiceListDaoImpl implements ChoiceListDao {
-    private static final int DELETED = 0;
-    private static final int EXISTS = 1;
-
     private static final String INSERT_LIST = "INSERT INTO DOC.LISTS (NAME, STATE, COMPANY) VALUES (?, ?, ?)";
     private static final String INSERT_LIST_FIELD = "INSERT INTO DOC.LISTS_FIELD (ID, VALUE) VALUES (?, ?)";
     private static final String UPDATE_LIST = "UPDATE DOC.LISTS SET NAME = ? WHERE ID = ?";
     private static final String DELETE_LIST = "UPDATE DOC.LISTS SET STATE = ? WHERE ID = ?";
     private static final String DELETE_LIST_FIELD = "DELETE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE = ? AND ID = ?";
+    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE ID = ?";
     private static final String SELECT_LIST_FIELD = "SELECT VALUE FROM DOC.LISTS_FIELD WHERE ID = ?";
     private static final String SELECT_LIST_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE = ? AND COMPANY = ?";
 
@@ -41,7 +38,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     public ChoiceList get(int id) throws DataAccessException {
         ChoiceList choiceList = jdbcTemplate.queryForObject(SELECT_LIST,
-                new Object[]{EXISTS, id},
+                new Object[]{id},
                 new ChoiceListMapper()
         );
 
@@ -57,7 +54,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     public List<ChoiceList> getList(int company) throws DataAccessException {
         List<ChoiceList> choiceList = jdbcTemplate.query(SELECT_LIST_LIST,
-                new Object[]{EXISTS, company},
+                new Object[]{ChoiceList.State.EXISTS, company},
                 new ChoiceListMapper()
         );
 
@@ -72,7 +69,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                 connection -> {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_LIST, new String[] {"id"});
                     pstmt.setString(1, choiceList.getName());
-                    pstmt.setInt(2, EXISTS);
+                    pstmt.setInt(2, ChoiceList.State.EXISTS);
                     pstmt.setInt(3, company);
                     return pstmt;
                 }, keyHolder
@@ -119,13 +116,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     @Override
     @Transactional
     public void delete(int id) throws DataAccessException {
-        // TODO: 28.02.2017 Сделать проверку, используется ли данный список в шаблоне или нет
-        // пример:
-        // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
-        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
-
-        jdbcTemplate.update(DELETE_LIST, DELETED, id);
+        jdbcTemplate.update(DELETE_LIST, ChoiceList.State.DELETED, id);
         jdbcTemplate.update(DELETE_LIST_FIELD, id);
     }
 

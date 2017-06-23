@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.model.User;
+import ru.pioneersystem.pioneer2.service.MenuService;
 import ru.pioneersystem.pioneer2.service.SessionListener;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
@@ -18,9 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
-@Service
+@Service("currentUser")
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CurrentUser implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -30,14 +33,20 @@ public class CurrentUser implements Serializable {
     private String newPass;
     private boolean logged;
     private User user;
+    private List<Menu> userMenu;
+    private String currPage = "welcome.xhtml";
+    private int currMenuIndex = -1;
+    private Menu currMenu;
 
     private UserService userService;
+    private MenuService menuService;
     private LocaleBean localeBean;
     private HttpServletRequest request;
 
     @Autowired
-    public CurrentUser(UserService userService, LocaleBean localeBean, HttpServletRequest request) {
+    public CurrentUser(UserService userService, MenuService menuService, LocaleBean localeBean, HttpServletRequest request) {
         this.userService = userService;
+        this.menuService = menuService;
         this.localeBean = localeBean;
         this.request = request;
     }
@@ -45,7 +54,7 @@ public class CurrentUser implements Serializable {
     public void signIn() {
         try {
             int userId = userService.getUserId(login, pass);
-            user = userService.getUserWithCompany(userId, localeBean.getLocale());
+            user = userService.getUserWithCompany(userId);
 
             if (user.getState() == 0) {
                 showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.user.locked");
@@ -56,6 +65,8 @@ public class CurrentUser implements Serializable {
                 showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.company.locked");
                 return;
             }
+
+            userMenu = menuService.getUserMenu(userId);
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -72,7 +83,7 @@ public class CurrentUser implements Serializable {
             RequestContext.getCurrentInstance().update(
                     new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel"})));
         } catch (PasswordException e) {
-            showGrowl(FacesMessage.SEVERITY_ERROR, "error", "error.login.or.pass.not.valid");
+            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.login.or.pass.not.valid");
         } catch (ServiceException e) {
             showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.pass.not.checked");
         }
@@ -98,6 +109,15 @@ public class CurrentUser implements Serializable {
         ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
+    }
+
+    public void setCurrPage(String currPage) {
+        if (currPage == null || currPage.equals("")) {
+            return;
+        }
+        this.currPage = currPage;
+        RequestContext.getCurrentInstance().update("centerPanel");
+        RequestContext.getCurrentInstance().update("dialogsPanel");
     }
 
     public String getLogin() {
@@ -130,5 +150,26 @@ public class CurrentUser implements Serializable {
 
     public User getUser() {
         return user;
+    }
+
+    public List<Menu> getUserMenu() {
+        return userMenu;
+    }
+
+    public String getCurrPage() {
+        return currPage;
+    }
+
+    public int getCurrMenuIndex() {
+        return currMenuIndex;
+    }
+
+    public void setCurrMenuIndex(int currMenuIndex) {
+        this.currMenuIndex = currMenuIndex;
+        this.currMenu = userMenu.get(currMenuIndex);
+    }
+
+    public Menu getCurrMenu() {
+        return currMenu;
     }
 }

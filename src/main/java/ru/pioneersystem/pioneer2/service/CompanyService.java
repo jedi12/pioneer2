@@ -4,12 +4,11 @@ import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
-import java.util.Locale;
 
 public interface CompanyService {
-    Company getCompany(int id, Locale locale) throws ServiceException;
+    Company getCompany(int id) throws ServiceException;
 
-    List<Company> getCompanyList(Locale locale) throws ServiceException;
+    List<Company> getCompanyList() throws ServiceException;
 
     void createCompany(Company company) throws ServiceException;
 

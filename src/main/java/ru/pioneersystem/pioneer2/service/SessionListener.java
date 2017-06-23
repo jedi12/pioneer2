@@ -71,7 +71,7 @@ public class SessionListener implements HttpSessionListener {
 		return sessionsList;
 	}
 	
-	public int getAllActiveSessions() {
+	public int getActiveSessionsCount() {
 		return sessions.size();
 	}
 }

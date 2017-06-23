@@ -35,9 +35,17 @@
 
 				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
 					<h:form id="leftPanel">
-						<p:accordionPanel>
-							<p:tab title="Настройка">
+						<p:accordionPanel value="#{currentUser.userMenu}" var="menu" onTabChange="onTabChange(panel)"
+										  activeIndex="#{currentUser.currMenuIndex}">
+							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu.page)}"/>
 
+							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_BLANC')}">
+								<p:repeat value="#{menu.subMenu}" var="subMenu">
+									<p:commandLink value="#{subMenu.name}"
+												   actionListener="#{currentUser.setCurrPage(subMenu.page)}"/>
+									<br/>
+									<br/>
+								</p:repeat>
 							</p:tab>
 						</p:accordionPanel>
 					</h:form>
@@ -45,13 +53,13 @@
 
 				<p:layoutUnit position="center">
 					<h:form id="centerPanel">
-						<ui:include src="WEB-INF/views/user.xhtml"/>
+						<ui:include src="WEB-INF/views/#{currentUser.currPage}"/>
 					</h:form>
 				</p:layoutUnit>
 			</p:layout>
 
 			<h:panelGroup id="dialogsPanel">
-				<ui:include src="WEB-INF/dialogs/user.xhtml"/>
+				<ui:include src="WEB-INF/dialogs/#{currentUser.currPage}"/>
 			</h:panelGroup>
 
 			<ui:include src="WEB-INF/dialogs/login.xhtml"/>

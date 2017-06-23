@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Repository(value = "UserDao")
+@Repository(value = "userDao")
 public class UserDaoImpl implements UserDao {
     private static final int LOCKED = 0;
     private static final int ACTIVE = 1;
@@ -37,7 +37,8 @@ public class UserDaoImpl implements UserDao {
             "C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, C.EMAIL AS C_EMAIL, " +
             "C.ADDRESS AS C_ADDRESS, C.STATE AS C_STATE, C.MAX_USERS AS C_MAX_USERS, C.SITE AS C_SITE, " +
             "C.COMMENT AS C_COMMENT FROM DOC.USERS U, DOC.COMPANY C WHERE U.COMPANY = C.ID AND U.ID = ?";
-    private static final String SELECT_USER_LIST = "SELECT ID, NAME, LOGIN, EMAIL, STATE FROM DOC.USERS WHERE COMPANY = ?";
+    private static final String SELECT_USER_LIST =
+            "SELECT ID, NAME, LOGIN, EMAIL, STATE FROM DOC.USERS WHERE COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_ID_AND_PASS = "SELECT ID, PASS FROM DOC.USERS WHERE LOGIN = ?";
     private static final String SELECT_COUNT = "SELECT COUNT(*) FROM DOC.USERS WHERE COMPANY = ? AND STATE = ?";
 
@@ -81,6 +82,7 @@ public class UserDaoImpl implements UserDao {
                     user.setCompanyId(rs.getInt("U_COMPANY"));
                     user.setComment(rs.getString("U_COMMENT"));
                     user.setState(rs.getInt("U_STATE"));
+
                     Company comp = new Company();
                     comp.setId(rs.getInt("C_ID"));
                     comp.setName(rs.getString("C_NAME"));
@@ -92,6 +94,7 @@ public class UserDaoImpl implements UserDao {
                     comp.setSite(rs.getString("C_SITE"));
                     comp.setComment(rs.getString("C_COMMENT"));
                     comp.setState(rs.getInt("C_STATE"));
+
                     user.setCompany(comp);
                     return user;
                 }

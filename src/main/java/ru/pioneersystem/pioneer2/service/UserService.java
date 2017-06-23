@@ -6,22 +6,24 @@ import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 public interface UserService {
-    User getUser(int id, Locale locale) throws ServiceException;
+    User getUser(int id) throws ServiceException;
 
-    User getUserWithCompany(int id, Locale locale) throws ServiceException;
+    User getUserWithCompany(int id) throws ServiceException;
 
-    List<User> getUserList(int companyId, Locale locale) throws ServiceException;
+    List<User> getUserList() throws ServiceException;
 
-    void createUser(User user, int companyId) throws ServiceException, RestrictionException;
+    Map<String, Integer> getUserMap() throws ServiceException;
+
+    void createUser(User user) throws ServiceException, RestrictionException;
 
     void updateUser(User user) throws ServiceException;
 
     void lockUser(int id) throws ServiceException;
 
-    void unlockUser(int id, int companyId) throws ServiceException, RestrictionException;
+    void unlockUser(int id) throws ServiceException, RestrictionException;
 
     void setUserPass(int id, String newPass) throws ServiceException;
 
