@@ -7,9 +7,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.model.User;
-import ru.pioneersystem.pioneer2.service.MenuService;
-import ru.pioneersystem.pioneer2.service.SessionListener;
-import ru.pioneersystem.pioneer2.service.UserService;
+import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -18,10 +16,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @Service("currentUser")
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -34,19 +29,28 @@ public class CurrentUser implements Serializable {
     private boolean logged;
     private User user;
     private List<Menu> userMenu;
+    private Map<String, Integer> userCreateGroups;
+    private Map<String, Integer> userRoutes;
+
     private String currPage = "welcome.xhtml";
     private int currMenuIndex = -1;
+    private int currMenuId;
     private Menu currMenu;
 
     private UserService userService;
     private MenuService menuService;
+    private GroupService groupService;
+    private RouteService routeService;
     private LocaleBean localeBean;
     private HttpServletRequest request;
 
     @Autowired
-    public CurrentUser(UserService userService, MenuService menuService, LocaleBean localeBean, HttpServletRequest request) {
+    public CurrentUser(UserService userService, MenuService menuService, GroupService groupService,
+                       RouteService routeService, LocaleBean localeBean, HttpServletRequest request) {
         this.userService = userService;
         this.menuService = menuService;
+        this.groupService = groupService;
+        this.routeService = routeService;
         this.localeBean = localeBean;
         this.request = request;
     }
@@ -67,6 +71,8 @@ public class CurrentUser implements Serializable {
             }
 
             userMenu = menuService.getUserMenu(userId);
+            userCreateGroups = groupService.getUserCreateMap();
+            userRoutes = routeService.getUserRouteMap();
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -104,11 +110,23 @@ public class CurrentUser implements Serializable {
         }
     }
 
+    public void setCurrMenuId(int currMenuId) {
+        this.currMenuId = currMenuId;
 
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
+        if (userMenu == null) {
+            return;
+        }
+
+        int menuIndex = 0;
+        for (Menu menu: userMenu) {
+            if (menu.getId() == currMenuId) {
+                currMenuIndex = menuIndex;
+                currMenu = menu;
+                setCurrPage(currMenu.getPage());
+                break;
+            }
+            menuIndex = menuIndex + 1;
+        }
     }
 
     public void setCurrPage(String currPage) {
@@ -116,8 +134,12 @@ public class CurrentUser implements Serializable {
             return;
         }
         this.currPage = currPage;
-        RequestContext.getCurrentInstance().update("centerPanel");
-        RequestContext.getCurrentInstance().update("dialogsPanel");
+    }
+
+    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
+        ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
+        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
+                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public String getLogin() {
@@ -156,6 +178,14 @@ public class CurrentUser implements Serializable {
         return userMenu;
     }
 
+    public Map<String, Integer> getUserCreateGroups() {
+        return userCreateGroups;
+    }
+
+    public Map<String, Integer> getUserRoutes() {
+        return userRoutes;
+    }
+
     public String getCurrPage() {
         return currPage;
     }
@@ -166,7 +196,10 @@ public class CurrentUser implements Serializable {
 
     public void setCurrMenuIndex(int currMenuIndex) {
         this.currMenuIndex = currMenuIndex;
-        this.currMenu = userMenu.get(currMenuIndex);
+    }
+
+    public int getCurrMenuId() {
+        return currMenuId;
     }
 
     public Menu getCurrMenu() {

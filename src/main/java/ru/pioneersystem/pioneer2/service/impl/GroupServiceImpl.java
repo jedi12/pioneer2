@@ -78,6 +78,16 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public Map<String, Integer> getUserCreateMap() throws ServiceException {
+        try {
+            return groupDao.getUserCreateGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't get list of create Group", e);
+            throw new ServiceException("Can't get map of create Group", e);
+        }
+    }
+
+    @Override
     public void createGroup(Group group) throws ServiceException {
         try {
             groupDao.create(group, currentUser.getUser().getCompanyId());

@@ -14,6 +14,8 @@ public interface RouteService {
 
     Map<String, Route> getRouteMap() throws ServiceException;
 
+    Map<String, Integer> getUserRouteMap() throws ServiceException;
+
     void createRoute(Route route) throws ServiceException;
 
     void updateRoute(Route route) throws ServiceException;

@@ -39,6 +39,26 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
+    public Map<Integer, List<String>> getChoiceListForTemplate(int templateId) throws ServiceException {
+        try {
+            return choiceListDao.getForTemplate(templateId);
+        } catch (DataAccessException e) {
+            log.error("Can't get ChoiceList for Template", e);
+            throw new ServiceException("Can't get ChoiceList for Template", e);
+        }
+    }
+
+    @Override
+    public Map<Integer, List<String>> getChoiceListForDocument(int documentId) throws ServiceException {
+        try {
+            return choiceListDao.getForDocument(documentId);
+        } catch (DataAccessException e) {
+            log.error("Can't get ChoiceList for Document", e);
+            throw new ServiceException("Can't get ChoiceList for Document", e);
+        }
+    }
+
+    @Override
     public List<ChoiceList> getChoiceListList() throws ServiceException {
         try {
             return choiceListDao.getList(currentUser.getUser().getCompanyId());

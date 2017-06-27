@@ -59,6 +59,16 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
+    public Map<String, Integer> getUserRouteMap() throws ServiceException {
+        try {
+            return routeDao.getUserRouteMap(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't get user Route map", e);
+            throw new ServiceException("Can't get user Route map", e);
+        }
+    }
+
+    @Override
     public void createRoute(Route route) throws ServiceException {
         try {
             routeDao.create(route, currentUser.getUser().getCompanyId());

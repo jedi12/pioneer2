@@ -10,6 +10,10 @@ import java.util.Map;
 public interface ChoiceListService {
     ChoiceList getChoiceList(int id) throws ServiceException;
 
+    Map<Integer, List<String>> getChoiceListForTemplate(int templateId) throws ServiceException;
+
+    Map<Integer, List<String>> getChoiceListForDocument(int documentId) throws ServiceException;
+
     List<ChoiceList> getChoiceListList() throws ServiceException;
 
     Map<String, ChoiceList> getChoiceListMap() throws ServiceException;

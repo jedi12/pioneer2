@@ -4,10 +4,15 @@ import org.springframework.dao.DataAccessException;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ChoiceListDao {
 
     ChoiceList get(int id) throws DataAccessException;
+
+    Map<Integer, List<String>> getForTemplate(int templateId) throws DataAccessException;
+
+    Map<Integer, List<String>> getForDocument(int documentId) throws DataAccessException;
 
     List<ChoiceList> getList(int company) throws DataAccessException;
 

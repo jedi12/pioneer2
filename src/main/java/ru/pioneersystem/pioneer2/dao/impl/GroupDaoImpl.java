@@ -46,6 +46,9 @@ public class GroupDaoImpl implements GroupDao {
             "SELECT G.ID AS G_ID, G.NAME AS G_NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU, DOC.ROLES R " +
                     "WHERE G.ID = GU.ID AND G.ROLE_ID = R.ID AND TYPE IN (?, ?) AND G.STATE > 0 AND G.COMPANY = ? " +
                     "AND USER_ID = ? ORDER BY G.NAME ASC";
+    private static final String SELECT_CREATE_GROUP_MAP =
+            "SELECT G.ID AS ID, NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU " +
+                    "WHERE G.ID = GU.ID AND ROLE_ID = ? AND COMPANY = ? AND STATE > 0 AND USER_ID = ? ORDER BY NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -129,6 +132,20 @@ public class GroupDaoImpl implements GroupDao {
                     Map<String, Integer> groups = new LinkedHashMap<>();
                     while(rs.next()){
                         groups.put(rs.getString("G_NAME"), rs.getInt("G_ID"));
+                    }
+                    return groups;
+                }
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getUserCreateGroup(int company, int userId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_CREATE_GROUP_MAP,
+                new Object[]{Role.Type.CREATE, company, userId},
+                rs -> {
+                    Map<String, Integer> groups = new LinkedHashMap<>();
+                    while(rs.next()){
+                        groups.put(rs.getString("NAME"), rs.getInt("ID"));
                     }
                     return groups;
                 }

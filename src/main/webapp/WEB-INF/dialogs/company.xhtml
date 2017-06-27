@@ -7,8 +7,8 @@
 	<h:form id="editDialog" target="_blank">
 		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
 			<f:facet name="header">
-				<i class="fa fa-fw fa-building"/>
-				<p:outputLabel value=" #{text['company.edit.header']} (ID: #{companyView.currCompany.id})"/>
+				<i class="fa fa-fw fa-building" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['company.edit.header']} (#{text['label.id']} #{companyView.currCompany.id})"/>
 			</f:facet>
 
 			<h2 align="center">

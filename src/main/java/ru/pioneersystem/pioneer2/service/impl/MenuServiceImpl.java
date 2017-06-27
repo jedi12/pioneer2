@@ -71,6 +71,18 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    public int getMenuIndex(int menuId, List<Menu> menus) throws ServiceException {
+        int menuIndex = -1;
+        for (Menu menu: menus) {
+            menuIndex = menuIndex + 1;
+            if (menu.getId() == menuId) {
+                break;
+            }
+        }
+        return menuIndex;
+    }
+
+    @Override
     public void createMenu(Menu menu) throws ServiceException {
         try {
             menuDao.create(menu, currentUser.getUser().getCompanyId());

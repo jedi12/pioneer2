@@ -14,6 +14,7 @@ import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class TemplateDaoImpl implements TemplateDao {
                         field.setName(rs.getString("FIELD_NAME"));
                         field.setNum(rs.getInt("FIELD_NUM"));
                         field.setTypeId(rs.getInt("FIELD_TYPE"));
-                        field.setChoiceListId(rs.getInt("FIELD_LIST"));
+                        field.setChoiceListId(rs.getObject(("FIELD_LIST"), Integer.class));
                         field.setChoiceListName(rs.getString("FIELD_LIST_NAME"));
 
                         fields.add(field);
@@ -160,11 +161,13 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_FIELD,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Field templateField = template.getFields().get(i);
+
                         pstmt.setInt(1, keyHolder.getKey().intValue());
-                        pstmt.setString(2, template.getFields().get(i).getName());
-                        pstmt.setInt(3, template.getFields().get(i).getNum());
-                        pstmt.setInt(4, template.getFields().get(i).getTypeId());
-                        pstmt.setInt(5, template.getFields().get(i).getChoiceListId());
+                        pstmt.setString(2, templateField.getName());
+                        pstmt.setInt(3, templateField.getNum());
+                        pstmt.setInt(4, templateField.getTypeId());
+                        pstmt.setObject(5, templateField.getChoiceListId());
                     }
                     public int getBatchSize() {
                         return template.getFields().size();
@@ -175,12 +178,14 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_CONDITION,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Condition templateCondition = template.getConditions().get(i);
+
                         pstmt.setInt(1, keyHolder.getKey().intValue());
-                        pstmt.setInt(2, template.getConditions().get(i).getCondNum());
-                        pstmt.setInt(3, template.getConditions().get(i).getFieldNum());
-                        pstmt.setString(4, template.getConditions().get(i).getCond());
-                        pstmt.setString(5, template.getConditions().get(i).getValue());
-                        pstmt.setInt(6, template.getConditions().get(i).getRouteId());
+                        pstmt.setInt(2, templateCondition.getCondNum());
+                        pstmt.setInt(3, templateCondition.getFieldNum());
+                        pstmt.setString(4, templateCondition.getCond());
+                        pstmt.setString(5, templateCondition.getValue());
+                        pstmt.setInt(6, templateCondition.getRouteId());
                     }
                     public int getBatchSize() {
                         return template.getConditions().size();
@@ -206,11 +211,13 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_FIELD,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Field templateField = template.getFields().get(i);
+
                         pstmt.setInt(1, template.getId());
-                        pstmt.setString(2, template.getFields().get(i).getName());
-                        pstmt.setInt(3, template.getFields().get(i).getNum());
-                        pstmt.setInt(4, template.getFields().get(i).getTypeId());
-                        pstmt.setInt(5, template.getFields().get(i).getChoiceListId());
+                        pstmt.setString(2, templateField.getName());
+                        pstmt.setInt(3, templateField.getNum());
+                        pstmt.setInt(4, templateField.getTypeId());
+                        pstmt.setObject(5, templateField.getChoiceListId());
                     }
                     public int getBatchSize() {
                         return template.getFields().size();
@@ -225,12 +232,14 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_CONDITION,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Condition templateCondition = template.getConditions().get(i);
+
                         pstmt.setInt(1, template.getId());
-                        pstmt.setInt(2, template.getConditions().get(i).getCondNum());
-                        pstmt.setInt(3, template.getConditions().get(i).getFieldNum());
-                        pstmt.setString(4, template.getConditions().get(i).getCond());
-                        pstmt.setString(5, template.getConditions().get(i).getValue());
-                        pstmt.setInt(6, template.getConditions().get(i).getRouteId());
+                        pstmt.setInt(2, templateCondition.getCondNum());
+                        pstmt.setInt(3, templateCondition.getFieldNum());
+                        pstmt.setString(4, templateCondition.getCond());
+                        pstmt.setString(5, templateCondition.getValue());
+                        pstmt.setInt(6, templateCondition.getRouteId());
                     }
                     public int getBatchSize() {
                         return template.getConditions().size();

@@ -13,8 +13,10 @@ import ru.pioneersystem.pioneer2.model.Route;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Repository(value = "routeDao")
 public class RouteDaoImpl implements RouteDao {
@@ -43,6 +45,10 @@ public class RouteDaoImpl implements RouteDao {
                     "LEFT JOIN DOC.GROUPS G ON RG.GROUP_ID = G.ID WHERE RG.ID = ? ORDER BY NAME ASC";
     private static final String SELECT_ROUTE_LIST =
             "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_USER_ROUTE_MAP =
+            "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
+                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID WHERE COMPANY = ? AND USER_ID = ? " +
+                    "AND STATE > 0 ORDER BY NAME ASC\n";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -112,6 +118,20 @@ public class RouteDaoImpl implements RouteDao {
                     route.setName(rs.getString("NAME"));
                     route.setState(rs.getInt("STATE"));
                     return route;
+                }
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getUserRouteMap(int company, int userId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_ROUTE_MAP,
+                new Object[]{company, userId},
+                rs -> {
+                    Map<String, Integer> routes = new LinkedHashMap<>();
+                    while(rs.next()){
+                        routes.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return routes;
                 }
         );
     }

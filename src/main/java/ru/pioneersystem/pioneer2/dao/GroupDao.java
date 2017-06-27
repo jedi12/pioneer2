@@ -16,6 +16,8 @@ public interface GroupDao {
 
     Map<String, Integer> getUserPublishGroup(int company, int userId) throws DataAccessException;
 
+    Map<String, Integer> getUserCreateGroup(int company, int userId) throws DataAccessException;
+
     void create(Group group, int company) throws DataAccessException;
 
     void update(Group group) throws DataAccessException;

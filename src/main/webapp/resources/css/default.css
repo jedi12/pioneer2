@@ -6,14 +6,20 @@
 .ui-datatable .ui-editable-column {padding: 1px 10px;}
 input[type=checkbox] {width: 18px; height: 18px}
 .ui-state-disabled {opacity:1 !important;}
-
+textarea {resize:none;}
+.ui-accordion .ui-accordion-header.ui-state-disabled {color: transparent; margin: 10px; height: 0px; padding: 0px}
+.ui-accordion-header.ui-state-disabled .ui-icon {width: 0px}
+table {border-collapse: collapse;}
+.ui-dialog .ui-dialog-content {background-color: aliceblue !important;}
 
 .columnRight {text-align: right}
 .columnCenter {text-align: center}
+.columnLeft {text-align: left}
 .width100 {width: 100%}
 .width38px {width: 38px}
 .labelNoWrap {white-space: nowrap}
 .emptyTreeNode {display: none}
+.outerPanel .ui-panel-content {padding:0px !important;}
 
 .lightGrey {background-color:#E8E8E8}
 

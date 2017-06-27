@@ -2,16 +2,32 @@ function getScreen() {
 
 }
 
-function onTabChange(panel) {
-    if (panel[0].textContent == '') {
-        panel[0].style.padding = '0';
-        panel[0].style.margin = '0';
+function formatMenuTabs() {
+    PF('menuAccordion').panels.each(function() {
+        if (this.children.length == 0) {
+            this.style.padding = "0";
+            this.style.margin = "0";
+        }
+    })
+}
+
+function formatDialog() {
+    var winHeight = $(window).height();
+    var dialogHeight = $(PF('docDialog').jqId).height();
+    var panelHeight = $(PF('fieldsPanel').jqId).height();
+
+    if (dialogHeight > winHeight) {
+        $(PF('fieldsPanel').jqId).css('overflow','auto');
+        $(PF('fieldsPanel').jqId).height(panelHeight - dialogHeight + winHeight);
     }
 }
 
-function setScrollBottom() {
-    var scrollBody = PF('collectedTable').scrollBody[0];
-    scrollBody.scrollTop = scrollBody.scrollHeight;
+// Костыль, для <p:calendar> не дает открываться, если это поле в диалоге идет первым
+PrimeFaces.widget.Dialog.prototype.applyFocus = function() {
+    var firstInput = this.jq.find(':not(:submit):not(:button):input:visible:enabled:first');
+    if(!firstInput.hasClass('hasDatepicker')) {
+        firstInput.focus();
+    }
 }
 
 PrimeFaces.locales ['ru'] = {

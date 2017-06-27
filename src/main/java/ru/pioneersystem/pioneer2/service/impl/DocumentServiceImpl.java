@@ -6,17 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
+import ru.pioneersystem.pioneer2.dao.exception.LockException;
 import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Status;
+import ru.pioneersystem.pioneer2.model.User;
+import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.DocumentService;
 import ru.pioneersystem.pioneer2.service.FieldTypeService;
+import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
+import ru.pioneersystem.pioneer2.service.exception.UserLockException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 
 import java.sql.Timestamp;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service("documentService")
 public class DocumentServiceImpl implements DocumentService {
@@ -24,24 +31,46 @@ public class DocumentServiceImpl implements DocumentService {
 
     private DocumentDao documentDao;
     private FieldTypeService fieldTypeService;
+    private ChoiceListService choiceListService;
+    private UserService userService;
     private CurrentUser currentUser;
 
     @Autowired
-    public DocumentServiceImpl(DocumentDao documentDao, FieldTypeService fieldTypeService, CurrentUser currentUser) {
+    public DocumentServiceImpl(DocumentDao documentDao, FieldTypeService fieldTypeService,
+                               ChoiceListService choiceListService, UserService userService, CurrentUser currentUser) {
         this.documentDao = documentDao;
         this.fieldTypeService = fieldTypeService;
+        this.choiceListService = choiceListService;
+        this.userService = userService;
         this.currentUser = currentUser;
     }
 
     @Override
+    public Document getDocumentTemplateBased(int templateId) throws ServiceException {
+        try {
+            Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForTemplate(templateId);
+            Document document = documentDao.getTemplateBased(templateId, choiceLists);
+            document.setEditMode(true);
+            return document;
+        } catch (DataAccessException e) {
+            log.error("Can't get Document based on Template", e);
+            throw new ServiceException("Can't get Document based on Template", e);
+        }
+    }
+
+    @Override
     public Document getDocument(int id) throws ServiceException {
-//        try {
-//            return fieldTypeService.setLocalizedFieldTypeName(templateDao.get(id));
-//        } catch (DataAccessException e) {
-//            log.error("Can't get Template by id", e);
-//            throw new ServiceException("Can't get Template by id", e);
-//        }
-        return null;
+        try {
+            Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForDocument(id);
+            Document document = documentDao.getForEdit(id, choiceLists);
+            if (document.getStatusId() == Status.Id.CREATED) {
+                document.setEditMode(true);
+            }
+            return document;
+        } catch (DataAccessException e) {
+            log.error("Can't get Document by id", e);
+            throw new ServiceException("Can't get Document by id", e);
+        }
     }
 
     @Override
@@ -88,39 +117,43 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void createDocument(Document document) throws ServiceException {
-//        try {
-//            templateDao.create(template, currentUser.getUser().getCompanyId());
-//        } catch (DataAccessException e) {
-//            log.error("Can't create Template", e);
-//            throw new ServiceException("Can't create Template", e);
-//        }
-        return;
+        try {
+            documentDao.create(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            log.error("Can't create Document", e);
+            throw new ServiceException("Can't create Document", e);
+        }
     }
 
     @Override
-    public void updateDocument(Document document) throws ServiceException {
-//        try {
-//            templateDao.update(template);
-//        } catch (DataAccessException e) {
-//            log.error("Can't update Template", e);
-//            throw new ServiceException("Can't update Template", e);
-//        }
-        return;
+    public void updateDocument(Document document) throws ServiceException, UserLockException {
+        try {
+            documentDao.update(document, currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't update Document", e);
+            throw new ServiceException("Can't update Document", e);
+        } catch (LockException e) {
+            log.error("Can't update Document", e);
+            try {
+                throw new UserLockException(userService.getUser(e.getUserId()), e.getDate(), e);
+            } catch (ServiceException se) {
+                throw new UserLockException(new User(), e.getDate(), e);
+            }
+        }
     }
 
     @Override
     public void deleteDocument(int id) throws ServiceException, RestrictException {
-//        // TODO: 28.02.2017 Сделать проверку, используется ли данный шаблон или не нужна проверка вообще
+//        // TODO: 28.02.2017 Сделать проверку на удаление
 //        // пример:
 //        // установить @Transactional(rollbackForClassName = DaoException.class)
 //        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
 //        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
-//        try {
-//            templateDao.delete(id);
-//        } catch (DataAccessException e) {
-//            log.error("Can't delete Template", e);
-//            throw new ServiceException("Can't delete Template", e);
-//        }
-        return;
+        try {
+            documentDao.delete(id, currentUser.getUser().getId());
+        } catch (DataAccessException e) {
+            log.error("Can't delete Document", e);
+            throw new ServiceException("Can't delete Document", e);
+        }
     }
 }

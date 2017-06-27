@@ -16,6 +16,12 @@ public class Document {
     private String documentGroupName;
     private int partId;
     private int routeId;
+
+    private int newRouteId;
+    private boolean newRoute;
+    private boolean editMode;
+    private String signerComment;
+
     private List<Field> fields;
     private List<Condition> conditions;
     private List<Signer> signers;
@@ -100,16 +106,17 @@ public class Document {
         private int num;
         private int typeId;
         private String typeName;
-        private int choiceListId;
+        private Integer choiceListId;
         private String choiceListName;
+        private List<String> choiceListValues;
         private String valueTextField;
         private String valueChoiceList;
         private Date valueCalendar;
-        private int valueCheckBox;
+        private Boolean valueCheckBox;
         private String valueTextArea;
+        private Integer fileId;
         private String fileName;
-        private byte[] fileData;
-        private String fileContentType;
+        private File file;
 
         public String getName() {
             return name;
@@ -143,11 +150,11 @@ public class Document {
             this.typeName = typeName;
         }
 
-        public int getChoiceListId() {
+        public Integer getChoiceListId() {
             return choiceListId;
         }
 
-        public void setChoiceListId(int choiceListId) {
+        public void setChoiceListId(Integer choiceListId) {
             this.choiceListId = choiceListId;
         }
 
@@ -157,6 +164,14 @@ public class Document {
 
         public void setChoiceListName(String choiceListName) {
             this.choiceListName = choiceListName;
+        }
+
+        public List<String> getChoiceListValues() {
+            return choiceListValues;
+        }
+
+        public void setChoiceListValues(List<String> choiceListValues) {
+            this.choiceListValues = choiceListValues;
         }
 
         public String getValueTextField() {
@@ -183,11 +198,11 @@ public class Document {
             this.valueCalendar = valueCalendar;
         }
 
-        public int getValueCheckBox() {
+        public Boolean getValueCheckBox() {
             return valueCheckBox;
         }
 
-        public void setValueCheckBox(int valueCheckBox) {
+        public void setValueCheckBox(Boolean valueCheckBox) {
             this.valueCheckBox = valueCheckBox;
         }
 
@@ -199,6 +214,14 @@ public class Document {
             this.valueTextArea = valueTextArea;
         }
 
+        public Integer getFileId() {
+            return fileId;
+        }
+
+        public void setFileId(Integer fileId) {
+            this.fileId = fileId;
+        }
+
         public String getFileName() {
             return fileName;
         }
@@ -207,20 +230,12 @@ public class Document {
             this.fileName = fileName;
         }
 
-        public byte[] getFileData() {
-            return fileData;
+        public File getFile() {
+            return file;
         }
 
-        public void setFileData(byte[] fileData) {
-            this.fileData = fileData;
-        }
-
-        public String getFileContentType() {
-            return fileContentType;
-        }
-
-        public void setFileContentType(String fileContentType) {
-            this.fileContentType = fileContentType;
+        public void setFile(File file) {
+            this.file = file;
         }
     }
 
@@ -387,6 +402,38 @@ public class Document {
 
     public void setRouteId(int routeId) {
         this.routeId = routeId;
+    }
+
+    public int getNewRouteId() {
+        return newRouteId;
+    }
+
+    public void setNewRouteId(int newRouteId) {
+        this.newRouteId = newRouteId;
+    }
+
+    public boolean isNewRoute() {
+        return newRoute;
+    }
+
+    public void setNewRoute(boolean newRoute) {
+        this.newRoute = newRoute;
+    }
+
+    public boolean isEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
+    }
+
+    public String getSignerComment() {
+        return signerComment;
+    }
+
+    public void setSignerComment(String signerComment) {
+        this.signerComment = signerComment;
     }
 
     public List<Field> getFields() {

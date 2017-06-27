@@ -7,8 +7,8 @@
 	<h:form id="editDialog" target="_blank">
 		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
 			<f:facet name="header">
-				<i class="fa fa-fw fa-list"/>
-				<p:outputLabel value=" #{text['choiceList.edit.header']} (ID: #{choiceListView.currChoiceList.id})"/>
+				<i class="fa fa-fw fa-list" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['choiceList.edit.header']} (#{text['label.id']} #{choiceListView.currChoiceList.id})"/>
 			</f:facet>
 
 			<h2 align="center">
