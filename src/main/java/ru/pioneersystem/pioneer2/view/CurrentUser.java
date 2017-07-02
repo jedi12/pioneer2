@@ -23,6 +23,9 @@ import java.util.*;
 public class CurrentUser implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private int screenHeight;
+    private int screenWidth;
+
     private String login;
     private String pass;
     private String newPass;
@@ -134,12 +137,30 @@ public class CurrentUser implements Serializable {
             return;
         }
         this.currPage = currPage;
+//        RequestContext.getCurrentInstance().update(
+//                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
         ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
         FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
                 severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    public void setScreenHeight(int screenHeight) {
+        this.screenHeight = screenHeight;
+    }
+
+    public int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public void setScreenWidth(int screenWidth) {
+        this.screenWidth = screenWidth;
     }
 
     public String getLogin() {

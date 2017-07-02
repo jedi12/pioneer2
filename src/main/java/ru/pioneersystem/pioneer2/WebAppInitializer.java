@@ -31,6 +31,7 @@ public class WebAppInitializer extends FacesInitializer implements WebApplicatio
         servletContext.setInitParameter("javax.faces.DEFAULT_SUFFIX", ".xhtml");
         servletContext.setInitParameter("primefaces.FONT_AWESOME", "true");
         servletContext.setInitParameter("javax.faces.VALIDATE_EMPTY_FIELDS", "true");
+//        servletContext.setInitParameter("javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE", "true");
         servletContext.setInitParameter("woff2", "application/x-font-woff2");
         servletContext.getServletRegistration("FacesServlet").addMapping("*.xhtml");
 

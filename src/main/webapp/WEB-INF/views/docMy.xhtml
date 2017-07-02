@@ -18,9 +18,10 @@
 			<h:panelGrid columns="3" style="margin: auto;">
 				<p:radioButton for="customRadio" itemIndex="0"/>
 				<h:outputLabel value="Документы с датой изменения:"/>
-				<p:calendar id="calendar" value="#{documentView.dateIn}" pattern="dd/MM/yyyy" locale="ru" size="10"
+				<p:calendar id="calendar" value="#{documentView.dateIn}" size="10" pattern="#{localeBean.datePattern}"
+							locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}"
 							disabled="#{documentView.radioSelect == 'date' ? 'false' : 'true'}" readonlyInput="true">
-					<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="docMyTable" />
+					<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="@this docMyTable"/>
 				</p:calendar>
 				<p:radioButton for="customRadio" itemIndex="1"/>
 				<h:outputLabel value="Документы в работе"/>

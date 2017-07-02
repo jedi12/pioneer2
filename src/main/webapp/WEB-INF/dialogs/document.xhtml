@@ -66,8 +66,8 @@
 
 						<h:panelGrid columns="1" rendered="#{field.typeId == 7}" style="width:100%">
 							<h:outputLabel value="#{field.name}" style="font-weight:bold" rendered="#{field.name != ''}"/>
-							<p:calendar value="#{field.valueCalendar}" disabled="#{!documentView.currDoc.editMode}"
-										pattern="dd/MM/yyyy" locale="ru" size="10"/>
+							<p:calendar value="#{field.valueCalendar}" size="10" pattern="dd/MM/yyyy"
+										locale="#{localeBean.locale}" disabled="#{!documentView.currDoc.editMode}"/>
 						</h:panelGrid>
 
 						<h:panelGrid columns="1" rendered="#{field.typeId == 8}" style="width:100%">

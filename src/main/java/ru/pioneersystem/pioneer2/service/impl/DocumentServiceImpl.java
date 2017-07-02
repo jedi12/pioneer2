@@ -11,10 +11,7 @@ import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Status;
 import ru.pioneersystem.pioneer2.model.User;
-import ru.pioneersystem.pioneer2.service.ChoiceListService;
-import ru.pioneersystem.pioneer2.service.DocumentService;
-import ru.pioneersystem.pioneer2.service.FieldTypeService;
-import ru.pioneersystem.pioneer2.service.UserService;
+import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.UserLockException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -32,15 +29,18 @@ public class DocumentServiceImpl implements DocumentService {
     private DocumentDao documentDao;
     private FieldTypeService fieldTypeService;
     private ChoiceListService choiceListService;
+    private RouteProcessService routeProcessService;
     private UserService userService;
     private CurrentUser currentUser;
 
     @Autowired
     public DocumentServiceImpl(DocumentDao documentDao, FieldTypeService fieldTypeService,
-                               ChoiceListService choiceListService, UserService userService, CurrentUser currentUser) {
+                               ChoiceListService choiceListService, RouteProcessService routeProcessService,
+                               UserService userService, CurrentUser currentUser) {
         this.documentDao = documentDao;
         this.fieldTypeService = fieldTypeService;
         this.choiceListService = choiceListService;
+        this.routeProcessService = routeProcessService;
         this.userService = userService;
         this.currentUser = currentUser;
     }
@@ -119,9 +119,10 @@ public class DocumentServiceImpl implements DocumentService {
     public void createDocument(Document document) throws ServiceException {
         try {
             documentDao.create(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
-        } catch (DataAccessException e) {
-            log.error("Can't create Document", e);
-            throw new ServiceException("Can't create Document", e);
+            routeProcessService.createRouteProcess(document);
+        } catch (DataAccessException | UserLockException e) {
+            log.error("Can't create Document or Route Process", e);
+            throw new ServiceException("Can't create Document or Route Process", e);
         }
     }
 
@@ -129,6 +130,7 @@ public class DocumentServiceImpl implements DocumentService {
     public void updateDocument(Document document) throws ServiceException, UserLockException {
         try {
             documentDao.update(document, currentUser.getUser().getId());
+            routeProcessService.createRouteProcess(document);
         } catch (DataAccessException e) {
             log.error("Can't update Document", e);
             throw new ServiceException("Can't update Document", e);

@@ -26,6 +26,13 @@
 		</h:head>
 
 		<h:body>
+			<h:form id="initProp">
+				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
+				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
+				<h:inputHidden id="zoneOffset" value="#{localeBean.timezoneOffsetMinutes}"/>
+				<p:remoteCommand onstart="initClientProp();" autoRun="true"/>
+			</h:form>
+
 			<p:layout id="layout" fullPage="true">
 				<p:layoutUnit position="north">
 					<h:form id="northPanel">

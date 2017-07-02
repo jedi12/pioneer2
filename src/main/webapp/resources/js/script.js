@@ -1,5 +1,7 @@
-function getScreen() {
-
+function initClientProp() {
+    document.getElementById("initProp:screenHeight").value = screen.height;
+    document.getElementById("initProp:screenWidth").value = screen.width;
+    document.getElementById("initProp:zoneOffset").value = 0 - new Date().getTimezoneOffset();
 }
 
 function formatMenuTabs() {
@@ -22,6 +24,31 @@ function formatDialog() {
     }
 }
 
+function selectOneMenuCut() {
+    selectOneMenuList = document.getElementsByClassName('ui-selectonemenu');
+    for (j = 0; j < selectOneMenuList.length; ++j) {
+        element = selectOneMenuList[j];
+        selectOneMenuWidth = element.clientWidth;
+        elementParentNode = element.parentNode;
+        while (elementParentNode != 'undefined') {
+            if (elementParentNode.tagName == 'TABLE') {
+                tableWidth = elementParentNode.clientWidth;
+                prop = window.getComputedStyle(elementParentNode.parentNode, null);
+                panelWidth = prop.getPropertyValue('width').replace("px","");
+                if (tableWidth > panelWidth) {
+                    pribavka = tableWidth - panelWidth;
+                    element.style['width'] = selectOneMenuWidth - pribavka + 'px';
+                    element.style['min-width'] = '';
+                }
+                break;
+            }
+            else {
+                elementParentNode = elementParentNode.parentNode;
+            }
+        }
+    }
+}
+
 // Костыль, для <p:calendar> не дает открываться, если это поле в диалоге идет первым
 PrimeFaces.widget.Dialog.prototype.applyFocus = function() {
     var firstInput = this.jq.find(':not(:submit):not(:button):input:visible:enabled:first');
@@ -30,7 +57,7 @@ PrimeFaces.widget.Dialog.prototype.applyFocus = function() {
     }
 }
 
-PrimeFaces.locales ['ru'] = {
+PrimeFaces.locales ['ru_RU'] = {
 	closeText: 'Закрыть',
     prevText: 'Назад',
     nextText: 'Вперёд',

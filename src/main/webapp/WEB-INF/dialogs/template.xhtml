@@ -185,8 +185,8 @@
 											 maxlength="100" rendered="#{templateView.condValueRendered}"/>
 								<p:selectBooleanCheckbox value="#{templateView.condCheckBoxValue}" style="padding:2px 0px;"
 														 rendered="#{templateView.condCheckBoxValueRendered}"/>
-								<p:calendar value="#{templateView.condCalendarValue}" pattern="dd/MM/yyyy" locale="ru"
-											rendered="#{templateView.condCalendarValueRendered}"/>
+								<p:calendar value="#{templateView.condCalendarValue}" size="10" pattern="#{localeBean.datePattern}"
+											locale="#{localeBean.locale}" rendered="#{templateView.condCalendarValueRendered}"/>
 								<p:message for="addCondValue" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['template.edit.conditions.add.route.label']}" for="addCondRoute"/>

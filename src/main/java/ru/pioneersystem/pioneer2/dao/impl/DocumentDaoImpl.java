@@ -150,7 +150,7 @@ public class DocumentDaoImpl implements DocumentDao {
                     document.setId(rs.getInt("ID"));
                     document.setName(rs.getString("NAME"));
                     document.setStatusId(rs.getInt("STATUS"));
-                    document.setChangeDate(rs.getTimestamp("U_DATE"));
+                    document.setChangeDate(Date.from(rs.getTimestamp("U_DATE").toInstant()));
                     document.setTemplateId(rs.getInt("TEMPLATE"));
                     document.setChangeUserId(rs.getInt("U_USER"));
                     document.setDocumentGroupId(rs.getInt("DOC_GROUP"));
@@ -181,7 +181,7 @@ public class DocumentDaoImpl implements DocumentDao {
                                 field.setChoiceListValues(choiceLists.get(id));
                                 break;
                             case FieldType.Id.CALENDAR:
-                                field.setValueCalendar(rs.getTimestamp("VALUE_CALENDAR"));
+                                field.setValueCalendar(Date.from(rs.getTimestamp("VALUE_CALENDAR").toInstant()));
                                 break;
                             case FieldType.Id.CHECKBOX:
                                 field.setValueCheckBox(rs.getObject("VALUE_CHECKBOX", Boolean.class));
@@ -232,7 +232,7 @@ public class DocumentDaoImpl implements DocumentDao {
                     Document document = new Document();
                     document.setId(rs.getInt("ID"));
                     document.setName(rs.getString("NAME"));
-                    document.setChangeDate(rs.getTimestamp("U_DATE"));
+                    document.setChangeDate(Date.from(rs.getTimestamp("U_DATE").toInstant()));
                     return document;
                 }
         );
@@ -284,15 +284,18 @@ public class DocumentDaoImpl implements DocumentDao {
     @Override
     @Transactional
     public void create(Document document, int userId, int company) throws DataAccessException {
+        document.setChangeUserId(userId);
+        document.setChangeDate(new Date());
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_DOCUMENT, new String[] {"id"});
                     pstmt.setString(1, document.getName());
                     pstmt.setInt(2, Status.Id.CREATED);
-                    pstmt.setTimestamp(3, new Timestamp(Calendar.getInstance().getTimeInMillis()));
+                    pstmt.setTimestamp(3, Timestamp.from(document.getChangeDate().toInstant()));
                     pstmt.setInt(4, document.getTemplateId());
-                    pstmt.setInt(5, userId);
+                    pstmt.setInt(5, document.getChangeUserId());
                     pstmt.setInt(6, document.getDocumentGroupId());
                     pstmt.setInt(7, 0);
                     pstmt.setInt(8, document.getRouteId());
@@ -300,6 +303,8 @@ public class DocumentDaoImpl implements DocumentDao {
                     return pstmt;
                 }, keyHolder
         );
+
+        document.setId(keyHolder.getKey().intValue());
 
         Map<Integer, Integer> fileIds = new HashMap<>();
         for (Document.Field field: document.getFields()) {
@@ -333,7 +338,7 @@ public class DocumentDaoImpl implements DocumentDao {
                         pstmt.setInt(4, documentField.getTypeId());
                         pstmt.setObject(5, documentField.getValueTextField());
                         pstmt.setObject(6, documentField.getValueChoiceList());
-                        pstmt.setObject(7, documentField.getValueCalendar());
+                        pstmt.setObject(7, documentField.getValueCalendar() == null ? null : Timestamp.from(documentField.getValueCalendar().toInstant()));
                         pstmt.setObject(8, documentField.getValueCheckBox() == null ? null : documentField.getValueCheckBox() ? 1 : 0);
                         pstmt.setObject(9, documentField.getValueTextArea());
                         pstmt.setObject(10, documentField.getChoiceListId());
@@ -370,7 +375,7 @@ public class DocumentDaoImpl implements DocumentDao {
         Document tempVal = jdbcTemplate.queryForObject(LOCK_DOCUMENT,
                 new Object[]{document.getId()},
                 (rs, rowNum) -> {
-                    Date uDate = rs.getTimestamp("U_DATE");
+                    Date uDate = Date.from(rs.getTimestamp("U_DATE").toInstant());
                     int uUserId = rs.getInt("U_USER");
 
                     if (document.getChangeDate().compareTo(uDate) != 0) {
@@ -388,10 +393,13 @@ public class DocumentDaoImpl implements DocumentDao {
                     tempVal.getChangeUserId(), tempVal.getChangeDate());
         }
 
+        document.setChangeUserId(userId);
+        document.setChangeDate(new Date());
+
         jdbcTemplate.update(UPDATE_DOCUMENT,
                 document.getName(),
-                new Timestamp(Calendar.getInstance().getTimeInMillis()),
-                userId,
+                Timestamp.from(document.getChangeDate().toInstant()),
+                document.getChangeUserId(),
                 document.getDocumentGroupId(),
                 document.getPartId(),
                 document.getId()
@@ -430,7 +438,7 @@ public class DocumentDaoImpl implements DocumentDao {
                         pstmt.setInt(4, documentField.getTypeId());
                         pstmt.setObject(5, documentField.getValueTextField());
                         pstmt.setObject(6, documentField.getValueChoiceList());
-                        pstmt.setObject(7, documentField.getValueCalendar());
+                        pstmt.setObject(7, documentField.getValueCalendar() == null ? null : Timestamp.from(documentField.getValueCalendar().toInstant()));
                         pstmt.setObject(8, documentField.getValueCheckBox() == null ? null : documentField.getValueCheckBox() ? 1 : 0);
                         pstmt.setObject(9, documentField.getValueTextArea());
                         pstmt.setObject(10, documentField.getChoiceListId());

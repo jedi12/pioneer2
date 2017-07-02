@@ -13,6 +13,7 @@ import ru.pioneersystem.pioneer2.service.PartService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.UserLockException;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 import ru.pioneersystem.pioneer2.view.utils.TreeNodeUtil;
 
 import javax.annotation.PostConstruct;
@@ -28,10 +29,7 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -69,10 +67,13 @@ public class DocumentView implements Serializable {
     @ManagedProperty("#{currentUser}")
     private CurrentUser currentUser;
 
+    @ManagedProperty("#{localeBean}")
+    private LocaleBean localeBean;
+
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-        dateIn = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+        dateIn = Date.from(LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId()).toInstant());
         radioSelect = "date";
         currDoc = new Document();
     }
@@ -199,6 +200,7 @@ public class DocumentView implements Serializable {
             if (createFlag) {
                 documentService.createDocument(currDoc);
                 currentUser.setCurrMenuId(Menu.Id.MY_DOCS);
+                init();
             } else {
                 documentService.updateDocument(currDoc);
             }
@@ -321,6 +323,10 @@ public class DocumentView implements Serializable {
 
     public void setCurrentUser(CurrentUser currentUser) {
         this.currentUser = currentUser;
+    }
+
+    public void setLocaleBean(LocaleBean localeBean) {
+        this.localeBean = localeBean;
     }
 
     public TreeNode getPartTempTree() {
