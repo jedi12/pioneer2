@@ -13,6 +13,8 @@ public class Company {
     private int state;
     private String stateName;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int LOCKED = 0;
         public static final int ACTIVE = 1;
@@ -104,5 +106,13 @@ public class Company {
 
     public void setStateName(String stateName) {
         this.stateName = stateName;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

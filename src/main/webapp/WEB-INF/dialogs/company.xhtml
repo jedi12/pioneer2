@@ -12,7 +12,8 @@
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{companyView.createFlag ? text['company.edit.create'] : text['company.edit.change']}"/>
+				<h:outputLabel value="#{companyView.currCompany.createFlag
+					? text['company.edit.create'] : text['company.edit.change']}"/>
 			</h2>
 
 			<p:panel>

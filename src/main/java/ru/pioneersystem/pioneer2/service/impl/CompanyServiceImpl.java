@@ -34,16 +34,6 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public Company getCompany(int id) throws ServiceException {
-        try {
-            return setLocalizedStateName(companyDao.get(id));
-        } catch (DataAccessException e) {
-            log.error("Can't get Company by id", e);
-            throw new ServiceException("Can't get Company by id", e);
-        }
-    }
-
-    @Override
     public List<Company> getCompanyList() throws ServiceException {
         try {
             List<Company> companies = companyDao.getList();
@@ -52,28 +42,44 @@ public class CompanyServiceImpl implements CompanyService {
             }
             return companies;
         } catch (DataAccessException e) {
-            log.error("Can't get list of Company", e);
-            throw new ServiceException("Can't get list of Company", e);
+            String mess = messageSource.getMessage("error.company.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void createCompany(Company company) throws ServiceException {
+    public Company getNewCompany() {
+        Company company = new Company();
+        company.setCreateFlag(true);
+        return company;
+    }
+
+    @Override
+    public Company getCompany(int id) throws ServiceException {
         try {
-            companyDao.create(company);
+            Company company = setLocalizedStateName(companyDao.get(id));
+            company.setCreateFlag(false);
+            return company;
         } catch (DataAccessException e) {
-            log.error("Can't create Company", e);
-            throw new ServiceException("Can't create Company", e);
+            String mess = messageSource.getMessage("error.company.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateCompany(Company company) throws ServiceException {
+    public void saveCompany(Company company) throws ServiceException {
         try {
-            companyDao.update(company);
+            if (company.isCreateFlag()) {
+                companyDao.create(company);
+            } else {
+                companyDao.update(company);
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update Company", e);
-            throw new ServiceException("Can't update Company", e);
+            String mess = messageSource.getMessage("error.company.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -83,8 +89,9 @@ public class CompanyServiceImpl implements CompanyService {
             companyDao.lock(id);
             sessionListener.invalidateCompanySessions(id);
         } catch (DataAccessException e) {
-            log.error("Can't lock Company", e);
-            throw new ServiceException("Can't lock Company", e);
+            String mess = messageSource.getMessage("error.company.NotLocked", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -93,8 +100,9 @@ public class CompanyServiceImpl implements CompanyService {
         try {
             companyDao.unlock(id);
         } catch (DataAccessException e) {
-            log.error("Can't unlock Company", e);
-            throw new ServiceException("Can't unlock Company", e);
+            String mess = messageSource.getMessage("error.company.NotUnLocked", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
