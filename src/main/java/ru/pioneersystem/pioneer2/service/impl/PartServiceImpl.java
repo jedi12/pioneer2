@@ -68,6 +68,15 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
+    public Map<String, Integer> getUserPartMap(int type) throws ServiceException {
+        Map<String, Integer> parts = new LinkedHashMap<>();
+        for (Part part : getUserPartList(type)) {
+            parts.put(part.getName(), part.getId());
+        }
+        return parts;
+    }
+
+    @Override
     public void createPart(Part part, int type) throws ServiceException {
         try {
             partDao.create(part, type, currentUser.getUser().getCompanyId());
@@ -102,7 +111,7 @@ public class PartServiceImpl implements PartService {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             partDao.delete(id);
@@ -117,7 +126,7 @@ public class PartServiceImpl implements PartService {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             partDao.delete(parts);

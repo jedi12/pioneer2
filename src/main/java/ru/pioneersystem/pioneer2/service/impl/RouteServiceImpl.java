@@ -59,7 +59,7 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public Map<String, Integer> getUserRouteMap() throws ServiceException {
+    public Map<String, Integer> getUserRoutesMap() throws ServiceException {
         try {
             return routeDao.getUserRouteMap(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
         } catch (DataAccessException e) {
@@ -93,7 +93,7 @@ public class RouteServiceImpl implements RouteService {
         // TODO: 28.02.2017 Проверка на удаление системного маршрута плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             routeDao.delete(id);

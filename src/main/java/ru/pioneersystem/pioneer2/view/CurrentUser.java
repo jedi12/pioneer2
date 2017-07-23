@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.model.Menu;
+import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
@@ -34,6 +35,7 @@ public class CurrentUser implements Serializable {
     private List<Menu> userMenu;
     private Map<String, Integer> userCreateGroups;
     private Map<String, Integer> userRoutes;
+    private Map<String, Integer> userPubParts;
 
     private String currPage = "welcome.xhtml";
     private int currMenuIndex = -1;
@@ -44,16 +46,19 @@ public class CurrentUser implements Serializable {
     private MenuService menuService;
     private GroupService groupService;
     private RouteService routeService;
+    private PartService partService;
     private LocaleBean localeBean;
     private HttpServletRequest request;
 
     @Autowired
     public CurrentUser(UserService userService, MenuService menuService, GroupService groupService,
-                       RouteService routeService, LocaleBean localeBean, HttpServletRequest request) {
+                       RouteService routeService, PartService partService, LocaleBean localeBean,
+                       HttpServletRequest request) {
         this.userService = userService;
         this.menuService = menuService;
         this.groupService = groupService;
         this.routeService = routeService;
+        this.partService = partService;
         this.localeBean = localeBean;
         this.request = request;
     }
@@ -74,8 +79,9 @@ public class CurrentUser implements Serializable {
             }
 
             userMenu = menuService.getUserMenu(userId);
-            userCreateGroups = groupService.getUserCreateMap();
-            userRoutes = routeService.getUserRouteMap();
+            userCreateGroups = groupService.getUserCreateGroupsMap();
+            userRoutes = routeService.getUserRoutesMap();
+            userPubParts = partService.getUserPartMap(Part.Type.FOR_DOCUMENTS);
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -205,6 +211,10 @@ public class CurrentUser implements Serializable {
 
     public Map<String, Integer> getUserRoutes() {
         return userRoutes;
+    }
+
+    public Map<String, Integer> getUserPubParts() {
+        return userPubParts;
     }
 
     public String getCurrPage() {

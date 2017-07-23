@@ -1,6 +1,5 @@
 package ru.pioneersystem.pioneer2.service;
 
-import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -16,13 +15,15 @@ public interface PartService {
 
     List<Part> getUserPartList(int type) throws ServiceException;
 
+    Map<String, Integer> getUserPartMap(int type) throws ServiceException;
+
     void createPart(Part part, int type) throws ServiceException;
 
     void updatePart(Part part) throws ServiceException;
 
     void updateParts(List<Part> parts) throws ServiceException;
 
-    void deletePart(int id) throws ServiceException, RestrictException;
+    void deletePart(int id) throws ServiceException;
 
     void deleteParts(List<Part> parts) throws ServiceException;
 }

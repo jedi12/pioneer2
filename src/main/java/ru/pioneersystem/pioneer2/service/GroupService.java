@@ -1,6 +1,5 @@
 package ru.pioneersystem.pioneer2.service;
 
-import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -18,11 +17,11 @@ public interface GroupService {
 
     Map<String, Integer> getUserPublishMap() throws ServiceException;
 
-    Map<String, Integer> getUserCreateMap() throws ServiceException;
+    Map<String, Integer> getUserCreateGroupsMap() throws ServiceException;
 
     void createGroup(Group role) throws ServiceException;
 
     void updateGroup(Group role) throws ServiceException;
 
-    void deleteGroup(int id) throws ServiceException, RestrictException;
+    void deleteGroup(int id) throws ServiceException;
 }

@@ -4,12 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
-import ru.pioneersystem.pioneer2.dao.exception.LockException;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Status;
 
+import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository(value = "routeProcessDao")
 public class RouteProcessDaoImpl implements RouteProcessDao {
@@ -18,7 +23,19 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                     "SIGN_MESSAGE, ACTIVE, RECEIPT_DATE) SELECT ?, STAGE, GROUP_ID, ROLE_ID, 0, NULL, NULL, NULL, 0, " +
                     "NULL FROM DOC.ROUTES_POINT RP, DOC.GROUPS G WHERE GROUP_ID = G.ID AND RP.ID = ?";
     private static final String DELETE_ROUTE_PROCESS = "DELETE FROM DOC.DOCUMENTS_SIGN WHERE ID = ?";
-    private static final String LOCK_DOCUMENT = "SELECT U_DATE, U_USER FROM DOC.DOCUMENTS WHERE ID = ? FOR UPDATE";
+    private static final String START_ROUTE_PROCESS1 =
+            "SELECT STAGE, ROLE_ID FROM DOC.DOCUMENTS_SIGN WHERE ID = ? ORDER BY STAGE";
+    private static final String START_ROUTE_PROCESS2 =
+            "UPDATE DOC.DOCUMENTS_SIGN SET ACTIVE = 1, RECEIPT_DATE = ? WHERE ID = ? AND STAGE = ?";
+    private static final String START_ROUTE_PROCESS3 =
+            "UPDATE DOC.DOCUMENTS SET STATUS = ?, U_DATE = ? WHERE ID = ?";
+    private static final String CANCEL_ROUTE_PROCESS1 =
+            "SELECT ID FROM DOC.DOCUMENTS WHERE STATUS > 9 AND ID = ?";
+    private static final String CANCEL_ROUTE_PROCESS2 =
+            "UPDATE DOC.DOCUMENTS_SIGN SET SIGNED = ?, ACTIVE = 0, SIGN_DATE = ?, SIGN_USER = ?, SIGN_MESSAGE = ? " +
+                    "WHERE SIGNED = 0 AND ID = ?";
+    private static final String CANCEL_ROUTE_PROCESS3 =
+            "UPDATE DOC.DOCUMENTS SET STATUS = ?, U_DATE = ?, U_USER = ? WHERE ID = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -28,36 +45,87 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
     }
 
     @Override
-    @Transactional
-    public void create(Document document, int routeId) throws DataAccessException, LockException {
-        Document tempVal = jdbcTemplate.queryForObject(LOCK_DOCUMENT,
-                new Object[]{document.getId()},
-                (rs, rowNum) -> {
-                    Date uDate = Date.from(rs.getTimestamp("U_DATE").toInstant());
-                    int uUserId = rs.getInt("U_USER");
-
-                    if (document.getChangeDate().compareTo(uDate) != 0) {
-                        Document values = new Document();
-                        values.setChangeDate(uDate);
-                        values.setChangeUserId(uUserId);
-                        return values;
-                    }
-                    return null;
-                }
-        );
-
-        if (tempVal != null) {
-            throw new LockException("Current Document has already changed by another user",
-                    tempVal.getChangeUserId(), tempVal.getChangeDate());
-        }
-
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void create(int documentId, int routeId) throws DataAccessException {
         jdbcTemplate.update(DELETE_ROUTE_PROCESS,
-                document.getId()
+                documentId
         );
 
         jdbcTemplate.update(INSERT_ROUTE_PROCESS,
-                document.getId(),
+                documentId,
                 routeId
+        );
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void start(int documentId) throws DataAccessException {
+        Document.RoutePoint tempVal = jdbcTemplate.query(START_ROUTE_PROCESS1,
+                new Object[]{documentId},
+                (rs) -> {
+                    Document.RoutePoint values = null;
+                    if(rs.next()) {
+                        int stage = rs.getInt("STAGE");
+                        int roleId = rs.getInt("ROLE_ID");
+
+                        values = new Document.RoutePoint();
+                        values.setStage(stage);
+                        values.setRoleId(roleId);
+                    }
+
+                    return values;
+                }
+        );
+
+        Date uDate = new Date();
+        if (tempVal != null) {
+            jdbcTemplate.update(START_ROUTE_PROCESS2,
+                    Timestamp.from(uDate.toInstant()),
+                    documentId,
+                    tempVal.getStage()
+            );
+        } else {
+            tempVal.setRoleId(Status.Id.COMPLETED);
+        }
+
+        jdbcTemplate.update(START_ROUTE_PROCESS3,
+                tempVal.getRoleId(),
+                Timestamp.from(uDate.toInstant()),
+                documentId
+        );
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void cancel(int documentId, int userId, String message) throws DataAccessException, NotFoundDaoException {
+        Map<Date, Integer> tempVal = jdbcTemplate.query(CANCEL_ROUTE_PROCESS1,
+                new Object[]{documentId},
+                (rs) -> {
+                    Map<Date, Integer> values = null;
+                    if (rs.next()) {
+                        values = new HashMap<>();
+                    }
+                    return values;
+                }
+        );
+        if (tempVal == null) {
+            throw new NotFoundDaoException("");
+        }
+
+        Date uDate = new Date();
+        jdbcTemplate.update(CANCEL_ROUTE_PROCESS2,
+                Document.RoutePoint.Signed.CANCELED,
+                Timestamp.from(uDate.toInstant()),
+                userId,
+                message,
+                documentId
+        );
+
+        jdbcTemplate.update(CANCEL_ROUTE_PROCESS3,
+                Status.Id.CANCELED,
+                Timestamp.from(uDate.toInstant()),
+                userId,
+                documentId
         );
     }
 }

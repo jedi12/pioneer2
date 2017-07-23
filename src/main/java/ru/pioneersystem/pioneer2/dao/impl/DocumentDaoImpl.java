@@ -7,9 +7,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
-import ru.pioneersystem.pioneer2.dao.exception.LockException;
+import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.*;
 
 import java.io.ByteArrayInputStream;
@@ -36,11 +38,13 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String UPDATE_DOCUMENT =
             "UPDATE DOC.DOCUMENTS SET NAME = ?, U_DATE = ?, U_USER = ?, DOC_GROUP = ?, PUB_PART = ? WHERE ID = ?";
     private static final String LOCK_DOCUMENT = "SELECT U_DATE, U_USER FROM DOC.DOCUMENTS WHERE ID = ? FOR UPDATE";
-    private static final String DELETE_DOCUMENT = "UPDATE DOC.DOCUMENTS SET STATUS = ? WHERE ID = ?";
+    private static final String DELETE_DOCUMENT = "UPDATE DOC.DOCUMENTS SET STATUS = ?, U_DATE = ?, U_USER = ? WHERE ID = ?";
     private static final String DELETE_DOCUMENT_FIELD = "DELETE FROM DOC.DOCUMENTS_FIELD WHERE ID = ?";
     private static final String DELETE_DOCUMENT_CONDITION = "DELETE FROM DOC.TEMPLATES_COND WHERE ID = ?";
     private static final String DELETE_DOCUMENT_FILE = "DELETE FROM DOC.FILES WHERE ID IN (SELECT VALUE_FILE " +
             "FROM DOC.DOCUMENTS_FIELD WHERE ID = ? AND FIELD_TYPE = ?)";
+    private static final String PUBLICATE_DOCUMENT =
+            "UPDATE DOC.DOCUMENTS SET PUB_PART = ?, U_DATE = ?, U_USER = ?, STATUS = ? WHERE ID = ?";
     private static final String SELECT_TEMPLATE = "SELECT ID, NAME, ROUTE FROM DOC.TEMPLATES WHERE ID = ?";
     private static final String SELECT_TEMPLATE_FIELD = "SELECT FIELD_NAME, FIELD_NUM, FIELD_TYPE, FIELD_LIST " +
             "FROM DOC.TEMPLATES_FIELD WHERE ID = ? ORDER BY FIELD_NUM ASC";
@@ -370,36 +374,12 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    @Transactional
-    public void update(Document document, int userId) throws DataAccessException, LockException {
-        Document tempVal = jdbcTemplate.queryForObject(LOCK_DOCUMENT,
-                new Object[]{document.getId()},
-                (rs, rowNum) -> {
-                    Date uDate = Date.from(rs.getTimestamp("U_DATE").toInstant());
-                    int uUserId = rs.getInt("U_USER");
-
-                    if (document.getChangeDate().compareTo(uDate) != 0) {
-                        Document values = new Document();
-                        values.setChangeDate(uDate);
-                        values.setChangeUserId(uUserId);
-                        return values;
-                    }
-                    return null;
-                }
-        );
-
-        if (tempVal != null) {
-            throw new LockException("Current Document has already changed by another user",
-                    tempVal.getChangeUserId(), tempVal.getChangeDate());
-        }
-
-        document.setChangeUserId(userId);
-        document.setChangeDate(new Date());
-
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void update(Document document, int userId) throws DataAccessException {
         jdbcTemplate.update(UPDATE_DOCUMENT,
                 document.getName(),
-                Timestamp.from(document.getChangeDate().toInstant()),
-                document.getChangeUserId(),
+                Timestamp.from((new Date()).toInstant()),
+                userId,
                 document.getDocumentGroupId(),
                 document.getPartId(),
                 document.getId()
@@ -474,11 +454,55 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(int id, int userId) throws DataAccessException {
-        jdbcTemplate.update(DELETE_DOCUMENT, Template.State.DELETED, id);
-        jdbcTemplate.update(DELETE_DOCUMENT_FILE, id, FieldType.Id.FILE);
-        jdbcTemplate.update(DELETE_DOCUMENT_FIELD, id);
-        jdbcTemplate.update(DELETE_DOCUMENT_CONDITION, id);
+        jdbcTemplate.update(DELETE_DOCUMENT,
+                Status.Id.DELETED,
+                Timestamp.from((new Date()).toInstant()),
+                userId,
+                id);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void publish(int id, int userId, int partId, boolean isPublic) throws DataAccessException {
+        jdbcTemplate.update(PUBLICATE_DOCUMENT,
+                partId,
+                Timestamp.from((new Date()).toInstant()),
+                userId,
+                isPublic ? Status.Id.PUBLISHED : Status.Id.COMPLETED,
+                id);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void lock(Document document) throws DataAccessException, LockDaoException, NotFoundDaoException {
+        Map<Date, Integer> tempVal = jdbcTemplate.query(LOCK_DOCUMENT,
+                new Object[]{document.getId()},
+                (rs) -> {
+                    Map<Date, Integer> values = null;
+                    if (rs.next()) {
+                        Date uDate = Date.from(rs.getTimestamp("U_DATE").toInstant());
+                        int uUserId = rs.getInt("U_USER");
+
+                        if (document.getChangeDate().compareTo(uDate) != 0) {
+                            values = new HashMap<>();
+                            values.put(uDate, uUserId);
+                            return values;
+                        } else {
+                            return values;
+                        }
+                    } else {
+                        return new HashMap<>();
+                    }
+                }
+        );
+
+        if (tempVal != null) {
+            if (tempVal.isEmpty()) {
+                throw new NotFoundDaoException("");
+            }
+            throw new LockDaoException((Integer) tempVal.values().toArray()[0], (Date) tempVal.keySet().toArray()[0]);
+        }
     }
 }

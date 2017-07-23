@@ -7,6 +7,8 @@ public class ChoiceList {
     private String name;
     private List<String> values;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -34,5 +36,13 @@ public class ChoiceList {
 
     public void setValues(List<String> values) {
         this.values = values;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

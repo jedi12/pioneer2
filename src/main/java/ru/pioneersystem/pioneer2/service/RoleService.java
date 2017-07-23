@@ -1,6 +1,5 @@
 package ru.pioneersystem.pioneer2.service;
 
-import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -18,5 +17,5 @@ public interface RoleService {
 
     void updateRole(Role role) throws ServiceException;
 
-    void deleteRole(int id) throws ServiceException, RestrictException;
+    void deleteRole(int id) throws ServiceException;
 }

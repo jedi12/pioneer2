@@ -17,10 +17,33 @@
 				</p:inplace>
 			</h2>
 
-			<h:panelGrid id="docProp" columns="2" columnClasses=",columnRight" style="width:100%">
+			<h:panelGrid columns="1" style="width:100%">
+				<h:panelGroup>
+					<p:selectBooleanCheckbox value="#{documentView.currDoc.editMode}">
+						<p:ajax update="fieldsPanel title" oncomplete="formatDialog()"/>
+					</p:selectBooleanCheckbox>
+					<h:outputLabel value="#{text['document.edit.mode']}" style="margin-left:10px;font-style:italic"/>
+				</h:panelGroup>
+			</h:panelGrid>
+
+			<h:panelGrid id="publicate" columns="2" columnClasses=",columnRight" style="width:100%">
+				<h:panelGroup>
+					<p:selectBooleanCheckbox value="#{documentView.currDoc.newPart}">
+						<p:ajax update="publicate"/>
+					</p:selectBooleanCheckbox>
+					<h:outputLabel value="#{text['document.publish']}" style="margin-left:10px;font-style:italic"/>
+				</h:panelGroup>
+				<p:selectOneMenu value="#{documentView.currDoc.partId}" filter="true" filterMatchMode="contains"
+								 rendered="#{documentView.currDoc.newPart}">
+					<f:selectItems value="#{currentUser.userPubParts}"/>
+				</p:selectOneMenu>
+				<p:selectOneMenu style="visibility:hidden" rendered="#{!documentView.currDoc.newPart}"/>
+			</h:panelGrid>
+
+			<h:panelGrid id="changeRoute" columns="2" columnClasses=",columnRight" style="width:100%">
 				<h:panelGroup>
 					<p:selectBooleanCheckbox value="#{documentView.currDoc.newRoute}">
-						<p:ajax update="docProp"/>
+						<p:ajax update="changeRoute"/>
 					</p:selectBooleanCheckbox>
 					<h:outputLabel value="#{text['document.change.route']}" style="margin-left:10px;font-style:italic"/>
 				</h:panelGroup>
@@ -31,17 +54,8 @@
 				<p:selectOneMenu style="visibility:hidden" rendered="#{!documentView.currDoc.newRoute}"/>
 			</h:panelGrid>
 
-			<h:panelGrid columns="1" style="width:100%">
-				<h:panelGroup>
-					<p:selectBooleanCheckbox value="#{documentView.currDoc.editMode}">
-						<p:ajax update="fieldsPanel title" oncomplete="formatDialog()"/>
-					</p:selectBooleanCheckbox>
-					<h:outputLabel value="#{text['document.edit.mode']}" style="margin-left:10px;font-style:italic"/>
-				</h:panelGroup>
-			</h:panelGrid>
-
 			<h:panelGrid columns="2" columnClasses=",columnRight" style="width:100%">
-				<h:outputLabel value="#{text['document.group.ovner']}" style="font-style:italic"/>
+				<h:outputLabel value="#{text['document.group.owner']}" style="font-style:italic"/>
 				<p:selectOneMenu value="#{documentView.currDoc.documentGroupId}" filter="true" filterMatchMode="contains">
 					<f:selectItems value="#{currentUser.userCreateGroups}"/>
 				</p:selectOneMenu>
@@ -135,24 +149,33 @@
 					</h:panelGroup>
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<h:panelGroup>
-							<p:commandButton value="#{text['document.btn.saveAndSend']}" icon="fa fa-fw fa-share-square-o" style="margin-right:4px"
-											 actionListener="#{docs.saveAndSendDoc}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="#{text['document.btn.save']}" icon="fa fa-fw fa-floppy-o" style="margin-right:4px"
-											 actionListener="#{documentView.saveAction}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="#{text['document.btn.withdraw']}" icon="fa fa-fw fa-reply" style="margin-right:4px"
-											 actionListener="#{docs.recallDoc}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="#{text['document.btn.copy']}" icon="fa fa-fw fa-files-o" style="margin-right:4px"
-											 actionListener="#{docs.copyDoc}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="#{text['document.btn.publish']}" icon="fa fa-fw fa-indent" style="margin-right:4px"
-											 actionListener="#{docs.publicate}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="#{text['document.btn.dispublish']}" icon="fa fa-fw fa-outdent" style="margin-right:4px"
-											 actionListener="#{docs.disPublicate}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="#{text['document.btn.delete']}" icon="fa fa-fw fa-trash-o" style="margin-right:4px"
-											 actionListener="#{documentView.deleteAction}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="ACCEPT" icon="fa fa-fw fa-check" style="margin-right:4px"
-											 actionListener="#{docs.acceptDoc}" update=":centerPanel :leftPanel"/>
-							<p:commandButton value="REJECT" icon="fa fa-fw fa-close" style="margin-right:4px"
-											 actionListener="#{docs.rejectDoc}" update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.saveAndSend']}" icon="fa fa-fw fa-share-square-o"
+											 style="margin-right:4px" actionListener="#{documentView.saveAndSendAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.save']}" icon="fa fa-fw fa-floppy-o"
+											 style="margin-right:4px" actionListener="#{documentView.saveAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.withdraw']}" icon="fa fa-fw fa-reply"
+											 style="margin-right:4px" actionListener="#{documentView.recallAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.copy']}" icon="fa fa-fw fa-files-o"
+											 style="margin-right:4px" actionListener="#{documentView.copyAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.publish']}" icon="fa fa-fw fa-indent"
+											 style="margin-right:4px" actionListener="#{documentView.publishAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.cancelPublish']}" icon="fa fa-fw fa-outdent"
+											 style="margin-right:4px" actionListener="#{documentView.cancelPublishAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="#{text['document.btn.delete']}" icon="fa fa-fw fa-trash-o"
+											 style="margin-right:4px" actionListener="#{documentView.deleteAction}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="ACCEPT" icon="fa fa-fw fa-check"
+											 style="margin-right:4px" actionListener="#{docs.acceptDoc}"
+											 update=":centerPanel :leftPanel"/>
+							<p:commandButton value="REJECT" icon="fa fa-fw fa-close"
+											 style="margin-right:4px" actionListener="#{docs.rejectDoc}"
+											 update=":centerPanel :leftPanel"/>
 						</h:panelGroup>
 						<p:commandButton value="#{text['document.btn.cancel']}" icon="fa fa-fw fa-close"
 										 onclick="PF('docDialog').hide()" type="button"/>

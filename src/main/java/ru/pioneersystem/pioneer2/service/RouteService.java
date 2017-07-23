@@ -1,6 +1,5 @@
 package ru.pioneersystem.pioneer2.service;
 
-import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -14,11 +13,11 @@ public interface RouteService {
 
     Map<String, Route> getRouteMap() throws ServiceException;
 
-    Map<String, Integer> getUserRouteMap() throws ServiceException;
+    Map<String, Integer> getUserRoutesMap() throws ServiceException;
 
     void createRoute(Route route) throws ServiceException;
 
     void updateRoute(Route route) throws ServiceException;
 
-    void deleteRoute(int id) throws ServiceException, RestrictException;
+    void deleteRoute(int id) throws ServiceException;
 }

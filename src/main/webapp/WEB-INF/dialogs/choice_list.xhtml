@@ -12,7 +12,8 @@
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{choiceListView.createFlag ? text['choiceList.edit.create'] : text['choiceList.edit.change']}"/>
+				<h:outputLabel value="#{choiceListView.currChoiceList.createFlag
+					? text['choiceList.edit.create'] : text['choiceList.edit.change']}"/>
 			</h2>
 
 			<p:panel>

@@ -7,12 +7,9 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
 import ru.pioneersystem.pioneer2.model.*;
-import ru.pioneersystem.pioneer2.service.DocumentService;
-import ru.pioneersystem.pioneer2.service.FileService;
-import ru.pioneersystem.pioneer2.service.PartService;
-import ru.pioneersystem.pioneer2.service.TemplateService;
+import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.service.exception.UserLockException;
+import ru.pioneersystem.pioneer2.service.exception.LockException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 import ru.pioneersystem.pioneer2.view.utils.TreeNodeUtil;
 
@@ -26,8 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -45,7 +40,6 @@ public class DocumentView implements Serializable {
     private Document selectedDocument;
 
     private Document currDoc;
-    private boolean createFlag;
 
     private Date dateIn;
     private String radioSelect;
@@ -73,6 +67,10 @@ public class DocumentView implements Serializable {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        initDefault();
+    }
+
+    private void initDefault() {
         dateIn = Date.from(LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId()).toInstant());
         radioSelect = "date";
         currDoc = new Document();
@@ -82,7 +80,8 @@ public class DocumentView implements Serializable {
         try {
             partTempTree = TreeNodeUtil.toTree(partService.getUserPartList(Part.Type.FOR_TEMPLATES), true);
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
@@ -90,7 +89,8 @@ public class DocumentView implements Serializable {
         try {
             partDocTree = TreeNodeUtil.toTree(partService.getUserPartList(Part.Type.FOR_DOCUMENTS), true);
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
@@ -102,7 +102,8 @@ public class DocumentView implements Serializable {
                 documentList = documentService.getMyWorkingDocumentList();
             }
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
@@ -110,7 +111,8 @@ public class DocumentView implements Serializable {
         try {
             documentList = documentService.getOnRouteDocumentList();
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
@@ -125,7 +127,8 @@ public class DocumentView implements Serializable {
             List<TreeNode> treeNodes = TreeNodeUtil.toTemplateTreeNodeList(templateService.getTemplateList(part.getId()));
             event.getTreeNode().getChildren().addAll(treeNodes);
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
@@ -135,34 +138,34 @@ public class DocumentView implements Serializable {
             List<TreeNode> treeNodes = TreeNodeUtil.toDocumentTreeNodeList(documentService.getDocumentListByPatrId(part.getId()));
             event.getTreeNode().getChildren().addAll(treeNodes);
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDocDialog() {
-        createFlag = true;
-
         if (selectedNode == null || !selectedNode.getType().equals(TreeNodeUtil.DOCUMENT_TYPE)) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
             return;
         }
 
         try {
             int templateId = ((Template) selectedNode.getData()).getId();
-            currDoc = documentService.getDocumentTemplateBased(templateId);
+            currDoc = documentService.getNewDocument(templateId);
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void openFromNodeDocDialog() {
-        createFlag = false;
-
         if (selectedNode == null || !selectedNode.getType().equals(TreeNodeUtil.DOCUMENT_TYPE)) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
             return;
         }
 
@@ -173,15 +176,15 @@ public class DocumentView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void openFromListDocDialog() {
-        createFlag = false;
-
         if (selectedDocument == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
             return;
         }
 
@@ -191,37 +194,116 @@ public class DocumentView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                documentService.createDocument(currDoc);
+            documentService.saveDocument(currDoc);
+
+            if (currDoc.isCreateFlag()) {
                 currentUser.setCurrMenuId(Menu.Id.MY_DOCS);
-                init();
-            } else {
-                documentService.updateDocument(currDoc);
             }
+            initDefault();
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
         }
-        catch (UserLockException e) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.document.changed",
-                    (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate()), e.getUser().getName());
+        catch (LockException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
         }
         catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+    }
+
+    public void saveAndSendAction() {
+        try {
+            documentService.saveAndSendDocument(currDoc);
+
+            if (currDoc.isCreateFlag()) {
+                currentUser.setCurrMenuId(Menu.Id.MY_DOCS);
+            }
+            initDefault();
+
+            RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+        }
+        catch (LockException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        }
+        catch (ServiceException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteAction() {
         try {
-            documentService.deleteDocument(currDoc.getId());
+            documentService.deleteDocument(currDoc);
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+
+        RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+    }
+
+    public void copyAction() {
+        try {
+            documentService.copyDocument(currDoc);
+            initDefault();
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+
+        RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+    }
+
+    public void recallAction() {
+        try {
+            documentService.recallDocument(currDoc);
+            initDefault();
+
+            RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+        }
+        catch (LockException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        }
+        catch (ServiceException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+    }
+
+    public void publishAction() {
+        try {
+            documentService.publishDocument(currDoc);
+            initDefault();
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+
+        RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+    }
+
+    public void cancelPublishAction() {
+        try {
+            documentService.cancelPublishDocument(currDoc);
+            initDefault();
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
@@ -246,8 +328,9 @@ public class DocumentView implements Serializable {
                 }
             }
         }
-        catch (Exception ex) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.file.not.uploaded");
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("fatal"), bundle.getString("error.file.not.uploaded")));
         }
     }
 
@@ -288,7 +371,8 @@ public class DocumentView implements Serializable {
             }
         }
         catch (Exception ex) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.file.not.downloaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("fatal"), bundle.getString("error.file.not.downloaded")));
         }
         finally {
             try {
@@ -298,11 +382,6 @@ public class DocumentView implements Serializable {
                 ex.printStackTrace();
             }
         }
-    }
-
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage, Object... param) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(severity,
-                bundle.getString(shortMessage), MessageFormat.format(bundle.getString(longMessage), param)));
     }
 
     public void setTemplateService(TemplateService templateService) {
@@ -371,10 +450,6 @@ public class DocumentView implements Serializable {
 
     public void setCurrDoc(Document currDoc) {
         this.currDoc = currDoc;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public Date getDateIn() {

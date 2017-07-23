@@ -78,7 +78,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Map<String, Integer> getUserCreateMap() throws ServiceException {
+    public Map<String, Integer> getUserCreateGroupsMap() throws ServiceException {
         try {
             return groupDao.getUserCreateGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
         } catch (DataAccessException e) {
@@ -112,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
         // TODO: 28.02.2017 Проверка на удаление системной группы плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             groupDao.delete(id);

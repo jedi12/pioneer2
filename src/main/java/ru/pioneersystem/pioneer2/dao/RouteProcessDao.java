@@ -1,11 +1,13 @@
 package ru.pioneersystem.pioneer2.dao;
 
 import org.springframework.dao.DataAccessException;
-import ru.pioneersystem.pioneer2.dao.exception.LockException;
-import ru.pioneersystem.pioneer2.model.Document;
-import ru.pioneersystem.pioneer2.model.Route;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 
 public interface RouteProcessDao {
 
-    void create(Document document, int routeId) throws DataAccessException, LockException;
+    void create(int documentId, int routeId) throws DataAccessException;
+
+    void start(int documentId) throws DataAccessException;
+
+    void cancel(int documentId, int userId, String message) throws DataAccessException, NotFoundDaoException;
 }

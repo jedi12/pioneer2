@@ -3,16 +3,17 @@ package ru.pioneersystem.pioneer2.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
-import ru.pioneersystem.pioneer2.dao.exception.LockException;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.FieldType;
-import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.service.exception.UserLockException;
+import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,27 +25,55 @@ public class RouteProcessServiceImpl implements RouteProcessService {
 
     private RouteProcessDao routeProcessDao;
     private UserService userService;
+    private CurrentUser currentUser;
+    private LocaleBean localeBean;
+    private MessageSource messageSource;
 
     @Autowired
-    public RouteProcessServiceImpl(RouteProcessDao routeProcessDao, UserService userService) {
+    public RouteProcessServiceImpl(RouteProcessDao routeProcessDao, UserService userService, CurrentUser currentUser,
+                                   LocaleBean localeBean, MessageSource messageSource) {
         this.routeProcessDao = routeProcessDao;
         this.userService = userService;
+        this.currentUser = currentUser;
+        this.localeBean = localeBean;
+        this.messageSource = messageSource;
     }
 
     @Override
-    public void createRouteProcess(Document document) throws ServiceException, UserLockException {
+    public void createRouteProcess(Document document) throws ServiceException {
         try {
-            routeProcessDao.create(document, getCalculatedRoute(document));
+            routeProcessDao.create(document.getId(), getCalculatedRoute(document));
         } catch (DataAccessException e) {
-            log.error("Can't update Route Process", e);
-            throw new ServiceException("Can't update Route Process", e);
-        } catch (LockException e) {
-            log.error("Can't update Route Process", e);
-            try {
-                throw new UserLockException(userService.getUser(e.getUserId()), e.getDate(), e);
-            } catch (ServiceException se) {
-                throw new UserLockException(new User(), e.getDate(), e);
-            }
+            String mess = messageSource.getMessage("error.routeProcess.NotCreated", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public void startRouteProcess(Document document) throws ServiceException {
+        try {
+            routeProcessDao.start(document.getId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.NotStarted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public void cancelRouteProcess(Document document) throws ServiceException {
+        try {
+            String mess = messageSource.getMessage("routeProcess.mess.CreatorCancel", null, localeBean.getLocale());
+            routeProcessDao.cancel(document.getId(), currentUser.getUser().getId(), mess);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.NotCanceled", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        } catch (NotFoundDaoException e) {
+            String mess = messageSource.getMessage("error.routeProcess.AlreadyFinished", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 

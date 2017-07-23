@@ -1,6 +1,5 @@
 package ru.pioneersystem.pioneer2.service;
 
-import ru.pioneersystem.pioneer2.dao.exception.RestrictException;
 import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -17,5 +16,5 @@ public interface TemplateService {
 
     void updateTemplate(Template template) throws ServiceException;
 
-    void deleteTemplate(int id) throws ServiceException, RestrictException;
+    void deleteTemplate(int id) throws ServiceException;
 }

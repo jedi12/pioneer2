@@ -2,12 +2,12 @@ package ru.pioneersystem.pioneer2.dao.exception;
 
 import java.util.Date;
 
-public class LockException extends Exception {
+public class LockDaoException extends Exception {
     private int userId;
     private Date date;
 
-    public LockException(String message, int userId, Date date) {
-        super(message);
+    public LockDaoException(int userId, Date date) {
+        super();
         this.userId = userId;
         this.date = date;
     }

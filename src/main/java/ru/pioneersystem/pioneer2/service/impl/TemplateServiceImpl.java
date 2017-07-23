@@ -84,7 +84,7 @@ public class TemplateServiceImpl implements TemplateService {
         // TODO: 28.02.2017 Сделать проверку, используется ли данный шаблон или не нужна проверка вообще
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             templateDao.delete(id);
