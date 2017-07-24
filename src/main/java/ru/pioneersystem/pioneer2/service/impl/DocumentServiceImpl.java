@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
 import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
-import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Status;
 import ru.pioneersystem.pioneer2.service.*;
@@ -139,22 +138,20 @@ public class DocumentServiceImpl implements DocumentService {
             if (document.isCreateFlag()) {
                 documentDao.create(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
             } else {
-                documentDao.lock(document);
+                documentDao.lock(document, currentUser.getUser().getCompanyId());
                 documentDao.update(document, currentUser.getUser().getId());
             }
-
             routeProcessService.createRouteProcess(document);
-
-        } catch (DataAccessException | NotFoundDaoException | ServiceException e) {
-            String mess = messageSource.getMessage("error.document.NotSaved", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
                             (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
+        } catch (DataAccessException | ServiceException e) {
+            String mess = messageSource.getMessage("error.document.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -180,18 +177,18 @@ public class DocumentServiceImpl implements DocumentService {
 //        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
 //        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            documentDao.lock(document);
+            documentDao.lock(document, currentUser.getUser().getCompanyId());
             documentDao.delete(document.getId(), currentUser.getUser().getId());
-        } catch (DataAccessException | NotFoundDaoException e) {
-            String mess = messageSource.getMessage("error.document.NotDeleted", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
                             (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -199,19 +196,19 @@ public class DocumentServiceImpl implements DocumentService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void copyDocument(Document document) throws ServiceException, LockException {
         try {
-            documentDao.lock(document);
+            documentDao.lock(document, currentUser.getUser().getCompanyId());
             documentDao.create(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
             routeProcessService.createRouteProcess(document);
-        } catch (DataAccessException | NotFoundDaoException | ServiceException e) {
-            String mess = messageSource.getMessage("error.document.NotCopied", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
                             (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
+        } catch (DataAccessException | ServiceException e) {
+            String mess = messageSource.getMessage("error.document.NotCopied", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -219,18 +216,18 @@ public class DocumentServiceImpl implements DocumentService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void recallDocument(Document document) throws ServiceException, LockException {
         try {
-            documentDao.lock(document);
+            documentDao.lock(document, currentUser.getUser().getCompanyId());
             routeProcessService.cancelRouteProcess(document);
-        } catch (DataAccessException | NotFoundDaoException | ServiceException e) {
-            String mess = messageSource.getMessage("error.document.NotRecalled", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
                             (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
+        } catch (DataAccessException | ServiceException e) {
+            String mess = messageSource.getMessage("error.document.NotRecalled", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 

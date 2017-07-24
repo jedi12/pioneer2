@@ -10,7 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.ChoiceListDao;
-import ru.pioneersystem.pioneer2.dao.exception.RestrictionDaoException;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
 
 import java.sql.PreparedStatement;
@@ -47,20 +47,20 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
 
     @Override
     public ChoiceList get(int choiceListId, int companyId) throws DataAccessException {
-        ChoiceList resultChoiceList = jdbcTemplate.queryForObject(SELECT_LIST,
+        ChoiceList resultChoiceList = jdbcTemplate.query(SELECT_LIST,
                 new Object[]{choiceListId, companyId},
-                (rs, rowNum) -> {
-                    ChoiceList choiceList = new ChoiceList();
-                    choiceList.setId(rs.getInt("ID"));
-                    choiceList.setName(rs.getString("NAME"));
-                    return choiceList;
+                (rs) -> {
+                    if (rs.next()) {
+                        ChoiceList choiceList = new ChoiceList();
+                        choiceList.setId(rs.getInt("ID"));
+                        choiceList.setName(rs.getString("NAME"));
+                        return choiceList;
+                    } else {
+                        throw new NotFoundDaoException("Not found ChoiceList with choiceListId=" + choiceListId +
+                                " and companyId=" + companyId);
+                    }
                 }
         );
-
-        if (resultChoiceList == null) {
-            throw new RestrictionDaoException("ChoiceList id=" + choiceListId +
-                    " does not belong to the company id=" + companyId);
-        }
 
         List<String> resultValues = jdbcTemplate.query(SELECT_LIST_FIELD,
                 new Object[]{choiceListId},
@@ -159,8 +159,8 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         );
 
         if (updatedRows == 0) {
-            throw new RestrictionDaoException("ChoiceList id=" + choiceList.getId() +
-                    " does not belong to the company id=" + companyId);
+            throw new NotFoundDaoException("Not found ChoiceList with choiceListId=" + choiceList.getId() +
+                    " and companyId=" + companyId);
         }
 
         jdbcTemplate.update(DELETE_LIST_FIELD,
@@ -190,8 +190,8 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         );
 
         if (updatedRows == 0) {
-            throw new RestrictionDaoException("ChoiceList id=" + choiceListId +
-                    " does not belong to the company id=" + companyId);
+            throw new NotFoundDaoException("Not found ChoiceList with choiceListId=" + choiceListId +
+                    " and companyId=" + companyId);
         }
 
         jdbcTemplate.update(DELETE_LIST_FIELD, choiceListId);

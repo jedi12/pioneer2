@@ -13,8 +13,6 @@ import ru.pioneersystem.pioneer2.model.Status;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Repository(value = "routeProcessDao")
 public class RouteProcessDaoImpl implements RouteProcessDao {
@@ -97,20 +95,15 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void cancel(int documentId, int userId, String message) throws DataAccessException, NotFoundDaoException {
-        Map<Date, Integer> tempVal = jdbcTemplate.query(CANCEL_ROUTE_PROCESS1,
+    public void cancel(int documentId, int userId, String message) throws DataAccessException {
+        jdbcTemplate.query(CANCEL_ROUTE_PROCESS1,
                 new Object[]{documentId},
                 (rs) -> {
-                    Map<Date, Integer> values = null;
-                    if (rs.next()) {
-                        values = new HashMap<>();
+                    if (!rs.next()) {
+                        throw new NotFoundDaoException("Document with documentId=" + documentId + " is in finished state already");
                     }
-                    return values;
                 }
         );
-        if (tempVal == null) {
-            throw new NotFoundDaoException("");
-        }
 
         Date uDate = new Date();
         jdbcTemplate.update(CANCEL_ROUTE_PROCESS2,

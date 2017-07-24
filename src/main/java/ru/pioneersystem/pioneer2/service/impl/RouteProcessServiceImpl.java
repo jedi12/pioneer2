@@ -66,12 +66,12 @@ public class RouteProcessServiceImpl implements RouteProcessService {
         try {
             String mess = messageSource.getMessage("routeProcess.mess.CreatorCancel", null, localeBean.getLocale());
             routeProcessDao.cancel(document.getId(), currentUser.getUser().getId(), mess);
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.routeProcess.NotCanceled", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.routeProcess.AlreadyFinished", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.NotCanceled", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

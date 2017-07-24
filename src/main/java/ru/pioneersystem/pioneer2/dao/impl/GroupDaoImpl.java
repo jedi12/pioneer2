@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.GroupDao;
-import ru.pioneersystem.pioneer2.dao.exception.RestrictionDaoException;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Role;
 
@@ -60,22 +60,22 @@ public class GroupDaoImpl implements GroupDao {
 
     @Override
     public Group get(int groupId, int companyId) throws DataAccessException {
-        Group resultGroup = jdbcTemplate.queryForObject(SELECT_GROUP,
+        Group resultGroup = jdbcTemplate.query(SELECT_GROUP,
                 new Object[]{groupId, companyId},
-                (rs, rowNum) -> {
-                    Group group = new Group();
-                    group.setId(rs.getInt("ID"));
-                    group.setName(rs.getString("NAME"));
-                    group.setState(rs.getInt("STATE"));
-                    group.setRoleId(rs.getInt("ROLE_ID"));
-                    return group;
+                (rs) -> {
+                    if (rs.next()) {
+                        Group group = new Group();
+                        group.setId(rs.getInt("ID"));
+                        group.setName(rs.getString("NAME"));
+                        group.setState(rs.getInt("STATE"));
+                        group.setRoleId(rs.getInt("ROLE_ID"));
+                        return group;
+                    } else {
+                        throw new NotFoundDaoException("Not found Group with groupId=" + groupId +
+                                " and companyId=" + companyId);
+                    }
                 }
         );
-
-        if (resultGroup == null) {
-            throw new RestrictionDaoException("Group id=" + groupId +
-                    " does not belong to the company id=" + companyId);
-        }
 
         List<Group.LinkUser> resultLinkUsers = jdbcTemplate.query(SELECT_GROUP_USER,
                 new Object[]{groupId},
@@ -199,8 +199,8 @@ public class GroupDaoImpl implements GroupDao {
         );
 
         if (updatedRows == 0) {
-            throw new RestrictionDaoException("Group id=" + group.getId() +
-                    " does not belong to the company id=" + companyId);
+            throw new NotFoundDaoException("Not found Group with groupId=" + group.getId() +
+                    " and companyId=" + companyId);
         }
 
         jdbcTemplate.update(DELETE_GROUP_USER,
@@ -232,8 +232,8 @@ public class GroupDaoImpl implements GroupDao {
         );
 
         if (updatedRows == 0) {
-            throw new RestrictionDaoException("Group id=" + groupId +
-                    " does not belong to the company id=" + companyId);
+            throw new NotFoundDaoException("Not found Group with groupId=" + groupId +
+                    " and companyId=" + companyId);
         }
 
         jdbcTemplate.update(DELETE_GROUP_USER, groupId);

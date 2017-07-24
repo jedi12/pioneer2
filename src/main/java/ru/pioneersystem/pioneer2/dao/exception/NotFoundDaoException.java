@@ -1,6 +1,8 @@
 package ru.pioneersystem.pioneer2.dao.exception;
 
-public class NotFoundDaoException extends Exception {
+import org.springframework.dao.DataAccessException;
+
+public class NotFoundDaoException extends DataAccessException {
     public NotFoundDaoException(String message) {
         super(message);
     }

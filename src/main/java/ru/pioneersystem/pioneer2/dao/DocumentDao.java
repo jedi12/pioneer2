@@ -1,8 +1,6 @@
 package ru.pioneersystem.pioneer2.dao;
 
 import org.springframework.dao.DataAccessException;
-import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
-import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 
 import java.util.Date;
@@ -33,5 +31,5 @@ public interface DocumentDao {
 
     void publish(int documentId, int userId, int partId, boolean isPublic) throws DataAccessException;
 
-    void lock(Document document) throws DataAccessException, LockDaoException, NotFoundDaoException;
+    void lock(Document document, int companyId) throws DataAccessException;
 }

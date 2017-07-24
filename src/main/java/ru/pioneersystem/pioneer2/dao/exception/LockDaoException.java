@@ -1,13 +1,15 @@
 package ru.pioneersystem.pioneer2.dao.exception;
 
+import org.springframework.dao.DataAccessException;
+
 import java.util.Date;
 
-public class LockDaoException extends Exception {
+public class LockDaoException extends DataAccessException {
     private int userId;
     private Date date;
 
-    public LockDaoException(int userId, Date date) {
-        super();
+    public LockDaoException(String message, int userId, Date date) {
+        super(message);
         this.userId = userId;
         this.date = date;
     }

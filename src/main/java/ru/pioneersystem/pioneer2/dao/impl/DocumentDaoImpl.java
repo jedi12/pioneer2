@@ -37,7 +37,7 @@ public class DocumentDaoImpl implements DocumentDao {
             "UPDATE DOC.FILES SET NAME = ?, MIME_TYPE = ?, LENGTH = ?, DATA = ? WHERE ID = ?";
     private static final String UPDATE_DOCUMENT =
             "UPDATE DOC.DOCUMENTS SET NAME = ?, U_DATE = ?, U_USER = ?, DOC_GROUP = ?, PUB_PART = ? WHERE ID = ?";
-    private static final String LOCK_DOCUMENT = "SELECT U_DATE, U_USER FROM DOC.DOCUMENTS WHERE ID = ? FOR UPDATE";
+    private static final String LOCK_DOCUMENT = "SELECT U_DATE, U_USER FROM DOC.DOCUMENTS WHERE ID = ? AND COMPANY = ? FOR UPDATE";
     private static final String DELETE_DOCUMENT = "UPDATE DOC.DOCUMENTS SET STATUS = ?, U_DATE = ?, U_USER = ? WHERE ID = ?";
     private static final String DELETE_DOCUMENT_FIELD = "DELETE FROM DOC.DOCUMENTS_FIELD WHERE ID = ?";
     private static final String DELETE_DOCUMENT_CONDITION = "DELETE FROM DOC.TEMPLATES_COND WHERE ID = ?";
@@ -476,33 +476,23 @@ public class DocumentDaoImpl implements DocumentDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void lock(Document document) throws DataAccessException, LockDaoException, NotFoundDaoException {
-        Map<Date, Integer> tempVal = jdbcTemplate.query(LOCK_DOCUMENT,
-                new Object[]{document.getId()},
+    public void lock(Document document, int companyId) throws DataAccessException {
+        jdbcTemplate.query(LOCK_DOCUMENT,
+                new Object[]{document.getId(), companyId},
                 (rs) -> {
-                    Map<Date, Integer> values = null;
                     if (rs.next()) {
                         Date uDate = Date.from(rs.getTimestamp("U_DATE").toInstant());
                         int uUserId = rs.getInt("U_USER");
 
                         if (document.getChangeDate().compareTo(uDate) != 0) {
-                            values = new HashMap<>();
-                            values.put(uDate, uUserId);
-                            return values;
-                        } else {
-                            return values;
+                            throw new LockDaoException("Document with documentId=" + document.getId() +
+                                    " was changed while attempting to lock", uUserId, uDate);
                         }
                     } else {
-                        return new HashMap<>();
+                        throw new NotFoundDaoException("Not found Document with documentId=" +
+                                document.getId() + " and companyId=" + companyId + " while attempting to lock");
                     }
                 }
         );
-
-        if (tempVal != null) {
-            if (tempVal.isEmpty()) {
-                throw new NotFoundDaoException("");
-            }
-            throw new LockDaoException((Integer) tempVal.values().toArray()[0], (Date) tempVal.keySet().toArray()[0]);
-        }
     }
 }

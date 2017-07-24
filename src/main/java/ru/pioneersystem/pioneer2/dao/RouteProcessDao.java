@@ -1,7 +1,6 @@
 package ru.pioneersystem.pioneer2.dao;
 
 import org.springframework.dao.DataAccessException;
-import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 
 public interface RouteProcessDao {
 
@@ -9,5 +8,5 @@ public interface RouteProcessDao {
 
     void start(int documentId) throws DataAccessException;
 
-    void cancel(int documentId, int userId, String message) throws DataAccessException, NotFoundDaoException;
+    void cancel(int documentId, int userId, String message) throws DataAccessException;
 }
