@@ -33,9 +33,9 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public Menu getMenu(int id) throws ServiceException {
+    public Menu getMenu(int menuId) throws ServiceException {
         try {
-            return setLocalizedMenuName(menuDao.get(id));
+            return setLocalizedMenuName(menuDao.get(menuId));
         } catch (DataAccessException e) {
             log.error("Can't get Menu by id", e);
             throw new ServiceException("Can't get Menu by id", e);
@@ -103,14 +103,14 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public void deleteMenu(int id) throws ServiceException {
+    public void deleteMenu(int menuId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного меню плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            menuDao.delete(id);
+            menuDao.delete(menuId);
         } catch (DataAccessException e) {
             log.error("Can't delete Menu", e);
             throw new ServiceException("Can't delete Menu", e);

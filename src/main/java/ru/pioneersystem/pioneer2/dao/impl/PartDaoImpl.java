@@ -50,9 +50,9 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public Part get(int id) throws DataAccessException {
+    public Part get(int partId) throws DataAccessException {
         Part resultPart = jdbcTemplate.queryForObject(SELECT_PART,
-                new Object[]{id},
+                new Object[]{partId},
                 (rs, rowNum) -> {
                     Part part = new Part();
                     part.setId(rs.getInt("ID"));
@@ -66,7 +66,7 @@ public class PartDaoImpl implements PartDao {
         );
 
         List<Part.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_PART_GROUP,
-                new Object[]{id},
+                new Object[]{partId},
                 rs -> {
                     List<Part.LinkGroup> linkGroups = new LinkedList<>();
                     while(rs.next()){
@@ -85,9 +85,9 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public List<Part> getList(int type, int company) throws DataAccessException {
+    public List<Part> getList(int type, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_PART_LIST,
-                new Object[]{type, company},
+                new Object[]{type, companyId},
                 (rs, rowNum) -> {
                     Part part = new Part();
                     part.setId(rs.getInt("ID"));
@@ -120,7 +120,7 @@ public class PartDaoImpl implements PartDao {
 
     @Override
     @Transactional
-    public void create(Part part, int type, int company) throws DataAccessException {
+    public void create(Part part, int type, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -130,7 +130,7 @@ public class PartDaoImpl implements PartDao {
                     pstmt.setInt(3, part.getParent());
                     pstmt.setInt(4, part.getTreeLevel());
                     pstmt.setInt(5, part.getOwnerGroup());
-                    pstmt.setInt(6, company);
+                    pstmt.setInt(6, companyId);
                     pstmt.setInt(7, type);
                     return pstmt;
                 }, keyHolder
@@ -198,9 +198,9 @@ public class PartDaoImpl implements PartDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_PART, Part.State.DELETED, id);
-        jdbcTemplate.update(DELETE_PART_GROUP, id);
+    public void delete(int partId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_PART, Part.State.DELETED, partId);
+        jdbcTemplate.update(DELETE_PART_GROUP, partId);
     }
 
     @Override

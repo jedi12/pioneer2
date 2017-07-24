@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface RouteService {
-    Route getRoute(int id) throws ServiceException;
+
+    Route getRoute(int routeId) throws ServiceException;
 
     List<Route> getRouteList() throws ServiceException;
 
@@ -19,5 +20,5 @@ public interface RouteService {
 
     void updateRoute(Route route) throws ServiceException;
 
-    void deleteRoute(int id) throws ServiceException;
+    void deleteRoute(int routeId) throws ServiceException;
 }

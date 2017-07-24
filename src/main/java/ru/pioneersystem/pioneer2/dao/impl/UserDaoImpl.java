@@ -50,9 +50,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User get(int id) throws DataAccessException {
+    public User get(int userId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_USER,
-                new Object[]{id},
+                new Object[]{userId},
                 (rs, rowNum) -> {
                     User user = new User();
                     user.setId(rs.getInt("ID"));
@@ -69,9 +69,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getWithCompany(int id) throws DataAccessException {
+    public User getWithCompany(int userId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_USER_WITH_COMPANY,
-                new Object[]{id},
+                new Object[]{userId},
                 (rs, rowNum) -> {
                     User user = new User();
                     user.setId(rs.getInt("U_ID"));
@@ -102,9 +102,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getList(int company) throws DataAccessException {
+    public List<User> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_LIST,
-                new Object[]{company},
+                new Object[]{companyId},
                 (rs, rowNum) -> {
                     User user = new User();
                     user.setId(rs.getInt("ID"));
@@ -119,7 +119,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public void create(User user, int company) throws DataAccessException {
+    public void create(User user, int companyId) throws DataAccessException {
         // TODO: 01.04.2017 Сделать обработку ошибки, связанной с неуникальным логином или емайлом
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
@@ -130,7 +130,7 @@ public class UserDaoImpl implements UserDao {
                     pstmt.setInt(3, ACTIVE);
                     pstmt.setString(4, user.getEmail());
                     pstmt.setString(5, user.getPhone());
-                    pstmt.setInt(6, company);
+                    pstmt.setInt(6, companyId);
                     pstmt.setString(7, user.getComment());
                     return pstmt;
                 }, keyHolder
@@ -153,20 +153,20 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public void lock(int id) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_USER_LOCK, LOCKED, id);
+    public void lock(int userId) throws DataAccessException {
+        jdbcTemplate.update(UPDATE_USER_LOCK, LOCKED, userId);
     }
 
     @Override
     @Transactional
-    public void unlock(int id) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_USER_UNLOCK, ACTIVE, id);
+    public void unlock(int userId) throws DataAccessException {
+        jdbcTemplate.update(UPDATE_USER_UNLOCK, ACTIVE, userId);
     }
 
     @Override
     @Transactional
-    public void savePass(int id, String passHash) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_USER_CHANGE_PASS, passHash, id);
+    public void savePass(int userId, String passHash) throws DataAccessException {
+        jdbcTemplate.update(UPDATE_USER_CHANGE_PASS, passHash, userId);
     }
 
     @Override
@@ -185,9 +185,9 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int getCount(int company, int state) throws DataAccessException {
+    public int getCount(int companyId, int state) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_COUNT,
-                new Object[]{company, state},
+                new Object[]{companyId, state},
                 (rs, rowNum) -> rs.getInt(1)
         );
     }

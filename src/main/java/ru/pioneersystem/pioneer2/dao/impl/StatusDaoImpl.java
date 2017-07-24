@@ -24,9 +24,9 @@ public class StatusDaoImpl implements StatusDao {
     }
 
     @Override
-    public Status get(int id) throws DataAccessException {
+    public Status get(int statusId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_STATUS,
-                new Object[]{id},
+                new Object[]{statusId},
                 (rs, rowNum) -> {
                     Status status = new Status();
                     status.setId(rs.getInt("ID"));
@@ -39,9 +39,9 @@ public class StatusDaoImpl implements StatusDao {
     }
 
     @Override
-    public List<Status> getList(int company) throws DataAccessException {
+    public List<Status> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_STATUS_LIST,
-                new Object[]{company, Status.State.SYSTEM},
+                new Object[]{companyId, Status.State.SYSTEM},
                 (rs, rowNum) -> {
                     Status status = new Status();
                     status.setId(rs.getInt("ID"));

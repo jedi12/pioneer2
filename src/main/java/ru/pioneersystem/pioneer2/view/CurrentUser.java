@@ -2,6 +2,7 @@ package ru.pioneersystem.pioneer2.view;
 
 import org.primefaces.context.RequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
@@ -48,18 +49,20 @@ public class CurrentUser implements Serializable {
     private RouteService routeService;
     private PartService partService;
     private LocaleBean localeBean;
+    private MessageSource messageSource;
     private HttpServletRequest request;
 
     @Autowired
     public CurrentUser(UserService userService, MenuService menuService, GroupService groupService,
                        RouteService routeService, PartService partService, LocaleBean localeBean,
-                       HttpServletRequest request) {
+                       MessageSource messageSource, HttpServletRequest request) {
         this.userService = userService;
         this.menuService = menuService;
         this.groupService = groupService;
         this.routeService = routeService;
         this.partService = partService;
         this.localeBean = localeBean;
+        this.messageSource = messageSource;
         this.request = request;
     }
 
@@ -69,12 +72,12 @@ public class CurrentUser implements Serializable {
             user = userService.getUserWithCompany(userId);
 
             if (user.getState() == 0) {
-                showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.user.locked");
+                showGrowl(FacesMessage.SEVERITY_INFO, "warn", "warn.user.locked");
                 return;
             }
 
             if (user.getCompany().getState() == 0) {
-                showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.company.locked");
+                showGrowl(FacesMessage.SEVERITY_INFO, "warn", "warn.company.locked");
                 return;
             }
 
@@ -98,9 +101,9 @@ public class CurrentUser implements Serializable {
             RequestContext.getCurrentInstance().update(
                     new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel"})));
         } catch (PasswordException e) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.login.or.pass.not.valid");
+            showGrowl(FacesMessage.SEVERITY_INFO, "warn", "warn.login.or.pass.not.valid");
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.pass.not.checked");
+            showGrowl(FacesMessage.SEVERITY_INFO, "fatal", "error.pass.not.checked");
         }
     }
 
@@ -148,9 +151,9 @@ public class CurrentUser implements Serializable {
     }
 
     private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", localeBean.getLocale());
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
+        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(severity,
+                messageSource.getMessage(shortMessage, null, localeBean.getLocale()),
+                messageSource.getMessage(longMessage, null, localeBean.getLocale())));
     }
 
     public int getScreenHeight() {

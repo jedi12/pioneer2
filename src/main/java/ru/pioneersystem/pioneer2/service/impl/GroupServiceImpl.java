@@ -3,6 +3,7 @@ package ru.pioneersystem.pioneer2.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.GroupDao;
@@ -10,8 +11,10 @@ import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,21 +24,16 @@ public class GroupServiceImpl implements GroupService {
 
     private GroupDao groupDao;
     private CurrentUser currentUser;
+    private LocaleBean localeBean;
+    private MessageSource messageSource;
 
     @Autowired
-    public GroupServiceImpl(GroupDao groupDao, CurrentUser currentUser) {
+    public GroupServiceImpl(GroupDao groupDao, CurrentUser currentUser, LocaleBean localeBean,
+                            MessageSource messageSource) {
         this.groupDao = groupDao;
         this.currentUser = currentUser;
-    }
-
-    @Override
-    public Group getGroup(int id) throws ServiceException {
-        try {
-            return groupDao.get(id);
-        } catch (DataAccessException e) {
-            log.error("Can't get Group by id", e);
-            throw new ServiceException("Can't get Group by id", e);
-        }
+        this.localeBean = localeBean;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -43,8 +41,9 @@ public class GroupServiceImpl implements GroupService {
         try {
             return groupDao.getList(currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of Group", e);
-            throw new ServiceException("Can't get list of Group", e);
+            String mess = messageSource.getMessage("error.group.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -62,8 +61,9 @@ public class GroupServiceImpl implements GroupService {
         try {
             return groupDao.getRouteGroup(currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get map of routes Group", e);
-            throw new ServiceException("Can't get map of routes Group", e);
+            String mess = messageSource.getMessage("error.group.routePointsNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -72,8 +72,9 @@ public class GroupServiceImpl implements GroupService {
         try {
             return groupDao.getUserPublishGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of publish Group", e);
-            throw new ServiceException("Can't get map of publish Group", e);
+            String mess = messageSource.getMessage("error.group.userPublishGroupNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -82,43 +83,61 @@ public class GroupServiceImpl implements GroupService {
         try {
             return groupDao.getUserCreateGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of create Group", e);
-            throw new ServiceException("Can't get map of create Group", e);
+            String mess = messageSource.getMessage("error.group.userCreateGroupNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void createGroup(Group group) throws ServiceException {
+    public Group getNewGroup() {
+        Group group = new Group();
+        group.setLinkUsers(new LinkedList<>());
+        group.setCreateFlag(true);
+        return group;
+    }
+
+    @Override
+    public Group getGroup(int groupId) throws ServiceException {
         try {
-            groupDao.create(group, currentUser.getUser().getCompanyId());
+            Group group = groupDao.get(groupId, currentUser.getUser().getCompanyId());
+            group.setCreateFlag(false);
+            return group;
         } catch (DataAccessException e) {
-            log.error("Can't create Group", e);
-            throw new ServiceException("Can't create Group", e);
+            String mess = messageSource.getMessage("error.group.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateGroup(Group group) throws ServiceException {
+    public void saveGroup(Group group) throws ServiceException {
         try {
-            groupDao.update(group);
+            if (group.isCreateFlag()) {
+                groupDao.create(group, currentUser.getUser().getCompanyId());
+            } else {
+                groupDao.update(group, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update Group", e);
-            throw new ServiceException("Can't update Group", e);
+            String mess = messageSource.getMessage("error.group.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void deleteGroup(int id) throws ServiceException {
+    public void deleteGroup(int groupId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной группы плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            groupDao.delete(id);
+            groupDao.delete(groupId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete Group", e);
-            throw new ServiceException("Can't delete Group", e);
+            String mess = messageSource.getMessage("error.group.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 }

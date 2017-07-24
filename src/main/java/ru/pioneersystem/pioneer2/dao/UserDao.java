@@ -8,23 +8,23 @@ import java.util.Map;
 
 public interface UserDao {
 
-    User get(int id) throws DataAccessException;
+    User get(int userId) throws DataAccessException;
 
-    User getWithCompany(int id) throws DataAccessException;
+    User getWithCompany(int userId) throws DataAccessException;
 
-    List<User> getList(int company) throws DataAccessException;
+    List<User> getList(int companyId) throws DataAccessException;
 
-    void create(User user, int company) throws DataAccessException;
+    void create(User user, int companyId) throws DataAccessException;
 
     void update(User user) throws DataAccessException;
 
-    void lock(int id) throws DataAccessException;
+    void lock(int userId) throws DataAccessException;
 
-    void unlock(int id) throws DataAccessException;
+    void unlock(int userId) throws DataAccessException;
 
-    void savePass(int id, String passHash) throws DataAccessException;
+    void savePass(int userId, String passHash) throws DataAccessException;
 
     Map<String, Object> getUserIdAndPass(String login) throws DataAccessException;
 
-    int getCount(int company, int state) throws DataAccessException;
+    int getCount(int companyId, int state) throws DataAccessException;
 }

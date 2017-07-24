@@ -35,9 +35,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role getRole(int id) throws ServiceException {
+    public Role getRole(int roleId) throws ServiceException {
         try {
-            return setLocalizedRoleName(roleDao.get(id));
+            return setLocalizedRoleName(roleDao.get(roleId));
         } catch (DataAccessException e) {
             log.error("Can't get Role by id", e);
             throw new ServiceException("Can't get Role by id", e);
@@ -88,14 +88,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteRole(int id) throws ServiceException {
+    public void deleteRole(int roleId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной роли плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            roleDao.delete(id);
+            roleDao.delete(roleId);
         } catch (DataAccessException e) {
             log.error("Can't delete Role", e);
             throw new ServiceException("Can't delete Role", e);

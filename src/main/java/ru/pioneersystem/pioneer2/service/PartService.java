@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface PartService {
-    Part getPart(int id) throws ServiceException;
+
+    Part getPart(int partId) throws ServiceException;
 
     List<Part> getPartList(int type) throws ServiceException;
 
@@ -23,7 +24,7 @@ public interface PartService {
 
     void updateParts(List<Part> parts) throws ServiceException;
 
-    void deletePart(int id) throws ServiceException;
+    void deletePart(int partId) throws ServiceException;
 
     void deleteParts(List<Part> parts) throws ServiceException;
 }

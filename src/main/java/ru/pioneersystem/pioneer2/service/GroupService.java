@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface GroupService {
-    Group getGroup(int id) throws ServiceException;
 
     List<Group> getGroupList() throws ServiceException;
 
@@ -19,9 +18,11 @@ public interface GroupService {
 
     Map<String, Integer> getUserCreateGroupsMap() throws ServiceException;
 
-    void createGroup(Group role) throws ServiceException;
+    Group getNewGroup();
 
-    void updateGroup(Group role) throws ServiceException;
+    Group getGroup(int groupId) throws ServiceException;
 
-    void deleteGroup(int id) throws ServiceException;
+    void saveGroup(Group role) throws ServiceException;
+
+    void deleteGroup(int groupId) throws ServiceException;
 }

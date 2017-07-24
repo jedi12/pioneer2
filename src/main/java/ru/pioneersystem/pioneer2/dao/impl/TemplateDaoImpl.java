@@ -55,9 +55,9 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public Template get(int id) throws DataAccessException {
+    public Template get(int templateId) throws DataAccessException {
         Template resultTemplate = jdbcTemplate.queryForObject(SELECT_TEMPLATE,
-                new Object[]{id},
+                new Object[]{templateId},
                 (rs, rowNum) -> {
                     Template template = new Template();
                     template.setId(rs.getInt("ID"));
@@ -69,7 +69,7 @@ public class TemplateDaoImpl implements TemplateDao {
         );
 
         LinkedList<Document.Field> resultFields = jdbcTemplate.query(SELECT_TEMPLATE_FIELD,
-                new Object[]{id},
+                new Object[]{templateId},
                 rs -> {
                     LinkedList<Document.Field> fields = new LinkedList<>();
                     while(rs.next()){
@@ -87,7 +87,7 @@ public class TemplateDaoImpl implements TemplateDao {
         );
 
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
-                new Object[]{id},
+                new Object[]{templateId},
                 rs -> {
                     List<Document.Condition> conditions = new LinkedList<>();
                     while(rs.next()){
@@ -112,9 +112,9 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public List<Template> getList(int company) throws DataAccessException {
+    public List<Template> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST,
-                new Object[]{company},
+                new Object[]{companyId},
                 (rs, rowNum) -> {
                     Template template = new Template();
                     template.setId(rs.getInt("ID"));
@@ -144,7 +144,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void create(Template template, int company) throws DataAccessException {
+    public void create(Template template, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -153,7 +153,7 @@ public class TemplateDaoImpl implements TemplateDao {
                     pstmt.setInt(2, template.getRouteId());
                     pstmt.setInt(3, template.getPartId());
                     pstmt.setInt(4, Template.State.EXISTS);
-                    pstmt.setInt(5, company);
+                    pstmt.setInt(5, companyId);
                     return pstmt;
                 }, keyHolder
         );
@@ -250,9 +250,9 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_TEMPLATE, Template.State.DELETED, id);
-        jdbcTemplate.update(DELETE_TEMPLATE_FIELD, id);
-        jdbcTemplate.update(DELETE_TEMPLATE_CONDITION, id);
+    public void delete(int templateId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_TEMPLATE, Template.State.DELETED, templateId);
+        jdbcTemplate.update(DELETE_TEMPLATE_FIELD, templateId);
+        jdbcTemplate.update(DELETE_TEMPLATE_CONDITION, templateId);
     }
 }

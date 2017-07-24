@@ -34,9 +34,9 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public Status getStatus(int id) throws ServiceException {
+    public Status getStatus(int statusId) throws ServiceException {
         try {
-            return setLocalizedStatusName(statusDao.get(id));
+            return setLocalizedStatusName(statusDao.get(statusId));
         } catch (DataAccessException e) {
             log.error("Can't get Status by id", e);
             throw new ServiceException("Can't get Status by id", e);

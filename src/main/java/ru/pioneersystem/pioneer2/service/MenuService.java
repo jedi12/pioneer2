@@ -6,7 +6,8 @@ import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import java.util.List;
 
 public interface MenuService {
-    Menu getMenu(int id) throws ServiceException;
+
+    Menu getMenu(int menuId) throws ServiceException;
 
     List<Menu> getMenuList() throws ServiceException;
 
@@ -18,5 +19,5 @@ public interface MenuService {
 
     void updateMenu(Menu menu) throws ServiceException;
 
-    void deleteMenu(int id) throws ServiceException;
+    void deleteMenu(int menuId) throws ServiceException;
 }

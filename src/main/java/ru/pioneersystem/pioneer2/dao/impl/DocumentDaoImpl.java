@@ -141,14 +141,14 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public Document get(int id) throws DataAccessException {
-        return getForEdit(id, new HashMap<>());
+    public Document get(int documentId) throws DataAccessException {
+        return getForEdit(documentId, new HashMap<>());
     }
 
     @Override
-    public Document getForEdit(int id, Map<Integer, List<String>> choiceLists) throws DataAccessException {
+    public Document getForEdit(int documentId, Map<Integer, List<String>> choiceLists) throws DataAccessException {
         Document resultDocument = jdbcTemplate.queryForObject(SELECT_DOCUMENT,
-                new Object[]{id},
+                new Object[]{documentId},
                 (rs, rowNum) -> {
                     Document document = new Document();
                     document.setId(rs.getInt("ID"));
@@ -165,7 +165,7 @@ public class DocumentDaoImpl implements DocumentDao {
         );
 
         LinkedList<Document.Field> resultFields = jdbcTemplate.query(SELECT_DOCUMENT_FIELD,
-                new Object[]{id},
+                new Object[]{documentId},
                 rs -> {
                     LinkedList<Document.Field> fields = new LinkedList<>();
                     while(rs.next()){
@@ -182,7 +182,7 @@ public class DocumentDaoImpl implements DocumentDao {
                             case FieldType.Id.LIST:
                                 field.setValueChoiceList(rs.getString("VALUE_LIST_SELECTED"));
                                 field.setChoiceListId(rs.getObject("VALUE_LIST", Integer.class));
-                                field.setChoiceListValues(choiceLists.get(id));
+                                field.setChoiceListValues(choiceLists.get(documentId));
                                 break;
                             case FieldType.Id.CALENDAR:
                                 field.setValueCalendar(Date.from(rs.getTimestamp("VALUE_CALENDAR").toInstant()));
@@ -205,7 +205,7 @@ public class DocumentDaoImpl implements DocumentDao {
         );
 
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_DOCUMENT_CONDITION,
-                new Object[]{id},
+                new Object[]{documentId},
                 rs -> {
                     List<Document.Condition> conditions = new LinkedList<>();
                     while(rs.next()){
@@ -455,23 +455,23 @@ public class DocumentDaoImpl implements DocumentDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void delete(int id, int userId) throws DataAccessException {
+    public void delete(int documentId, int userId) throws DataAccessException {
         jdbcTemplate.update(DELETE_DOCUMENT,
                 Status.Id.DELETED,
                 Timestamp.from((new Date()).toInstant()),
                 userId,
-                id);
+                documentId);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void publish(int id, int userId, int partId, boolean isPublic) throws DataAccessException {
+    public void publish(int documentId, int userId, int partId, boolean isPublic) throws DataAccessException {
         jdbcTemplate.update(PUBLICATE_DOCUMENT,
                 partId,
                 Timestamp.from((new Date()).toInstant()),
                 userId,
                 isPublic ? Status.Id.PUBLISHED : Status.Id.COMPLETED,
-                id);
+                documentId);
     }
 
     @Override

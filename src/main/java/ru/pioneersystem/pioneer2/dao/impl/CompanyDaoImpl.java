@@ -37,9 +37,9 @@ public class CompanyDaoImpl implements CompanyDao {
     }
 
     @Override
-    public Company get(int id) throws DataAccessException {
+    public Company get(int companyId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_COMPANY,
-                new Object[]{id},
+                new Object[]{companyId},
                 (rs, rowNum) -> {
                     Company company = new Company();
                     company.setId(rs.getInt("ID"));
@@ -109,20 +109,20 @@ public class CompanyDaoImpl implements CompanyDao {
 
     @Override
     @Transactional
-    public void lock(int id) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_COMPANY_LOCK, LOCKED, id);
+    public void lock(int companyId) throws DataAccessException {
+        jdbcTemplate.update(UPDATE_COMPANY_LOCK, LOCKED, companyId);
     }
 
     @Override
     @Transactional
-    public void unlock(int id) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_COMPANY_UNLOCK, ACTIVE, id);
+    public void unlock(int companyId) throws DataAccessException {
+        jdbcTemplate.update(UPDATE_COMPANY_UNLOCK, ACTIVE, companyId);
     }
 
     @Override
-    public int getMaxUserCount(int company) throws DataAccessException {
+    public int getMaxUserCount(int companyId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_MAX_USER,
-                new Object[]{company},
+                new Object[]{companyId},
                 (rs, rowNum) -> rs.getInt(1)
         );
     }

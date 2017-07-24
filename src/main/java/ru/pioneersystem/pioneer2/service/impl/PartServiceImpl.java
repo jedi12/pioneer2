@@ -29,9 +29,9 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public Part getPart(int id) throws ServiceException {
+    public Part getPart(int partId) throws ServiceException {
         try {
-            return partDao.get(id);
+            return partDao.get(partId);
         } catch (DataAccessException e) {
             log.error("Can't get Part by id", e);
             throw new ServiceException("Can't get Part by id", e);
@@ -107,14 +107,14 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public void deletePart(int id) throws ServiceException {
+    public void deletePart(int partId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            partDao.delete(id);
+            partDao.delete(partId);
         } catch (DataAccessException e) {
             log.error("Can't delete Part", e);
             throw new ServiceException("Can't delete Part", e);

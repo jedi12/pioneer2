@@ -44,9 +44,9 @@ public class MenuDaoImpl implements MenuDao {
     }
 
     @Override
-    public Menu get(int id) throws DataAccessException {
+    public Menu get(int menuId) throws DataAccessException {
         Menu menuWithSubMenu = jdbcTemplate.queryForObject(SELECT_MENU,
-                new Object[]{id},
+                new Object[]{menuId},
                 (rs, rowNum) -> {
                     Menu menu = new Menu();
                     menu.setId(rs.getInt("ID"));
@@ -84,9 +84,9 @@ public class MenuDaoImpl implements MenuDao {
     }
 
     @Override
-    public List<Menu> getList(int company) throws DataAccessException {
+    public List<Menu> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_MENU_LIST,
-                new Object[]{company, Menu.State.SYSTEM},
+                new Object[]{companyId, Menu.State.SYSTEM},
                 (rs, rowNum) -> {
                     Menu menu = new Menu();
                     menu.setId(rs.getInt("ID"));
@@ -136,7 +136,7 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     @Transactional
-    public void create(Menu menu, int company) throws DataAccessException {
+    public void create(Menu menu, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -147,7 +147,7 @@ public class MenuDaoImpl implements MenuDao {
                     pstmt.setInt(4, 0);
                     pstmt.setInt(5, menu.getRoleId());
                     pstmt.setInt(6, Menu.State.EXISTS);
-                    pstmt.setInt(7, company);
+                    pstmt.setInt(7, companyId);
                     return pstmt;
                 }, keyHolder
         );
@@ -160,7 +160,7 @@ public class MenuDaoImpl implements MenuDao {
                         pstmt.setInt(4, keyHolder.getKey().intValue());
                         pstmt.setInt(5, menu.getSubMenu().get(i).getRoleId());
                         pstmt.setInt(6, Menu.State.EXISTS);
-                        pstmt.setInt(7, company);
+                        pstmt.setInt(7, companyId);
                     }
                     public int getBatchSize() {
                         return menu.getSubMenu().size();
@@ -197,7 +197,7 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, id, id);
+    public void delete(int menuId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, menuId, menuId);
     }
 }

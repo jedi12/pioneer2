@@ -30,9 +30,9 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Template getTemplate(int id) throws ServiceException {
+    public Template getTemplate(int templateId) throws ServiceException {
         try {
-            return fieldTypeService.setLocalizedFieldTypeName(templateDao.get(id));
+            return fieldTypeService.setLocalizedFieldTypeName(templateDao.get(templateId));
         } catch (DataAccessException e) {
             log.error("Can't get Template by id", e);
             throw new ServiceException("Can't get Template by id", e);
@@ -80,14 +80,14 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public void deleteTemplate(int id) throws ServiceException {
+    public void deleteTemplate(int templateId) throws ServiceException {
         // TODO: 28.02.2017 Сделать проверку, используется ли данный шаблон или не нужна проверка вообще
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            templateDao.delete(id);
+            templateDao.delete(templateId);
         } catch (DataAccessException e) {
             log.error("Can't delete Template", e);
             throw new ServiceException("Can't delete Template", e);

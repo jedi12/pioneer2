@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface UserService {
-    User getUser(int id) throws ServiceException;
 
-    User getUserWithCompany(int id) throws ServiceException;
+    User getUser(int userId) throws ServiceException;
+
+    User getUserWithCompany(int userId) throws ServiceException;
 
     List<User> getUserList() throws ServiceException;
 
@@ -21,11 +22,11 @@ public interface UserService {
 
     void updateUser(User user) throws ServiceException;
 
-    void lockUser(int id) throws ServiceException;
+    void lockUser(int userId) throws ServiceException;
 
-    void unlockUser(int id) throws ServiceException, RestrictionException;
+    void unlockUser(int userId) throws ServiceException, RestrictionException;
 
-    void setUserPass(int id, String newPass) throws ServiceException;
+    void setUserPass(int userId, String newPass) throws ServiceException;
 
     void changeUserPass(String login, String oldPass, String newPass) throws ServiceException, PasswordException;
 

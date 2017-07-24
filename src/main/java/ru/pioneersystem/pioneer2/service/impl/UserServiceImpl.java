@@ -48,9 +48,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUser(int id) throws ServiceException {
+    public User getUser(int userId) throws ServiceException {
         try {
-            return setLocalizedStateName(userDao.get(id));
+            return setLocalizedStateName(userDao.get(userId));
         } catch (DataAccessException e) {
             log.error("Can't get User by id", e);
             throw new ServiceException("Can't get User by id", e);
@@ -58,9 +58,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserWithCompany(int id) throws ServiceException {
+    public User getUserWithCompany(int userId) throws ServiceException {
         try {
-            return setLocalizedStateName(userDao.getWithCompany(id));
+            return setLocalizedStateName(userDao.getWithCompany(userId));
         } catch (DataAccessException e) {
             log.error("Can't get User by id", e);
             throw new ServiceException("Can't get User by id", e);
@@ -117,10 +117,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void lockUser(int id) throws ServiceException {
+    public void lockUser(int userId) throws ServiceException {
         try {
-            userDao.lock(id);
-            sessionListener.invalidateUserSessions(id);
+            userDao.lock(userId);
+            sessionListener.invalidateUserSessions(userId);
         } catch (DataAccessException e) {
             log.error("Can't lock User", e);
             throw new ServiceException("Can't lock User", e);
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void unlockUser(int id) throws ServiceException, RestrictionException {
+    public void unlockUser(int userId) throws ServiceException, RestrictionException {
         try {
             int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), USER_STATUS_ACTIVE);
             int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
             if (currentUserCount >= maxUserCount) {
                 throw new RestrictionException("License max users restriction");
             }
-            userDao.unlock(id);
+            userDao.unlock(userId);
         } catch (DataAccessException e) {
             log.error("Can't unlock User", e);
             throw new ServiceException("Can't unlock User", e);
@@ -144,9 +144,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void setUserPass(int id, String newPass) throws ServiceException {
+    public void setUserPass(int userId, String newPass) throws ServiceException {
         try {
-            userDao.savePass(id, toHash(id, newPass));
+            userDao.savePass(userId, toHash(userId, newPass));
         } catch (DataAccessException e) {
             log.error("Can't set User's pass", e);
             throw new ServiceException("Can't set User's pass", e);
@@ -202,7 +202,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private String toHash(int id, String pass) {
-        return DigestUtils.sha256Hex(id + "Вся#соль" + pass + "И%сахара$чуть-чуть");
+    private String toHash(int userId, String pass) {
+        return DigestUtils.sha256Hex(userId + "Вся#соль" + pass + "И%сахара$чуть-чуть");
     }
 }

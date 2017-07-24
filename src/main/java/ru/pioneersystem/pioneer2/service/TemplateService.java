@@ -6,7 +6,8 @@ import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import java.util.List;
 
 public interface TemplateService {
-    Template getTemplate(int id) throws ServiceException;
+
+    Template getTemplate(int templateId) throws ServiceException;
 
     List<Template> getTemplateList() throws ServiceException;
 
@@ -16,5 +17,5 @@ public interface TemplateService {
 
     void updateTemplate(Template template) throws ServiceException;
 
-    void deleteTemplate(int id) throws ServiceException;
+    void deleteTemplate(int templateId) throws ServiceException;
 }

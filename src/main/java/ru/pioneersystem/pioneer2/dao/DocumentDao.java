@@ -13,9 +13,9 @@ public interface DocumentDao {
 
     Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
 
-    Document get(int id) throws DataAccessException;
+    Document get(int documentId) throws DataAccessException;
 
-    Document getForEdit(int id, Map<Integer, List<String>> choiceLists) throws DataAccessException;
+    Document getForEdit(int documentId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
 
     List<Document> getOnRouteList(int roleId, int userId) throws DataAccessException;
 
@@ -29,9 +29,9 @@ public interface DocumentDao {
 
     void update(Document document, int userId) throws DataAccessException;
 
-    void delete(int id, int userId) throws DataAccessException;
+    void delete(int documentId, int userId) throws DataAccessException;
 
-    void publish(int id, int userId, int partId, boolean isPublic) throws DataAccessException;
+    void publish(int documentId, int userId, int partId, boolean isPublic) throws DataAccessException;
 
     void lock(Document document) throws DataAccessException, LockDaoException, NotFoundDaoException;
 }

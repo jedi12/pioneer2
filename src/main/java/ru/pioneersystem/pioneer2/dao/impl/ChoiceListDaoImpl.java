@@ -57,6 +57,11 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                 }
         );
 
+        if (resultChoiceList == null) {
+            throw new RestrictionDaoException("ChoiceList id=" + choiceListId +
+                    " does not belong to the company id=" + companyId);
+        }
+
         List<String> resultValues = jdbcTemplate.query(SELECT_LIST_FIELD,
                 new Object[]{choiceListId},
                 rs -> {

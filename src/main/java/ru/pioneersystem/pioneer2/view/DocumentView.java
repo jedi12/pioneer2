@@ -24,7 +24,9 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
@@ -329,7 +331,7 @@ public class DocumentView implements Serializable {
             }
         }
         catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), bundle.getString("error.file.not.uploaded")));
         }
     }
@@ -370,9 +372,9 @@ public class DocumentView implements Serializable {
                 }
             }
         }
-        catch (Exception ex) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("fatal"), bundle.getString("error.file.not.downloaded")));
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
         finally {
             try {

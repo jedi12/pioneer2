@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface DocumentService {
+
     Document getNewDocument(int templateId) throws ServiceException;
 
     Document getDocument(int id) throws ServiceException;

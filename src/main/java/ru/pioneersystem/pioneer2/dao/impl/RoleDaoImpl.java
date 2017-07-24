@@ -52,9 +52,9 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public Role get(int id) throws DataAccessException {
+    public Role get(int roleId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_ROLE,
-                new Object[]{id},
+                new Object[]{roleId},
                 (rs, rowNum) -> {
                     Role role = new Role();
                     role.setId(rs.getInt("R_ID"));
@@ -71,9 +71,9 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public List<Role> getList(int company) throws DataAccessException {
+    public List<Role> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_ROLE_LIST,
-                new Object[]{company, Role.State.SYSTEM},
+                new Object[]{companyId, Role.State.SYSTEM},
                 (rs, rowNum) -> {
                     Role role = new Role();
                     role.setId(rs.getInt("ID"));
@@ -87,14 +87,14 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     @Transactional
-    public void create(Role role, int company) throws DataAccessException {
+    public void create(Role role, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_ROLE, new String[] {"id"});
                     pstmt.setString(1, role.getName());
                     pstmt.setInt(2, Role.State.EXISTS);
-                    pstmt.setInt(3, company);
+                    pstmt.setInt(3, companyId);
                     pstmt.setInt(4, Role.Type.ROUTE);
                     pstmt.setString(5, role.getAcceptButton());
                     pstmt.setString(6, role.getRejectButton());
@@ -109,7 +109,7 @@ public class RoleDaoImpl implements RoleDao {
                     pstmt.setString(2, role.getStatusName());
                     pstmt.setInt(3, Status.State.EXISTS);
                     pstmt.setInt(4, Status.Type.MEDIUM);
-                    pstmt.setInt(5, company);
+                    pstmt.setInt(5, companyId);
                     return pstmt;
                 }
         );
@@ -123,7 +123,7 @@ public class RoleDaoImpl implements RoleDao {
                     pstmt.setInt(4, 0);
                     pstmt.setInt(5, keyHolder.getKey().intValue());
                     pstmt.setInt(6, Menu.State.CREATED_BY_ROLE);
-                    pstmt.setInt(7, company);
+                    pstmt.setInt(7, companyId);
                     return pstmt;
                 }
         );
@@ -153,9 +153,9 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_ROLE, Role.State.DELETED, id);
-        jdbcTemplate.update(DELETE_STATUS, Status.State.DELETED, id);
-        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, id);
+    public void delete(int roleId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_ROLE, Role.State.DELETED, roleId);
+        jdbcTemplate.update(DELETE_STATUS, Status.State.DELETED, roleId);
+        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, roleId);
     }
 }

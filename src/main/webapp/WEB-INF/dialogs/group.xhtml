@@ -12,7 +12,8 @@
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{groupView.createFlag ? text['group.edit.create'] : text['group.edit.change']}"/>
+				<h:outputLabel value="#{groupView.currGroup.createFlag
+					? text['group.edit.create'] : text['group.edit.change']}"/>
 			</h2>
 
 			<p:panel>

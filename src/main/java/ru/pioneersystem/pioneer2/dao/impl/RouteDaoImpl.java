@@ -58,9 +58,9 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
-    public Route get(int id) throws DataAccessException {
+    public Route get(int routeId) throws DataAccessException {
         Route resultRoute = jdbcTemplate.queryForObject(SELECT_ROUTE,
-                new Object[]{id},
+                new Object[]{routeId},
                 (rs, rowNum) -> {
                     Route route = new Route();
                     route.setId(rs.getInt("ID"));
@@ -71,7 +71,7 @@ public class RouteDaoImpl implements RouteDao {
         );
 
         List<Route.Point> resultPoints = jdbcTemplate.query(SELECT_ROUTE_POINT,
-                new Object[]{id},
+                new Object[]{routeId},
                 rs -> {
                     List<Route.Point> points = new LinkedList<>();
                     while(rs.next()){
@@ -89,7 +89,7 @@ public class RouteDaoImpl implements RouteDao {
         );
 
         List<Route.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_ROUTE_GROUP,
-                new Object[]{id},
+                new Object[]{routeId},
                 rs -> {
                     List<Route.LinkGroup> linkGroups = new LinkedList<>();
                     while(rs.next()){
@@ -109,9 +109,9 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
-    public List<Route> getList(int company) throws DataAccessException {
+    public List<Route> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_ROUTE_LIST,
-                new Object[]{company, Route.State.SYSTEM},
+                new Object[]{companyId, Route.State.SYSTEM},
                 (rs, rowNum) -> {
                     Route route = new Route();
                     route.setId(rs.getInt("ID"));
@@ -123,9 +123,9 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
-    public Map<String, Integer> getUserRouteMap(int company, int userId) throws DataAccessException {
+    public Map<String, Integer> getUserRouteMap(int companyId, int userId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_ROUTE_MAP,
-                new Object[]{company, userId},
+                new Object[]{companyId, userId},
                 rs -> {
                     Map<String, Integer> routes = new LinkedHashMap<>();
                     while(rs.next()){
@@ -138,14 +138,14 @@ public class RouteDaoImpl implements RouteDao {
 
     @Override
     @Transactional
-    public void create(Route route, int company) throws DataAccessException {
+    public void create(Route route, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_ROUTE, new String[] {"id"});
                     pstmt.setString(1, route.getName());
                     pstmt.setInt(2, Route.State.EXISTS);
-                    pstmt.setInt(3, company);
+                    pstmt.setInt(3, companyId);
                     return pstmt;
                 }, keyHolder
         );
@@ -220,9 +220,9 @@ public class RouteDaoImpl implements RouteDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_ROUTE, Route.State.DELETED, id);
-        jdbcTemplate.update(DELETE_ROUTE_POINT, id);
-        jdbcTemplate.update(DELETE_ROUTE_GROUP, id);
+    public void delete(int routeId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_ROUTE, Route.State.DELETED, routeId);
+        jdbcTemplate.update(DELETE_ROUTE_POINT, routeId);
+        jdbcTemplate.update(DELETE_ROUTE_GROUP, routeId);
     }
 }

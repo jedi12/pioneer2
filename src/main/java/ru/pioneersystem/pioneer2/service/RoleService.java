@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface RoleService {
-    Role getRole(int id) throws ServiceException;
+
+    Role getRole(int roleId) throws ServiceException;
 
     List<Role> getRoleList() throws ServiceException;
 
@@ -17,5 +18,5 @@ public interface RoleService {
 
     void updateRole(Role role) throws ServiceException;
 
-    void deleteRole(int id) throws ServiceException;
+    void deleteRole(int roleId) throws ServiceException;
 }

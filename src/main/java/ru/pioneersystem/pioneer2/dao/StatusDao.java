@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface StatusDao {
 
-    Status get(int id) throws DataAccessException;
+    Status get(int statusId) throws DataAccessException;
 
-    List<Status> getList(int company) throws DataAccessException;
+    List<Status> getList(int companyId) throws DataAccessException;
 }

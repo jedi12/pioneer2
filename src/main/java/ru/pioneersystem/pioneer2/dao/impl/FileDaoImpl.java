@@ -3,6 +3,7 @@ package ru.pioneersystem.pioneer2.dao.impl;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.pioneersystem.pioneer2.dao.FileDao;
@@ -35,7 +36,7 @@ public class FileDaoImpl implements FileDao {
                     try (InputStream contentStream = rs.getBinaryStream("DATA")) {
                         file.setContent(IOUtils.toByteArray(contentStream));
                     } catch (IOException e) {
-                        throw new RuntimeException("Error while file content reading from database");
+                        throw new TransientDataAccessResourceException("Error while file content reading from database", e);
                     }
 
                     return file;

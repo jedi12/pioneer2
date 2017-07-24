@@ -8,15 +8,15 @@ import java.util.Map;
 
 public interface RouteDao {
 
-    Route get(int id) throws DataAccessException;
+    Route get(int routeId) throws DataAccessException;
 
-    List<Route> getList(int company) throws DataAccessException;
+    List<Route> getList(int companyId) throws DataAccessException;
 
-    Map<String, Integer> getUserRouteMap(int company, int userId) throws DataAccessException;
+    Map<String, Integer> getUserRouteMap(int companyId, int userId) throws DataAccessException;
 
-    void create(Route route, int company) throws DataAccessException;
+    void create(Route route, int companyId) throws DataAccessException;
 
     void update(Route route) throws DataAccessException;
 
-    void delete(int id) throws DataAccessException;
+    void delete(int routeId) throws DataAccessException;
 }

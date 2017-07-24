@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface RoleDao {
 
-    Role get(int id) throws DataAccessException;
+    Role get(int roleId) throws DataAccessException;
 
-    List<Role> getList(int company) throws DataAccessException;
+    List<Role> getList(int companyId) throws DataAccessException;
 
-    void create(Role role, int company) throws DataAccessException;
+    void create(Role role, int companyId) throws DataAccessException;
 
     void update(Role role) throws DataAccessException;
 
-    void delete(int id) throws DataAccessException;
+    void delete(int roleId) throws DataAccessException;
 }

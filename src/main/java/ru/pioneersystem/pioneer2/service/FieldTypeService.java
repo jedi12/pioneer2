@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface FieldTypeService {
-    FieldType getFieldType(int id) throws ServiceException;
+
+    FieldType getFieldType(int fieldTypeId) throws ServiceException;
 
     List<FieldType> getFieldTypeList() throws ServiceException;
 
