@@ -8,15 +8,15 @@ import java.util.Map;
 
 public interface RoleService {
 
-    Role getRole(int roleId) throws ServiceException;
-
     List<Role> getRoleList() throws ServiceException;
 
     Map<String, Integer> getRoleMap() throws ServiceException;
 
-    void createRole(Role role) throws ServiceException;
+    Role getNewRole();
 
-    void updateRole(Role role) throws ServiceException;
+    Role getRole(int roleId) throws ServiceException;
+
+    void saveRole(Role role) throws ServiceException;
 
     void deleteRole(int roleId) throws ServiceException;
 }

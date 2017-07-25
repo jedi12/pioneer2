@@ -23,7 +23,6 @@ public class RoleView implements Serializable {
     private List<Role> filteredRoleList;
     private Role selectedRole;
 
-    private boolean createFlag;
     private Role currRole;
 
     private ResourceBundle bundle;
@@ -42,27 +41,27 @@ public class RoleView implements Serializable {
             roleList = roleService.getRoleList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currRole = new Role();
+        currRole = roleService.getNewRole();
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedRole == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.role.NotSelected")));
             return;
         }
 
         if (selectedRole.getState() == Role.State.SYSTEM) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.system.edit.restriction");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("warn.system.edit.restriction")));
             return;
         }
 
@@ -71,34 +70,34 @@ public class RoleView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                roleService.createRole(currRole);
-            } else {
-                roleService.updateRole(currRole);
-            }
+            roleService.saveRole(currRole);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteDialog() {
         if (selectedRole == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.role.NotSelected")));
             return;
         }
 
         if (selectedRole.getState() == Role.State.SYSTEM) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.system.edit.restriction");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("warn.system.edit.restriction")));
             return;
         }
 
@@ -111,15 +110,11 @@ public class RoleView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
-    }
-
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setRoleService(RoleService roleService) {
@@ -128,10 +123,6 @@ public class RoleView implements Serializable {
 
     public List<Role> getRoleList() {
         return roleList;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public List<Role> getFilteredRoleList() {

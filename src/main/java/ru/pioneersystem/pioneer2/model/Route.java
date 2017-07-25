@@ -9,6 +9,8 @@ public class Route {
     private List<LinkGroup> groups;
     private List<Point> points;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -122,5 +124,13 @@ public class Route {
 
     public void setPoints(List<Point> points) {
         this.points = points;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

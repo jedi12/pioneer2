@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Route;
 
 import java.sql.PreparedStatement;
@@ -27,15 +28,15 @@ public class RouteDaoImpl implements RouteDao {
     private static final String INSERT_ROUTE_GROUP =
             "INSERT INTO DOC.ROUTES_GROUP (ID, GROUP_ID) VALUES (?, ?)";
     private static final String UPDATE_ROUTE =
-            "UPDATE DOC.ROUTES SET NAME = ? WHERE ID = ?";
+            "UPDATE DOC.ROUTES SET NAME = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_ROUTE =
-            "UPDATE DOC.ROUTES SET STATE = ? WHERE ID = ?";
+            "UPDATE DOC.ROUTES SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_ROUTE_POINT =
             "DELETE FROM DOC.ROUTES_POINT WHERE ID = ?";
     private static final String DELETE_ROUTE_GROUP =
             "DELETE FROM DOC.ROUTES_GROUP WHERE ID = ?";
     private static final String SELECT_ROUTE =
-            "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE ID = ?";
+            "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_ROUTE_POINT =
             "SELECT RP.ID AS ID, RP.STAGE AS STAGE, GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, " +
                     "R.NAME AS ROLE_NAME FROM DOC.ROUTES_POINT RP LEFT JOIN DOC.GROUPS G ON RP.GROUP_ID = G.ID " +
@@ -58,15 +59,20 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
-    public Route get(int routeId) throws DataAccessException {
-        Route resultRoute = jdbcTemplate.queryForObject(SELECT_ROUTE,
-                new Object[]{routeId},
-                (rs, rowNum) -> {
-                    Route route = new Route();
-                    route.setId(rs.getInt("ID"));
-                    route.setName(rs.getString("NAME"));
-                    route.setState(rs.getInt("STATE"));
-                    return route;
+    public Route get(int routeId, int companyId) throws DataAccessException {
+        Route resultRoute = jdbcTemplate.query(SELECT_ROUTE,
+                new Object[]{routeId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        Route route = new Route();
+                        route.setId(rs.getInt("ID"));
+                        route.setName(rs.getString("NAME"));
+                        route.setState(rs.getInt("STATE"));
+                        return route;
+                    } else {
+                        throw new NotFoundDaoException("Not found Route with routeId=" + routeId +
+                                " and companyId=" + companyId);
+                    }
                 }
         );
 
@@ -178,11 +184,17 @@ public class RouteDaoImpl implements RouteDao {
 
     @Override
     @Transactional
-    public void update(Route route) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_ROUTE,
+    public void update(Route route, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(UPDATE_ROUTE,
                 route.getName(),
-                route.getId()
+                route.getId(),
+                companyId
         );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Route with routeId=" + route.getId() +
+                    " and companyId=" + companyId);
+        }
 
         jdbcTemplate.update(DELETE_ROUTE_POINT,
                 route.getId()
@@ -220,9 +232,24 @@ public class RouteDaoImpl implements RouteDao {
 
     @Override
     @Transactional
-    public void delete(int routeId) throws DataAccessException {
-        jdbcTemplate.update(DELETE_ROUTE, Route.State.DELETED, routeId);
-        jdbcTemplate.update(DELETE_ROUTE_POINT, routeId);
-        jdbcTemplate.update(DELETE_ROUTE_GROUP, routeId);
+    public void delete(int routeId, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(DELETE_ROUTE,
+                Route.State.DELETED,
+                routeId,
+                companyId
+        );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Route with routeId=" + routeId +
+                    " and companyId=" + companyId);
+        }
+
+        jdbcTemplate.update(DELETE_ROUTE_POINT,
+                routeId
+        );
+
+        jdbcTemplate.update(DELETE_ROUTE_GROUP,
+                routeId
+        );
     }
 }

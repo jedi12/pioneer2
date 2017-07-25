@@ -27,7 +27,6 @@ public class RouteView implements Serializable {
     private List<Route> filteredRoute;
     private Route selectedRoute;
 
-    private boolean createFlag;
     private Route currRoute;
 
     private List<String> selectPoint;
@@ -60,15 +59,13 @@ public class RouteView implements Serializable {
             selectGroupDefault = groupService.getGroupMap();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currRoute = new Route();
-        currRoute.setPoints(new LinkedList<>());
-        currRoute.setGroups(new LinkedList<>());
+        currRoute = routeService.getNewRoute();
         selectPoint = getCurrSelectPoint(currRoute);
         selectGroup = getCurrSelectGroup(currRoute);
 
@@ -76,10 +73,9 @@ public class RouteView implements Serializable {
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedRoute == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.route.NotSelected")));
             return;
         }
 
@@ -91,29 +87,28 @@ public class RouteView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                routeService.createRoute(currRoute);
-            } else {
-                routeService.updateRoute(currRoute);
-            }
+            routeService.saveRoute(currRoute);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteDialog() {
         if (selectedRoute == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.route.NotSelected")));
             return;
         }
 
@@ -126,7 +121,8 @@ public class RouteView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
@@ -187,11 +183,6 @@ public class RouteView implements Serializable {
         return currSelectGroup;
     }
 
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
-    }
-
     public void setRouteService(RouteService routeService) {
         this.routeService = routeService;
     }
@@ -218,10 +209,6 @@ public class RouteView implements Serializable {
 
     public void setSelectedRoute(Route selectedRoute) {
         this.selectedRoute = selectedRoute;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public Route getCurrRoute() {

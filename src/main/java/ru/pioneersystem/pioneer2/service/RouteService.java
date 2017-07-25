@@ -8,17 +8,17 @@ import java.util.Map;
 
 public interface RouteService {
 
-    Route getRoute(int routeId) throws ServiceException;
-
     List<Route> getRouteList() throws ServiceException;
 
     Map<String, Route> getRouteMap() throws ServiceException;
 
     Map<String, Integer> getUserRoutesMap() throws ServiceException;
 
-    void createRoute(Route route) throws ServiceException;
+    Route getNewRoute();
 
-    void updateRoute(Route route) throws ServiceException;
+    Route getRoute(int routeId) throws ServiceException;
+
+    void saveRoute(Route route) throws ServiceException;
 
     void deleteRoute(int routeId) throws ServiceException;
 }
