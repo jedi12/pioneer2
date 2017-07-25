@@ -81,7 +81,7 @@ public class CurrentUser implements Serializable {
                 return;
             }
 
-            userMenu = menuService.getUserMenu(userId);
+            userMenu = menuService.getUserMenu();
             userCreateGroups = groupService.getUserCreateGroupsMap();
             userRoutes = routeService.getUserRoutesMap();
             userPubParts = partService.getUserPartMap(Part.Type.FOR_DOCUMENTS);

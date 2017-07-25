@@ -9,7 +9,10 @@ public class Part {
     private int parent;
     private int treeLevel;
     private int ownerGroup;
+    private int type;
     private List<LinkGroup> linkGroups;
+
+    private boolean createFlag;
 
     public static class State {
         public static final int DELETED = 0;
@@ -91,11 +94,27 @@ public class Part {
         this.ownerGroup = ownerGroup;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
     public List<LinkGroup> getLinkGroups() {
         return linkGroups;
     }
 
     public void setLinkGroups(List<LinkGroup> linkGroups) {
         this.linkGroups = linkGroups;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

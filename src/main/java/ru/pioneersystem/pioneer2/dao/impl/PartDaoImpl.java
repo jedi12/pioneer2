@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.PartDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Part;
 
@@ -25,13 +26,13 @@ public class PartDaoImpl implements PartDao {
     private static final String INSERT_PART_GROUP =
             "INSERT INTO DOC.PARTS_GROUP (ID, GROUP_ID) VALUES (?, ?)";
     private static final String UPDATE_PART =
-            "UPDATE DOC.PARTS SET NAME = ?, PARENT = ?, TREE_LEVEL = ?, OWNER_G = ? WHERE ID = ?";
+            "UPDATE DOC.PARTS SET NAME = ?, PARENT = ?, TREE_LEVEL = ?, OWNER_G = ?, TYPE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_PART =
-            "UPDATE DOC.PARTS SET STATE = ? WHERE ID = ?";
+            "UPDATE DOC.PARTS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_PART_GROUP =
             "DELETE FROM DOC.PARTS_GROUP WHERE ID = ?";
     private static final String SELECT_PART =
-            "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE ID = ?";
+            "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_PART_GROUP =
             "SELECT GROUP_ID, NAME FROM DOC.PARTS_GROUP PG LEFT JOIN DOC.GROUPS G ON PG.GROUP_ID = G.ID WHERE PG.ID = ?";
     private static final String SELECT_PART_LIST =
@@ -50,18 +51,23 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public Part get(int partId) throws DataAccessException {
-        Part resultPart = jdbcTemplate.queryForObject(SELECT_PART,
-                new Object[]{partId},
-                (rs, rowNum) -> {
-                    Part part = new Part();
-                    part.setId(rs.getInt("ID"));
-                    part.setName(rs.getString("NAME"));
-                    part.setState(rs.getInt("STATE"));
-                    part.setParent(rs.getInt("PARENT"));
-                    part.setTreeLevel(rs.getInt("TREE_LEVEL"));
-                    part.setOwnerGroup(rs.getInt("OWNER_G"));
-                    return part;
+    public Part get(int partId, int companyId) throws DataAccessException {
+        Part resultPart = jdbcTemplate.query(SELECT_PART,
+                new Object[]{partId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        Part part = new Part();
+                        part.setId(rs.getInt("ID"));
+                        part.setName(rs.getString("NAME"));
+                        part.setState(rs.getInt("STATE"));
+                        part.setParent(rs.getInt("PARENT"));
+                        part.setTreeLevel(rs.getInt("TREE_LEVEL"));
+                        part.setOwnerGroup(rs.getInt("OWNER_G"));
+                        return part;
+                    } else {
+                        throw new NotFoundDaoException("Not found Part with partId=" + partId +
+                                " and companyId=" + companyId);
+                    }
                 }
         );
 
@@ -151,14 +157,21 @@ public class PartDaoImpl implements PartDao {
 
     @Override
     @Transactional
-    public void update(Part part) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_PART,
+    public void update(Part part, int type, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(UPDATE_PART,
                 part.getName(),
                 part.getParent(),
                 part.getTreeLevel(),
                 part.getOwnerGroup(),
-                part.getId()
+                type,
+                part.getId(),
+                companyId
         );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Part with partId=" + part.getId() +
+                    " and companyId=" + companyId);
+        }
 
         jdbcTemplate.update(DELETE_PART_GROUP,
                 part.getId()
@@ -179,7 +192,7 @@ public class PartDaoImpl implements PartDao {
 
     @Override
     @Transactional
-    public void update(List<Part> parts) throws DataAccessException {
+    public void update(List<Part> parts, int type, int companyId) throws DataAccessException {
         jdbcTemplate.batchUpdate(UPDATE_PART,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
@@ -187,7 +200,9 @@ public class PartDaoImpl implements PartDao {
                         pstmt.setInt(2, parts.get(i).getParent());
                         pstmt.setInt(3, parts.get(i).getTreeLevel());
                         pstmt.setInt(4, parts.get(i).getOwnerGroup());
-                        pstmt.setInt(5, parts.get(i).getId());
+                        pstmt.setInt(5, type);
+                        pstmt.setInt(6, parts.get(i).getId());
+                        pstmt.setInt(7, companyId);
                     }
                     public int getBatchSize() {
                         return parts.size();
@@ -198,25 +213,44 @@ public class PartDaoImpl implements PartDao {
 
     @Override
     @Transactional
-    public void delete(int partId) throws DataAccessException {
-        jdbcTemplate.update(DELETE_PART, Part.State.DELETED, partId);
-        jdbcTemplate.update(DELETE_PART_GROUP, partId);
+    public void delete(int partId, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(DELETE_PART,
+                Part.State.DELETED,
+                partId,
+                companyId
+        );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Part with partId=" + partId +
+                    " and companyId=" + companyId);
+        }
+
+        jdbcTemplate.update(DELETE_PART_GROUP,
+                partId
+        );
     }
 
     @Override
     @Transactional
-    public void delete(List<Part> parts) throws DataAccessException {
-        jdbcTemplate.batchUpdate(DELETE_PART,
+    public void delete(List<Part> parts, int companyId) throws DataAccessException {
+        int[] updatedRows = jdbcTemplate.batchUpdate(DELETE_PART,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
                         pstmt.setInt(1, Part.State.DELETED);
                         pstmt.setInt(2, parts.get(i).getId());
+                        pstmt.setInt(3, companyId);
                     }
                     public int getBatchSize() {
                         return parts.size();
                     }
                 }
         );
+
+        for (int updatedRow : updatedRows) {
+            if (updatedRow == 0) {
+                throw new NotFoundDaoException("One ore more Part not found for companyId=" + companyId);
+            }
+        }
 
         jdbcTemplate.batchUpdate(DELETE_PART_GROUP,
                 new BatchPreparedStatementSetter() {

@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface MenuDao {
 
-    Menu get(int menuId) throws DataAccessException;
-
     List<Menu> getList(int companyId) throws DataAccessException;
 
     List<Menu> getUserMenu(int userId) throws DataAccessException;
 
+    Menu get(int menuId, int companyId) throws DataAccessException;
+
     void create(Menu menu, int companyId) throws DataAccessException;
 
-    void update(Menu menu) throws DataAccessException;
+    void update(Menu menu, int companyId) throws DataAccessException;
 
-    void delete(int menuId) throws DataAccessException;
+    void delete(int menuId, int companyId) throws DataAccessException;
 }

@@ -12,7 +12,7 @@
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{partView.createFlag ? text['part.edit.create'] : text['part.edit.change']}"/>
+				<h:outputLabel value="#{partView.currPart.createFlag ? text['part.edit.create'] : text['part.edit.change']}"/>
 			</h2>
 
 			<p:panel>
@@ -24,7 +24,7 @@
 
 					<p:outputLabel value="#{text['part.edit.label.parent']}" for="parentPart"/>
 					<p:selectOneMenu id="parentPart" value="#{partView.currPart.parent}" styleClass="width100" effect="fade"
-									 filter="true" filterMatchMode="contains" disabled="#{!partView.createFlag}">
+									 filter="true" filterMatchMode="contains" disabled="#{!partView.currPart.createFlag}">
 						<f:selectItems value="#{partView.selectParentPart}" />
 					</p:selectOneMenu>
 					<p:outputLabel/>

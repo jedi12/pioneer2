@@ -8,8 +8,6 @@ import java.util.Map;
 
 public interface PartService {
 
-    Part getPart(int partId) throws ServiceException;
-
     List<Part> getPartList(int type) throws ServiceException;
 
     Map<String, Integer> getPartMap(int type) throws ServiceException;
@@ -18,11 +16,13 @@ public interface PartService {
 
     Map<String, Integer> getUserPartMap(int type) throws ServiceException;
 
-    void createPart(Part part, int type) throws ServiceException;
+    Part getNewPart();
 
-    void updatePart(Part part) throws ServiceException;
+    Part getPart(int partId) throws ServiceException;
 
-    void updateParts(List<Part> parts) throws ServiceException;
+    void savePart(Part part, int type) throws ServiceException;
+
+    void updateParts(List<Part> parts, int type) throws ServiceException;
 
     void deletePart(int partId) throws ServiceException;
 

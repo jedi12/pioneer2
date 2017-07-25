@@ -3,7 +3,6 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.TreeDragDropEvent;
 import org.primefaces.model.TreeNode;
-import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.PartService;
@@ -33,7 +32,6 @@ public class PartView implements Serializable {
     private TreeNode partTree;
     private TreeNode selectedNode;
 
-    private boolean createFlag;
     private Part currPart;
     private int partType;
 
@@ -56,12 +54,12 @@ public class PartView implements Serializable {
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         partType = Part.Type.FOR_TEMPLATES;
+        currPart = partService.getNewPart();
         refreshList();
     }
 
     public void refreshList() {
         try {
-            currPart = new Part();
             partList = partService.getPartList(partType);
             partTree = TreeNodeUtil.toTree(partList, false);
 
@@ -70,30 +68,27 @@ public class PartView implements Serializable {
             selectGroupDefault = groupService.getGroupMap();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-
         // TODO: 06.05.2017 Необходима проверка на право создавать подраздел в текущем разделе для владельца или администратора (тут или в сервисе)
 
-        currPart = new Part();
+        currPart = partService.getNewPart();
         if (selectedNode != null) {
             currPart.setParent(((Part) selectedNode.getData()).getId());
         }
-        currPart.setLinkGroups(new LinkedList<>());
         selectGroup = getCurrSelectPart(currPart);
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedNode == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.part.NotSelected")));
             return;
         }
 
@@ -107,29 +102,28 @@ public class PartView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                partService.createPart(TreeNodeUtil.setTreeLevel(currPart, partList), partType);
-            } else {
-                partService.updatePart(currPart);
-            }
+            partService.savePart(TreeNodeUtil.setTreeLevel(currPart, partList), partType);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteDialog() {
         if (selectedNode == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.part.NotSelected")));
             return;
         }
 
@@ -145,7 +139,8 @@ public class PartView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
@@ -164,12 +159,14 @@ public class PartView implements Serializable {
             ((Part) dragNode.getData()).setParent(partParentId);
 
             List<Part> parts = TreeNodeUtil.toList(dragNode, new ArrayList<>(), treeLevelOffset);
-            partService.updateParts(parts);
+            partService.updateParts(parts, partType);
 
-            showGrowl(FacesMessage.SEVERITY_INFO, "info", "info.tree.changed");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_INFO,
+                    bundle.getString("info"), bundle.getString("info.tree.changed")));
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.tree.not.changed");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
             refreshList();
         }
     }
@@ -216,11 +213,6 @@ public class PartView implements Serializable {
         return map;
     }
 
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
-    }
-
     public void setPartService(PartService partService) {
         this.partService = partService;
     }
@@ -239,10 +231,6 @@ public class PartView implements Serializable {
 
     public void setSelectedNode(TreeNode selectedNode) {
         this.selectedNode = selectedNode;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public Part getCurrPart() {
