@@ -16,7 +16,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import javax.sql.DataSource;
-import java.util.Locale;
 
 @Configuration
 @EnableWebMvc

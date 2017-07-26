@@ -71,8 +71,8 @@ public class GroupDaoImpl implements GroupDao {
                         group.setRoleId(rs.getInt("ROLE_ID"));
                         return group;
                     } else {
-                        throw new NotFoundDaoException("Not found Group with groupId=" + groupId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found Group with groupId = " + groupId +
+                                " and companyId = " + companyId);
                     }
                 }
         );
@@ -199,8 +199,8 @@ public class GroupDaoImpl implements GroupDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Group with groupId=" + group.getId() +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Group with groupId = " + group.getId() +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_GROUP_USER,
@@ -232,10 +232,12 @@ public class GroupDaoImpl implements GroupDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Group with groupId=" + groupId +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Group with groupId = " + groupId +
+                    " and companyId = " + companyId);
         }
 
-        jdbcTemplate.update(DELETE_GROUP_USER, groupId);
+        jdbcTemplate.update(DELETE_GROUP_USER,
+                groupId
+        );
     }
 }

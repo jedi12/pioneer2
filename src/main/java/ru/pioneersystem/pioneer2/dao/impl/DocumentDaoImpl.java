@@ -485,12 +485,12 @@ public class DocumentDaoImpl implements DocumentDao {
                         int uUserId = rs.getInt("U_USER");
 
                         if (document.getChangeDate().compareTo(uDate) != 0) {
-                            throw new LockDaoException("Document with documentId=" + document.getId() +
+                            throw new LockDaoException("Document with documentId = " + document.getId() +
                                     " was changed while attempting to lock", uUserId, uDate);
                         }
                     } else {
-                        throw new NotFoundDaoException("Not found Document with documentId=" +
-                                document.getId() + " and companyId=" + companyId + " while attempting to ock");
+                        throw new NotFoundDaoException("Not found Document with documentId = " +
+                                document.getId() + " and companyId = " + companyId + " while attempting to lock");
                     }
                 }
         );

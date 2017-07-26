@@ -9,12 +9,6 @@ import java.util.Map;
 
 public interface DocumentDao {
 
-    Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
-
-    Document get(int documentId) throws DataAccessException;
-
-    Document getForEdit(int documentId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
-
     List<Document> getOnRouteList(int roleId, int userId) throws DataAccessException;
 
     List<Document> getListByPartId(int partId) throws DataAccessException;
@@ -22,6 +16,12 @@ public interface DocumentDao {
     List<Document> getMyOnDateList(Date beginDate, Date endDate, int userId) throws DataAccessException;
 
     List<Document> getMyOnWorkingList(int userId) throws DataAccessException;
+
+    Document get(int documentId) throws DataAccessException;
+
+    Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
+
+    Document getForEdit(int documentId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
 
     void create(Document document, int userId, int company) throws DataAccessException;
 

@@ -62,8 +62,8 @@ public class MenuDaoImpl implements MenuDao {
                         menu.setState(rs.getInt("STATE"));
                         return menu;
                     } else {
-                        throw new NotFoundDaoException("Not found Menu with menuId=" + menuId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found Menu with menuId = " + menuId +
+                                " and companyId = " + companyId);
                     }
                 }
         );
@@ -190,8 +190,8 @@ public class MenuDaoImpl implements MenuDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Menu with menuId=" + menu.getId() +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Menu with menuId = " + menu.getId() +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.batchUpdate(UPDATE_MENU,

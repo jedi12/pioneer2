@@ -37,8 +37,8 @@ public class StatusDaoImpl implements StatusDao {
                         status.setType(rs.getInt("TYPE"));
                         return status;
                     } else {
-                        throw new NotFoundDaoException("Not found Status with statusId=" + statusId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found Status with statusId = " + statusId +
+                                " and companyId = " + companyId);
                     }
                 }
         );

@@ -9,12 +9,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,11 +26,13 @@ public class TemplateDaoImpl implements TemplateDao {
             "INSERT INTO DOC.TEMPLATES_FIELD (ID, FIELD_NAME, FIELD_NUM, FIELD_TYPE, FIELD_LIST) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_TEMPLATE_CONDITION =
             "INSERT INTO DOC.TEMPLATES_COND (ID, COND_NUM, FIELD_NUM, COND, VALUE, ROUTE) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_TEMPLATE = "UPDATE DOC.TEMPLATES SET NAME = ?, ROUTE = ?, PART = ? WHERE ID = ?";
-    private static final String DELETE_TEMPLATE = "UPDATE DOC.TEMPLATES SET STATE = ? WHERE ID = ?";
+    private static final String UPDATE_TEMPLATE =
+            "UPDATE DOC.TEMPLATES SET NAME = ?, ROUTE = ?, PART = ? WHERE ID = ? AND COMPANY = ?";
+    private static final String DELETE_TEMPLATE = "UPDATE DOC.TEMPLATES SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_TEMPLATE_FIELD = "DELETE FROM DOC.TEMPLATES_FIELD WHERE ID = ?";
     private static final String DELETE_TEMPLATE_CONDITION = "DELETE FROM DOC.TEMPLATES_COND WHERE ID = ?";
-    private static final String SELECT_TEMPLATE = "SELECT ID, NAME, ROUTE, PART FROM DOC.TEMPLATES WHERE ID = ?";
+    private static final String SELECT_TEMPLATE =
+            "SELECT ID, NAME, ROUTE, PART FROM DOC.TEMPLATES WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_TEMPLATE_FIELD =
             "SELECT FIELD_NAME, FIELD_NUM, FIELD_TYPE, FIELD_LIST, NAME AS FIELD_LIST_NAME FROM DOC.TEMPLATES_FIELD TF " +
                     "LEFT JOIN DOC.LISTS L ON TF.FIELD_LIST = L.ID WHERE TF.ID = ? ORDER BY FIELD_NUM ASC";
@@ -45,7 +47,7 @@ public class TemplateDaoImpl implements TemplateDao {
                     "ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID WHERE T.STATE > 0 AND T.COMPANY = ? " +
                     "ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_TEMPLATE_LIST_BY_PART =
-            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? ORDER BY NAME ASC";
+            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ? ORDER BY NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -55,16 +57,21 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public Template get(int templateId) throws DataAccessException {
-        Template resultTemplate = jdbcTemplate.queryForObject(SELECT_TEMPLATE,
-                new Object[]{templateId},
-                (rs, rowNum) -> {
-                    Template template = new Template();
-                    template.setId(rs.getInt("ID"));
-                    template.setName(rs.getString("NAME"));
-                    template.setRouteId(rs.getInt("ROUTE"));
-                    template.setPartId(rs.getInt("PART"));
-                    return template;
+    public Template get(int templateId, int companyId) throws DataAccessException {
+        Template resultTemplate = jdbcTemplate.query(SELECT_TEMPLATE,
+                new Object[]{templateId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        Template template = new Template();
+                        template.setId(rs.getInt("ID"));
+                        template.setName(rs.getString("NAME"));
+                        template.setRouteId(rs.getInt("ROUTE"));
+                        template.setPartId(rs.getInt("PART"));
+                        return template;
+                    } else {
+                        throw new NotFoundDaoException("Not found Template with templateId = " + templateId +
+                                " and companyId = " + companyId);
+                    }
                 }
         );
 
@@ -130,9 +137,9 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public List<Template> getListByPartId(int partId) throws DataAccessException {
+    public List<Template> getListByPartId(int partId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST_BY_PART,
-                new Object[]{partId},
+                new Object[]{partId, companyId},
                 (rs, rowNum) -> {
                     Template template = new Template();
                     template.setId(rs.getInt("ID"));
@@ -196,13 +203,19 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void update(Template template) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_TEMPLATE,
+    public void update(Template template, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(UPDATE_TEMPLATE,
                 template.getName(),
                 template.getRouteId(),
                 template.getPartId(),
-                template.getId()
+                template.getId(),
+                companyId
         );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Template with templateId = " + template.getId() +
+                    " and companyId = " + companyId);
+        }
 
         jdbcTemplate.update(DELETE_TEMPLATE_FIELD,
                 template.getId()
@@ -250,9 +263,24 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void delete(int templateId) throws DataAccessException {
-        jdbcTemplate.update(DELETE_TEMPLATE, Template.State.DELETED, templateId);
-        jdbcTemplate.update(DELETE_TEMPLATE_FIELD, templateId);
-        jdbcTemplate.update(DELETE_TEMPLATE_CONDITION, templateId);
+    public void delete(int templateId, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(DELETE_TEMPLATE,
+                Template.State.DELETED,
+                templateId,
+                companyId
+        );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found TemplateId with templateId = " + templateId +
+                    " and companyId = " + companyId);
+        }
+
+        jdbcTemplate.update(DELETE_TEMPLATE_FIELD,
+                templateId
+        );
+
+        jdbcTemplate.update(DELETE_TEMPLATE_CONDITION,
+                templateId
+        );
     }
 }

@@ -69,8 +69,8 @@ public class RoleDaoImpl implements RoleDao {
                         role.setMenuName(rs.getString("MENU_NAME"));
                         return role;
                     } else {
-                        throw new NotFoundDaoException("Not found Role with roleId=" + roleId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found Role with roleId = " + roleId +
+                                " and companyId = " + companyId);
                     }
                 }
         );
@@ -148,8 +148,8 @@ public class RoleDaoImpl implements RoleDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Role with roleId=" + role.getId() +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Role with roleId = " + role.getId() +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(UPDATE_STATUS,
@@ -173,8 +173,8 @@ public class RoleDaoImpl implements RoleDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Role with roleId=" + roleId +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Role with roleId = " + roleId +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_STATUS,

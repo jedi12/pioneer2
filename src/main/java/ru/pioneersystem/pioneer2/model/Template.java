@@ -14,6 +14,8 @@ public class Template {
     private LinkedList<Document.Field> fields;
     private List<Document.Condition> conditions;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -90,5 +92,13 @@ public class Template {
 
     public void setConditions(List<Document.Condition> conditions) {
         this.conditions = conditions;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

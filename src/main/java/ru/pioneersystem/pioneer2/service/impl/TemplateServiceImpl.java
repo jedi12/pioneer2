@@ -3,6 +3,7 @@ package ru.pioneersystem.pioneer2.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
@@ -11,7 +12,9 @@ import ru.pioneersystem.pioneer2.service.FieldTypeService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Service("templateService")
@@ -21,22 +24,17 @@ public class TemplateServiceImpl implements TemplateService {
     private TemplateDao templateDao;
     private FieldTypeService fieldTypeService;
     private CurrentUser currentUser;
+    private LocaleBean localeBean;
+    private MessageSource messageSource;
 
     @Autowired
-    public TemplateServiceImpl(TemplateDao templateDao, FieldTypeService fieldTypeService, CurrentUser currentUser) {
+    public TemplateServiceImpl(TemplateDao templateDao, FieldTypeService fieldTypeService, CurrentUser currentUser,
+                               LocaleBean localeBean, MessageSource messageSource) {
         this.templateDao = templateDao;
         this.fieldTypeService = fieldTypeService;
         this.currentUser = currentUser;
-    }
-
-    @Override
-    public Template getTemplate(int templateId) throws ServiceException {
-        try {
-            return fieldTypeService.setLocalizedFieldTypeName(templateDao.get(templateId));
-        } catch (DataAccessException e) {
-            log.error("Can't get Template by id", e);
-            throw new ServiceException("Can't get Template by id", e);
-        }
+        this.localeBean = localeBean;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -44,38 +42,57 @@ public class TemplateServiceImpl implements TemplateService {
         try {
             return templateDao.getList(currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of Template", e);
-            throw new ServiceException("Can't get list of Template", e);
+            String mess = messageSource.getMessage("error.template.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
     public List<Template> getTemplateList(int partId) throws ServiceException {
         try {
-            return templateDao.getListByPartId(partId);
+            return templateDao.getListByPartId(partId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of Template by part id", e);
-            throw new ServiceException("Can't get list of Template by part id", e);
+            String mess = messageSource.getMessage("error.template.partTemplateNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void createTemplate(Template template) throws ServiceException {
+    public Template getNewTemplate() {
+        Template template = new Template();
+        template.setFields(new LinkedList<>());
+        template.setConditions(new LinkedList<>());
+        template.setCreateFlag(true);
+        return template;
+    }
+
+    @Override
+    public Template getTemplate(int templateId) throws ServiceException {
         try {
-            templateDao.create(template, currentUser.getUser().getCompanyId());
+            Template template = fieldTypeService.setLocalizedFieldTypeName(templateDao.get(templateId, currentUser.getUser().getCompanyId()));
+            template.setCreateFlag(false);
+            return template;
         } catch (DataAccessException e) {
-            log.error("Can't create Template", e);
-            throw new ServiceException("Can't create Template", e);
+            String mess = messageSource.getMessage("error.template.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateTemplate(Template template) throws ServiceException {
+    public void saveTemplate(Template template) throws ServiceException {
         try {
-            templateDao.update(template);
+            if (template.isCreateFlag()) {
+                templateDao.create(template, currentUser.getUser().getCompanyId());
+            } else {
+                templateDao.update(template, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update Template", e);
-            throw new ServiceException("Can't update Template", e);
+            String mess = messageSource.getMessage("error.template.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -87,10 +104,11 @@ public class TemplateServiceImpl implements TemplateService {
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            templateDao.delete(templateId);
+            templateDao.delete(templateId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete Template", e);
-            throw new ServiceException("Can't delete Template", e);
+            String mess = messageSource.getMessage("error.template.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 }

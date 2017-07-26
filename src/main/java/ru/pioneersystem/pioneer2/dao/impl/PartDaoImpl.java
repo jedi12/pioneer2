@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
-import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Part;
 
 import java.sql.PreparedStatement;
@@ -65,8 +64,8 @@ public class PartDaoImpl implements PartDao {
                         part.setOwnerGroup(rs.getInt("OWNER_G"));
                         return part;
                     } else {
-                        throw new NotFoundDaoException("Not found Part with partId=" + partId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found Part with partId = " + partId +
+                                " and companyId = " + companyId);
                     }
                 }
         );
@@ -169,8 +168,8 @@ public class PartDaoImpl implements PartDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Part with partId=" + part.getId() +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Part with partId = " + part.getId() +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_PART_GROUP,
@@ -221,8 +220,8 @@ public class PartDaoImpl implements PartDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Part with partId=" + partId +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Part with partId = " + partId +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_PART_GROUP,
@@ -248,7 +247,7 @@ public class PartDaoImpl implements PartDao {
 
         for (int updatedRow : updatedRows) {
             if (updatedRow == 0) {
-                throw new NotFoundDaoException("One ore more Part not found for companyId=" + companyId);
+                throw new NotFoundDaoException("One ore more Part not found for companyId = " + companyId);
             }
         }
 

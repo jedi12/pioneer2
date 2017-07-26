@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface TemplateDao {
 
-    Template get(int templateId) throws DataAccessException;
-
     List<Template> getList(int companyId) throws DataAccessException;
 
-    List<Template> getListByPartId(int partId) throws DataAccessException;
+    List<Template> getListByPartId(int partId, int companyId) throws DataAccessException;
+
+    Template get(int templateId, int companyId) throws DataAccessException;
 
     void create(Template template, int companyId) throws DataAccessException;
 
-    void update(Template template) throws DataAccessException;
+    void update(Template template, int companyId) throws DataAccessException;
 
-    void delete(int templateId) throws DataAccessException;
+    void delete(int templateId, int companyId) throws DataAccessException;
 }

@@ -100,7 +100,7 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                 new Object[]{documentId},
                 (rs) -> {
                     if (!rs.next()) {
-                        throw new NotFoundDaoException("Document with documentId=" + documentId + " is in finished state already");
+                        throw new NotFoundDaoException("Document with documentId = " + documentId + " is in finished state already");
                     }
                 }
         );

@@ -70,8 +70,8 @@ public class RouteDaoImpl implements RouteDao {
                         route.setState(rs.getInt("STATE"));
                         return route;
                     } else {
-                        throw new NotFoundDaoException("Not found Route with routeId=" + routeId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found Route with routeId = " + routeId +
+                                " and companyId = " + companyId);
                     }
                 }
         );
@@ -192,8 +192,8 @@ public class RouteDaoImpl implements RouteDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Route with routeId=" + route.getId() +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Route with routeId = " + route.getId() +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_ROUTE_POINT,
@@ -240,8 +240,8 @@ public class RouteDaoImpl implements RouteDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found Route with routeId=" + routeId +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found Route with routeId = " + routeId +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_ROUTE_POINT,

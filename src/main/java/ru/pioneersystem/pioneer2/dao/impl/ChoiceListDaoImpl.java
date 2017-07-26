@@ -56,8 +56,8 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                         choiceList.setName(rs.getString("NAME"));
                         return choiceList;
                     } else {
-                        throw new NotFoundDaoException("Not found ChoiceList with choiceListId=" + choiceListId +
-                                " and companyId=" + companyId);
+                        throw new NotFoundDaoException("Not found ChoiceList with choiceListId = " + choiceListId +
+                                " and companyId = " + companyId);
                     }
                 }
         );
@@ -159,8 +159,8 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found ChoiceList with choiceListId=" + choiceList.getId() +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found ChoiceList with choiceListId = " + choiceList.getId() +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_LIST_FIELD,
@@ -190,8 +190,8 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         );
 
         if (updatedRows == 0) {
-            throw new NotFoundDaoException("Not found ChoiceList with choiceListId=" + choiceListId +
-                    " and companyId=" + companyId);
+            throw new NotFoundDaoException("Not found ChoiceList with choiceListId = " + choiceListId +
+                    " and companyId = " + companyId);
         }
 
         jdbcTemplate.update(DELETE_LIST_FIELD, choiceListId);
