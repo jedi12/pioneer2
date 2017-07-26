@@ -41,7 +41,7 @@ public class RoleDaoImpl implements RoleDao {
                     "R.REJECT AS R_REJECT, DS.NAME AS STATUS_NAME, M.NAME AS MENU_NAME FROM DOC.ROLES R " +
                     "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON R.ID = DS.ID " +
                     "LEFT JOIN DOC.MENU M ON R.ID = M.ROLE_ID " +
-                    "WHERE R.ID = ? AND R.COMPANY = ?";
+                    "WHERE R.ID = ? AND R.COMPANY IN (0, ?)";
     private static final String SELECT_ROLE_LIST =
             "SELECT ID, NAME, STATE, TYPE FROM DOC.ROLES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
 

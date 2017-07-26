@@ -36,10 +36,11 @@ public class StatusServiceImpl implements StatusService {
     @Override
     public Status getStatus(int statusId) throws ServiceException {
         try {
-            return setLocalizedStatusName(statusDao.get(statusId));
+            return setLocalizedStatusName(statusDao.get(statusId, currentUser.getUser().getCompanyId()));
         } catch (DataAccessException e) {
-            log.error("Can't get Status by id", e);
-            throw new ServiceException("Can't get Status by id", e);
+            String mess = messageSource.getMessage("error.status.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -52,8 +53,9 @@ public class StatusServiceImpl implements StatusService {
             }
             return statuses;
         } catch (DataAccessException e) {
-            log.error("Can't get list of Status", e);
-            throw new ServiceException("Can't get list of Status", e);
+            String mess = messageSource.getMessage("error.status.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 

@@ -26,13 +26,11 @@ import java.util.Map;
 @Service("userService")
 public class UserServiceImpl implements UserService {
     private Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-    private static final int USER_STATUS_LOCKED = 0;
-    private static final int USER_STATUS_ACTIVE = 1;
 
     private UserDao userDao;
     private CompanyDao companyDao;
-    private LocaleBean localeBean;
     private CurrentUser currentUser;
+    private LocaleBean localeBean;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
@@ -41,29 +39,21 @@ public class UserServiceImpl implements UserService {
                            MessageSource messageSource, SessionListener sessionListener) {
         this.userDao = userDao;
         this.companyDao = companyDao;
-        this.localeBean = localeBean;
         this.currentUser = currentUser;
+        this.localeBean = localeBean;
         this.messageSource = messageSource;
         this.sessionListener = sessionListener;
     }
 
-    @Override
-    public User getUser(int userId) throws ServiceException {
-        try {
-            return setLocalizedStateName(userDao.get(userId));
-        } catch (DataAccessException e) {
-            log.error("Can't get User by id", e);
-            throw new ServiceException("Can't get User by id", e);
-        }
-    }
-
+    // TODO: 25.07.2017 Дыра. Метод не должен быть доступен из вне
     @Override
     public User getUserWithCompany(int userId) throws ServiceException {
         try {
             return setLocalizedStateName(userDao.getWithCompany(userId));
         } catch (DataAccessException e) {
-            log.error("Can't get User by id", e);
-            throw new ServiceException("Can't get User by id", e);
+            String mess = messageSource.getMessage("error.user.userWithCompanyNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -76,8 +66,9 @@ public class UserServiceImpl implements UserService {
             }
             return users;
         } catch (DataAccessException e) {
-            log.error("Can't get list of User", e);
-            throw new ServiceException("Can't get list of User", e);
+            String mess = messageSource.getMessage("error.user.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -91,55 +82,76 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUser(User user) throws ServiceException, RestrictionException {
-        try {
-            int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), USER_STATUS_ACTIVE);
-            int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
+    public User getNewUser() {
+        User user = new User();
+        user.setCreateFlag(true);
+        return user;
+    }
 
-            if (currentUserCount >= maxUserCount) {
-                throw new RestrictionException("License max users restriction");
-            }
-            userDao.create(user, currentUser.getUser().getCompanyId());
+    @Override
+    public User getUser(int userId) throws ServiceException {
+        try {
+            User user = setLocalizedStateName(userDao.get(userId, currentUser.getUser().getCompanyId()));
+            user.setCreateFlag(false);
+            return user;
         } catch (DataAccessException e) {
-            log.error("Can't create User", e);
-            throw new ServiceException("Can't create User", e);
+            String mess = messageSource.getMessage("error.user.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateUser(User user) throws ServiceException {
+    public void saveUser(User user) throws ServiceException {
         try {
-            userDao.update(user);
+            if (user.isCreateFlag()) {
+                int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
+                int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
+
+                if (currentUserCount >= maxUserCount) {
+                    String mess = messageSource.getMessage("error.user.maxUserLimit", null, localeBean.getLocale());
+                    log.error(mess);
+                    throw new RestrictionException(mess);
+                }
+                userDao.create(user, currentUser.getUser().getCompanyId());
+            } else {
+                userDao.update(user, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update User", e);
-            throw new ServiceException("Can't update User", e);
+            String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
     public void lockUser(int userId) throws ServiceException {
         try {
-            userDao.lock(userId);
+            userDao.setState(User.State.LOCKED, userId, currentUser.getUser().getCompanyId());
             sessionListener.invalidateUserSessions(userId);
         } catch (DataAccessException e) {
-            log.error("Can't lock User", e);
-            throw new ServiceException("Can't lock User", e);
+            String mess = messageSource.getMessage("error.user.NotLocked", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void unlockUser(int userId) throws ServiceException, RestrictionException {
+    public void unlockUser(int userId) throws ServiceException {
         try {
-            int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), USER_STATUS_ACTIVE);
+            int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
             int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
 
             if (currentUserCount >= maxUserCount) {
-                throw new RestrictionException("License max users restriction");
+                String mess = messageSource.getMessage("error.user.maxUserLimit", null, localeBean.getLocale());
+                log.error(mess);
+                throw new RestrictionException(mess);
             }
-            userDao.unlock(userId);
+            userDao.setState(User.State.ACTIVE, userId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't unlock User", e);
-            throw new ServiceException("Can't unlock User", e);
+            String mess = messageSource.getMessage("error.user.NotUnlocked", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -148,34 +160,37 @@ public class UserServiceImpl implements UserService {
         try {
             userDao.savePass(userId, toHash(userId, newPass));
         } catch (DataAccessException e) {
-            log.error("Can't set User's pass", e);
-            throw new ServiceException("Can't set User's pass", e);
+            String mess = messageSource.getMessage("error.user.passNotSetup", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void changeUserPass(String login, String oldPass, String newPass) throws ServiceException, PasswordException {
-        int loginId = getUserId(login, oldPass);
+    public void changeUserPass(String login, String oldPass, String newPass) throws ServiceException {
         try {
+            int loginId = checkLoginAndPass(login, oldPass);
             userDao.savePass(loginId, toHash(loginId, newPass));
+        } catch (PasswordException e) {
+            String mess = messageSource.getMessage("error.user.oldPassNotValid", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new PasswordException(mess);
         } catch (DataAccessException e) {
-            log.error("Can't change User's pass", e);
-            throw new ServiceException("Can't change User's pass", e);
+            String mess = messageSource.getMessage("error.user.passNotChanged", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public int getUserId(String login, String pass) throws ServiceException, PasswordException {
+    public int checkLoginAndPass(String login, String pass) throws ServiceException {
         Map<String, Object> userIdAndPass;
         try {
             userIdAndPass = userDao.getUserIdAndPass(login);
         } catch (DataAccessException e) {
-            log.error("Can't get User's Id", e);
-            throw new ServiceException("Can't get User's Id", e);
-        }
-
-        if (userIdAndPass.isEmpty()) {
-            throw new PasswordException("Login or password isn't valid");
+            String mess = messageSource.getMessage("error.user.userNameAndPassNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new PasswordException(mess);
         }
 
         int loginId = (int) userIdAndPass.get(UserDaoImpl.USER_ID);
@@ -184,16 +199,18 @@ public class UserServiceImpl implements UserService {
         if (toHash(loginId, pass).equals(storedPass)) {
             return loginId;
         } else {
-            throw new PasswordException("Login or password isn't valid");
+            String mess = messageSource.getMessage("error.user.userNameOrPassNotValid", null, localeBean.getLocale());
+            log.error(mess);
+            throw new PasswordException(mess);
         }
     }
 
     private User setLocalizedStateName(User user) {
         switch (user.getState()) {
-            case USER_STATUS_LOCKED:
+            case User.State.LOCKED:
                 user.setStateName(messageSource.getMessage("status.locked", null, localeBean.getLocale()));
                 break;
-            case USER_STATUS_ACTIVE:
+            case User.State.ACTIVE:
                 user.setStateName(messageSource.getMessage("status.active", null, localeBean.getLocale()));
                 break;
             default:

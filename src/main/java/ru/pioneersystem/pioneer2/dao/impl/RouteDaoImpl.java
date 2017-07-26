@@ -36,7 +36,7 @@ public class RouteDaoImpl implements RouteDao {
     private static final String DELETE_ROUTE_GROUP =
             "DELETE FROM DOC.ROUTES_GROUP WHERE ID = ?";
     private static final String SELECT_ROUTE =
-            "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE ID = ? AND COMPANY = ?";
+            "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE ID = ? AND COMPANY IN (0, ?)";
     private static final String SELECT_ROUTE_POINT =
             "SELECT RP.ID AS ID, RP.STAGE AS STAGE, GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, " +
                     "R.NAME AS ROLE_NAME FROM DOC.ROUTES_POINT RP LEFT JOIN DOC.GROUPS G ON RP.GROUP_ID = G.ID " +

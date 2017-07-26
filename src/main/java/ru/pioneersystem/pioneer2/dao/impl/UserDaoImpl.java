@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.UserDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.User;
 
@@ -26,12 +27,11 @@ public class UserDaoImpl implements UserDao {
     private static final String INSERT_USER = "INSERT INTO DOC.USERS (LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, " +
             "COMMENT) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE DOC.USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, PHONE = ?, " +
-            "COMMENT = ? WHERE ID = ?";
-    private static final String UPDATE_USER_LOCK = "UPDATE DOC.USERS SET STATE = ? WHERE ID = ?";
-    private static final String UPDATE_USER_UNLOCK = "UPDATE DOC.USERS SET STATE = ? WHERE ID = ?";
+            "COMMENT = ? WHERE ID = ? AND COMPANY = ?";
+    private static final String UPDATE_USER_LOCK = "UPDATE DOC.USERS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_CHANGE_PASS = "UPDATE DOC.USERS SET PASS = ? WHERE ID = ?";
     private static final String SELECT_USER = "SELECT ID, LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, COMMENT " +
-            "FROM DOC.USERS WHERE ID = ?";
+            "FROM DOC.USERS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_USER_WITH_COMPANY = "SELECT U.ID AS U_ID, U.LOGIN AS U_LOGIN, U.NAME AS U_NAME, " +
             "U.STATE AS U_STATE, U.EMAIL AS U_EMAIL, U.PHONE AS U_PHONE, U.COMPANY AS U_COMPANY, U.COMMENT AS U_COMMENT, " +
             "C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, C.EMAIL AS C_EMAIL, " +
@@ -50,20 +50,25 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User get(int userId) throws DataAccessException {
-        return jdbcTemplate.queryForObject(SELECT_USER,
-                new Object[]{userId},
-                (rs, rowNum) -> {
-                    User user = new User();
-                    user.setId(rs.getInt("ID"));
-                    user.setLogin(rs.getString("LOGIN"));
-                    user.setName(rs.getString("NAME"));
-                    user.setEmail(rs.getString("EMAIL"));
-                    user.setPhone(rs.getString("PHONE"));
-                    user.setCompanyId(rs.getInt("COMPANY"));
-                    user.setComment(rs.getString("COMMENT"));
-                    user.setState(rs.getInt("STATE"));
-                    return user;
+    public User get(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER,
+                new Object[]{userId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        User user = new User();
+                        user.setId(rs.getInt("ID"));
+                        user.setLogin(rs.getString("LOGIN"));
+                        user.setName(rs.getString("NAME"));
+                        user.setEmail(rs.getString("EMAIL"));
+                        user.setPhone(rs.getString("PHONE"));
+                        user.setCompanyId(rs.getInt("COMPANY"));
+                        user.setComment(rs.getString("COMMENT"));
+                        user.setState(rs.getInt("STATE"));
+                        return user;
+                    } else {
+                        throw new NotFoundDaoException("Not found User with userId = " + userId +
+                                " and companyId = " + companyId);
+                    }
                 }
         );
     }
@@ -139,34 +144,46 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public void update(User user) throws DataAccessException {
+    public void update(User user, int companyId) throws DataAccessException {
         // TODO: 01.04.2017 Сделать обработку ошибки, связанной с неуникальным логином или емайлом
-        jdbcTemplate.update(UPDATE_USER,
+        int updatedRows = jdbcTemplate.update(UPDATE_USER,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
                 user.getPhone(),
                 user.getComment(),
-                user.getId()
+                user.getId(),
+                companyId
         );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found User with userId = " + user.getId() +
+                    " and companyId = " + companyId);
+        }
     }
 
     @Override
     @Transactional
-    public void lock(int userId) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_USER_LOCK, LOCKED, userId);
-    }
+    public void setState(int state, int userId, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(UPDATE_USER_LOCK,
+                state,
+                userId,
+                companyId
+        );
 
-    @Override
-    @Transactional
-    public void unlock(int userId) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_USER_UNLOCK, ACTIVE, userId);
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found User with userId = " + userId +
+                    " and companyId = " + companyId);
+        }
     }
 
     @Override
     @Transactional
     public void savePass(int userId, String passHash) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_USER_CHANGE_PASS, passHash, userId);
+        jdbcTemplate.update(UPDATE_USER_CHANGE_PASS,
+                passHash,
+                userId
+        );
     }
 
     @Override
@@ -174,13 +191,15 @@ public class UserDaoImpl implements UserDao {
     public Map<String, Object> getUserIdAndPass(String login) throws DataAccessException {
         return jdbcTemplate.query(SELECT_ID_AND_PASS,
                 new Object[]{login},
-                rs -> {
-                    Map<String, Object> userIdAndPass = new HashMap<>();
-                    while(rs.next()){
+                (rs) -> {
+                    if (rs.next()) {
+                        Map<String, Object> userIdAndPass = new HashMap<>();
                         userIdAndPass.put(USER_ID, rs.getInt("ID"));
                         userIdAndPass.put(PASS, rs.getString("PASS"));
+                        return userIdAndPass;
+                    } else {
+                        throw new NotFoundDaoException("User not found by login = " + login);
                     }
-                    return userIdAndPass;
                 });
     }
 

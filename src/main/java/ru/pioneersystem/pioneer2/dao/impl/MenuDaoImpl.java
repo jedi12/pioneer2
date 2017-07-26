@@ -28,7 +28,7 @@ public class MenuDaoImpl implements MenuDao {
     private static final String DELETE_MENU =
             "UPDATE DOC.MENU SET STATE = ? WHERE ID = ? OR PARENT = ? AND COMPANY = ?";
     private static final String SELECT_MENU =
-            "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ID = ? AND COMPANY = ?";
+            "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ID = ? AND COMPANY IN (0, ?)";
     private static final String SELECT_SUB_MENU =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE PARENT = ?";
     private static final String SELECT_MENU_LIST =

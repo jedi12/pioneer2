@@ -25,7 +25,6 @@ public class UserView implements Serializable {
     private List<User> filteredUserList;
     private User selectedUser;
 
-    private boolean createFlag;
     private User currUser;
 
     private String newPass;
@@ -46,22 +45,21 @@ public class UserView implements Serializable {
             userList = userService.getUserList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currUser = new User();
+        currUser = userService.getNewUser();
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedUser == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
             return;
         }
 
@@ -70,32 +68,28 @@ public class UserView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                userService.createUser(currUser);
-            } else {
-                userService.updateUser(currUser);
-            }
+            userService.saveUser(currUser);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
-        catch (RestrictionException e) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.user.max.restriction");
-        }
         catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void lockAction() {
         if (selectedUser == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
             return;
         }
 
@@ -104,13 +98,15 @@ public class UserView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.locked");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void unlockAction() {
         if (selectedUser == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
             return;
         }
 
@@ -119,16 +115,19 @@ public class UserView implements Serializable {
             refreshList();
         }
         catch (RestrictionException e) {
-                showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.user.max.restriction");
-            }
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("error"), e.getMessage()));
+        }
         catch (ServiceException e) {
-                showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.unlocked");
-            }
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void setPassDialog() {
         if (selectedUser == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
             return;
         }
 
@@ -144,13 +143,9 @@ public class UserView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('setPassDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.pass.changed");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
-    }
-
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setUserService(UserService userService) {
@@ -159,10 +154,6 @@ public class UserView implements Serializable {
 
     public List<User> getUserList() {
         return userList;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public List<User> getFilteredUserList() {

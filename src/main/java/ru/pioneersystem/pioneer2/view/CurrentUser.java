@@ -18,7 +18,10 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Service("currentUser")
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -68,7 +71,7 @@ public class CurrentUser implements Serializable {
 
     public void signIn() {
         try {
-            int userId = userService.getUserId(login, pass);
+            int userId = userService.checkLoginAndPass(login, pass);
             user = userService.getUserWithCompany(userId);
 
             if (user.getState() == 0) {
@@ -101,9 +104,9 @@ public class CurrentUser implements Serializable {
             RequestContext.getCurrentInstance().update(
                     new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel"})));
         } catch (PasswordException e) {
-            showGrowl(FacesMessage.SEVERITY_INFO, "warn", "warn.login.or.pass.not.valid");
+            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.user.userNameOrPassNotValid");
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_INFO, "fatal", "error.pass.not.checked");
+            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.user.userSignInError");
         }
     }
 

@@ -490,7 +490,7 @@ public class DocumentDaoImpl implements DocumentDao {
                         }
                     } else {
                         throw new NotFoundDaoException("Not found Document with documentId=" +
-                                document.getId() + " and companyId=" + companyId + " while attempting to lock");
+                                document.getId() + " and companyId=" + companyId + " while attempting to ock");
                     }
                 }
         );
