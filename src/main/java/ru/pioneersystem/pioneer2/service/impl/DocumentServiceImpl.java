@@ -54,10 +54,56 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<Document> getOnRouteDocumentList() throws ServiceException {
+        try {
+            return documentDao.getOnRouteList(currentUser.getCurrMenu().getRoleId(), currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<Document> getDocumentListByPatrId(int partId) throws ServiceException {
+        try {
+            return documentDao.getListByPartId(partId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<Document> getMyDocumentListOnDate(Date dateIn) throws ServiceException {
+        try {
+            Timestamp beginDate = Timestamp.from(dateIn.toInstant());
+            Timestamp endDate = Timestamp.from(dateIn.toInstant().plus(1, ChronoUnit.DAYS));
+            return documentDao.getMyOnDateList(beginDate, endDate, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<Document> getMyWorkingDocumentList() throws ServiceException {
+        try {
+            return documentDao.getMyOnWorkingList(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Document getNewDocument(int templateId) throws ServiceException {
         try {
             Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForTemplate(templateId);
-            Document document = documentDao.getTemplateBased(templateId, choiceLists);
+            Document document = documentDao.getTemplateBased(templateId, choiceLists, currentUser.getUser().getCompanyId());
             document.setCreateFlag(true);
             document.setEditMode(true);
             return document;
@@ -72,7 +118,7 @@ public class DocumentServiceImpl implements DocumentService {
     public Document getDocument(int id) throws ServiceException {
         try {
             Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForDocument(id);
-            Document document = documentDao.getForEdit(id, choiceLists);
+            Document document = documentDao.get(id, choiceLists, currentUser.getUser().getCompanyId());
             document.setCreateFlag(false);
             if (document.getStatusId() == Status.Id.CREATED) {
                 document.setEditMode(true);
@@ -86,52 +132,6 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<Document> getOnRouteDocumentList() throws ServiceException {
-        try {
-            return documentDao.getOnRouteList(currentUser.getCurrMenu().getRoleId(), currentUser.getUser().getId());
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
-    public List<Document> getDocumentListByPatrId(int partId) throws ServiceException {
-        try {
-            return documentDao.getListByPartId(partId);
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
-    public List<Document> getMyDocumentListOnDate(Date dateIn) throws ServiceException {
-        try {
-            Timestamp beginDate = Timestamp.from(dateIn.toInstant());
-            Timestamp endDate = Timestamp.from(dateIn.toInstant().plus(1, ChronoUnit.DAYS));
-            return documentDao.getMyOnDateList(beginDate, endDate, currentUser.getUser().getId());
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
-    public List<Document> getMyWorkingDocumentList() throws ServiceException {
-        try {
-            return documentDao.getMyOnWorkingList(currentUser.getUser().getId());
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void saveDocument(Document document) throws ServiceException, LockException {
         try {
@@ -139,7 +139,7 @@ public class DocumentServiceImpl implements DocumentService {
                 documentDao.create(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
             } else {
                 documentDao.lock(document, currentUser.getUser().getCompanyId());
-                documentDao.update(document, currentUser.getUser().getId());
+                documentDao.update(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
             }
             routeProcessService.createRouteProcess(document);
         } catch (LockDaoException e) {
@@ -178,7 +178,7 @@ public class DocumentServiceImpl implements DocumentService {
 //        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             documentDao.lock(document, currentUser.getUser().getCompanyId());
-            documentDao.delete(document.getId(), currentUser.getUser().getId());
+            documentDao.delete(document.getId(), currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
@@ -234,7 +234,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void publishDocument(Document document) throws ServiceException {
         try {
-            documentDao.publish(document.getId(), currentUser.getUser().getId(), document.getPartId(), true);
+            documentDao.publish(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId(), true);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotPublished", null, localeBean.getLocale());
             log.error(mess, e);
@@ -245,7 +245,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void cancelPublishDocument(Document document) throws ServiceException {
         try {
-            documentDao.publish(document.getId(), currentUser.getUser().getId(), document.getPartId(), false);
+            documentDao.publish(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId(), false);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotPublishCanceled", null, localeBean.getLocale());
             log.error(mess, e);

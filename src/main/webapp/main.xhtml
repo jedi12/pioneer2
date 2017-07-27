@@ -44,13 +44,13 @@
 					<h:form id="leftPanel">
 						<p:accordionPanel widgetVar="menuAccordion" value="#{currentUser.userMenu}" var="menu"
 										  activeIndex="#{currentUser.currMenuIndex}">
-							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu.page)}"
+							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu)}"
 									update="centerPanel dialogsPanel"/>
 
 							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_BLANC')}">
 								<p:repeat value="#{menu.subMenu}" var="subMenu">
 									<p:commandLink value="#{subMenu.name}"
-												   actionListener="#{currentUser.setCurrPage(subMenu.page)}"
+												   actionListener="#{currentUser.setCurrPage(subMenu)}"
 												   update="centerPanel dialogsPanel"/>
 									<br/>
 									<br/>

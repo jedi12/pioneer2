@@ -9,27 +9,25 @@ import java.util.Map;
 
 public interface DocumentDao {
 
-    List<Document> getOnRouteList(int roleId, int userId) throws DataAccessException;
+    List<Document> getOnRouteList(int roleId, int userId, int companyId) throws DataAccessException;
 
-    List<Document> getListByPartId(int partId) throws DataAccessException;
+    List<Document> getListByPartId(int partId, int companyId) throws DataAccessException;
 
-    List<Document> getMyOnDateList(Date beginDate, Date endDate, int userId) throws DataAccessException;
+    List<Document> getMyOnDateList(Date beginDate, Date endDate, int userId, int companyId) throws DataAccessException;
 
-    List<Document> getMyOnWorkingList(int userId) throws DataAccessException;
+    List<Document> getMyOnWorkingList(int userId, int companyId) throws DataAccessException;
 
-    Document get(int documentId) throws DataAccessException;
+    Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists, int companyId) throws DataAccessException;
 
-    Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
+    Document get(int documentId, Map<Integer, List<String>> choiceLists, int companyId) throws DataAccessException;
 
-    Document getForEdit(int documentId, Map<Integer, List<String>> choiceLists) throws DataAccessException;
+    void create(Document document, int userId, int companyId) throws DataAccessException;
 
-    void create(Document document, int userId, int company) throws DataAccessException;
+    void update(Document document, int userId, int companyId) throws DataAccessException;
 
-    void update(Document document, int userId) throws DataAccessException;
+    void delete(int documentId, int userId, int companyId) throws DataAccessException;
 
-    void delete(int documentId, int userId) throws DataAccessException;
-
-    void publish(int documentId, int userId, int partId, boolean isPublic) throws DataAccessException;
+    void publish(Document document, int userId, int companyId, boolean isPublic) throws DataAccessException;
 
     void lock(Document document, int companyId) throws DataAccessException;
 }

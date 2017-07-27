@@ -137,18 +137,19 @@ public class CurrentUser implements Serializable {
             if (menu.getId() == currMenuId) {
                 currMenuIndex = menuIndex;
                 currMenu = menu;
-                setCurrPage(currMenu.getPage());
+                setCurrPage(currMenu);
                 break;
             }
             menuIndex = menuIndex + 1;
         }
     }
 
-    public void setCurrPage(String currPage) {
-        if (currPage == null || currPage.equals("")) {
+    public void setCurrPage(Menu menu) {
+        if (menu.getPage() == null || menu.getPage().equals("")) {
             return;
         }
-        this.currPage = currPage;
+        this.currMenu = menu;
+        this.currPage = menu.getPage();
 //        RequestContext.getCurrentInstance().update(
 //                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }

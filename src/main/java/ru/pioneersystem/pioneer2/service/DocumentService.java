@@ -9,10 +9,6 @@ import java.util.List;
 
 public interface DocumentService {
 
-    Document getNewDocument(int templateId) throws ServiceException;
-
-    Document getDocument(int id) throws ServiceException;
-
     List<Document> getOnRouteDocumentList() throws ServiceException;
 
     List<Document> getDocumentListByPatrId(int partId) throws ServiceException;
@@ -20,6 +16,10 @@ public interface DocumentService {
     List<Document> getMyDocumentListOnDate(Date date) throws ServiceException;
 
     List<Document> getMyWorkingDocumentList() throws ServiceException;
+
+    Document getNewDocument(int templateId) throws ServiceException;
+
+    Document getDocument(int id) throws ServiceException;
 
     void saveDocument(Document document) throws ServiceException, LockException;
 
