@@ -12,6 +12,8 @@ public class Menu {
     private int state;
     private List<Menu> subMenu;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -103,5 +105,13 @@ public class Menu {
 
     public void setSubMenu(List<Menu> subMenu) {
         this.subMenu = subMenu;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

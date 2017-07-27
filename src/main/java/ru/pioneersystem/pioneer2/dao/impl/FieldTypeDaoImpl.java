@@ -24,9 +24,9 @@ public class FieldTypeDaoImpl implements FieldTypeDao {
     }
 
     @Override
-    public FieldType get(int id) throws DataAccessException {
+    public FieldType get(int fieldTypeId) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_FIELD_TYPE,
-                new Object[]{id},
+                new Object[]{fieldTypeId},
                 (rs, rowNum) -> {
                     FieldType fieldType = new FieldType();
                     fieldType.setId(rs.getInt("ID"));

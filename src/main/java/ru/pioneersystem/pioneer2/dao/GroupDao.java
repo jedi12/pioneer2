@@ -8,17 +8,19 @@ import java.util.Map;
 
 public interface GroupDao {
 
-    Group get(int id) throws DataAccessException;
+    List<Group> getList(int companyId) throws DataAccessException;
 
-    List<Group> getList(int company) throws DataAccessException;
+    Map<String, Group> getRouteGroup(int companyId) throws DataAccessException;
 
-    Map<String, Group> getRouteGroup(int company) throws DataAccessException;
+    Map<String, Integer> getUserPublishGroup(int companyId, int userId) throws DataAccessException;
 
-    Map<String, Integer> getUserPublishGroup(int company, int userId) throws DataAccessException;
+    Map<String, Integer> getUserCreateGroup(int companyId, int userId) throws DataAccessException;
 
-    void create(Group group, int company) throws DataAccessException;
+    Group get(int groupId, int companyId) throws DataAccessException;
 
-    void update(Group group) throws DataAccessException;
+    void create(Group group, int companyId) throws DataAccessException;
 
-    void delete(int id) throws DataAccessException;
+    void update(Group group, int companyId) throws DataAccessException;
+
+    void delete(int groupId, int companyId) throws DataAccessException;
 }

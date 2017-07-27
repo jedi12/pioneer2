@@ -10,6 +10,8 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Locale;
 
 @Component
@@ -17,6 +19,9 @@ import java.util.Locale;
 public class LocaleBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private Locale locale;
+    private ZoneId zoneId;
+    private String datePattern;
+
     private HttpServletRequest request;
     private HttpServletResponse response;
     private LocaleResolver localeResolver;
@@ -31,6 +36,25 @@ public class LocaleBean implements Serializable {
     @PostConstruct
     public void init()  {
         locale = localeResolver.resolveLocale(request);
+
+        switch (locale.getCountry()) {
+            case "RU":
+                datePattern = "dd.MM.yyyy";
+                break;
+
+            default:
+                datePattern = "dd.MM.yyyy";
+                break;
+        }
+    }
+
+    public void setLanguage(String language) {
+        locale = new Locale(language);
+        localeResolver.setLocale(request, response, locale);
+    }
+
+    public void setTimezoneOffsetMinutes(int timezoneOffsetMinutes) {
+        zoneId = ZoneId.ofOffset("GMT", ZoneOffset.ofTotalSeconds(timezoneOffsetMinutes * 60));
     }
 
     public Locale getLocale() {
@@ -41,8 +65,19 @@ public class LocaleBean implements Serializable {
         return locale.getLanguage();
     }
 
-    public void setLanguage(String language) {
-        locale = new Locale(language);
-        localeResolver.setLocale(request, response, locale);
+    public String getCountry() {
+        return locale.getCountry();
+    }
+
+    public int getTimezoneOffsetMinutes() {
+        return 0;
+    }
+
+    public ZoneId getZoneId() {
+        return zoneId;
+    }
+
+    public String getDatePattern() {
+        return datePattern;
     }
 }

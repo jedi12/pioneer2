@@ -3,6 +3,7 @@ package ru.pioneersystem.pioneer2.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.ChoiceListDao;
@@ -10,7 +11,9 @@ import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,20 +24,37 @@ public class ChoiceListServiceImpl implements ChoiceListService {
 
     private ChoiceListDao choiceListDao;
     private CurrentUser currentUser;
+    private LocaleBean localeBean;
+    private MessageSource messageSource;
 
     @Autowired
-    public ChoiceListServiceImpl(ChoiceListDao choiceListDao, CurrentUser currentUser) {
+    public ChoiceListServiceImpl(ChoiceListDao choiceListDao, CurrentUser currentUser, LocaleBean localeBean,
+                                 MessageSource messageSource) {
         this.choiceListDao = choiceListDao;
         this.currentUser = currentUser;
+        this.localeBean = localeBean;
+        this.messageSource = messageSource;
     }
 
     @Override
-    public ChoiceList getChoiceList(int id) throws ServiceException {
+    public Map<Integer, List<String>> getChoiceListForTemplate(int templateId) throws ServiceException {
         try {
-            return choiceListDao.get(id);
+            return choiceListDao.getForTemplate(templateId);
         } catch (DataAccessException e) {
-            log.error("Can't get ChoiceList by id", e);
-            throw new ServiceException("Can't get ChoiceList by id", e);
+            String mess = messageSource.getMessage("error.choiceList.NotLoadedForTemplate", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public Map<Integer, List<String>> getChoiceListForDocument(int documentId) throws ServiceException {
+        try {
+            return choiceListDao.getForDocument(documentId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.choiceList.NotLoadedForDocument", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -43,8 +63,9 @@ public class ChoiceListServiceImpl implements ChoiceListService {
         try {
             return choiceListDao.getList(currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of ChoiceList", e);
-            throw new ServiceException("Can't get list of ChoiceList", e);
+            String mess = messageSource.getMessage("error.choiceList.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -58,22 +79,38 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
-    public void createChoiceList(ChoiceList choiceList) throws ServiceException {
+    public ChoiceList getNewChoiceList() {
+        ChoiceList choiceList = new ChoiceList();
+        choiceList.setValues(new ArrayList<>());
+        choiceList.setCreateFlag(true);
+        return choiceList;
+    }
+
+    @Override
+    public ChoiceList getChoiceList(int id) throws ServiceException {
         try {
-            choiceListDao.create(choiceList, currentUser.getUser().getCompanyId());
+            ChoiceList choiceList = choiceListDao.get(id, currentUser.getUser().getCompanyId());
+            choiceList.setCreateFlag(false);
+            return choiceList;
         } catch (DataAccessException e) {
-            log.error("Can't create ChoiceList", e);
-            throw new ServiceException("Can't create ChoiceList", e);
+            String mess = messageSource.getMessage("error.choiceList.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateChoiceList(ChoiceList choiceList) throws ServiceException {
+    public void saveChoiceList(ChoiceList choiceList) throws ServiceException {
         try {
-            choiceListDao.update(choiceList);
+            if (choiceList.isCreateFlag()) {
+                choiceListDao.create(choiceList, currentUser.getUser().getCompanyId());
+            } else {
+                choiceListDao.update(choiceList, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update ChoiceList", e);
-            throw new ServiceException("Can't update ChoiceList", e);
+            String mess = messageSource.getMessage("error.choiceList.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -82,13 +119,14 @@ public class ChoiceListServiceImpl implements ChoiceListService {
         // TODO: 28.02.2017 Сделать проверку, используется ли данный список в шаблоне или нет
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            choiceListDao.delete(id);
+            choiceListDao.delete(id, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete ChoiceList", e);
-            throw new ServiceException("Can't delete ChoiceList", e);
+            String mess = messageSource.getMessage("error.choiceList.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 }

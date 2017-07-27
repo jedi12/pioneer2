@@ -7,12 +7,12 @@
 	<h:form id="editDialog" target="_blank">
 		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
 			<f:facet name="header">
-				<i class="fa fa-fw fa-files-o"/>
-				<p:outputLabel value=" #{text['template.edit.header']} (ID: #{templateView.currTemplate.id})"/>
+				<i class="fa fa-fw fa-files-o" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['template.edit.header']} (#{text['label.id']} #{templateView.currTemplate.id})"/>
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{templateView.createFlag ? text['template.edit.create'] : text['template.edit.change']}"/>
+				<h:outputLabel value="#{templateView.currTemplate.createFlag ? text['template.edit.create'] : text['template.edit.change']}"/>
 			</h2>
 
 			<p:panel>
@@ -185,8 +185,8 @@
 											 maxlength="100" rendered="#{templateView.condValueRendered}"/>
 								<p:selectBooleanCheckbox value="#{templateView.condCheckBoxValue}" style="padding:2px 0px;"
 														 rendered="#{templateView.condCheckBoxValueRendered}"/>
-								<p:calendar value="#{templateView.condCalendarValue}" pattern="dd/MM/yyyy" locale="ru"
-											rendered="#{templateView.condCalendarValueRendered}"/>
+								<p:calendar value="#{templateView.condCalendarValue}" size="10" pattern="#{localeBean.datePattern}"
+											locale="#{localeBean.locale}" rendered="#{templateView.condCalendarValueRendered}"/>
 								<p:message for="addCondValue" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['template.edit.conditions.add.route.label']}" for="addCondRoute"/>

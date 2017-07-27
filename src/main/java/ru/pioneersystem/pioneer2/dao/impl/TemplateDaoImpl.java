@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Template;
 
@@ -25,11 +26,13 @@ public class TemplateDaoImpl implements TemplateDao {
             "INSERT INTO DOC.TEMPLATES_FIELD (ID, FIELD_NAME, FIELD_NUM, FIELD_TYPE, FIELD_LIST) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_TEMPLATE_CONDITION =
             "INSERT INTO DOC.TEMPLATES_COND (ID, COND_NUM, FIELD_NUM, COND, VALUE, ROUTE) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_TEMPLATE = "UPDATE DOC.TEMPLATES SET NAME = ?, ROUTE = ?, PART = ? WHERE ID = ?";
-    private static final String DELETE_TEMPLATE = "UPDATE DOC.TEMPLATES SET STATE = ? WHERE ID = ?";
+    private static final String UPDATE_TEMPLATE =
+            "UPDATE DOC.TEMPLATES SET NAME = ?, ROUTE = ?, PART = ? WHERE ID = ? AND COMPANY = ?";
+    private static final String DELETE_TEMPLATE = "UPDATE DOC.TEMPLATES SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_TEMPLATE_FIELD = "DELETE FROM DOC.TEMPLATES_FIELD WHERE ID = ?";
     private static final String DELETE_TEMPLATE_CONDITION = "DELETE FROM DOC.TEMPLATES_COND WHERE ID = ?";
-    private static final String SELECT_TEMPLATE = "SELECT ID, NAME, ROUTE, PART FROM DOC.TEMPLATES WHERE ID = ?";
+    private static final String SELECT_TEMPLATE =
+            "SELECT ID, NAME, ROUTE, PART FROM DOC.TEMPLATES WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_TEMPLATE_FIELD =
             "SELECT FIELD_NAME, FIELD_NUM, FIELD_TYPE, FIELD_LIST, NAME AS FIELD_LIST_NAME FROM DOC.TEMPLATES_FIELD TF " +
                     "LEFT JOIN DOC.LISTS L ON TF.FIELD_LIST = L.ID WHERE TF.ID = ? ORDER BY FIELD_NUM ASC";
@@ -44,7 +47,7 @@ public class TemplateDaoImpl implements TemplateDao {
                     "ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID WHERE T.STATE > 0 AND T.COMPANY = ? " +
                     "ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_TEMPLATE_LIST_BY_PART =
-            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? ORDER BY NAME ASC";
+            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ? ORDER BY NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -54,21 +57,26 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public Template get(int id) throws DataAccessException {
-        Template resultTemplate = jdbcTemplate.queryForObject(SELECT_TEMPLATE,
-                new Object[]{id},
-                (rs, rowNum) -> {
-                    Template template = new Template();
-                    template.setId(rs.getInt("ID"));
-                    template.setName(rs.getString("NAME"));
-                    template.setRouteId(rs.getInt("ROUTE"));
-                    template.setPartId(rs.getInt("PART"));
-                    return template;
+    public Template get(int templateId, int companyId) throws DataAccessException {
+        Template resultTemplate = jdbcTemplate.query(SELECT_TEMPLATE,
+                new Object[]{templateId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        Template template = new Template();
+                        template.setId(rs.getInt("ID"));
+                        template.setName(rs.getString("NAME"));
+                        template.setRouteId(rs.getInt("ROUTE"));
+                        template.setPartId(rs.getInt("PART"));
+                        return template;
+                    } else {
+                        throw new NotFoundDaoException("Not found Template with templateId = " + templateId +
+                                " and companyId = " + companyId);
+                    }
                 }
         );
 
         LinkedList<Document.Field> resultFields = jdbcTemplate.query(SELECT_TEMPLATE_FIELD,
-                new Object[]{id},
+                new Object[]{templateId},
                 rs -> {
                     LinkedList<Document.Field> fields = new LinkedList<>();
                     while(rs.next()){
@@ -76,7 +84,7 @@ public class TemplateDaoImpl implements TemplateDao {
                         field.setName(rs.getString("FIELD_NAME"));
                         field.setNum(rs.getInt("FIELD_NUM"));
                         field.setTypeId(rs.getInt("FIELD_TYPE"));
-                        field.setChoiceListId(rs.getInt("FIELD_LIST"));
+                        field.setChoiceListId(rs.getObject(("FIELD_LIST"), Integer.class));
                         field.setChoiceListName(rs.getString("FIELD_LIST_NAME"));
 
                         fields.add(field);
@@ -86,7 +94,7 @@ public class TemplateDaoImpl implements TemplateDao {
         );
 
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
-                new Object[]{id},
+                new Object[]{templateId},
                 rs -> {
                     List<Document.Condition> conditions = new LinkedList<>();
                     while(rs.next()){
@@ -111,9 +119,9 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public List<Template> getList(int company) throws DataAccessException {
+    public List<Template> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST,
-                new Object[]{company},
+                new Object[]{companyId},
                 (rs, rowNum) -> {
                     Template template = new Template();
                     template.setId(rs.getInt("ID"));
@@ -129,9 +137,9 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public List<Template> getListByPartId(int partId) throws DataAccessException {
+    public List<Template> getListByPartId(int partId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST_BY_PART,
-                new Object[]{partId},
+                new Object[]{partId, companyId},
                 (rs, rowNum) -> {
                     Template template = new Template();
                     template.setId(rs.getInt("ID"));
@@ -143,7 +151,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void create(Template template, int company) throws DataAccessException {
+    public void create(Template template, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -152,7 +160,7 @@ public class TemplateDaoImpl implements TemplateDao {
                     pstmt.setInt(2, template.getRouteId());
                     pstmt.setInt(3, template.getPartId());
                     pstmt.setInt(4, Template.State.EXISTS);
-                    pstmt.setInt(5, company);
+                    pstmt.setInt(5, companyId);
                     return pstmt;
                 }, keyHolder
         );
@@ -160,11 +168,13 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_FIELD,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Field templateField = template.getFields().get(i);
+
                         pstmt.setInt(1, keyHolder.getKey().intValue());
-                        pstmt.setString(2, template.getFields().get(i).getName());
-                        pstmt.setInt(3, template.getFields().get(i).getNum());
-                        pstmt.setInt(4, template.getFields().get(i).getTypeId());
-                        pstmt.setInt(5, template.getFields().get(i).getChoiceListId());
+                        pstmt.setString(2, templateField.getName());
+                        pstmt.setInt(3, templateField.getNum());
+                        pstmt.setInt(4, templateField.getTypeId());
+                        pstmt.setObject(5, templateField.getChoiceListId());
                     }
                     public int getBatchSize() {
                         return template.getFields().size();
@@ -175,12 +185,14 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_CONDITION,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Condition templateCondition = template.getConditions().get(i);
+
                         pstmt.setInt(1, keyHolder.getKey().intValue());
-                        pstmt.setInt(2, template.getConditions().get(i).getCondNum());
-                        pstmt.setInt(3, template.getConditions().get(i).getFieldNum());
-                        pstmt.setString(4, template.getConditions().get(i).getCond());
-                        pstmt.setString(5, template.getConditions().get(i).getValue());
-                        pstmt.setInt(6, template.getConditions().get(i).getRouteId());
+                        pstmt.setInt(2, templateCondition.getCondNum());
+                        pstmt.setInt(3, templateCondition.getFieldNum());
+                        pstmt.setString(4, templateCondition.getCond());
+                        pstmt.setString(5, templateCondition.getValue());
+                        pstmt.setInt(6, templateCondition.getRouteId());
                     }
                     public int getBatchSize() {
                         return template.getConditions().size();
@@ -191,13 +203,19 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void update(Template template) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_TEMPLATE,
+    public void update(Template template, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(UPDATE_TEMPLATE,
                 template.getName(),
                 template.getRouteId(),
                 template.getPartId(),
-                template.getId()
+                template.getId(),
+                companyId
         );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Template with templateId = " + template.getId() +
+                    " and companyId = " + companyId);
+        }
 
         jdbcTemplate.update(DELETE_TEMPLATE_FIELD,
                 template.getId()
@@ -206,11 +224,13 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_FIELD,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Field templateField = template.getFields().get(i);
+
                         pstmt.setInt(1, template.getId());
-                        pstmt.setString(2, template.getFields().get(i).getName());
-                        pstmt.setInt(3, template.getFields().get(i).getNum());
-                        pstmt.setInt(4, template.getFields().get(i).getTypeId());
-                        pstmt.setInt(5, template.getFields().get(i).getChoiceListId());
+                        pstmt.setString(2, templateField.getName());
+                        pstmt.setInt(3, templateField.getNum());
+                        pstmt.setInt(4, templateField.getTypeId());
+                        pstmt.setObject(5, templateField.getChoiceListId());
                     }
                     public int getBatchSize() {
                         return template.getFields().size();
@@ -225,12 +245,14 @@ public class TemplateDaoImpl implements TemplateDao {
         jdbcTemplate.batchUpdate(INSERT_TEMPLATE_CONDITION,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        Document.Condition templateCondition = template.getConditions().get(i);
+
                         pstmt.setInt(1, template.getId());
-                        pstmt.setInt(2, template.getConditions().get(i).getCondNum());
-                        pstmt.setInt(3, template.getConditions().get(i).getFieldNum());
-                        pstmt.setString(4, template.getConditions().get(i).getCond());
-                        pstmt.setString(5, template.getConditions().get(i).getValue());
-                        pstmt.setInt(6, template.getConditions().get(i).getRouteId());
+                        pstmt.setInt(2, templateCondition.getCondNum());
+                        pstmt.setInt(3, templateCondition.getFieldNum());
+                        pstmt.setString(4, templateCondition.getCond());
+                        pstmt.setString(5, templateCondition.getValue());
+                        pstmt.setInt(6, templateCondition.getRouteId());
                     }
                     public int getBatchSize() {
                         return template.getConditions().size();
@@ -241,9 +263,24 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_TEMPLATE, Template.State.DELETED, id);
-        jdbcTemplate.update(DELETE_TEMPLATE_FIELD, id);
-        jdbcTemplate.update(DELETE_TEMPLATE_CONDITION, id);
+    public void delete(int templateId, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(DELETE_TEMPLATE,
+                Template.State.DELETED,
+                templateId,
+                companyId
+        );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found TemplateId with templateId = " + templateId +
+                    " and companyId = " + companyId);
+        }
+
+        jdbcTemplate.update(DELETE_TEMPLATE_FIELD,
+                templateId
+        );
+
+        jdbcTemplate.update(DELETE_TEMPLATE_CONDITION,
+                templateId
+        );
     }
 }

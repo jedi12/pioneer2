@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FieldTypeDao {
 
-    FieldType get(int id) throws DataAccessException;
+    FieldType get(int fieldTypeId) throws DataAccessException;
 
     List<FieldType> getList() throws DataAccessException;
 }

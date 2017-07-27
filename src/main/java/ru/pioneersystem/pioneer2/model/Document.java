@@ -16,19 +16,35 @@ public class Document {
     private String documentGroupName;
     private int partId;
     private int routeId;
+
+    private boolean createFlag;
+    private boolean newPart;
+    private int newRouteId;
+    private boolean newRoute;
+    private boolean editMode;
+    private String signerComment;
+
     private List<Field> fields;
     private List<Condition> conditions;
-    private List<Signer> signers;
+    private List<RoutePoint> routePoints;
 
-    public static class Signer {
+    public static class RoutePoint {
         private int stage;
         private int groupId;
-        private boolean signed;
+        private int roleId;
+        private int signed;
         private Date signDate;
         private int signUserId;
         private String signMessage;
         private boolean active;
         private Date receiptDate;
+
+        public static class Signed {
+            public static final int NOT_SIGNED = 0;
+            public static final int ACCEPTED = 1;
+            public static final int REJECTED = 2;
+            public static final int CANCELED = 3;
+        }
 
         public int getStage() {
             return stage;
@@ -46,11 +62,19 @@ public class Document {
             this.groupId = groupId;
         }
 
-        public boolean isSigned() {
+        public int getRoleId() {
+            return roleId;
+        }
+
+        public void setRoleId(int roleId) {
+            this.roleId = roleId;
+        }
+
+        public int getSigned() {
             return signed;
         }
 
-        public void setSigned(boolean signed) {
+        public void setSigned(int signed) {
             this.signed = signed;
         }
 
@@ -100,16 +124,17 @@ public class Document {
         private int num;
         private int typeId;
         private String typeName;
-        private int choiceListId;
+        private Integer choiceListId;
         private String choiceListName;
+        private List<String> choiceListValues;
         private String valueTextField;
         private String valueChoiceList;
         private Date valueCalendar;
-        private int valueCheckBox;
+        private Boolean valueCheckBox;
         private String valueTextArea;
+        private Integer fileId;
         private String fileName;
-        private byte[] fileData;
-        private String fileContentType;
+        private File file;
 
         public String getName() {
             return name;
@@ -143,11 +168,11 @@ public class Document {
             this.typeName = typeName;
         }
 
-        public int getChoiceListId() {
+        public Integer getChoiceListId() {
             return choiceListId;
         }
 
-        public void setChoiceListId(int choiceListId) {
+        public void setChoiceListId(Integer choiceListId) {
             this.choiceListId = choiceListId;
         }
 
@@ -157,6 +182,14 @@ public class Document {
 
         public void setChoiceListName(String choiceListName) {
             this.choiceListName = choiceListName;
+        }
+
+        public List<String> getChoiceListValues() {
+            return choiceListValues;
+        }
+
+        public void setChoiceListValues(List<String> choiceListValues) {
+            this.choiceListValues = choiceListValues;
         }
 
         public String getValueTextField() {
@@ -183,11 +216,11 @@ public class Document {
             this.valueCalendar = valueCalendar;
         }
 
-        public int getValueCheckBox() {
+        public Boolean getValueCheckBox() {
             return valueCheckBox;
         }
 
-        public void setValueCheckBox(int valueCheckBox) {
+        public void setValueCheckBox(Boolean valueCheckBox) {
             this.valueCheckBox = valueCheckBox;
         }
 
@@ -199,6 +232,14 @@ public class Document {
             this.valueTextArea = valueTextArea;
         }
 
+        public Integer getFileId() {
+            return fileId;
+        }
+
+        public void setFileId(Integer fileId) {
+            this.fileId = fileId;
+        }
+
         public String getFileName() {
             return fileName;
         }
@@ -207,20 +248,12 @@ public class Document {
             this.fileName = fileName;
         }
 
-        public byte[] getFileData() {
-            return fileData;
+        public File getFile() {
+            return file;
         }
 
-        public void setFileData(byte[] fileData) {
-            this.fileData = fileData;
-        }
-
-        public String getFileContentType() {
-            return fileContentType;
-        }
-
-        public void setFileContentType(String fileContentType) {
-            this.fileContentType = fileContentType;
+        public void setFile(File file) {
+            this.file = file;
         }
     }
 
@@ -389,6 +422,54 @@ public class Document {
         this.routeId = routeId;
     }
 
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
+    }
+
+    public boolean isNewPart() {
+        return newPart;
+    }
+
+    public void setNewPart(boolean newPart) {
+        this.newPart = newPart;
+    }
+
+    public int getNewRouteId() {
+        return newRouteId;
+    }
+
+    public void setNewRouteId(int newRouteId) {
+        this.newRouteId = newRouteId;
+    }
+
+    public boolean isNewRoute() {
+        return newRoute;
+    }
+
+    public void setNewRoute(boolean newRoute) {
+        this.newRoute = newRoute;
+    }
+
+    public boolean isEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
+    }
+
+    public String getSignerComment() {
+        return signerComment;
+    }
+
+    public void setSignerComment(String signerComment) {
+        this.signerComment = signerComment;
+    }
+
     public List<Field> getFields() {
         return fields;
     }
@@ -405,11 +486,11 @@ public class Document {
         this.conditions = conditions;
     }
 
-    public List<Signer> getSigners() {
-        return signers;
+    public List<RoutePoint> getRoutePoints() {
+        return routePoints;
     }
 
-    public void setSigners(List<Signer> signers) {
-        this.signers = signers;
+    public void setRoutePoints(List<RoutePoint> routePoints) {
+        this.routePoints = routePoints;
     }
 }

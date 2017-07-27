@@ -34,9 +34,9 @@ public class FieldTypeServiceImpl implements FieldTypeService {
     }
 
     @Override
-    public FieldType getFieldType(int id) throws ServiceException {
+    public FieldType getFieldType(int fieldTypeId) throws ServiceException {
         try {
-            return setLocalizedFieldTypeTypeName(setLocalizedFieldTypeName(fieldTypeDao.get(id)));
+            return setLocalizedFieldTypeTypeName(setLocalizedFieldTypeName(fieldTypeDao.get(fieldTypeId)));
         } catch (DataAccessException e) {
             log.error("Can't get FieldType by id", e);
             throw new ServiceException("Can't get FieldType by id", e);

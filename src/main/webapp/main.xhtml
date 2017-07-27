@@ -10,7 +10,7 @@
 	<f:view contentType="text/html" locale="#{localeBean.locale}">
 		<f:metadata>
 			<!--<f:viewParam name="curDocID" value="#{login.curDocID}"/>-->
-			<!--<f:viewParam name="curMenuID" value="#{login.curMenuID}"/>-->
+			<f:viewParam name="currMenuId" value="#{currentUser.currMenuId}"/>
 		</f:metadata>
 
 		<h:head>
@@ -26,6 +26,13 @@
 		</h:head>
 
 		<h:body>
+			<h:form id="initProp">
+				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
+				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
+				<h:inputHidden id="zoneOffset" value="#{localeBean.timezoneOffsetMinutes}"/>
+				<p:remoteCommand onstart="initClientProp();" autoRun="true"/>
+			</h:form>
+
 			<p:layout id="layout" fullPage="true">
 				<p:layoutUnit position="north">
 					<h:form id="northPanel">
@@ -35,19 +42,22 @@
 
 				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
 					<h:form id="leftPanel">
-						<p:accordionPanel value="#{currentUser.userMenu}" var="menu" onTabChange="onTabChange(panel)"
+						<p:accordionPanel widgetVar="menuAccordion" value="#{currentUser.userMenu}" var="menu"
 										  activeIndex="#{currentUser.currMenuIndex}">
-							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu.page)}"/>
+							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu.page)}"
+									update="centerPanel dialogsPanel"/>
 
 							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_BLANC')}">
 								<p:repeat value="#{menu.subMenu}" var="subMenu">
 									<p:commandLink value="#{subMenu.name}"
-												   actionListener="#{currentUser.setCurrPage(subMenu.page)}"/>
+												   actionListener="#{currentUser.setCurrPage(subMenu.page)}"
+												   update="centerPanel dialogsPanel"/>
 									<br/>
 									<br/>
 								</p:repeat>
 							</p:tab>
 						</p:accordionPanel>
+						<p:remoteCommand ignoreAutoUpdate="true" oncomplete="formatMenuTabs()" autoRun="true"/>
 					</h:form>
 				</p:layoutUnit>
 

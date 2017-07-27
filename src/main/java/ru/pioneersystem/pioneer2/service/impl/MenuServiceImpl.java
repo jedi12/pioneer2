@@ -33,16 +33,6 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public Menu getMenu(int id) throws ServiceException {
-        try {
-            return setLocalizedMenuName(menuDao.get(id));
-        } catch (DataAccessException e) {
-            log.error("Can't get Menu by id", e);
-            throw new ServiceException("Can't get Menu by id", e);
-        }
-    }
-
-    @Override
     public List<Menu> getMenuList() throws ServiceException {
         try {
             List<Menu> menus = menuDao.getList(currentUser.getUser().getCompanyId());
@@ -51,57 +41,87 @@ public class MenuServiceImpl implements MenuService {
             }
             return menus;
         } catch (DataAccessException e) {
-            log.error("Can't get list of Menu", e);
-            throw new ServiceException("Can't get list of Menu", e);
+            String mess = messageSource.getMessage("error.menu.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public List<Menu> getUserMenu(int userId) throws ServiceException {
+    public List<Menu> getUserMenu() throws ServiceException {
         try {
-            List<Menu> menus = menuDao.getUserMenu(userId);
+            List<Menu> menus = menuDao.getUserMenu(currentUser.getUser().getId());
             for (Menu menu : menus) {
                 setLocalizedMenuName(menu);
             }
             return menus;
         } catch (DataAccessException e) {
-            log.error("Can't get list of Menu", e);
-            throw new ServiceException("Can't get list of Menu", e);
+            String mess = messageSource.getMessage("error.menu.userMenuNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void createMenu(Menu menu) throws ServiceException {
+    public int getMenuIndex(int menuId, List<Menu> menus) throws ServiceException {
+        int menuIndex = -1;
+        for (Menu menu: menus) {
+            menuIndex = menuIndex + 1;
+            if (menu.getId() == menuId) {
+                break;
+            }
+        }
+        return menuIndex;
+    }
+
+    @Override
+    public Menu getNewMenu() {
+        Menu menu = new Menu();
+        menu.setCreateFlag(true);
+        return menu;
+    }
+
+    @Override
+    public Menu getMenu(int menuId) throws ServiceException {
         try {
-            menuDao.create(menu, currentUser.getUser().getCompanyId());
+            Menu menu = setLocalizedMenuName(menuDao.get(menuId, currentUser.getUser().getCompanyId()));
+            menu.setCreateFlag(false);
+            return menu;
         } catch (DataAccessException e) {
-            log.error("Can't create Menu", e);
-            throw new ServiceException("Can't create Menu", e);
+            String mess = messageSource.getMessage("error.menu.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateMenu(Menu menu) throws ServiceException {
+    public void saveMenu(Menu menu) throws ServiceException {
         try {
-            menuDao.update(menu);
+            if (menu.isCreateFlag()) {
+                menuDao.create(menu, currentUser.getUser().getCompanyId());
+            } else {
+                menuDao.update(menu, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update Menu", e);
-            throw new ServiceException("Can't update Menu", e);
+            String mess = messageSource.getMessage("error.menu.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void deleteMenu(int id) throws ServiceException {
+    public void deleteMenu(int menuId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного меню плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            menuDao.delete(id);
+            menuDao.delete(menuId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete Menu", e);
-            throw new ServiceException("Can't delete Menu", e);
+            String mess = messageSource.getMessage("error.menu.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 

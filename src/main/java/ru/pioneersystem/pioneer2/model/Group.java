@@ -10,6 +10,8 @@ public class Group {
     private String roleName;
     private List<LinkUser> linkUsers;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -97,5 +99,13 @@ public class Group {
 
     public void setLinkUsers(List<LinkUser> linkUsers) {
         this.linkUsers = linkUsers;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

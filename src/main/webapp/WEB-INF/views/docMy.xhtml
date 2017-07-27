@@ -4,23 +4,24 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui">
 
-	#{documentMyView.refreshDocList()}
+	#{documentView.refreshMyDocList()}
 
 	<h2 align="center"><h:outputLabel value="#{currentUser.currMenu.name}"/></h2>
 
 	<p:panel>
 		<p:panel>
-			<p:selectOneRadio id="customRadio" value="#{documentMyView.radioSelect}" layout="custom">
-				<p:ajax listener="#{documentMyView.refreshDocList}" update="docMyTable calendar"/>
+			<p:selectOneRadio id="customRadio" value="#{documentView.radioSelect}" layout="custom">
+				<p:ajax listener="#{documentView.refreshMyDocList}" update="docMyTable calendar"/>
 				<f:selectItem itemLabel="Документы с датой изменения" itemValue="date"/>
 				<f:selectItem itemLabel="Документы в работе" itemValue="working"/>
 			</p:selectOneRadio>
 			<h:panelGrid columns="3" style="margin: auto;">
 				<p:radioButton for="customRadio" itemIndex="0"/>
 				<h:outputLabel value="Документы с датой изменения:"/>
-				<p:calendar id="calendar" value="#{documentMyView.dateIn}" pattern="dd/MM/yyyy" locale="ru" size="10"
-							disabled="#{documentMyView.radioSelect == 'date' ? 'false' : 'true'}" readonlyInput="true">
-					<p:ajax event="dateSelect" listener="#{documentMyView.handleDateSelect}" update="docMyTable" />
+				<p:calendar id="calendar" value="#{documentView.dateIn}" size="10" pattern="#{localeBean.datePattern}"
+							locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}"
+							disabled="#{documentView.radioSelect == 'date' ? 'false' : 'true'}" readonlyInput="true">
+					<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="@this docMyTable"/>
 				</p:calendar>
 				<p:radioButton for="customRadio" itemIndex="1"/>
 				<h:outputLabel value="Документы в работе"/>
@@ -28,12 +29,15 @@
 			</h:panelGrid>
 		</p:panel>
 
-		<p:dataTable id="docMyTable" value="#{documentMyView.documentList}" var="doc" rows="20"
-					 selectionMode="single" selection="#{documentMyView.selectedDocument}" rowKey="#{doc.id}"
-					 filteredValue="#{documentMyView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
+		<p:dataTable id="docMyTable" value="#{documentView.documentList}" var="doc" rows="20"
+					 selectionMode="single" selection="#{documentView.selectedDocument}" rowKey="#{doc.id}"
+					 filteredValue="#{documentView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
                      {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{doc.changeDate}">
+
+			<p:ajax event="rowDblselect" listener="#{documentView.openFromListDocDialog}" update=":docDialog"
+					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
 
 			<p:column headerText="#{text['document.col.id']}" filterBy="#{doc.id}" filterMatchMode="contains">
 				<h:outputText value="#{doc.id}"/>
@@ -52,5 +56,10 @@
 			</p:column>
 		</p:dataTable>
 
+		<f:facet name="footer">
+			<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o" update=":docDialog"
+							 actionListener="#{documentView.openFromListDocDialog}"
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+		</f:facet>
 	</p:panel>
 </ui:composition>

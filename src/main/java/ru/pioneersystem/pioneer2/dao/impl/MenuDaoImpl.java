@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.MenuDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Menu;
 
 import java.sql.PreparedStatement;
@@ -22,10 +23,12 @@ import java.util.Map;
 public class MenuDaoImpl implements MenuDao {
     private static final String INSERT_MENU =
             "INSERT INTO DOC.MENU (NAME, PAGE, NUM, PARENT, ROLE_ID, STATE, COMPANY) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_MENU = "UPDATE DOC.MENU SET NAME = ? PAGE = ?, NUM = ?, ROLE_ID = ? WHERE ID = ?";
-    private static final String DELETE_MENU = "UPDATE DOC.MENU SET STATE = ? WHERE ID = ? OR PARENT = ?";
+    private static final String UPDATE_MENU =
+            "UPDATE DOC.MENU SET NAME = ? PAGE = ?, NUM = ?, ROLE_ID = ? WHERE ID = ? AND COMPANY = ?";
+    private static final String DELETE_MENU =
+            "UPDATE DOC.MENU SET STATE = ? WHERE ID = ? OR PARENT = ? AND COMPANY = ?";
     private static final String SELECT_MENU =
-            "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ID = ?";
+            "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ID = ? AND COMPANY IN (0, ?)";
     private static final String SELECT_SUB_MENU =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE PARENT = ?";
     private static final String SELECT_MENU_LIST =
@@ -33,8 +36,8 @@ public class MenuDaoImpl implements MenuDao {
     // TODO: 01.05.2017 Заменить на поиск без подзапросов (по списку ролей или групп)
     private static final String SELECT_USER_MENU_LIST =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ROLE_ID IN(" +
-                    "SELECT ROLE_ID FROM DOC.GROUPS WHERE ID IN (" +
-                    "SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) AND STATE > 0 ORDER BY PARENT DESC, NUM ASC";
+                    "SELECT ROLE_ID FROM DOC.GROUPS WHERE ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) " +
+                    "AND STATE > 0 ORDER BY PARENT DESC, NUM ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -44,19 +47,24 @@ public class MenuDaoImpl implements MenuDao {
     }
 
     @Override
-    public Menu get(int id) throws DataAccessException {
-        Menu menuWithSubMenu = jdbcTemplate.queryForObject(SELECT_MENU,
-                new Object[]{id},
-                (rs, rowNum) -> {
-                    Menu menu = new Menu();
-                    menu.setId(rs.getInt("ID"));
-                    menu.setName(rs.getString("NAME"));
-                    menu.setPage(rs.getString("PAGE"));
-                    menu.setNum(rs.getInt("NUM"));
-                    menu.setParent(rs.getInt("PARENT"));
-                    menu.setRoleId(rs.getInt("ROLE_ID"));
-                    menu.setState(rs.getInt("STATE"));
-                    return menu;
+    public Menu get(int menuId, int companyId) throws DataAccessException {
+        Menu menuWithSubMenu = jdbcTemplate.query(SELECT_MENU,
+                new Object[]{menuId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        Menu menu = new Menu();
+                        menu.setId(rs.getInt("ID"));
+                        menu.setName(rs.getString("NAME"));
+                        menu.setPage(rs.getString("PAGE"));
+                        menu.setNum(rs.getInt("NUM"));
+                        menu.setParent(rs.getInt("PARENT"));
+                        menu.setRoleId(rs.getInt("ROLE_ID"));
+                        menu.setState(rs.getInt("STATE"));
+                        return menu;
+                    } else {
+                        throw new NotFoundDaoException("Not found Menu with menuId = " + menuId +
+                                " and companyId = " + companyId);
+                    }
                 }
         );
 
@@ -84,9 +92,9 @@ public class MenuDaoImpl implements MenuDao {
     }
 
     @Override
-    public List<Menu> getList(int company) throws DataAccessException {
+    public List<Menu> getList(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_MENU_LIST,
-                new Object[]{company, Menu.State.SYSTEM},
+                new Object[]{companyId, Menu.State.SYSTEM},
                 (rs, rowNum) -> {
                     Menu menu = new Menu();
                     menu.setId(rs.getInt("ID"));
@@ -136,7 +144,7 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     @Transactional
-    public void create(Menu menu, int company) throws DataAccessException {
+    public void create(Menu menu, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -147,7 +155,7 @@ public class MenuDaoImpl implements MenuDao {
                     pstmt.setInt(4, 0);
                     pstmt.setInt(5, menu.getRoleId());
                     pstmt.setInt(6, Menu.State.EXISTS);
-                    pstmt.setInt(7, company);
+                    pstmt.setInt(7, companyId);
                     return pstmt;
                 }, keyHolder
         );
@@ -160,7 +168,7 @@ public class MenuDaoImpl implements MenuDao {
                         pstmt.setInt(4, keyHolder.getKey().intValue());
                         pstmt.setInt(5, menu.getSubMenu().get(i).getRoleId());
                         pstmt.setInt(6, Menu.State.EXISTS);
-                        pstmt.setInt(7, company);
+                        pstmt.setInt(7, companyId);
                     }
                     public int getBatchSize() {
                         return menu.getSubMenu().size();
@@ -171,14 +179,21 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     @Transactional
-    public void update(Menu menu) throws DataAccessException {
-        jdbcTemplate.update(UPDATE_MENU,
+    public void update(Menu menu, int companyId) throws DataAccessException {
+        int updatedRows = jdbcTemplate.update(UPDATE_MENU,
                 menu.getName(),
                 menu.getPage(),
                 menu.getNum(),
                 menu.getRoleId(),
-                menu.getId()
+                menu.getId(),
+                companyId
         );
+
+        if (updatedRows == 0) {
+            throw new NotFoundDaoException("Not found Menu with menuId = " + menu.getId() +
+                    " and companyId = " + companyId);
+        }
+
         jdbcTemplate.batchUpdate(UPDATE_MENU,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {
@@ -187,6 +202,7 @@ public class MenuDaoImpl implements MenuDao {
                         pstmt.setInt(3, menu.getSubMenu().get(i).getNum());
                         pstmt.setInt(4, menu.getSubMenu().get(i).getRoleId());
                         pstmt.setInt(5, menu.getSubMenu().get(i).getId());
+                        pstmt.setInt(6, companyId);
                     }
                     public int getBatchSize() {
                         return menu.getSubMenu().size();
@@ -197,7 +213,11 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     @Transactional
-    public void delete(int id) throws DataAccessException {
-        jdbcTemplate.update(DELETE_MENU, Menu.State.DELETED, id, id);
+    public void delete(int menuId, int companyId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_MENU,
+                Menu.State.DELETED,
+                menuId,
+                menuId,
+                companyId);
     }
 }

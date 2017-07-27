@@ -12,6 +12,13 @@ public class User {
     private int companyId;
     private Company company;
 
+    private boolean createFlag;
+
+    public static class State {
+        public static final int LOCKED = 0;
+        public static final int ACTIVE = 1;
+    }
+
     public int getId() {
         return id;
     }
@@ -90,5 +97,13 @@ public class User {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }

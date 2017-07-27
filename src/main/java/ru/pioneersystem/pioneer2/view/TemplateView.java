@@ -27,7 +27,6 @@ public class TemplateView implements Serializable {
     private List<Template> filteredTemplate;
     private Template selectedTemplate;
 
-    private boolean createFlag;
     private Template currTemplate;
 
     private Map<String, Route> selectRouteDefault;
@@ -77,12 +76,12 @@ public class TemplateView implements Serializable {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        currTemplate = templateService.getNewTemplate();
         refreshList();
     }
 
     private void refreshList() {
         try {
-            currTemplate = new Template();
             templateList = templateService.getTemplateList();
             selectRouteDefault = routeService.getRouteMap();
             selectRoute = toRouteMap(selectRouteDefault);
@@ -95,24 +94,21 @@ public class TemplateView implements Serializable {
             selectCond = Document.Condition.Operation.LIST;
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currTemplate = new Template();
-        currTemplate.setFields(new LinkedList<Document.Field>());
-        currTemplate.setConditions(new LinkedList<>());
+        currTemplate = templateService.getNewTemplate();
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedTemplate == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.template.NotSelected")));
             return;
         }
 
@@ -122,29 +118,28 @@ public class TemplateView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                templateService.createTemplate(currTemplate);
-            } else {
-                templateService.updateTemplate(currTemplate);
-            }
+            templateService.saveTemplate(currTemplate);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteDialog() {
         if (selectedTemplate == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.template.NotSelected")));
             return;
         }
 
@@ -157,7 +152,8 @@ public class TemplateView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
@@ -332,11 +328,6 @@ public class TemplateView implements Serializable {
         }
     }
 
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
-    }
-
     public void setTemplateService(TemplateService templateService) {
         this.templateService = templateService;
     }
@@ -359,10 +350,6 @@ public class TemplateView implements Serializable {
 
     public List<Template> getTemplateList() {
         return templateList;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public Template getSelectedTemplate() {

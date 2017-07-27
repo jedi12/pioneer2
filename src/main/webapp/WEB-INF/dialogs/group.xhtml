@@ -7,12 +7,13 @@
 	<h:form id="editDialog" target="_blank">
 		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
 			<f:facet name="header">
-				<i class="fa fa-fw fa-users"/>
-				<p:outputLabel value=" #{text['group.edit.header']} (ID: #{groupView.currGroup.id})"/>
+				<i class="fa fa-fw fa-users" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['group.edit.header']} (#{text['label.id']} #{groupView.currGroup.id})"/>
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{groupView.createFlag ? text['group.edit.create'] : text['group.edit.change']}"/>
+				<h:outputLabel value="#{groupView.currGroup.createFlag
+					? text['group.edit.create'] : text['group.edit.change']}"/>
 			</h2>
 
 			<p:panel>

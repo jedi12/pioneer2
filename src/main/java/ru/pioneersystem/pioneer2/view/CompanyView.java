@@ -23,7 +23,6 @@ public class CompanyView implements Serializable {
     private List<Company> filteredCompanyList;
     private Company selectedCompany;
 
-    private boolean createFlag;
     private Company currCompany;
 
     private ResourceBundle bundle;
@@ -42,22 +41,21 @@ public class CompanyView implements Serializable {
             companyList = companyService.getCompanyList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currCompany = new Company();
+        currCompany = companyService.getNewCompany();
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedCompany == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.company.NotSelected")));
             return;
         }
 
@@ -66,29 +64,28 @@ public class CompanyView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                companyService.createCompany(currCompany);
-            } else {
-                companyService.updateCompany(currCompany);
-            }
+            companyService.saveCompany(currCompany);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void lockAction() {
         if (selectedCompany == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.company.NotSelected")));
             return;
         }
 
@@ -97,13 +94,15 @@ public class CompanyView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.locked");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void unlockAction() {
         if (selectedCompany == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.company.NotSelected")));
             return;
         }
 
@@ -112,13 +111,9 @@ public class CompanyView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.unlocked");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
-    }
-
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setCompanyService(CompanyService companyService) {
@@ -127,10 +122,6 @@ public class CompanyView implements Serializable {
 
     public List<Company> getCompanyList() {
         return companyList;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public List<Company> getFilteredCompanyList() {

@@ -23,7 +23,6 @@ public class MenuView implements Serializable {
     private List<Menu> filteredMenuList;
     private Menu selectedMenu;
 
-    private boolean createFlag;
     private Menu currMenu;
 
     private ResourceBundle bundle;
@@ -42,27 +41,27 @@ public class MenuView implements Serializable {
             menuList = menuService.getMenuList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currMenu = new Menu();
+        currMenu = menuService.getNewMenu();
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedMenu == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.menu.NotSelected")));
             return;
         }
 
         if (selectedMenu.getState() >= Menu.State.SYSTEM) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.system.edit.restriction");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("warn.system.edit.restriction")));
             return;
         }
 
@@ -71,34 +70,34 @@ public class MenuView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                menuService.createMenu(currMenu);
-            } else {
-                menuService.updateMenu(currMenu);
-            }
+            menuService.saveMenu(currMenu);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteDialog() {
         if (selectedMenu == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.menu.NotSelected")));
             return;
         }
 
         if (selectedMenu.getState() >= Menu.State.SYSTEM) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "warn.system.edit.restriction");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("warn.system.edit.restriction")));
             return;
         }
 
@@ -111,16 +110,11 @@ public class MenuView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
-    }
-
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        ResourceBundle bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
     }
 
     public void setMenuService(MenuService menuService) {
@@ -129,10 +123,6 @@ public class MenuView implements Serializable {
 
     public List<Menu> getMenuList() {
         return menuList;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public List<Menu> getFilteredMenuList() {

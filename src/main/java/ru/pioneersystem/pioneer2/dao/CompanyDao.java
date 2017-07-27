@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CompanyDao {
 
-    Company get(int id) throws DataAccessException;
+    Company get(int companyId) throws DataAccessException;
 
     List<Company> getList() throws DataAccessException;
 
@@ -15,9 +15,9 @@ public interface CompanyDao {
 
     void update(Company company) throws DataAccessException;
 
-    void lock(int id) throws DataAccessException;
+    void lock(int companyId) throws DataAccessException;
 
-    void unlock(int id) throws DataAccessException;
+    void unlock(int companyId) throws DataAccessException;
 
-    int getMaxUserCount(int company) throws DataAccessException;
+    int getMaxUserCount(int companyId) throws DataAccessException;
 }

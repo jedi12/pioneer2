@@ -3,6 +3,7 @@ package ru.pioneersystem.pioneer2.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.PartDao;
@@ -10,8 +11,10 @@ import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.PartService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,21 +24,16 @@ public class PartServiceImpl implements PartService {
 
     private PartDao partDao;
     private CurrentUser currentUser;
+    private LocaleBean localeBean;
+    private MessageSource messageSource;
 
     @Autowired
-    public PartServiceImpl(PartDao partDao, CurrentUser currentUser) {
+    public PartServiceImpl(PartDao partDao, CurrentUser currentUser, LocaleBean localeBean,
+                           MessageSource messageSource) {
         this.partDao = partDao;
         this.currentUser = currentUser;
-    }
-
-    @Override
-    public Part getPart(int id) throws ServiceException {
-        try {
-            return partDao.get(id);
-        } catch (DataAccessException e) {
-            log.error("Can't get Part by id", e);
-            throw new ServiceException("Can't get Part by id", e);
-        }
+        this.localeBean = localeBean;
+        this.messageSource = messageSource;
     }
 
     @Override
@@ -43,8 +41,9 @@ public class PartServiceImpl implements PartService {
         try {
             return partDao.getList(type, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of Part", e);
-            throw new ServiceException("Can't get list of Part", e);
+            String mess = messageSource.getMessage("error.part.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -62,53 +61,81 @@ public class PartServiceImpl implements PartService {
         try {
             return partDao.getUserPart(type, currentUser.getUser().getId());
         } catch (DataAccessException e) {
-            log.error("Can't get list of user Part", e);
-            throw new ServiceException("Can't get list of user Part", e);
+            String mess = messageSource.getMessage("error.part.userPartNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void createPart(Part part, int type) throws ServiceException {
+    public Map<String, Integer> getUserPartMap(int type) throws ServiceException {
+        Map<String, Integer> parts = new LinkedHashMap<>();
+        for (Part part : getUserPartList(type)) {
+            parts.put(part.getName(), part.getId());
+        }
+        return parts;
+    }
+
+    @Override
+    public Part getNewPart() {
+        Part part = new Part();
+        part.setLinkGroups(new LinkedList<>());
+        part.setCreateFlag(true);
+        return part;
+    }
+
+    @Override
+    public Part getPart(int partId) throws ServiceException {
         try {
-            partDao.create(part, type, currentUser.getUser().getCompanyId());
+            Part part = partDao.get(partId, currentUser.getUser().getCompanyId());
+            part.setCreateFlag(false);
+            return part;
         } catch (DataAccessException e) {
-            log.error("Can't create Part", e);
-            throw new ServiceException("Can't create Part", e);
+            String mess = messageSource.getMessage("error.part.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updatePart(Part part) throws ServiceException {
+    public void savePart(Part part, int type) throws ServiceException {
         try {
-            partDao.update(part);
+            if (part.isCreateFlag()) {
+                partDao.create(part, type, currentUser.getUser().getCompanyId());
+            } else {
+                partDao.update(part, type, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update Part", e);
-            throw new ServiceException("Can't update Part", e);
+            String mess = messageSource.getMessage("error.part.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateParts(List<Part> parts) throws ServiceException {
+    public void updateParts(List<Part> parts, int type) throws ServiceException {
         try {
-            partDao.update(parts);
+            partDao.update(parts, type, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't update Parts", e);
-            throw new ServiceException("Can't update Parts", e);
+            String mess = messageSource.getMessage("error.part.NotSavedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void deletePart(int id) throws ServiceException {
+    public void deletePart(int partId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            partDao.delete(id);
+            partDao.delete(partId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete Part", e);
-            throw new ServiceException("Can't delete Part", e);
+            String mess = messageSource.getMessage("error.part.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -117,13 +144,14 @@ public class PartServiceImpl implements PartService {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            partDao.delete(parts);
+            partDao.delete(parts, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete Parts", e);
-            throw new ServiceException("Can't delete Parts", e);
+            String mess = messageSource.getMessage("error.part.NotDeletedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 }

@@ -22,26 +22,16 @@ public class RoleServiceImpl implements RoleService {
     private Logger log = LoggerFactory.getLogger(RoleServiceImpl.class);
 
     private RoleDao roleDao;
-    private LocaleBean localeBean;
     private CurrentUser currentUser;
+    private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public RoleServiceImpl(RoleDao roleDao, LocaleBean localeBean, CurrentUser currentUser, MessageSource messageSource) {
+    public RoleServiceImpl(RoleDao roleDao, CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource) {
         this.roleDao = roleDao;
-        this.localeBean = localeBean;
         this.currentUser = currentUser;
+        this.localeBean = localeBean;
         this.messageSource = messageSource;
-    }
-
-    @Override
-    public Role getRole(int id) throws ServiceException {
-        try {
-            return setLocalizedRoleName(roleDao.get(id));
-        } catch (DataAccessException e) {
-            log.error("Can't get Role by id", e);
-            throw new ServiceException("Can't get Role by id", e);
-        }
     }
 
     @Override
@@ -53,8 +43,9 @@ public class RoleServiceImpl implements RoleService {
             }
             return roles;
         } catch (DataAccessException e) {
-            log.error("Can't get list of Role", e);
-            throw new ServiceException("Can't get list of Role", e);
+            String mess = messageSource.getMessage("error.role.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
@@ -68,37 +59,53 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void createRole(Role role) throws ServiceException {
+    public Role getNewRole() {
+        Role role = new Role();
+        role.setCreateFlag(true);
+        return role;
+    }
+
+    @Override
+    public Role getRole(int roleId) throws ServiceException {
         try {
-            roleDao.create(role, currentUser.getUser().getCompanyId());
+            Role role = setLocalizedRoleName(roleDao.get(roleId, currentUser.getUser().getCompanyId()));
+            role.setCreateFlag(false);
+            return role;
         } catch (DataAccessException e) {
-            log.error("Can't create Role", e);
-            throw new ServiceException("Can't create Role", e);
+            String mess = messageSource.getMessage("error.role.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void updateRole(Role role) throws ServiceException {
+    public void saveRole(Role role) throws ServiceException {
         try {
-            roleDao.update(role);
+            if (role.isCreateFlag()) {
+                roleDao.create(role, currentUser.getUser().getCompanyId());
+            } else {
+                roleDao.update(role, currentUser.getUser().getCompanyId());
+            }
         } catch (DataAccessException e) {
-            log.error("Can't update Role", e);
-            throw new ServiceException("Can't update Role", e);
+            String mess = messageSource.getMessage("error.role.NotSaved", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void deleteRole(int id) throws ServiceException {
+    public void deleteRole(int roleId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной роли плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictException("Нельзя удалять, пока используется в шаблоне")
+        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
-            roleDao.delete(id);
+            roleDao.delete(roleId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            log.error("Can't delete Role", e);
-            throw new ServiceException("Can't delete Role", e);
+            String mess = messageSource.getMessage("error.role.NotDeleted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
         }
     }
 

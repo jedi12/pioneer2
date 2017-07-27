@@ -27,7 +27,6 @@ public class GroupView implements Serializable {
     private List<Group> filteredGroup;
     private Group selectedGroup;
 
-    private boolean createFlag;
     private Group currGroup;
 
     private Map<String, Integer> selectRole;
@@ -49,35 +48,33 @@ public class GroupView implements Serializable {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        currGroup = groupService.getNewGroup();
         refreshList();
     }
 
     private void refreshList() {
         try {
-            currGroup = new Group();
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.list.refresh");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void newDialog() {
-        createFlag = true;
-        currGroup = new Group();
-        currGroup.setLinkUsers(new LinkedList<>());
+        currGroup = groupService.getNewGroup();
         selectUser = getCurrSelectUser(currGroup);
 
         RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
     }
 
     public void editDialog() {
-        createFlag = false;
-
         if (selectedGroup == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.group.NotSelected")));
             return;
         }
 
@@ -88,29 +85,28 @@ public class GroupView implements Serializable {
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.element.not.loaded");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void saveAction() {
         try {
-            if (createFlag) {
-                groupService.createGroup(currGroup);
-            } else {
-                groupService.updateGroup(currGroup);
-            }
+            groupService.saveGroup(currGroup);
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.saved");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void deleteDialog() {
         if (selectedGroup == null) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.list.element.not.selected");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.group.NotSelected")));
             return;
         }
 
@@ -123,7 +119,8 @@ public class GroupView implements Serializable {
             refreshList();
         }
         catch (Exception e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.not.deleted");
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
         }
 
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
@@ -156,11 +153,6 @@ public class GroupView implements Serializable {
         return currSelectUser;
     }
 
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(
-                severity, bundle.getString(shortMessage), bundle.getString(longMessage)));
-    }
-
     public void setGroupService(GroupService groupService) {
         this.groupService = groupService;
     }
@@ -175,10 +167,6 @@ public class GroupView implements Serializable {
 
     public List<Group> getGroupList() {
         return groupList;
-    }
-
-    public boolean isCreateFlag() {
-        return createFlag;
     }
 
     public List<Group> getFilteredGroup() {

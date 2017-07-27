@@ -7,19 +7,19 @@ import java.util.List;
 
 public interface PartDao {
 
-    Part get(int id) throws DataAccessException;
-
-    List<Part> getList(int type, int company) throws DataAccessException;
+    List<Part> getList(int type, int companyId) throws DataAccessException;
 
     List<Part> getUserPart(int type, int userId) throws DataAccessException;
 
-    void create(Part part, int type, int company) throws DataAccessException;
+    Part get(int partId, int companyId) throws DataAccessException;
 
-    void update(Part part) throws DataAccessException;
+    void create(Part part, int type, int companyId) throws DataAccessException;
 
-    void update(List<Part> parts) throws DataAccessException;
+    void update(Part part, int type, int companyId) throws DataAccessException;
 
-    void delete(int id) throws DataAccessException;
+    void update(List<Part> parts, int type, int companyId) throws DataAccessException;
 
-    void delete(List<Part> parts) throws DataAccessException;
+    void delete(int partId, int companyId) throws DataAccessException;
+
+    void delete(List<Part> parts, int companyId) throws DataAccessException;
 }

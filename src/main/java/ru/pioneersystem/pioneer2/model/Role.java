@@ -10,6 +10,8 @@ public class Role {
     private String statusName;
     private String menuName;
 
+    private boolean createFlag;
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -105,5 +107,13 @@ public class Role {
 
     public void setMenuName(String menuName) {
         this.menuName = menuName;
+    }
+
+    public boolean isCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(boolean createFlag) {
+        this.createFlag = createFlag;
     }
 }
