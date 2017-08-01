@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 @Component
@@ -21,6 +22,9 @@ public class LocaleBean implements Serializable {
     private Locale locale;
     private ZoneId zoneId;
     private String datePattern;
+    private String dateTimePattern;
+    private DateTimeFormatter dateFormatter;
+    private DateTimeFormatter dateTimeFormatter;
 
     private HttpServletRequest request;
     private HttpServletResponse response;
@@ -40,12 +44,17 @@ public class LocaleBean implements Serializable {
         switch (locale.getCountry()) {
             case "RU":
                 datePattern = "dd.MM.yyyy";
+                dateTimePattern = "dd.MM.yyyy HH:mm:ss";
                 break;
 
             default:
                 datePattern = "dd.MM.yyyy";
+                dateTimePattern = "dd.MM.yyyy HH:mm:ss";
                 break;
         }
+
+        dateFormatter = DateTimeFormatter.ofPattern(datePattern);
+        dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimePattern);
     }
 
     public void setLanguage(String language) {
@@ -79,5 +88,17 @@ public class LocaleBean implements Serializable {
 
     public String getDatePattern() {
         return datePattern;
+    }
+
+    public String getDateTimePattern() {
+        return dateTimePattern;
+    }
+
+    public DateTimeFormatter getDateFormatter() {
+        return dateFormatter;
+    }
+
+    public DateTimeFormatter getDateTimeFormatter() {
+        return dateTimeFormatter;
     }
 }

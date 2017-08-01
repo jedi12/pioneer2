@@ -97,6 +97,8 @@ public class DocumentView implements Serializable {
     }
 
     public void refreshMyDocList() {
+        filteredDocumentList = null;
+
         try {
             if (radioSelect.equals("date")) {
                 documentList = documentService.getMyDocumentListOnDate(dateIn);
@@ -110,6 +112,8 @@ public class DocumentView implements Serializable {
     }
 
     public void refreshOnRouteDocList() {
+        filteredDocumentList = null;
+
         try {
             documentList = documentService.getOnRouteDocumentList();
         } catch (ServiceException e) {
@@ -301,6 +305,32 @@ public class DocumentView implements Serializable {
     public void cancelPublishAction() {
         try {
             documentService.cancelPublishDocument(currDoc);
+            initDefault();
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+
+        RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+    }
+
+    public void acceptAction() {
+        try {
+            documentService.acceptDocument(currDoc);
+            initDefault();
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+
+        RequestContext.getCurrentInstance().execute("PF('docDialog').hide();");
+    }
+
+    public void rejectAction() {
+        try {
+            documentService.rejectDocument(currDoc);
             initDefault();
         }
         catch (Exception e) {

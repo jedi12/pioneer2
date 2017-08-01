@@ -171,10 +171,10 @@
 											 style="margin-right:4px" actionListener="#{documentView.deleteAction}"
 											 update=":centerPanel :leftPanel"/>
 							<p:commandButton value="ACCEPT" icon="fa fa-fw fa-check"
-											 style="margin-right:4px" actionListener="#{docs.acceptDoc}"
+											 style="margin-right:4px" actionListener="#{documentView.acceptAction}"
 											 update=":centerPanel :leftPanel"/>
 							<p:commandButton value="REJECT" icon="fa fa-fw fa-close"
-											 style="margin-right:4px" actionListener="#{docs.rejectDoc}"
+											 style="margin-right:4px" actionListener="#{documentView.rejectAction}"
 											 update=":centerPanel :leftPanel"/>
 						</h:panelGroup>
 						<p:commandButton value="#{text['document.btn.cancel']}" icon="fa fa-fw fa-close"

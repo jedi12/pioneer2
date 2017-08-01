@@ -104,6 +104,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveUser(User user) throws ServiceException {
         try {
+            user.setLogin(user.getLogin().trim());
+            user.setEmail(user.getEmail().trim());
+
             if (user.isCreateFlag()) {
                 int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
                 int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());

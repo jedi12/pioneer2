@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
@@ -40,6 +42,7 @@ public class RouteProcessServiceImpl implements RouteProcessService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void createRouteProcess(Document document) throws ServiceException {
         try {
             routeProcessDao.create(document.getId(), getCalculatedRoute(document));
@@ -51,9 +54,10 @@ public class RouteProcessServiceImpl implements RouteProcessService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void startRouteProcess(Document document) throws ServiceException {
         try {
-            routeProcessDao.start(document.getId());
+            routeProcessDao.start(document.getId(), currentUser.getUser().getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.NotStarted", null, localeBean.getLocale());
             log.error(mess, e);
@@ -62,6 +66,40 @@ public class RouteProcessServiceImpl implements RouteProcessService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void acceptRoutePointProcess(Document document) throws ServiceException {
+        try {
+            routeProcessDao.accept(document.getId(), currentUser.getUser().getId(), document.getSignerComment(),
+                    document.isNewRoute(), document.getNewRouteId());
+        } catch (NotFoundDaoException e) {
+            String mess = messageSource.getMessage("error.routeProcess.PointAlreadyProcessed", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.PointNotAccepted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void rejectRoutePointProcess(Document document) throws ServiceException {
+        try {
+            routeProcessDao.reject(document.getId(), currentUser.getUser().getId(), document.getSignerComment());
+        } catch (NotFoundDaoException e) {
+            String mess = messageSource.getMessage("error.routeProcess.PointAlreadyProcessed", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.PointNotRejected", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void cancelRouteProcess(Document document) throws ServiceException {
         try {
             String mess = messageSource.getMessage("routeProcess.mess.CreatorCancel", null, localeBean.getLocale());

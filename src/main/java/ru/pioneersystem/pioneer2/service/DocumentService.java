@@ -34,4 +34,8 @@ public interface DocumentService {
     void publishDocument(Document document) throws ServiceException;
 
     void cancelPublishDocument(Document document) throws ServiceException;
+
+    void acceptDocument(Document document) throws ServiceException, LockException;
+
+    void rejectDocument(Document document) throws ServiceException, LockException;
 }

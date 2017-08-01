@@ -219,7 +219,7 @@ public class DocumentServiceImpl implements DocumentService {
             documentDao.lock(document, currentUser.getUser().getCompanyId());
             routeProcessService.cancelRouteProcess(document);
         } catch (LockDaoException e) {
-            String mess = messageSource.getMessage("warn.document.changed",
+            String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{userService.getUser(e.getUserId()),
                             (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
@@ -248,6 +248,44 @@ public class DocumentServiceImpl implements DocumentService {
             documentDao.publish(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId(), false);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotPublishCanceled", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void acceptDocument(Document document) throws ServiceException, LockException {
+        try {
+            documentDao.lock(document, currentUser.getUser().getCompanyId());
+            routeProcessService.acceptRoutePointProcess(document);
+        } catch (LockDaoException e) {
+            String mess = messageSource.getMessage("warn.document.processed",
+                    new Object[]{userService.getUser(e.getUserId()),
+                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+            log.error(mess, e);
+            throw new LockException(mess);
+        } catch (DataAccessException | ServiceException e) {
+            String mess = messageSource.getMessage("error.document.NotAccepted", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void rejectDocument(Document document) throws ServiceException, LockException {
+        try {
+            documentDao.lock(document, currentUser.getUser().getCompanyId());
+            routeProcessService.rejectRoutePointProcess(document);
+        } catch (LockDaoException e) {
+            String mess = messageSource.getMessage("warn.document.processed",
+                    new Object[]{userService.getUser(e.getUserId()),
+                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+            log.error(mess, e);
+            throw new LockException(mess);
+        } catch (DataAccessException | ServiceException e) {
+            String mess = messageSource.getMessage("error.document.NotRejected", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

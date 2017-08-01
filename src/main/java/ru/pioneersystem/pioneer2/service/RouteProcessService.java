@@ -8,8 +8,10 @@ public interface RouteProcessService {
     void createRouteProcess(Document document) throws ServiceException;
 
     void startRouteProcess(Document document) throws ServiceException;
-//
-//    void toNextRoutePoint(Document document) throws ServiceException;
+
+    void acceptRoutePointProcess(Document document) throws ServiceException;
+
+    void rejectRoutePointProcess(Document document) throws ServiceException;
 
     void cancelRouteProcess(Document document) throws ServiceException;
 }

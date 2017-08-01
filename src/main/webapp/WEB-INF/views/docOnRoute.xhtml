@@ -26,10 +26,6 @@
 			<p:column headerText="#{text['document.col.name']}" filterBy="#{doc.name}" filterMatchMode="contains">
 				<h:outputText value="#{doc.name}"/>
 			</p:column>
-
-			<p:column headerText="#{text['document.col.date']}" filterBy="#{doc.changeDate}" filterMatchMode="contains">
-				<h:outputText value="#{doc.changeDate}"/>
-			</p:column>
 		</p:dataTable>
 
 		<f:facet name="footer">
