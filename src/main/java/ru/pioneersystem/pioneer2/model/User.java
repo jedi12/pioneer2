@@ -4,6 +4,7 @@ public class User {
     private int id;
     private String name;
     private String login;
+    private String position;
     private String email;
     private String phone;
     private String comment;
@@ -41,6 +42,14 @@ public class User {
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public String getEmail() {

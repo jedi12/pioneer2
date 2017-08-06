@@ -10,6 +10,8 @@ public interface UserDao {
 
     List<User> getList(int companyId) throws DataAccessException;
 
+    List<User> getList(int groupId, int companyId) throws DataAccessException;
+
     User get(int userId, int companyId) throws DataAccessException;
 
     User getWithCompany(int userId) throws DataAccessException;

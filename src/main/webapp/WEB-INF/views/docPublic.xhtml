@@ -30,9 +30,11 @@
 		</p:tree>
 
 		<f:facet name="footer">
-			<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o" update=":docDialog"
-							 actionListener="#{documentView.openFromNodeDocDialog}"
+			<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o"
+							 actionListener="#{documentView.openDocFromNodeDialog}" update=":docDialog"
 							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:commandButton value="#{text['document.btn.openDocRoute']}" icon="fa fa-fw fa-share-alt"
+							 actionListener="#{documentView.openDocRouteFromNodeDialog}" update=":docRouteDialog"/>
 		</f:facet>
 	</p:panel>
 </ui:composition>

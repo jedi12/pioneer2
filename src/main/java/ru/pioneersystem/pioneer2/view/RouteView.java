@@ -139,6 +139,15 @@ public class RouteView implements Serializable {
         point.setGroupName(selectedPoint);
         point.setRoleId(selectPointDefault.get(selectedPoint).getRoleId());
         point.setRoleName(selectPointDefault.get(selectedPoint).getRoleName());
+
+        for (Route.Point currPoint: currRoute.getPoints()) {
+            if (currPoint.getStage() == point.getStage() && currPoint.getRoleId() != point.getRoleId()) {
+                FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        bundle.getString("warn"), bundle.getString("warn.route.badRoute")));
+                return;
+            }
+        }
+
         currRoute.getPoints().add(point);
 
         selectPoint.remove(selectedPoint);

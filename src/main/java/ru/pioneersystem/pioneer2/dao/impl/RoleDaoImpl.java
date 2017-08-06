@@ -14,7 +14,9 @@ import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.Status;
 
 import java.sql.PreparedStatement;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository(value = "roleDao")
 public class RoleDaoImpl implements RoleDao {
@@ -44,6 +46,10 @@ public class RoleDaoImpl implements RoleDao {
                     "WHERE R.ID = ? AND R.COMPANY IN (0, ?)";
     private static final String SELECT_ROLE_LIST =
             "SELECT ID, NAME, STATE, TYPE FROM DOC.ROLES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_USER_ROLE =
+            "SELECT DISTINCT R.ID AS ID, R.NAME AS NAME, R.TYPE AS TYPE, ACCEPT, REJECT FROM DOC.GROUPS G, " +
+                    "DOC.GROUPS_USER GU, DOC.ROLES R, DOC.USERS U WHERE G.ID = GU.ID AND G.ROLE_ID = R.ID " +
+                    "AND GU.USER_ID = U.ID AND U.ID = ? AND U.COMPANY = ? ORDER BY R.ID ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -87,6 +93,27 @@ public class RoleDaoImpl implements RoleDao {
                     role.setState(rs.getInt("STATE"));
                     role.setType(rs.getInt("TYPE"));
                     return role;
+                }
+        );
+    }
+
+    @Override
+    public Map<Integer, Role> getUserRole(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_ROLE,
+                new Object[]{userId, companyId},
+                rs -> {
+                    Map<Integer, Role> roleMap = new LinkedHashMap<>();
+                    while(rs.next()){
+                        Role role = new Role();
+                        role.setId(rs.getInt("ID"));
+                        role.setName(rs.getString("NAME"));
+                        role.setType(rs.getInt("TYPE"));
+                        role.setAcceptButton(rs.getString("ACCEPT"));
+                        role.setRejectButton(rs.getString("REJECT"));
+
+                        roleMap.put(rs.getInt("ID"), role);
+                    }
+                    return roleMap;
                 }
         );
     }

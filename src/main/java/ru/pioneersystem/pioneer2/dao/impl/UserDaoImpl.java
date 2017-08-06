@@ -25,20 +25,23 @@ public class UserDaoImpl implements UserDao {
     public static final String PASS = "pass";
 
     private static final String INSERT_USER = "INSERT INTO DOC.USERS (LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, " +
-            "COMMENT) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "COMMENT, POSITION) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE DOC.USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, PHONE = ?, " +
-            "COMMENT = ? WHERE ID = ? AND COMPANY = ?";
+            "COMMENT = ?, POSITION = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_LOCK = "UPDATE DOC.USERS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_CHANGE_PASS = "UPDATE DOC.USERS SET PASS = ? WHERE ID = ?";
-    private static final String SELECT_USER = "SELECT ID, LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, COMMENT " +
-            "FROM DOC.USERS WHERE ID = ? AND COMPANY = ?";
+    private static final String SELECT_USER = "SELECT ID, LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, COMMENT, " +
+            "POSITION FROM DOC.USERS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_USER_WITH_COMPANY = "SELECT U.ID AS U_ID, U.LOGIN AS U_LOGIN, U.NAME AS U_NAME, " +
             "U.STATE AS U_STATE, U.EMAIL AS U_EMAIL, U.PHONE AS U_PHONE, U.COMPANY AS U_COMPANY, U.COMMENT AS U_COMMENT, " +
-            "C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, C.EMAIL AS C_EMAIL, " +
-            "C.ADDRESS AS C_ADDRESS, C.STATE AS C_STATE, C.MAX_USERS AS C_MAX_USERS, C.SITE AS C_SITE, " +
-            "C.COMMENT AS C_COMMENT FROM DOC.USERS U, DOC.COMPANY C WHERE U.COMPANY = C.ID AND U.ID = ?";
+            "U.POSITION AS U_POSITION, C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, " +
+            "C.EMAIL AS C_EMAIL,  C.ADDRESS AS C_ADDRESS, C.STATE AS C_STATE, C.MAX_USERS AS C_MAX_USERS, " +
+            "C.SITE AS C_SITE, C.COMMENT AS C_COMMENT FROM DOC.USERS U, DOC.COMPANY C WHERE U.COMPANY = C.ID AND U.ID = ?";
     private static final String SELECT_USER_LIST =
             "SELECT ID, NAME, LOGIN, EMAIL, STATE FROM DOC.USERS WHERE COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_USERS_IN_GROUP_LIST =
+            "SELECT USER_ID, NAME, EMAIL, PHONE, POSITION FROM DOC.GROUPS_USER GU, DOC.USERS U WHERE GU.USER_ID = U.ID " +
+                    "AND GU.ID = ? AND ACTOR_TYPE = 1 AND STATE = 1 AND COMPANY = ? ORDER BY NAME";
     private static final String SELECT_ID_AND_PASS = "SELECT ID, PASS FROM DOC.USERS WHERE LOGIN = ?";
     private static final String SELECT_COUNT = "SELECT COUNT(*) FROM DOC.USERS WHERE COMPANY = ? AND STATE = ?";
 
@@ -63,6 +66,7 @@ public class UserDaoImpl implements UserDao {
                         user.setPhone(rs.getString("PHONE"));
                         user.setCompanyId(rs.getInt("COMPANY"));
                         user.setComment(rs.getString("COMMENT"));
+                        user.setPosition(rs.getString("POSITION"));
                         user.setState(rs.getInt("STATE"));
                         return user;
                     } else {
@@ -86,6 +90,7 @@ public class UserDaoImpl implements UserDao {
                     user.setPhone(rs.getString("U_PHONE"));
                     user.setCompanyId(rs.getInt("U_COMPANY"));
                     user.setComment(rs.getString("U_COMMENT"));
+                    user.setPosition(rs.getString("U_POSITION"));
                     user.setState(rs.getInt("U_STATE"));
 
                     Company comp = new Company();
@@ -123,6 +128,22 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public List<User> getList(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USERS_IN_GROUP_LIST,
+                new Object[]{groupId, companyId},
+                (rs, rowNum) -> {
+                    User user = new User();
+                    user.setId(rs.getInt("USER_ID"));
+                    user.setName(rs.getString("NAME"));
+                    user.setEmail(rs.getString("EMAIL"));
+                    user.setPhone(rs.getString("PHONE"));
+                    user.setPosition(rs.getString("POSITION"));
+                    return user;
+                }
+        );
+    }
+
+    @Override
     @Transactional
     public void create(User user, int companyId) throws DataAccessException {
         // TODO: 01.04.2017 Сделать обработку ошибки, связанной с неуникальным логином или емайлом
@@ -137,6 +158,7 @@ public class UserDaoImpl implements UserDao {
                     pstmt.setString(5, user.getPhone());
                     pstmt.setInt(6, companyId);
                     pstmt.setString(7, user.getComment());
+                    pstmt.setString(8, user.getPosition());
                     return pstmt;
                 }, keyHolder
         );
@@ -152,6 +174,7 @@ public class UserDaoImpl implements UserDao {
                 user.getEmail(),
                 user.getPhone(),
                 user.getComment(),
+                user.getPosition(),
                 user.getId(),
                 companyId
         );

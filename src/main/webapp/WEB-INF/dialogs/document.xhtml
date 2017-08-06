@@ -170,10 +170,10 @@
 							<p:commandButton value="#{text['document.btn.delete']}" icon="fa fa-fw fa-trash-o"
 											 style="margin-right:4px" actionListener="#{documentView.deleteAction}"
 											 update=":centerPanel :leftPanel"/>
-							<p:commandButton value="ACCEPT" icon="fa fa-fw fa-check"
+							<p:commandButton value="#{currentUser.currRole.acceptButton}" icon="fa fa-fw fa-check"
 											 style="margin-right:4px" actionListener="#{documentView.acceptAction}"
 											 update=":centerPanel :leftPanel"/>
-							<p:commandButton value="REJECT" icon="fa fa-fw fa-close"
+							<p:commandButton value="#{currentUser.currRole.rejectButton}" icon="fa fa-fw fa-close"
 											 style="margin-right:4px" actionListener="#{documentView.rejectAction}"
 											 update=":centerPanel :leftPanel"/>
 						</h:panelGroup>

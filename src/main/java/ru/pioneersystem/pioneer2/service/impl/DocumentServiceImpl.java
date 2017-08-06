@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
 import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.RoutePoint;
 import ru.pioneersystem.pioneer2.model.Status;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
@@ -94,6 +95,17 @@ public class DocumentServiceImpl implements DocumentService {
             return documentDao.getMyOnWorkingList(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException {
+        try {
+            return routeProcessService.getDocumentRoute(documentId);
+        } catch (ServiceException e) {
+            String mess = messageSource.getMessage("error.document.routeNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

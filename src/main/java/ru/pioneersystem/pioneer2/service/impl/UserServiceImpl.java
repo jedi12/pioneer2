@@ -73,6 +73,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserList(int groupId) throws ServiceException {
+        try {
+            return userDao.getList(groupId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.user.usersInGroupNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Map<String, Integer> getUserMap() throws ServiceException {
         Map<String, Integer> users = new LinkedHashMap<>();
         for (User user : getUserList()) {

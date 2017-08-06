@@ -59,6 +59,17 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public Map<Integer, Role> getUserRoleMap() throws ServiceException {
+        try {
+            return roleDao.getUserRole(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.role.userRoleNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Role getNewRole() {
         Role role = new Role();
         role.setCreateFlag(true);

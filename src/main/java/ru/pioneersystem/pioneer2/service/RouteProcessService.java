@@ -1,9 +1,14 @@
 package ru.pioneersystem.pioneer2.service;
 
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.RoutePoint;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
+import java.util.List;
+
 public interface RouteProcessService {
+
+    List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException;
 
     void createRouteProcess(Document document) throws ServiceException;
 

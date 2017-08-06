@@ -1,6 +1,7 @@
 package ru.pioneersystem.pioneer2.service;
 
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.RoutePoint;
 import ru.pioneersystem.pioneer2.service.exception.LockException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -16,6 +17,8 @@ public interface DocumentService {
     List<Document> getMyDocumentListOnDate(Date date) throws ServiceException;
 
     List<Document> getMyWorkingDocumentList() throws ServiceException;
+
+    List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException;
 
     Document getNewDocument(int templateId) throws ServiceException;
 

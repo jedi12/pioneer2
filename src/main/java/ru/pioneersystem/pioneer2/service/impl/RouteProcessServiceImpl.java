@@ -12,6 +12,7 @@ import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.FieldType;
+import ru.pioneersystem.pioneer2.model.RoutePoint;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -20,6 +21,8 @@ import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
 
 @Service("routeProcessService")
 public class RouteProcessServiceImpl implements RouteProcessService {
@@ -39,6 +42,21 @@ public class RouteProcessServiceImpl implements RouteProcessService {
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
+    }
+
+    @Override
+    public List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException {
+        try {
+            List<RoutePoint> routePoints = routeProcessDao.getRoute(documentId);
+            offsetDateAndFormat(routePoints);
+
+
+            return routePoints;
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
     }
 
     @Override
@@ -112,6 +130,24 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             String mess = messageSource.getMessage("error.routeProcess.NotCanceled", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
+        }
+    }
+
+    private void offsetDateAndFormat(List<RoutePoint> routePoints) {
+        for (RoutePoint routePoint: routePoints) {
+            Date receiptDate = routePoint.getReceiptDate();
+            if (receiptDate != null) {
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(receiptDate.toInstant(), localeBean.getZoneId());
+                routePoint.setReceiptDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+                routePoint.setReceiptDateFormatted(localDateTime.format(localeBean.getDateTimeFormatter()));
+            }
+
+            Date signDate = routePoint.getSignDate();
+            if (signDate != null) {
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(signDate.toInstant(), localeBean.getZoneId());
+                routePoint.setSignDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+                routePoint.setSignDateFormatted(localDateTime.format(localeBean.getDateTimeFormatter()));
+            }
         }
     }
 

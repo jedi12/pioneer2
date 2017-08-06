@@ -1,8 +1,13 @@
 package ru.pioneersystem.pioneer2.dao;
 
 import org.springframework.dao.DataAccessException;
+import ru.pioneersystem.pioneer2.model.RoutePoint;
+
+import java.util.List;
 
 public interface RouteProcessDao {
+
+    List<RoutePoint> getRoute(int documentId) throws DataAccessException;
 
     void create(int documentId, int routeId) throws DataAccessException;
 

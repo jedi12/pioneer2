@@ -22,5 +22,8 @@ table {border-collapse: collapse;}
 .outerPanel .ui-panel-content {padding:0px !important;}
 
 .lightGrey {background-color:#E8E8E8}
+.lightPink {background-color:#FFC0C0}
+.lightGreen {background-color:#C0FFC0}
+.lightBlue {background-color:#BFEFFF}
 
 .collectedTable {height: 305px; background-color: lightgray;}

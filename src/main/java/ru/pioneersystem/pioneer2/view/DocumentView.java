@@ -42,6 +42,8 @@ public class DocumentView implements Serializable {
     private Document selectedDocument;
 
     private Document currDoc;
+    private List<RoutePoint> routePoints;
+    private List<User> usersInGroup;
 
     private Date dateIn;
     private String radioSelect;
@@ -56,6 +58,9 @@ public class DocumentView implements Serializable {
 
     @ManagedProperty("#{partService}")
     private PartService partService;
+
+    @ManagedProperty("#{userService}")
+    private UserService userService;
 
     @ManagedProperty("#{fileService}")
     private FileService fileService;
@@ -97,14 +102,28 @@ public class DocumentView implements Serializable {
     }
 
     public void refreshMyDocList() {
-        filteredDocumentList = null;
+        try {
+            initDefault();
+            documentList = documentService.getMyDocumentListOnDate(dateIn);
 
+            selectedDocument = null;
+            RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
+        } catch (ServiceException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+    }
+
+    public void refreshMyDocListFilter() {
         try {
             if (radioSelect.equals("date")) {
                 documentList = documentService.getMyDocumentListOnDate(dateIn);
             } else {
                 documentList = documentService.getMyWorkingDocumentList();
             }
+
+            selectedDocument = null;
+            RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
         } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -112,10 +131,11 @@ public class DocumentView implements Serializable {
     }
 
     public void refreshOnRouteDocList() {
-        filteredDocumentList = null;
-
         try {
             documentList = documentService.getOnRouteDocumentList();
+
+            selectedDocument = null;
+            RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
         } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -124,7 +144,7 @@ public class DocumentView implements Serializable {
 
     public void handleDateSelect(SelectEvent event) {
         dateIn = (Date) event.getObject();
-        refreshMyDocList();
+        refreshMyDocListFilter();
     }
 
     public void onTempNodeExpand(NodeExpandEvent event) {
@@ -168,7 +188,7 @@ public class DocumentView implements Serializable {
         }
     }
 
-    public void openFromNodeDocDialog() {
+    public void openDocFromNodeDialog() {
         if (selectedNode == null || !selectedNode.getType().equals(TreeNodeUtil.DOCUMENT_TYPE)) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
@@ -187,7 +207,7 @@ public class DocumentView implements Serializable {
         }
     }
 
-    public void openFromListDocDialog() {
+    public void openDocFromListDialog() {
         if (selectedDocument == null) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
@@ -198,6 +218,55 @@ public class DocumentView implements Serializable {
             currDoc = documentService.getDocument(selectedDocument.getId());
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+    }
+
+    public void openDocRouteFromListDialog() {
+        if (selectedDocument == null) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
+            return;
+        }
+
+        try {
+            routePoints = documentService.getDocumentRoute(selectedDocument.getId());
+
+            RequestContext.getCurrentInstance().execute("PF('docRouteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+    }
+
+    public void openDocRouteFromNodeDialog() {
+        if (selectedNode == null || !selectedNode.getType().equals(TreeNodeUtil.DOCUMENT_TYPE)) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.document.NotSelected")));
+            return;
+        }
+
+        try {
+            int docId = ((Document) selectedNode.getData()).getId();
+            routePoints = documentService.getDocumentRoute(docId);
+
+            RequestContext.getCurrentInstance().execute("PF('docRouteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+    }
+
+    public void openDocUsersInGroupDialog(int groupId) {
+        try {
+            usersInGroup = userService.getUserList(groupId);
+
+            RequestContext.getCurrentInstance().execute("PF('docUsersInGroupDialog').show()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
@@ -428,6 +497,10 @@ public class DocumentView implements Serializable {
         this.partService = partService;
     }
 
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     public void setFileService(FileService fileService) {
         this.fileService = fileService;
     }
@@ -482,6 +555,14 @@ public class DocumentView implements Serializable {
 
     public void setCurrDoc(Document currDoc) {
         this.currDoc = currDoc;
+    }
+
+    public List<RoutePoint> getRoutePoints() {
+        return routePoints;
+    }
+
+    public List<User> getUsersInGroup() {
+        return usersInGroup;
     }
 
     public Date getDateIn() {

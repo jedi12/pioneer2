@@ -12,6 +12,8 @@ public interface RoleService {
 
     Map<String, Integer> getRoleMap() throws ServiceException;
 
+    Map<Integer, Role> getUserRoleMap() throws ServiceException;
+
     Role getNewRole();
 
     Role getRole(int roleId) throws ServiceException;

@@ -36,6 +36,10 @@
 					<p:inputText id="phone" value="#{userView.currUser.phone}" style="width: 100%" maxlength="64"/>
 					<p:message for="phone" display="icon"/>
 
+					<p:outputLabel value="#{text['user.edit.position']}" for="position"/>
+					<p:inputText id="position" value="#{userView.currUser.position}" style="width: 100%" maxlength="64"/>
+					<p:message for="position" display="icon"/>
+
 					<p:outputLabel value="#{text['user.edit.company']}" for="company"/>
 					<p:inputText id="company" value="#{userView.currUser.company.name}" style="width: 100%" maxlength="50"
 								 disabled="true"/>

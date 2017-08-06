@@ -4,10 +4,13 @@ import org.springframework.dao.DataAccessException;
 import ru.pioneersystem.pioneer2.model.Role;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RoleDao {
 
     List<Role> getList(int companyId) throws DataAccessException;
+
+    Map<Integer, Role> getUserRole(int userId, int companyId) throws DataAccessException;
 
     Role get(int roleId, int companyId) throws DataAccessException;
 

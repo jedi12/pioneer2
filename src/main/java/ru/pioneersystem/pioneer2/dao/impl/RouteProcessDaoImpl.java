@@ -8,14 +8,20 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
-import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.RoutePoint;
 import ru.pioneersystem.pioneer2.model.Status;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 @Repository(value = "routeProcessDao")
 public class RouteProcessDaoImpl implements RouteProcessDao {
+    private static final String SELECT_ROUTE =
+            "SELECT SIGNED, G.NAME AS GROUP_NAME, G.ID AS GROUP_ID, U.NAME AS USER_NAME, U.ID AS USER_ID, " +
+                    "RECEIPT_DATE, SIGN_DATE, SIGN_MESSAGE FROM DOC.DOCUMENTS_SIGN DS LEFT JOIN DOC.GROUPS G " +
+                    "ON DS.GROUP_ID = G.ID LEFT JOIN DOC.USERS U ON DS.SIGN_USER = U.ID WHERE DS.ID = ? " +
+                    "ORDER BY STAGE ASC, SIGN_DATE ASC";
     private static final String INSERT_ROUTE_PROCESS =
             "INSERT INTO DOC.DOCUMENTS_SIGN (ID, STAGE, GROUP_ID, ROLE_ID, SIGNED, SIGN_DATE, SIGN_USER, " +
                     "SIGN_MESSAGE, ACTIVE, RECEIPT_DATE) SELECT ?, STAGE, GROUP_ID, ROLE_ID, 0, NULL, NULL, NULL," +
@@ -34,6 +40,8 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
     private static final String SELECT_ACTIVE_ROUTE_POINT =
             "SELECT STAGE FROM DOC.DOCUMENTS_SIGN WHERE ACTIVE = 1 AND GROUP_ID IN (" +
                     "SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?) AND ID = ?";
+    private static final String SELECT_MIN_SIGNED_ROUTE_POINT =
+            "SELECT MIN(SIGNED) AS MIN_SIGNED FROM DOC.DOCUMENTS_SIGN WHERE ACTIVE = 1 AND ID = ?";
     private static final String UPDATE_ACTIVE_ROUTE_POINT =
             "UPDATE DOC.DOCUMENTS_SIGN SET SIGNED = ?, SIGN_DATE = ?, SIGN_USER = ?, SIGN_MESSAGE = ? " +
                     "WHERE ACTIVE = 1 AND GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?) AND ID = ?";
@@ -62,6 +70,31 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
     }
 
     @Override
+    public List<RoutePoint> getRoute(int documentId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_ROUTE,
+                new Object[]{documentId},
+                (rs, rowNum) -> {
+                    RoutePoint routePoint = new RoutePoint();
+                    routePoint.setSigned(rs.getInt("SIGNED"));
+                    routePoint.setGroupId(rs.getInt("GROUP_ID"));
+                    routePoint.setGroupName(rs.getString("GROUP_NAME"));
+                    routePoint.setSignUserId(rs.getInt("USER_ID"));
+                    routePoint.setSignUserName(rs.getString("USER_NAME"));
+                    Timestamp receiptDate = rs.getTimestamp("RECEIPT_DATE");
+                    if (receiptDate != null) {
+                        routePoint.setReceiptDate(Date.from(rs.getTimestamp("RECEIPT_DATE").toInstant()));
+                    }
+                    Timestamp signDate = rs.getTimestamp("SIGN_DATE");
+                    if (signDate != null) {
+                        routePoint.setSignDate(Date.from(rs.getTimestamp("SIGN_DATE").toInstant()));
+                    }
+                    routePoint.setSignMessage(rs.getString("SIGN_MESSAGE"));
+                    return routePoint;
+                }
+        );
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(int documentId, int routeId) throws DataAccessException {
         jdbcTemplate.update(DELETE_ROUTE_PROCESS,
@@ -77,15 +110,15 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void start(int documentId, int userId) throws DataAccessException {
-        Document.RoutePoint tempVal = jdbcTemplate.query(SELECT_FIRST_ROUTE_STAGE,
+        RoutePoint tempVal = jdbcTemplate.query(SELECT_FIRST_ROUTE_STAGE,
                 new Object[]{documentId},
                 (rs) -> {
-                    Document.RoutePoint values = null;
+                    RoutePoint values = null;
                     if(rs.next()) {
                         int stage = rs.getInt("STAGE");
                         int roleId = rs.getInt("ROLE_ID");
 
-                        values = new Document.RoutePoint();
+                        values = new RoutePoint();
                         values.setStage(stage);
                         values.setRoleId(roleId);
                     }
@@ -102,6 +135,7 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                     tempVal.getStage()
             );
         } else {
+            tempVal = new RoutePoint();
             tempVal.setRoleId(Status.Id.COMPLETED);
         }
 
@@ -128,10 +162,10 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
 
         Date uDate = new Date();
         jdbcTemplate.update(UPDATE_ACTIVE_ROUTE_POINT,
-                Document.RoutePoint.Signed.ACCEPTED,
+                RoutePoint.Signed.ACCEPTED,
                 Timestamp.from(uDate.toInstant()),
                 userId,
-                message,
+                message.trim().equals("") ? null : message.trim(),
                 userId,
                 documentId
         );
@@ -149,12 +183,27 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
             );
         }
 
-        Document.RoutePoint tempVal = jdbcTemplate.query(SELECT_NEXT_ROUTE_STAGE,
+        int routePointSignStatus = jdbcTemplate.query(SELECT_MIN_SIGNED_ROUTE_POINT,
+                new Object[]{documentId},
+                (rs) -> {
+                    if (!rs.next()) {
+                        throw new NotFoundDaoException("Active route point for Document with documentId = " +
+                                documentId + " is in not found");
+                    }
+                    return rs.getInt("MIN_SIGNED");
+                }
+        );
+
+        if (routePointSignStatus == RoutePoint.Signed.NOT_SIGNED) {
+            return;
+        }
+
+        RoutePoint tempVal = jdbcTemplate.query(SELECT_NEXT_ROUTE_STAGE,
                 new Object[]{currStage, documentId},
                 (rs) -> {
-                    Document.RoutePoint values = null;
+                    RoutePoint values = null;
                     if(rs.next()) {
-                        values = new Document.RoutePoint();
+                        values = new RoutePoint();
                         values.setStage(rs.getInt("STAGE"));
                         values.setRoleId(rs.getInt("ROLE_ID"));
                     }
@@ -210,7 +259,7 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
 
         Date uDate = new Date();
         jdbcTemplate.update(UPDATE_ACTIVE_ROUTE_POINT,
-                Document.RoutePoint.Signed.REJECTED,
+                RoutePoint.Signed.REJECTED,
                 Timestamp.from(uDate.toInstant()),
                 userId,
                 message,
@@ -245,7 +294,7 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
 
         Date uDate = new Date();
         jdbcTemplate.update(UPDATE_UNSIGNED_ROUTE_POINT,
-                Document.RoutePoint.Signed.CANCELED,
+                RoutePoint.Signed.CANCELED,
                 Timestamp.from(uDate.toInstant()),
                 userId,
                 message,

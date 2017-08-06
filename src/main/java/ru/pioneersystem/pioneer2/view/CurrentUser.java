@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.model.Menu;
 import ru.pioneersystem.pioneer2.model.Part;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
@@ -40,30 +41,34 @@ public class CurrentUser implements Serializable {
     private Map<String, Integer> userCreateGroups;
     private Map<String, Integer> userRoutes;
     private Map<String, Integer> userPubParts;
+    private Map<Integer, Role> userRoles;
 
     private String currPage = "welcome.xhtml";
     private int currMenuIndex = -1;
     private int currMenuId;
     private Menu currMenu;
+    private Role currRole;
 
     private UserService userService;
     private MenuService menuService;
     private GroupService groupService;
     private RouteService routeService;
     private PartService partService;
+    private RoleService roleService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
     private HttpServletRequest request;
 
     @Autowired
     public CurrentUser(UserService userService, MenuService menuService, GroupService groupService,
-                       RouteService routeService, PartService partService, LocaleBean localeBean,
-                       MessageSource messageSource, HttpServletRequest request) {
+                       RouteService routeService, PartService partService, RoleService roleService,
+                       LocaleBean localeBean, MessageSource messageSource, HttpServletRequest request) {
         this.userService = userService;
         this.menuService = menuService;
         this.groupService = groupService;
         this.routeService = routeService;
         this.partService = partService;
+        this.roleService = roleService;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
         this.request = request;
@@ -88,6 +93,7 @@ public class CurrentUser implements Serializable {
             userCreateGroups = groupService.getUserCreateGroupsMap();
             userRoutes = routeService.getUserRoutesMap();
             userPubParts = partService.getUserPartMap(Part.Type.FOR_DOCUMENTS);
+            userRoles = roleService.getUserRoleMap();
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -150,6 +156,7 @@ public class CurrentUser implements Serializable {
         }
         this.currMenu = menu;
         this.currPage = menu.getPage();
+        this.currRole = userRoles.get(menu.getRoleId());
 //        RequestContext.getCurrentInstance().update(
 //                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }
@@ -224,6 +231,10 @@ public class CurrentUser implements Serializable {
         return userPubParts;
     }
 
+    public Map<Integer, Role> getUserRoles() {
+        return userRoles;
+    }
+
     public String getCurrPage() {
         return currPage;
     }
@@ -242,5 +253,9 @@ public class CurrentUser implements Serializable {
 
     public Menu getCurrMenu() {
         return currMenu;
+    }
+
+    public Role getCurrRole() {
+        return currRole;
     }
 }

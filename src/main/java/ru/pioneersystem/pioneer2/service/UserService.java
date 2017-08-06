@@ -12,6 +12,8 @@ public interface UserService {
 
     List<User> getUserList() throws ServiceException;
 
+    List<User> getUserList(int groupId) throws ServiceException;
+
     Map<String, Integer> getUserMap() throws ServiceException;
 
     User getNewUser();
