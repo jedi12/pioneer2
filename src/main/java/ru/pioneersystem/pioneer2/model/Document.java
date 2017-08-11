@@ -24,9 +24,157 @@ public class Document {
     private boolean editMode;
     private String signerComment;
 
+    private ViewElements elems;
+
     private List<Field> fields;
     private List<Condition> conditions;
-    private List<RoutePoint> routePoints;
+
+    public static class ViewElements {
+        private boolean elEditHeader;
+        private boolean elEditDoc;
+        private boolean elPublish;
+        private boolean elChangeRoute;
+        private boolean elDocOwner;
+        private boolean elSignMessage;
+        private boolean disableBtn;
+        private boolean btnSave;
+        private boolean btnSaveAndSend;
+        private boolean btnRecall;
+        private boolean btnCopy;
+        private boolean btnPublish;
+        private boolean btnPublishCancel;
+        private boolean btnDelete;
+        private boolean btnAccept;
+        private boolean btnReject;
+
+        public boolean isElEditHeader() {
+            return elEditHeader;
+        }
+
+        public void setElEditHeader(boolean elEditHeader) {
+            this.elEditHeader = elEditHeader;
+        }
+
+        public boolean isElEditDoc() {
+            return elEditDoc;
+        }
+
+        public void setElEditDoc(boolean elEditDoc) {
+            this.elEditDoc = elEditDoc;
+        }
+
+        public boolean isElPublish() {
+            return elPublish;
+        }
+
+        public void setElPublish(boolean elPublish) {
+            this.elPublish = elPublish;
+        }
+
+        public boolean isElChangeRoute() {
+            return elChangeRoute;
+        }
+
+        public void setElChangeRoute(boolean elChangeRoute) {
+            this.elChangeRoute = elChangeRoute;
+        }
+
+        public boolean isElDocOwner() {
+            return elDocOwner;
+        }
+
+        public void setElDocOwner(boolean elDocOwner) {
+            this.elDocOwner = elDocOwner;
+        }
+
+        public boolean isElSignMessage() {
+            return elSignMessage;
+        }
+
+        public void setElSignMessage(boolean elSignMessage) {
+            this.elSignMessage = elSignMessage;
+        }
+
+        public boolean isDisableBtn() {
+            return disableBtn;
+        }
+
+        public void setDisableBtn(boolean disableBtn) {
+            this.disableBtn = disableBtn;
+        }
+
+        public boolean isBtnSave() {
+            return btnSave;
+        }
+
+        public void setBtnSave(boolean btnSave) {
+            this.btnSave = btnSave;
+        }
+
+        public boolean isBtnSaveAndSend() {
+            return btnSaveAndSend;
+        }
+
+        public void setBtnSaveAndSend(boolean btnSaveAndSend) {
+            this.btnSaveAndSend = btnSaveAndSend;
+        }
+
+        public boolean isBtnRecall() {
+            return btnRecall;
+        }
+
+        public void setBtnRecall(boolean btnRecall) {
+            this.btnRecall = btnRecall;
+        }
+
+        public boolean isBtnCopy() {
+            return btnCopy;
+        }
+
+        public void setBtnCopy(boolean btnCopy) {
+            this.btnCopy = btnCopy;
+        }
+
+        public boolean isBtnPublish() {
+            return btnPublish;
+        }
+
+        public void setBtnPublish(boolean btnPublish) {
+            this.btnPublish = btnPublish;
+        }
+
+        public boolean isBtnPublishCancel() {
+            return btnPublishCancel;
+        }
+
+        public void setBtnPublishCancel(boolean btnPublishCancel) {
+            this.btnPublishCancel = btnPublishCancel;
+        }
+
+        public boolean isBtnDelete() {
+            return btnDelete;
+        }
+
+        public void setBtnDelete(boolean btnDelete) {
+            this.btnDelete = btnDelete;
+        }
+
+        public boolean isBtnAccept() {
+            return btnAccept;
+        }
+
+        public void setBtnAccept(boolean btnAccept) {
+            this.btnAccept = btnAccept;
+        }
+
+        public boolean isBtnReject() {
+            return btnReject;
+        }
+
+        public void setBtnReject(boolean btnReject) {
+            this.btnReject = btnReject;
+        }
+    }
 
     public static class Field {
         private String name;
@@ -379,6 +527,14 @@ public class Document {
         this.signerComment = signerComment;
     }
 
+    public ViewElements getElems() {
+        return elems;
+    }
+
+    public void setElems(ViewElements elems) {
+        this.elems = elems;
+    }
+
     public List<Field> getFields() {
         return fields;
     }
@@ -393,13 +549,5 @@ public class Document {
 
     public void setConditions(List<Condition> conditions) {
         this.conditions = conditions;
-    }
-
-    public List<RoutePoint> getRoutePoints() {
-        return routePoints;
-    }
-
-    public void setRoutePoints(List<RoutePoint> routePoints) {
-        this.routePoints = routePoints;
     }
 }

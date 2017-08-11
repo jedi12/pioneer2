@@ -36,7 +36,7 @@ public class RoleView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             roleList = roleService.getRoleList();
         }

@@ -49,11 +49,20 @@ public class RouteProcessServiceImpl implements RouteProcessService {
         try {
             List<RoutePoint> routePoints = routeProcessDao.getRoute(documentId);
             offsetDateAndFormat(routePoints);
-
-
             return routePoints;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.NotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<Integer> getCurrRoutePointGroups(int documentId) throws ServiceException {
+        try {
+            return routeProcessDao.getCurrRoutePointGroups(documentId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.routeProcess.CurrentRoutePointNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

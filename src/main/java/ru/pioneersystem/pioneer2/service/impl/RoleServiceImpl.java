@@ -138,8 +138,8 @@ public class RoleServiceImpl implements RoleService {
                 case Role.Id.PUBLIC:
                     role.setName(messageSource.getMessage("role.name.public", null, localeBean.getLocale()));
                     break;
-                case Role.Id.COMMENT:
-                    role.setName(messageSource.getMessage("role.name.comment", null, localeBean.getLocale()));
+                case Role.Id.ROUTE_CHANGE:
+                    role.setName(messageSource.getMessage("role.name.routeChange", null, localeBean.getLocale()));
                     break;
                 case Role.Id.EDIT:
                     role.setName(messageSource.getMessage("role.name.edit", null, localeBean.getLocale()));

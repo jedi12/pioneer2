@@ -128,7 +128,7 @@ public class RoleDaoImpl implements RoleDao {
                     pstmt.setString(1, role.getName());
                     pstmt.setInt(2, Role.State.EXISTS);
                     pstmt.setInt(3, companyId);
-                    pstmt.setInt(4, Role.Type.ROUTE);
+                    pstmt.setInt(4, Role.Type.ON_ROUTE);
                     pstmt.setString(5, role.getAcceptButton());
                     pstmt.setString(6, role.getRejectButton());
                     return pstmt;
@@ -151,7 +151,7 @@ public class RoleDaoImpl implements RoleDao {
                 connection -> {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_MENU);
                     pstmt.setString(1, role.getMenuName());
-                    pstmt.setString(2, "onRouteDocs.xhtml");
+                    pstmt.setString(2, Menu.Page.ON_ROUTE_DOC);
                     pstmt.setInt(3, keyHolder.getKey().intValue());
                     pstmt.setInt(4, 0);
                     pstmt.setInt(5, keyHolder.getKey().intValue());

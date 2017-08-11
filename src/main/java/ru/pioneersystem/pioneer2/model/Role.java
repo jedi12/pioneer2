@@ -24,11 +24,11 @@ public class Role {
         public static final int USER = 3;
         public static final int REZ1 = 4;
         public static final int PUBLIC = 5;
-        public static final int COMMENT = 6;
+        public static final int ROUTE_CHANGE = 6;
         public static final int EDIT = 7;
         public static final int REZ2 = 8;
         public static final int CREATE = 9;
-        public static final int ROUTE = 10;
+        public static final int ON_ROUTE = 10;
     }
 
     public static class Id {
@@ -37,7 +37,7 @@ public class Role {
         public static final int USER = 3;
         public static final int REZ1 = 4;
         public static final int PUBLIC = 5;
-        public static final int COMMENT = 6;
+        public static final int ROUTE_CHANGE = 6;
         public static final int EDIT = 7;
         public static final int REZ2 = 8;
         public static final int CREATE = 9;

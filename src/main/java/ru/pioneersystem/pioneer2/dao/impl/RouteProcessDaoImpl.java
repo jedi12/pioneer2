@@ -22,6 +22,8 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                     "RECEIPT_DATE, SIGN_DATE, SIGN_MESSAGE FROM DOC.DOCUMENTS_SIGN DS LEFT JOIN DOC.GROUPS G " +
                     "ON DS.GROUP_ID = G.ID LEFT JOIN DOC.USERS U ON DS.SIGN_USER = U.ID WHERE DS.ID = ? " +
                     "ORDER BY STAGE ASC, SIGN_DATE ASC";
+    private static final String SELECT_CURRENT_ROUTE_POINT =
+            "SELECT GROUP_ID FROM DOC.DOCUMENTS_SIGN WHERE ACTIVE = 1 AND ID = ?";
     private static final String INSERT_ROUTE_PROCESS =
             "INSERT INTO DOC.DOCUMENTS_SIGN (ID, STAGE, GROUP_ID, ROLE_ID, SIGNED, SIGN_DATE, SIGN_USER, " +
                     "SIGN_MESSAGE, ACTIVE, RECEIPT_DATE) SELECT ?, STAGE, GROUP_ID, ROLE_ID, 0, NULL, NULL, NULL," +
@@ -91,6 +93,14 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                     routePoint.setSignMessage(rs.getString("SIGN_MESSAGE"));
                     return routePoint;
                 }
+        );
+    }
+
+    @Override
+    public List<Integer> getCurrRoutePointGroups(int documentId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_CURRENT_ROUTE_POINT,
+                new Object[]{documentId},
+                (rs, rowNum) -> rs.getInt("GROUP_ID")
         );
     }
 

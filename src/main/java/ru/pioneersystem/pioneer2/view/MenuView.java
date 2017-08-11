@@ -36,7 +36,7 @@ public class MenuView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             menuList = menuService.getMenuList();
         }

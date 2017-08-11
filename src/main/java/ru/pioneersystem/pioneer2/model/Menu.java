@@ -14,6 +14,14 @@ public class Menu {
 
     private boolean createFlag;
 
+    public static class Page {
+        public static final String PUBLIC_DOC = "docPublic.xhtml";
+        public static final String CREATE_DOC = "docCreate.xhtml";
+        public static final String SEARCH_DOC = "docSearch.xhtml";
+        public static final String MY_DOC = "docMy.xhtml";
+        public static final String ON_ROUTE_DOC = "docOnRoute.xhtml";
+    }
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;

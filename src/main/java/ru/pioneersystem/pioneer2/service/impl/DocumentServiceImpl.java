@@ -10,9 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
 import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
-import ru.pioneersystem.pioneer2.model.Document;
-import ru.pioneersystem.pioneer2.model.RoutePoint;
-import ru.pioneersystem.pioneer2.model.Status;
+import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.LockException;
@@ -118,6 +116,7 @@ public class DocumentServiceImpl implements DocumentService {
             Document document = documentDao.getTemplateBased(templateId, choiceLists, currentUser.getUser().getCompanyId());
             document.setCreateFlag(true);
             document.setEditMode(true);
+            setupViewElements(document, null);
             return document;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.templateNotLoaded", null, localeBean.getLocale());
@@ -128,6 +127,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public Document getDocument(int id) throws ServiceException {
+        // TODO: 06.08.2017 Сделать получение Списков выбора только если есть права на редактирование
         try {
             Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForDocument(id);
             Document document = documentDao.get(id, choiceLists, currentUser.getUser().getCompanyId());
@@ -135,6 +135,8 @@ public class DocumentServiceImpl implements DocumentService {
             if (document.getStatusId() == Status.Id.CREATED) {
                 document.setEditMode(true);
             }
+            List<Integer> currRoutePointGroups = routeProcessService.getCurrRoutePointGroups(id);
+            setupViewElements(document, currRoutePointGroups);
             return document;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoaded", null, localeBean.getLocale());
@@ -157,7 +159,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
-                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+                            (new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
         } catch (DataAccessException | ServiceException e) {
@@ -194,7 +196,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
-                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+                            (new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
         } catch (DataAccessException e) {
@@ -214,7 +216,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{userService.getUser(e.getUserId()),
-                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+                            (new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
         } catch (DataAccessException | ServiceException e) {
@@ -233,7 +235,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{userService.getUser(e.getUserId()),
-                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+                            (new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
         } catch (DataAccessException | ServiceException e) {
@@ -270,11 +272,14 @@ public class DocumentServiceImpl implements DocumentService {
     public void acceptDocument(Document document) throws ServiceException, LockException {
         try {
             documentDao.lock(document, currentUser.getUser().getCompanyId());
+            if (document.isEditMode()) {
+                documentDao.update(document, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            }
             routeProcessService.acceptRoutePointProcess(document);
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{userService.getUser(e.getUserId()),
-                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+                            (new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
         } catch (DataAccessException | ServiceException e) {
@@ -293,7 +298,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{userService.getUser(e.getUserId()),
-                            (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).format(e.getDate())}, localeBean.getLocale());
+                            (new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate())}, localeBean.getLocale());
             log.error(mess, e);
             throw new LockException(mess);
         } catch (DataAccessException | ServiceException e) {
@@ -301,5 +306,88 @@ public class DocumentServiceImpl implements DocumentService {
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }
+    }
+
+    private void setupViewElements(Document document, List<Integer> currRoutePointGroups) {
+        Map<Integer, Role> currUserRoles = currentUser.getUserRoles();
+        Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = currentUser.getUserRolesGroupActivity();
+        Map<Integer, Integer> userGroupsActivity = userRolesGroupActivity.get(currentUser.getCurrRole().getId());
+        Document.ViewElements viewElements = new Document.ViewElements();
+
+        switch (currentUser.getCurrPage()) {
+            case Menu.Page.PUBLIC_DOC:
+                if (currUserRoles.containsKey(Role.Type.PUBLIC)) {
+                    viewElements.setBtnPublishCancel(true);
+                }
+                break;
+            case Menu.Page.SEARCH_DOC:
+                //
+                break;
+            case Menu.Page.CREATE_DOC:
+                viewElements.setBtnSaveAndSend(true);
+                viewElements.setBtnSave(true);
+                if (currentUser.getUserCreateGroups().size() > 1) {
+                    viewElements.setElDocOwner(true);
+                }
+                break;
+            case Menu.Page.ON_ROUTE_DOC:
+                for (int currRoutePointGroup: currRoutePointGroups) {
+                    if (userGroupsActivity.get(currRoutePointGroup) == null) {
+                        continue;
+                    }
+                    boolean disable = userGroupsActivity.get(currRoutePointGroup) == Group.ActorType.SPECTATOR;
+                    viewElements.setDisableBtn(viewElements.isDisableBtn() | disable);
+                }
+
+                viewElements.setBtnAccept(true);
+                viewElements.setBtnReject(true);
+                viewElements.setElSignMessage(true);
+                if (currentUser.getUserRoles().containsKey(Role.Type.ROUTE_CHANGE)) {
+                    viewElements.setElChangeRoute(true);
+                }
+                if (currentUser.getUserRoles().containsKey(Role.Type.EDIT)) {
+                    viewElements.setElEditDoc(true);
+                }
+                break;
+            case Menu.Page.MY_DOC:
+                if (userGroupsActivity.get(document.getDocumentGroupId()) == Group.ActorType.SPECTATOR) {
+                    viewElements.setDisableBtn(true);
+                }
+
+                if (currentUser.getUserCreateGroups().size() > 1) {
+                    viewElements.setElDocOwner(true);
+                }
+
+                switch (document.getStatusId()) {
+                    case Status.Id.COMPLETED:
+                        viewElements.setBtnCopy(true);
+                        if (currUserRoles.containsKey(Role.Type.PUBLIC)) {
+                            viewElements.setBtnPublish(true);
+                            viewElements.setElPublish(true);
+                        }
+                        break;
+                    case Status.Id.PUBLISHED:
+                        if (currUserRoles.containsKey(Role.Type.PUBLIC)) {
+                            viewElements.setBtnPublishCancel(true);
+                        }
+                        break;
+                    case Status.Id.CANCELED:
+                        viewElements.setBtnCopy(true);
+                        break;
+                    case Status.Id.CREATED:
+                        viewElements.setBtnSaveAndSend(true);
+                        viewElements.setBtnSave(true);
+                        viewElements.setBtnDelete(true);
+                        break;
+                }
+
+                if (document.getStatusId() >= Status.Id.ON_COORDINATION) {
+                    viewElements.setBtnRecall(true);
+                }
+
+                break;
+        }
+
+        document.setElems(viewElements);
     }
 }

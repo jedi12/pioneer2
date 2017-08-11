@@ -18,6 +18,8 @@ public interface GroupService {
 
     Map<String, Integer> getUserCreateGroupsMap() throws ServiceException;
 
+    Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivityMap() throws ServiceException;
+
     Group getNewGroup();
 
     Group getGroup(int groupId) throws ServiceException;

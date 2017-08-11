@@ -12,9 +12,11 @@ public interface GroupDao {
 
     Map<String, Group> getRouteGroup(int companyId) throws DataAccessException;
 
-    Map<String, Integer> getUserPublishGroup(int companyId, int userId) throws DataAccessException;
+    Map<String, Integer> getUserPublishGroup(int userId, int companyId) throws DataAccessException;
 
-    Map<String, Integer> getUserCreateGroup(int companyId, int userId) throws DataAccessException;
+    Map<String, Integer> getUserCreateGroup(int userId, int companyId) throws DataAccessException;
+
+    Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivity(int userId, int companyId) throws DataAccessException;
 
     Group get(int groupId, int companyId) throws DataAccessException;
 

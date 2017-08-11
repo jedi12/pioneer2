@@ -80,7 +80,7 @@ public class TemplateView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             templateList = templateService.getTemplateList();
             selectRouteDefault = routeService.getRouteMap();

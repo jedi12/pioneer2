@@ -40,7 +40,7 @@ public class UserView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             userList = userService.getUserList();
         }

@@ -41,7 +41,7 @@ public class GroupDaoImpl implements GroupDao {
             "SELECT ID, NAME, STATE FROM DOC.GROUPS WHERE STATE > 0 AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_POINT_MAP =
             "SELECT G.ID AS GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
-                    "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID \nWHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
+                    "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID WHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
                     "ORDER BY GROUP_NAME ASC";
     private static final String SELECT_PUB_GROUP_MAP =
             "SELECT G.ID AS G_ID, G.NAME AS G_NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU, DOC.ROLES R " +
@@ -50,6 +50,9 @@ public class GroupDaoImpl implements GroupDao {
     private static final String SELECT_CREATE_GROUP_MAP =
             "SELECT G.ID AS ID, NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU " +
                     "WHERE G.ID = GU.ID AND ROLE_ID = ? AND COMPANY = ? AND STATE > 0 AND USER_ID = ? ORDER BY NAME ASC";
+    private static final String SELECT_USER_GROUP_ACTIVITY_MAP =
+            "SELECT ROLE_ID, G.ID, ACTOR_TYPE FROM DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID " +
+                    "AND STATE > 0 AND USER_ID = ? AND COMPANY = ? ORDER BY ROLE_ID ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -131,7 +134,7 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public Map<String, Integer> getUserPublishGroup(int companyId, int userId) throws DataAccessException {
+    public Map<String, Integer> getUserPublishGroup(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_PUB_GROUP_MAP,
                 new Object[]{Role.Type.ADMIN, Role.Type.PUBLIC, companyId, userId},
                 rs -> {
@@ -145,7 +148,7 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public Map<String, Integer> getUserCreateGroup(int companyId, int userId) throws DataAccessException {
+    public Map<String, Integer> getUserCreateGroup(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_CREATE_GROUP_MAP,
                 new Object[]{Role.Type.CREATE, companyId, userId},
                 rs -> {
@@ -154,6 +157,32 @@ public class GroupDaoImpl implements GroupDao {
                         groups.put(rs.getString("NAME"), rs.getInt("ID"));
                     }
                     return groups;
+                }
+        );
+    }
+
+    @Override
+    public Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivity(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_GROUP_ACTIVITY_MAP,
+                new Object[]{userId, companyId},
+                rs -> {
+                    Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = new LinkedHashMap<>();
+                    Map<Integer, Integer> groupsActivity = new LinkedHashMap<>();
+                    int oldRoleId = 0;
+                    while(rs.next()){
+                        int roleId = rs.getInt("ROLE_ID");
+                        int groupId = rs.getInt("ID");
+                        int activity = rs.getInt("ACTOR_TYPE");
+
+                        if (roleId != oldRoleId) {
+                            oldRoleId = roleId;
+                            groupsActivity = new LinkedHashMap<>();
+                            userRolesGroupActivity.put(roleId, groupsActivity);
+                        }
+
+                        groupsActivity.put(groupId, activity);
+                    }
+                    return userRolesGroupActivity;
                 }
         );
     }

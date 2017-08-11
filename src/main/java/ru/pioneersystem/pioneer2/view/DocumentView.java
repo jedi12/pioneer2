@@ -169,7 +169,7 @@ public class DocumentView implements Serializable {
         }
     }
 
-    public void newDocDialog() {
+    public void openNewDocDialog() {
         if (selectedNode == null || !selectedNode.getType().equals(TreeNodeUtil.DOCUMENT_TYPE)) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), bundle.getString("error.document.NotSelected")));

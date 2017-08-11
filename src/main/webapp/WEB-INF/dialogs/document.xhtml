@@ -17,16 +17,17 @@
 				</p:inplace>
 			</h2>
 
-			<h:panelGrid columns="1" style="width:100%">
+			<h:panelGrid columns="1" style="width:100%" rendered="#{documentView.currDoc.elems.elEditDoc}">
 				<h:panelGroup>
 					<p:selectBooleanCheckbox value="#{documentView.currDoc.editMode}">
-						<p:ajax update="fieldsPanel title" oncomplete="formatDialog()"/>
+						<p:ajax update="fieldsPanel title owner" oncomplete="formatDialog()"/>
 					</p:selectBooleanCheckbox>
 					<h:outputLabel value="#{text['document.edit.mode']}" style="margin-left:10px;font-style:italic"/>
 				</h:panelGroup>
 			</h:panelGrid>
 
-			<h:panelGrid id="publicate" columns="2" columnClasses=",columnRight" style="width:100%">
+			<h:panelGrid id="publicate" columns="2" columnClasses=",columnRight" style="width:100%"
+						 rendered="#{documentView.currDoc.elems.elPublish}">
 				<h:panelGroup>
 					<p:selectBooleanCheckbox value="#{documentView.currDoc.newPart}">
 						<p:ajax update="publicate"/>
@@ -40,7 +41,8 @@
 				<p:selectOneMenu style="visibility:hidden" rendered="#{!documentView.currDoc.newPart}"/>
 			</h:panelGrid>
 
-			<h:panelGrid id="changeRoute" columns="2" columnClasses=",columnRight" style="width:100%">
+			<h:panelGrid id="changeRoute" columns="2" columnClasses=",columnRight" style="width:100%"
+						 rendered="#{documentView.currDoc.elems.elChangeRoute}">
 				<h:panelGroup>
 					<p:selectBooleanCheckbox value="#{documentView.currDoc.newRoute}">
 						<p:ajax update="changeRoute"/>
@@ -54,9 +56,11 @@
 				<p:selectOneMenu style="visibility:hidden" rendered="#{!documentView.currDoc.newRoute}"/>
 			</h:panelGrid>
 
-			<h:panelGrid columns="2" columnClasses=",columnRight" style="width:100%">
+			<h:panelGrid id="owner" columns="2" columnClasses=",columnRight" style="width:100%"
+						 rendered="#{documentView.currDoc.elems.elDocOwner}">
 				<h:outputLabel value="#{text['document.group.owner']}" style="font-style:italic"/>
-				<p:selectOneMenu value="#{documentView.currDoc.documentGroupId}" filter="true" filterMatchMode="contains">
+				<p:selectOneMenu value="#{documentView.currDoc.documentGroupId}" filter="true" filterMatchMode="contains"
+								 disabled="#{!documentView.currDoc.editMode}">
 					<f:selectItems value="#{currentUser.userCreateGroups}"/>
 				</p:selectOneMenu>
 			</h:panelGrid>
@@ -140,7 +144,7 @@
 				</p:panel>
 
 				<f:facet name="footer">
-					<h:panelGroup rendered="true">
+					<h:panelGroup rendered="#{documentView.currDoc.elems.elSignMessage}">
 						<h:outputLabel value="#{text['document.edit.comment']}" style="font-style:italic"/>
 						<p:inputTextarea value="#{documentView.currDoc.signerComment}" style="width:99%"
 										 autoResize="false" maxlength="512" rows="3"/>
@@ -150,32 +154,41 @@
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<h:panelGroup>
 							<p:commandButton value="#{text['document.btn.saveAndSend']}" icon="fa fa-fw fa-share-square-o"
-											 style="margin-right:4px" actionListener="#{documentView.saveAndSendAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnSaveAndSend}"
+											 actionListener="#{documentView.saveAndSendAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{text['document.btn.save']}" icon="fa fa-fw fa-floppy-o"
-											 style="margin-right:4px" actionListener="#{documentView.saveAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnSave}"
+											 actionListener="#{documentView.saveAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{text['document.btn.withdraw']}" icon="fa fa-fw fa-reply"
-											 style="margin-right:4px" actionListener="#{documentView.recallAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnRecall}"
+											 actionListener="#{documentView.recallAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{text['document.btn.copy']}" icon="fa fa-fw fa-files-o"
-											 style="margin-right:4px" actionListener="#{documentView.copyAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnCopy}"
+											 actionListener="#{documentView.copyAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{text['document.btn.publish']}" icon="fa fa-fw fa-indent"
-											 style="margin-right:4px" actionListener="#{documentView.publishAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnPublish}"
+											 actionListener="#{documentView.publishAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{text['document.btn.cancelPublish']}" icon="fa fa-fw fa-outdent"
-											 style="margin-right:4px" actionListener="#{documentView.cancelPublishAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnPublishCancel}"
+											 actionListener="#{documentView.cancelPublishAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{text['document.btn.delete']}" icon="fa fa-fw fa-trash-o"
-											 style="margin-right:4px" actionListener="#{documentView.deleteAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnDelete}"
+											 actionListener="#{documentView.deleteAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{currentUser.currRole.acceptButton}" icon="fa fa-fw fa-check"
-											 style="margin-right:4px" actionListener="#{documentView.acceptAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnAccept}"
+											 actionListener="#{documentView.acceptAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 							<p:commandButton value="#{currentUser.currRole.rejectButton}" icon="fa fa-fw fa-close"
-											 style="margin-right:4px" actionListener="#{documentView.rejectAction}"
-											 update=":centerPanel :leftPanel"/>
+											 style="margin-right:4px" rendered="#{documentView.currDoc.elems.btnReject}"
+											 actionListener="#{documentView.rejectAction}" update=":centerPanel :leftPanel"
+											 disabled="#{documentView.currDoc.elems.disableBtn}"/>
 						</h:panelGroup>
 						<p:commandButton value="#{text['document.btn.cancel']}" icon="fa fa-fw fa-close"
 										 onclick="PF('docDialog').hide()" type="button"/>

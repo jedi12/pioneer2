@@ -6,10 +6,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
-import ru.pioneersystem.pioneer2.model.Menu;
-import ru.pioneersystem.pioneer2.model.Part;
-import ru.pioneersystem.pioneer2.model.Role;
-import ru.pioneersystem.pioneer2.model.User;
+import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
@@ -42,6 +39,7 @@ public class CurrentUser implements Serializable {
     private Map<String, Integer> userRoutes;
     private Map<String, Integer> userPubParts;
     private Map<Integer, Role> userRoles;
+    private Map<Integer, Map<Integer, Integer>> userRolesGroupActivity;
 
     private String currPage = "welcome.xhtml";
     private int currMenuIndex = -1;
@@ -94,6 +92,7 @@ public class CurrentUser implements Serializable {
             userRoutes = routeService.getUserRoutesMap();
             userPubParts = partService.getUserPartMap(Part.Type.FOR_DOCUMENTS);
             userRoles = roleService.getUserRoleMap();
+            userRolesGroupActivity = groupService.getUserRolesGroupActivityMap();
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -132,7 +131,7 @@ public class CurrentUser implements Serializable {
     }
 
     public void setCurrMenuId(int currMenuId) {
-        this.currMenuId = currMenuId;
+//        this.currMenuId = currMenuId;
 
         if (userMenu == null) {
             return;
@@ -155,6 +154,7 @@ public class CurrentUser implements Serializable {
             return;
         }
         this.currMenu = menu;
+        this.currMenuId = menu.getId();
         this.currPage = menu.getPage();
         this.currRole = userRoles.get(menu.getRoleId());
 //        RequestContext.getCurrentInstance().update(
@@ -233,6 +233,10 @@ public class CurrentUser implements Serializable {
 
     public Map<Integer, Role> getUserRoles() {
         return userRoles;
+    }
+
+    public Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivity() {
+        return userRolesGroupActivity;
     }
 
     public String getCurrPage() {

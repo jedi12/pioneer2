@@ -70,7 +70,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Map<String, Integer> getUserPublishMap() throws ServiceException {
         try {
-            return groupDao.getUserPublishGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
+            return groupDao.getUserPublishGroup(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.userPublishGroupNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
@@ -81,9 +81,20 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Map<String, Integer> getUserCreateGroupsMap() throws ServiceException {
         try {
-            return groupDao.getUserCreateGroup(currentUser.getUser().getCompanyId(), currentUser.getUser().getId());
+            return groupDao.getUserCreateGroup(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.userCreateGroupNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivityMap() throws ServiceException {
+        try {
+            return groupDao.getUserRolesGroupActivity(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.group.userRolesGroupActivity", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

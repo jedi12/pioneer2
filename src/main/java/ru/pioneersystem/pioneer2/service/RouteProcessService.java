@@ -10,6 +10,8 @@ public interface RouteProcessService {
 
     List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException;
 
+    List<Integer> getCurrRoutePointGroups(int documentId) throws ServiceException;
+
     void createRouteProcess(Document document) throws ServiceException;
 
     void startRouteProcess(Document document) throws ServiceException;

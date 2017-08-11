@@ -36,7 +36,7 @@ public class CompanyView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             companyList = companyService.getCompanyList();
         }

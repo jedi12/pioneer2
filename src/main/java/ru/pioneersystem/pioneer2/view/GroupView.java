@@ -52,7 +52,7 @@ public class GroupView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();

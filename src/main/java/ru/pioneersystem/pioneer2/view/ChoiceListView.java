@@ -39,7 +39,7 @@ public class ChoiceListView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             choiceListList = choiceListService.getChoiceListList();
         }

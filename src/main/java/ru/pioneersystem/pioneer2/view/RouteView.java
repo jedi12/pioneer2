@@ -52,7 +52,7 @@ public class RouteView implements Serializable {
         refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             routeList = routeService.getRouteList();
             selectPointDefault = groupService.getPointMap();
