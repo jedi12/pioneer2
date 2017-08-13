@@ -45,8 +45,8 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
     private static final String SELECT_MIN_SIGNED_ROUTE_POINT =
             "SELECT MIN(SIGNED) AS MIN_SIGNED FROM DOC.DOCUMENTS_SIGN WHERE ACTIVE = 1 AND ID = ?";
     private static final String UPDATE_ACTIVE_ROUTE_POINT =
-            "UPDATE DOC.DOCUMENTS_SIGN SET SIGNED = ?, SIGN_DATE = ?, SIGN_USER = ?, SIGN_MESSAGE = ? " +
-                    "WHERE ACTIVE = 1 AND GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?) AND ID = ?";
+            "UPDATE DOC.DOCUMENTS_SIGN SET SIGNED = ?, SIGN_DATE = ?, SIGN_USER = ?, SIGN_MESSAGE = ? WHERE ACTIVE = 1 " +
+                    "AND GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE  ACTOR_TYPE = 1 AND USER_ID = ?) AND ID = ?";
     private static final String UPDATE_ROUTE_ALL_STAGE =
             "UPDATE DOC.DOCUMENTS_SIGN SET ACTIVE = 0 WHERE ID = ?";
     private static final String DELETE_ROUTE_TAIL =

@@ -7,8 +7,12 @@ public class Role {
     private int type;
     private String acceptButton;
     private String rejectButton;
+    private boolean canRouteChange;
+    private boolean canEdit;
+    private boolean canComment;
     private String statusName;
     private String menuName;
+
 
     private boolean createFlag;
 
@@ -91,6 +95,30 @@ public class Role {
 
     public void setRejectButton(String rejectButton) {
         this.rejectButton = rejectButton;
+    }
+
+    public boolean isCanRouteChange() {
+        return canRouteChange;
+    }
+
+    public void setCanRouteChange(boolean canRouteChange) {
+        this.canRouteChange = canRouteChange;
+    }
+
+    public boolean isCanEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(boolean canEdit) {
+        this.canEdit = canEdit;
+    }
+
+    public boolean isCanComment() {
+        return canComment;
+    }
+
+    public void setCanComment(boolean canComment) {
+        this.canComment = canComment;
     }
 
     public String getStatusName() {

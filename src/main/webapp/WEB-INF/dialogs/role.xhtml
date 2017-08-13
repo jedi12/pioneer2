@@ -43,6 +43,18 @@
 					<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="30"
 								 validator="notEmptyString"/>
 					<p:message for="menu" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.canRouteChange']}" for="routeChange"/>
+					<p:selectBooleanCheckbox id="routeChange" value="#{roleView.currRole.canRouteChange}"/>
+					<p:message for="routeChange" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.canEdit']}" for="edit"/>
+					<p:selectBooleanCheckbox id="edit" value="#{roleView.currRole.canEdit}"/>
+					<p:message for="edit" display="icon" styleClass="width38px"/>
+
+					<p:outputLabel value="#{text['role.edit.canComment']}" for="comment"/>
+					<p:selectBooleanCheckbox id="comment" value="#{roleView.currRole.canComment}"/>
+					<p:message for="comment" display="icon" styleClass="width38px"/>
 				</h:panelGrid>
 
 				<f:facet name="footer">

@@ -144,7 +144,7 @@
 				</p:panel>
 
 				<f:facet name="footer">
-					<h:panelGroup rendered="#{documentView.currDoc.elems.elSignMessage}">
+					<h:panelGroup rendered="#{documentView.currDoc.elems.elSignerComment}">
 						<h:outputLabel value="#{text['document.edit.comment']}" style="font-style:italic"/>
 						<p:inputTextarea value="#{documentView.currDoc.signerComment}" style="width:99%"
 										 autoResize="false" maxlength="512" rows="3"/>

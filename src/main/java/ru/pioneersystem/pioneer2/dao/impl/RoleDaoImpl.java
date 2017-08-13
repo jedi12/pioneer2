@@ -21,13 +21,15 @@ import java.util.Map;
 @Repository(value = "roleDao")
 public class RoleDaoImpl implements RoleDao {
     private static final String INSERT_ROLE =
-            "INSERT INTO DOC.ROLES (NAME, STATE, COMPANY, TYPE, ACCEPT, REJECT) VALUES (?, ?, ?, ?, ?, ?)";
+            "INSERT INTO DOC.ROLES (NAME, STATE, COMPANY, TYPE, ACCEPT, REJECT, ROUTE_CHANGE, EDIT, COMMENT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_STATUS =
             "INSERT INTO DOC.DOCUMENTS_STATUS (ID, NAME, STATE, TYPE, COMPANY) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_MENU =
             "INSERT INTO DOC.MENU (NAME, PAGE, NUM, PARENT, ROLE_ID, STATE, COMPANY) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_ROLE =
-            "UPDATE DOC.ROLES SET NAME = ?, TYPE = ?, ACCEPT = ?, REJECT = ? WHERE ID = ? AND COMPANY = ?";
+            "UPDATE DOC.ROLES SET NAME = ?, TYPE = ?, ACCEPT = ?, REJECT = ?, ROUTE_CHANGE = ?, EDIT = ?, " +
+                    "COMMENT = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_STATUS =
             "UPDATE DOC.DOCUMENTS_STATUS SET NAME = ? WHERE ID = ?";
     private static final String UPDATE_MENU =
@@ -39,17 +41,18 @@ public class RoleDaoImpl implements RoleDao {
     private static final String DELETE_MENU =
             "UPDATE DOC.MENU SET STATE = ? WHERE ROLE_ID = ?";
     private static final String SELECT_ROLE =
-            "SELECT R.ID AS R_ID, R.NAME AS R_NAME, R.STATE AS R_STATE, R.TYPE AS R_TYPE, R.ACCEPT AS R_ACCEPT, " +
-                    "R.REJECT AS R_REJECT, DS.NAME AS STATUS_NAME, M.NAME AS MENU_NAME FROM DOC.ROLES R " +
-                    "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON R.ID = DS.ID " +
-                    "LEFT JOIN DOC.MENU M ON R.ID = M.ROLE_ID " +
+            "SELECT R.ID AS R_ID, R.NAME AS R_NAME, R.STATE AS R_STATE, R.TYPE AS R_TYPE, ACCEPT, REJECT, " +
+                    "ROUTE_CHANGE, EDIT, COMMENT, DS.NAME AS STATUS_NAME, M.NAME AS MENU_NAME FROM DOC.ROLES R " +
+                    "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON R.ID = DS.ID LEFT JOIN DOC.MENU M ON R.ID = M.ROLE_ID " +
                     "WHERE R.ID = ? AND R.COMPANY IN (0, ?)";
     private static final String SELECT_ROLE_LIST =
-            "SELECT ID, NAME, STATE, TYPE FROM DOC.ROLES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
+            "SELECT ID, NAME, STATE, TYPE FROM DOC.ROLES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? " +
+                    "ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROLE =
-            "SELECT DISTINCT R.ID AS ID, R.NAME AS NAME, R.TYPE AS TYPE, ACCEPT, REJECT FROM DOC.GROUPS G, " +
-                    "DOC.GROUPS_USER GU, DOC.ROLES R, DOC.USERS U WHERE G.ID = GU.ID AND G.ROLE_ID = R.ID " +
-                    "AND GU.USER_ID = U.ID AND U.ID = ? AND U.COMPANY = ? ORDER BY R.ID ASC";
+            "SELECT DISTINCT R.ID AS ID, R.NAME AS NAME, R.TYPE AS TYPE, ACCEPT, REJECT, ROUTE_CHANGE, EDIT, " +
+                    "R.COMMENT AS COMMENT FROM DOC.GROUPS G, DOC.GROUPS_USER GU, DOC.ROLES R, DOC.USERS U " +
+                    "WHERE G.ID = GU.ID AND G.ROLE_ID = R.ID AND GU.USER_ID = U.ID AND U.ID = ? AND U.COMPANY = ? " +
+                    "ORDER BY R.ID ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -69,8 +72,11 @@ public class RoleDaoImpl implements RoleDao {
                         role.setName(rs.getString("R_NAME"));
                         role.setState(rs.getInt("R_STATE"));
                         role.setType(rs.getInt("R_TYPE"));
-                        role.setAcceptButton(rs.getString("R_ACCEPT"));
-                        role.setRejectButton(rs.getString("R_REJECT"));
+                        role.setAcceptButton(rs.getString("ACCEPT"));
+                        role.setRejectButton(rs.getString("REJECT"));
+                        role.setCanRouteChange(rs.getInt("ROUTE_CHANGE") == 1);
+                        role.setCanEdit(rs.getInt("EDIT") == 1);
+                        role.setCanComment(rs.getInt("COMMENT") == 1);
                         role.setStatusName(rs.getString("STATUS_NAME"));
                         role.setMenuName(rs.getString("MENU_NAME"));
                         return role;
@@ -110,6 +116,9 @@ public class RoleDaoImpl implements RoleDao {
                         role.setType(rs.getInt("TYPE"));
                         role.setAcceptButton(rs.getString("ACCEPT"));
                         role.setRejectButton(rs.getString("REJECT"));
+                        role.setCanRouteChange(rs.getInt("ROUTE_CHANGE") == 1);
+                        role.setCanEdit(rs.getInt("EDIT") == 1);
+                        role.setCanComment(rs.getInt("COMMENT") == 1);
 
                         roleMap.put(rs.getInt("ID"), role);
                     }
@@ -131,6 +140,9 @@ public class RoleDaoImpl implements RoleDao {
                     pstmt.setInt(4, Role.Type.ON_ROUTE);
                     pstmt.setString(5, role.getAcceptButton());
                     pstmt.setString(6, role.getRejectButton());
+                    pstmt.setInt(7, role.isCanRouteChange() ? 1 : 0);
+                    pstmt.setInt(8, role.isCanEdit() ? 1 : 0);
+                    pstmt.setInt(9, role.isCanComment() ? 1 : 0);
                     return pstmt;
                 }, keyHolder
         );
@@ -170,6 +182,9 @@ public class RoleDaoImpl implements RoleDao {
                 role.getType(),
                 role.getAcceptButton(),
                 role.getRejectButton(),
+                role.isCanRouteChange(),
+                role.isCanEdit(),
+                role.isCanComment(),
                 role.getId(),
                 companyId
         );

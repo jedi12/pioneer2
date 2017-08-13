@@ -336,17 +336,19 @@ public class DocumentServiceImpl implements DocumentService {
                         continue;
                     }
                     boolean disable = userGroupsActivity.get(currRoutePointGroup) == Group.ActorType.SPECTATOR;
-                    viewElements.setDisableBtn(viewElements.isDisableBtn() | disable);
+                    viewElements.setDisableBtn(!(viewElements.isDisableBtn() | disable));
                 }
 
                 viewElements.setBtnAccept(true);
                 viewElements.setBtnReject(true);
-                viewElements.setElSignMessage(true);
-                if (currentUser.getUserRoles().containsKey(Role.Type.ROUTE_CHANGE)) {
+                if (currentUser.getCurrRole().isCanRouteChange()) {
                     viewElements.setElChangeRoute(true);
                 }
-                if (currentUser.getUserRoles().containsKey(Role.Type.EDIT)) {
+                if (currentUser.getCurrRole().isCanEdit()) {
                     viewElements.setElEditDoc(true);
+                }
+                if (currentUser.getCurrRole().isCanComment()) {
+                    viewElements.setElSignerComment(true);
                 }
                 break;
             case Menu.Page.MY_DOC:

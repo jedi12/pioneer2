@@ -35,7 +35,7 @@ public class Document {
         private boolean elPublish;
         private boolean elChangeRoute;
         private boolean elDocOwner;
-        private boolean elSignMessage;
+        private boolean elSignerComment;
         private boolean disableBtn;
         private boolean btnSave;
         private boolean btnSaveAndSend;
@@ -87,12 +87,12 @@ public class Document {
             this.elDocOwner = elDocOwner;
         }
 
-        public boolean isElSignMessage() {
-            return elSignMessage;
+        public boolean isElSignerComment() {
+            return elSignerComment;
         }
 
-        public void setElSignMessage(boolean elSignMessage) {
-            this.elSignMessage = elSignMessage;
+        public void setElSignerComment(boolean elSignerComment) {
+            this.elSignerComment = elSignerComment;
         }
 
         public boolean isDisableBtn() {
