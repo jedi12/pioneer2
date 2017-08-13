@@ -58,9 +58,9 @@ public class RouteProcessServiceImpl implements RouteProcessService {
     }
 
     @Override
-    public List<Integer> getCurrRoutePointGroups(int documentId) throws ServiceException {
+    public List<Integer> getCurrNotSignedRoutePointGroups(int documentId) throws ServiceException {
         try {
-            return routeProcessDao.getCurrRoutePointGroups(documentId);
+            return routeProcessDao.getCurrNotSignedRoutePointGroups(documentId);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.CurrentRoutePointNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);

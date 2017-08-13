@@ -9,7 +9,7 @@ public interface RouteProcessDao {
 
     List<RoutePoint> getRoute(int documentId) throws DataAccessException;
 
-    List<Integer> getCurrRoutePointGroups(int documentId) throws DataAccessException;
+    List<Integer> getCurrNotSignedRoutePointGroups(int documentId) throws DataAccessException;
 
     void create(int documentId, int routeId) throws DataAccessException;
 

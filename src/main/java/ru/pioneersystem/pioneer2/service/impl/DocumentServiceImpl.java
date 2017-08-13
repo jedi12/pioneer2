@@ -135,8 +135,8 @@ public class DocumentServiceImpl implements DocumentService {
             if (document.getStatusId() == Status.Id.CREATED) {
                 document.setEditMode(true);
             }
-            List<Integer> currRoutePointGroups = routeProcessService.getCurrRoutePointGroups(id);
-            setupViewElements(document, currRoutePointGroups);
+            List<Integer> currNotSignedRoutePointGroups = routeProcessService.getCurrNotSignedRoutePointGroups(id);
+            setupViewElements(document, currNotSignedRoutePointGroups);
             return document;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoaded", null, localeBean.getLocale());
@@ -308,7 +308,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private void setupViewElements(Document document, List<Integer> currRoutePointGroups) {
+    private void setupViewElements(Document document, List<Integer> currNotSignedRoutePointGroups) {
         Map<Integer, Role> currUserRoles = currentUser.getUserRoles();
         Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = currentUser.getUserRolesGroupActivity();
         Map<Integer, Integer> userGroupsActivity = userRolesGroupActivity.get(currentUser.getCurrRole().getId());
@@ -331,12 +331,13 @@ public class DocumentServiceImpl implements DocumentService {
                 }
                 break;
             case Menu.Page.ON_ROUTE_DOC:
-                for (int currRoutePointGroup: currRoutePointGroups) {
+                viewElements.setDisableBtn(true);
+                for (int currRoutePointGroup: currNotSignedRoutePointGroups) {
                     if (userGroupsActivity.get(currRoutePointGroup) == null) {
                         continue;
                     }
                     boolean disable = userGroupsActivity.get(currRoutePointGroup) == Group.ActorType.SPECTATOR;
-                    viewElements.setDisableBtn(!(viewElements.isDisableBtn() | disable));
+                    viewElements.setDisableBtn(viewElements.isDisableBtn() & disable);
                 }
 
                 viewElements.setBtnAccept(true);
