@@ -26,11 +26,11 @@ public class Role {
         public static final int SUPER = 1;
         public static final int ADMIN = 2;
         public static final int USER = 3;
-        public static final int REZ1 = 4;
-        public static final int PUBLIC = 5;
-        public static final int ROUTE_CHANGE = 6;
-        public static final int EDIT = 7;
-        public static final int REZ2 = 8;
+        public static final int PUBLIC = 4;
+        public static final int REZ1 = 5;
+        public static final int REZ2 = 6;
+        public static final int REZ3 = 7;
+        public static final int REZ4 = 8;
         public static final int CREATE = 9;
         public static final int ON_ROUTE = 10;
     }
@@ -39,11 +39,11 @@ public class Role {
         public static final int SUPER = 1;
         public static final int ADMIN = 2;
         public static final int USER = 3;
-        public static final int REZ1 = 4;
-        public static final int PUBLIC = 5;
-        public static final int ROUTE_CHANGE = 6;
-        public static final int EDIT = 7;
-        public static final int REZ2 = 8;
+        public static final int PUBLIC = 4;
+        public static final int REZ1 = 5;
+        public static final int REZ2 = 6;
+        public static final int REZ3 = 7;
+        public static final int REZ4 = 8;
         public static final int CREATE = 9;
         public static final int ON_COORDINATION = 10;
         public static final int ON_EXECUTION = 11;

@@ -48,6 +48,9 @@ public class TemplateDaoImpl implements TemplateDao {
                     "ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_TEMPLATE_LIST_BY_PART =
             "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST =
+            "SELECT DISTINCT NAME FROM DOC.TEMPLATES T, DOC.TEMPLATES_FIELD TF WHERE T.ID = TF.ID AND STATE > 0 " +
+                    "AND FIELD_LIST = ? AND COMPANY = ? ORDER BY NAME";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -146,6 +149,14 @@ public class TemplateDaoImpl implements TemplateDao {
                     template.setName(rs.getString("NAME"));
                     return template;
                 }
+        );
+    }
+
+    @Override
+    public List<String> getListContainingChoiceList(int choiceListId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST,
+                new Object[]{choiceListId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
         );
     }
 

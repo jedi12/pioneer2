@@ -3,6 +3,7 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
+import ru.pioneersystem.pioneer2.service.TemplateService;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -27,11 +28,15 @@ public class ChoiceListView implements Serializable {
 
     private String addElement;
     private ChoiceList currChoiceList;
+    private List<String> templatesContainingChoiceList;
 
     private ResourceBundle bundle;
 
     @ManagedProperty("#{choiceListService}")
     private ChoiceListService choiceListService;
+
+    @ManagedProperty("#{templateService}")
+    private TemplateService templateService;
 
     @PostConstruct
     public void init() {
@@ -104,7 +109,14 @@ public class ChoiceListView implements Serializable {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            templatesContainingChoiceList = templateService.getListContainingChoiceList(selectedChoiceList.getId());
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
@@ -122,6 +134,10 @@ public class ChoiceListView implements Serializable {
 
     public void setChoiceListService(ChoiceListService choiceListService) {
         this.choiceListService = choiceListService;
+    }
+
+    public void setTemplateService(TemplateService templateService) {
+        this.templateService = templateService;
     }
 
     public List<ChoiceList> getChoiceListList() {
@@ -158,5 +174,9 @@ public class ChoiceListView implements Serializable {
 
     public void setCurrChoiceList(ChoiceList currChoiceList) {
         this.currChoiceList = currChoiceList;
+    }
+
+    public List<String> getTemplatesContainingChoiceList() {
+        return templatesContainingChoiceList;
     }
 }

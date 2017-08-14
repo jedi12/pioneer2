@@ -28,9 +28,9 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     private static final String UPDATE_LIST = "UPDATE DOC.LISTS SET NAME = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_LIST = "UPDATE DOC.LISTS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_LIST_FIELD = "DELETE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE ID = ? AND COMPANY = ?";
+    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE > 0 AND ID = ? AND COMPANY = ?";
     private static final String SELECT_LIST_FIELD = "SELECT VALUE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE = ? AND COMPANY = ?";
+    private static final String SELECT_LIST_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE > 0 AND COMPANY = ?";
     private static final String MAP_FIELD_FOR_DOC = "SELECT ID, VALUE FROM DOC.LISTS_FIELD WHERE ID IN (" +
             "SELECT VALUE_LIST FROM DOC.DOCUMENTS_FIELD WHERE ID = ? AND VALUE_LIST IS NOT NULL) " +
             "ORDER BY ID ASC, VALUE ASC";
@@ -101,21 +101,30 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
 
     @Override
     public Map<Integer, List<String>> getForDocument(int documentId) throws DataAccessException {
-        List<String> choiceListValues = jdbcTemplate.query(MAP_FIELD_FOR_DOC,
+        return jdbcTemplate.query(MAP_FIELD_FOR_DOC,
                 new Object[]{documentId},
-                new ChoiceListValuesMapper()
+                rs -> {
+                    Map<Integer, List<String>> result = new HashMap<>();
+                    int oldlistId = 0;
+                    while(rs.next()){
+                        int id = rs.getInt("ID");
+                        String value = rs.getString("VALUE");
+
+                        if (id != oldlistId) {
+                            result.put(id, new LinkedList<>());
+                            oldlistId = id;
+                        }
+                        result.get(id).add(value);
+                    }
+                    return result;
+                }
         );
-
-        Map<Integer, List<String>> listMap = new HashMap<>();
-        listMap.put(documentId, choiceListValues);
-
-        return listMap;
     }
 
     @Override
     public List<ChoiceList> getList(int companyId) throws DataAccessException {
         List<ChoiceList> choiceList = jdbcTemplate.query(SELECT_LIST_LIST,
-                new Object[]{ChoiceList.State.EXISTS, companyId},
+                new Object[]{companyId},
                 new ChoiceListMapper()
         );
 

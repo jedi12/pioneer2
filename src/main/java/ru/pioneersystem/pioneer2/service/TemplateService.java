@@ -11,6 +11,8 @@ public interface TemplateService {
 
     List<Template> getTemplateList(int partId) throws ServiceException;
 
+    List<String> getListContainingChoiceList(int choiceListId) throws ServiceException;
+
     Template getNewTemplate();
 
     Template getTemplate(int templateId) throws ServiceException;

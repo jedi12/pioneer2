@@ -112,8 +112,8 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public Document getNewDocument(int templateId) throws ServiceException {
         try {
-            Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForTemplate(templateId);
-            Document document = documentDao.getTemplateBased(templateId, choiceLists, currentUser.getUser().getCompanyId());
+            Document document = documentDao.getTemplateBased(templateId, currentUser.getUser().getCompanyId());
+            choiceListService.setChoiceListForTemplate(document);
             document.setCreateFlag(true);
             document.setEditMode(true);
             setupViewElements(document, null);
@@ -127,16 +127,18 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public Document getDocument(int id) throws ServiceException {
-        // TODO: 06.08.2017 Сделать получение Списков выбора только если есть права на редактирование
         try {
-            Map<Integer, List<String>> choiceLists = choiceListService.getChoiceListForDocument(id);
-            Document document = documentDao.get(id, choiceLists, currentUser.getUser().getCompanyId());
+            Document document = documentDao.get(id, currentUser.getUser().getCompanyId());
             document.setCreateFlag(false);
+            if (currentUser.getCurrRole().isCanEdit() || document.getStatusId() == Status.Id.CREATED) {
+                choiceListService.setChoiceListsForDocument(document);
+            }
+
             if (document.getStatusId() == Status.Id.CREATED) {
                 document.setEditMode(true);
             }
-            List<Integer> currNotSignedRoutePointGroups = routeProcessService.getCurrNotSignedRoutePointGroups(id);
-            setupViewElements(document, currNotSignedRoutePointGroups);
+
+            setupViewElements(document, routeProcessService.getCurrNotSignedRoutePointGroups(id));
             return document;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoaded", null, localeBean.getLocale());

@@ -88,7 +88,7 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists, int companyId) throws DataAccessException {
+    public Document getTemplateBased(int templateId, int companyId) throws DataAccessException {
         Document resultDocument = jdbcTemplate.query(SELECT_TEMPLATE,
                 new Object[]{templateId, companyId},
                 (rs) -> {
@@ -115,7 +115,6 @@ public class DocumentDaoImpl implements DocumentDao {
                         field.setNum(rs.getInt("FIELD_NUM"));
                         field.setTypeId(rs.getInt("FIELD_TYPE"));
                         field.setChoiceListId(rs.getObject("FIELD_LIST", Integer.class));
-                        field.setChoiceListValues(choiceLists.get(rs.getObject("FIELD_LIST", Integer.class)));
 
                         fields.add(field);
                     }
@@ -148,7 +147,7 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public Document get(int documentId, Map<Integer, List<String>> choiceLists, int companyId) throws DataAccessException {
+    public Document get(int documentId, int companyId) throws DataAccessException {
         Document resultDocument = jdbcTemplate.query(SELECT_DOCUMENT,
                 new Object[]{documentId, companyId},
                 (rs) -> {
@@ -189,7 +188,9 @@ public class DocumentDaoImpl implements DocumentDao {
                             case FieldType.Id.LIST:
                                 field.setValueChoiceList(rs.getString("VALUE_LIST_SELECTED"));
                                 field.setChoiceListId(rs.getObject("VALUE_LIST", Integer.class));
-                                field.setChoiceListValues(choiceLists.get(documentId));
+                                List<String> choiceListValues = new ArrayList<>();
+                                choiceListValues.add(rs.getString("VALUE_LIST_SELECTED"));
+                                field.setChoiceListValues(choiceListValues);
                                 break;
                             case FieldType.Id.CALENDAR:
                                 field.setValueCalendar(Date.from(rs.getTimestamp("VALUE_CALENDAR").toInstant()));

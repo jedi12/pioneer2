@@ -1,6 +1,7 @@
 package ru.pioneersystem.pioneer2.service;
 
 import ru.pioneersystem.pioneer2.model.ChoiceList;
+import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
@@ -8,13 +9,13 @@ import java.util.Map;
 
 public interface ChoiceListService {
 
-    Map<Integer, List<String>> getChoiceListForTemplate(int templateId) throws ServiceException;
-
-    Map<Integer, List<String>> getChoiceListForDocument(int documentId) throws ServiceException;
-
     List<ChoiceList> getChoiceListList() throws ServiceException;
 
     Map<String, ChoiceList> getChoiceListMap() throws ServiceException;
+
+    void setChoiceListForTemplate(Document document) throws ServiceException;
+
+    void setChoiceListsForDocument(Document document) throws ServiceException;
 
     ChoiceList getNewChoiceList();
 

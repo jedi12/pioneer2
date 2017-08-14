@@ -17,9 +17,9 @@ public interface DocumentDao {
 
     List<Document> getMyOnWorkingList(int userId, int companyId) throws DataAccessException;
 
-    Document getTemplateBased(int templateId, Map<Integer, List<String>> choiceLists, int companyId) throws DataAccessException;
+    Document getTemplateBased(int templateId, int companyId) throws DataAccessException;
 
-    Document get(int documentId, Map<Integer, List<String>> choiceLists, int companyId) throws DataAccessException;
+    Document get(int documentId, int companyId) throws DataAccessException;
 
     void create(Document document, int userId, int companyId) throws DataAccessException;
 

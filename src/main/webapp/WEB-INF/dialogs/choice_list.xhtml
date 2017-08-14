@@ -49,7 +49,7 @@
 					</p:column>
 				</p:dataTable>
 
-				<br />
+				<br/>
 
 				<p:panel styleClass="addPanelColor">
 					<h:panelGrid id="addValueGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
@@ -87,16 +87,20 @@
 					<p:outputLabel value="#{choiceListView.selectedChoiceList.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
-				<hr/>
-
-				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять список.-->
-				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
-				<!--и отключить кнопку удаления.-->
+				<h:panelGroup rendered="#{choiceListView.templatesContainingChoiceList.isEmpty() == false}">
+					<hr/>
+					<h4 align="center">#{text['choiceList.del.templateWithChoiceList']}</h4>
+					<p:repeat value="#{choiceListView.templatesContainingChoiceList}" var="template" >
+						<i><h:outputLabel value="#{template}"/></i>
+						<br/>
+					</p:repeat>
+				</h:panelGroup>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check" update=":centerPanel:listsTable"
-										 actionListener="#{choiceListView.deleteAction}"/>
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
+										 update=":centerPanel:listsTable" actionListener="#{choiceListView.deleteAction}"
+										 disabled="#{choiceListView.templatesContainingChoiceList.isEmpty() == false}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('deleteDialog').hide();"/>
 					</h:panelGrid>

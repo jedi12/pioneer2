@@ -8,6 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.ChoiceListDao;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
+import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -37,28 +38,6 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
-    public Map<Integer, List<String>> getChoiceListForTemplate(int templateId) throws ServiceException {
-        try {
-            return choiceListDao.getForTemplate(templateId);
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.choiceList.NotLoadedForTemplate", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
-    public Map<Integer, List<String>> getChoiceListForDocument(int documentId) throws ServiceException {
-        try {
-            return choiceListDao.getForDocument(documentId);
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.choiceList.NotLoadedForDocument", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
     public List<ChoiceList> getChoiceListList() throws ServiceException {
         try {
             return choiceListDao.getList(currentUser.getUser().getCompanyId());
@@ -76,6 +55,44 @@ public class ChoiceListServiceImpl implements ChoiceListService {
             choiceLists.put(choiceList.getName(), choiceList);
         }
         return choiceLists;
+    }
+
+    @Override
+    public void setChoiceListForTemplate(Document document) throws ServiceException {
+        try {
+            Map<Integer, List<String>> choiceListsForDocument = choiceListDao.getForTemplate(document.getTemplateId());
+            for (Document.Field field : document.getFields()) {
+                if (field.getChoiceListId() != null) {
+                    List<String> choiceList = choiceListsForDocument.get(field.getChoiceListId());
+                    if (choiceList != null && choiceList.size() != 0) {
+                        field.setChoiceListValues(choiceList);
+                    }
+                }
+            }
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.choiceList.NotSetChoiceListsForTemplate", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public void setChoiceListsForDocument(Document document) throws ServiceException {
+        try {
+            Map<Integer, List<String>> choiceListsForDocument = choiceListDao.getForDocument(document.getId());
+            for (Document.Field field : document.getFields()) {
+                if (field.getChoiceListId() != null) {
+                    List<String> choiceList = choiceListsForDocument.get(field.getChoiceListId());
+                    if (choiceList != null && choiceList.size() != 0) {
+                        field.setChoiceListValues(choiceList);
+                    }
+                }
+            }
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.choiceList.NotSetChoiceListsForDocument", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
     }
 
     @Override
