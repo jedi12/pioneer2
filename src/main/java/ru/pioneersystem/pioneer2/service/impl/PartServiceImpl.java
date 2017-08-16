@@ -6,7 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.pioneersystem.pioneer2.dao.DocumentDao;
 import ru.pioneersystem.pioneer2.dao.PartDao;
+import ru.pioneersystem.pioneer2.dao.TemplateDao;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.PartService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
@@ -23,14 +27,18 @@ public class PartServiceImpl implements PartService {
     private Logger log = LoggerFactory.getLogger(PartServiceImpl.class);
 
     private PartDao partDao;
+    private TemplateDao templadeDao;
+    private DocumentDao documentDao;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public PartServiceImpl(PartDao partDao, CurrentUser currentUser, LocaleBean localeBean,
-                           MessageSource messageSource) {
+    public PartServiceImpl(PartDao partDao, TemplateDao templadeDao, DocumentDao documentDao, CurrentUser currentUser,
+                           LocaleBean localeBean, MessageSource messageSource) {
         this.partDao = partDao;
+        this.templadeDao = templadeDao;
+        this.documentDao = documentDao;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -53,13 +61,14 @@ public class PartServiceImpl implements PartService {
         for (Part part : getPartList(type)) {
             parts.put(part.getName(), part.getId());
         }
+        parts.put(messageSource.getMessage("part.zero.name", null, localeBean.getLocale()), 0);
         return parts;
     }
 
     @Override
     public List<Part> getUserPartList(int type) throws ServiceException {
         try {
-            return partDao.getUserPart(type, currentUser.getUser().getId());
+            return partDao.getUserPart(type, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.part.userPartNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
@@ -74,6 +83,28 @@ public class PartServiceImpl implements PartService {
             parts.put(part.getName(), part.getId());
         }
         return parts;
+    }
+
+    @Override
+    public List<String> getTemplateListContainingInParts(List<Part> parts) throws ServiceException {
+        try {
+            return partDao.getTemplateListContainingInParts(parts, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.part.templateListContainingInPartsNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public int getCountPubDocContainingInParts(List<Part> parts) throws ServiceException {
+        try {
+            return partDao.getPubDocContainingInParts(parts, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.part.countPubDocContainingInParts", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
     }
 
     @Override
@@ -140,13 +171,19 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public void deleteParts(List<Part> parts) throws ServiceException {
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void deleteParts(List<Part> parts, int partType) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         // пример:
         // установить @Transactional(rollbackForClassName = DaoException.class)
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
+            if (partType == Part.Type.FOR_TEMPLATES) {
+                templadeDao.removeFromParts(parts, currentUser.getUser().getCompanyId());
+            } else if (partType == Part.Type.FOR_DOCUMENTS) {
+                documentDao.cancelPublish(parts, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            }
             partDao.delete(parts, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.part.NotDeletedList", null, localeBean.getLocale());

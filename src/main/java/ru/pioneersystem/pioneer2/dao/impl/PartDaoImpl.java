@@ -11,9 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Part;
+import ru.pioneersystem.pioneer2.model.Status;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,9 +40,14 @@ public class PartDaoImpl implements PartDao {
             "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE STATE > 0 AND TYPE = ? " +
                     "AND COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
     private static final String SELECT_USER_PART_LIST =
-            "SELECT P.ID AS ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS P LEFT JOIN DOC.PARTS_GROUP " +
-                    "PG ON P.ID = PG.ID WHERE STATE > 0 AND TYPE = ? AND (GROUP_ID IS NULL OR GROUP_ID " +
-                    "IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) ORDER BY TREE_LEVEL DESC, NAME ASC";
+            "SELECT DISTINCT P.ID AS ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS P " +
+                    "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID WHERE STATE > 0 AND TYPE = ? " +
+                    "AND (GROUP_ID IS NULL OR GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) " +
+                    "AND P.COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
+    private static final String SELECT_TEMPLATES_LIST =
+            "SELECT NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
+    private static final String SELECT_PUB_DOC_COUNT =
+            "SELECT COUNT(*) FROM DOC.DOCUMENTS WHERE STATUS = ? AND PUB_PART = ? AND COMPANY = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -107,9 +114,9 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public List<Part> getUserPart(int type, int userId) throws DataAccessException {
+    public List<Part> getUserPart(int type, int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_PART_LIST,
-                new Object[]{type, userId},
+                new Object[]{type, userId, companyId},
                 (rs, rowNum) -> {
                     Part part = new Part();
                     part.setId(rs.getInt("ID"));
@@ -121,6 +128,40 @@ public class PartDaoImpl implements PartDao {
                     return part;
                 }
         );
+    }
+
+    @Override
+    public List<String> getTemplateListContainingInParts(List<Part> parts, int companyId) throws DataAccessException {
+        // TODO: 16.08.2017 Плохой вариант, переделать
+        List<String> templateList = new ArrayList<>();
+        for (Part part: parts) {
+            List<String> templates = jdbcTemplate.query(SELECT_TEMPLATES_LIST,
+                    new Object[]{part.getId(), companyId},
+                    (rs, rowNum) -> rs.getString("NAME")
+            );
+            templateList.addAll(templates);
+        }
+
+        return templateList;
+    }
+
+    @Override
+    public int getPubDocContainingInParts(List<Part> parts, int companyId) throws DataAccessException {
+        // TODO: 16.08.2017 Плохой вариант, переделать
+        int pubDocs = 0;
+        for (Part part: parts) {
+            pubDocs = pubDocs + jdbcTemplate.query(SELECT_PUB_DOC_COUNT,
+                    new Object[]{Status.Id.PUBLISHED, part.getId(), companyId},
+                    (rs) -> {
+                        if (rs.next()) {
+                            return rs.getInt(1);
+                        }
+                        return 0;
+                    }
+            );
+        }
+
+        return pubDocs;
     }
 
     @Override

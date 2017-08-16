@@ -28,6 +28,7 @@ public class ChoiceListView implements Serializable {
 
     private String addElement;
     private ChoiceList currChoiceList;
+
     private List<String> templatesContainingChoiceList;
 
     private ResourceBundle bundle;

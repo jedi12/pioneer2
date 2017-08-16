@@ -9,7 +9,11 @@ public interface PartDao {
 
     List<Part> getList(int type, int companyId) throws DataAccessException;
 
-    List<Part> getUserPart(int type, int userId) throws DataAccessException;
+    List<Part> getUserPart(int type, int userId, int companyId) throws DataAccessException;
+
+    List<String> getTemplateListContainingInParts(List<Part> parts, int companyId) throws DataAccessException;
+
+    int getPubDocContainingInParts(List<Part> parts, int companyId) throws DataAccessException;
 
     Part get(int partId, int companyId) throws DataAccessException;
 

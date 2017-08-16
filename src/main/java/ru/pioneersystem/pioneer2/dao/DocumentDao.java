@@ -2,6 +2,7 @@ package ru.pioneersystem.pioneer2.dao;
 
 import org.springframework.dao.DataAccessException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Part;
 
 import java.util.Date;
 import java.util.List;
@@ -18,6 +19,8 @@ public interface DocumentDao {
     List<Document> getMyOnWorkingList(int userId, int companyId) throws DataAccessException;
 
     Document getTemplateBased(int templateId, int companyId) throws DataAccessException;
+
+    void cancelPublish(List<Part> parts, int userId, int companyId) throws DataAccessException;
 
     Document get(int documentId, int companyId) throws DataAccessException;
 

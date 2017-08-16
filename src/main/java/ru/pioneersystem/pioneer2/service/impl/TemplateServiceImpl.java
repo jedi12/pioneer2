@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
+import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.FieldTypeService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
@@ -40,7 +41,19 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public List<Template> getTemplateList() throws ServiceException {
         try {
-            return templateDao.getList(currentUser.getUser().getCompanyId());
+            List<Template> templateList = templateDao.getList(currentUser.getUser().getCompanyId());
+
+            String noRouteName = messageSource.getMessage("route.zero.name", null, localeBean.getLocale());
+            String noPartName = messageSource.getMessage("part.zero.name", null, localeBean.getLocale());
+            for (Template template: templateList) {
+                if (template.getRouteId() == 0) {
+                    template.setRouteName(noRouteName);
+                }
+                if (template.getPartId() == 0) {
+                    template.setPartName(noPartName);
+                }
+            }
+            return templateList;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotLoadedList", null, localeBean.getLocale());
             log.error(mess, e);

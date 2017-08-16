@@ -16,6 +16,10 @@ public interface PartService {
 
     Map<String, Integer> getUserPartMap(int type) throws ServiceException;
 
+    List<String> getTemplateListContainingInParts(List<Part> parts) throws ServiceException;
+
+    int getCountPubDocContainingInParts(List<Part> parts) throws ServiceException;
+
     Part getNewPart();
 
     Part getPart(int partId) throws ServiceException;
@@ -26,5 +30,5 @@ public interface PartService {
 
     void deletePart(int partId) throws ServiceException;
 
-    void deleteParts(List<Part> parts) throws ServiceException;
+    void deleteParts(List<Part> parts, int partType) throws ServiceException;
 }

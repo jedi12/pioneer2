@@ -53,6 +53,13 @@ public class RouteServiceImpl implements RouteService {
         for (Route routeList : getRouteList()) {
             routes.put(routeList.getName(), routeList);
         }
+
+        String noRouteName = messageSource.getMessage("route.zero.name", null, localeBean.getLocale());
+        Route zeroRoute = new Route();
+        zeroRoute.setId(0);
+        zeroRoute.setName(noRouteName);
+        routes.put(noRouteName, zeroRoute);
+
         return routes;
     }
 

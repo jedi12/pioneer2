@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
@@ -51,6 +52,8 @@ public class TemplateDaoImpl implements TemplateDao {
     private static final String SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST =
             "SELECT DISTINCT NAME FROM DOC.TEMPLATES T, DOC.TEMPLATES_FIELD TF WHERE T.ID = TF.ID AND STATE > 0 " +
                     "AND FIELD_LIST = ? AND COMPANY = ? ORDER BY NAME";
+    private static final String UPDATE_TEMPLATE_PARTS =
+            "UPDATE DOC.TEMPLATES SET PART = 0 WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -157,6 +160,22 @@ public class TemplateDaoImpl implements TemplateDao {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST,
                 new Object[]{choiceListId, companyId},
                 (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    @Transactional
+    public void removeFromParts(List<Part> parts, int companyId) throws DataAccessException {
+        jdbcTemplate.batchUpdate(UPDATE_TEMPLATE_PARTS,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        pstmt.setInt(1, parts.get(i).getId());
+                        pstmt.setObject(2, companyId);
+                    }
+                    public int getBatchSize() {
+                        return parts.size();
+                    }
+                }
         );
     }
 

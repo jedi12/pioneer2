@@ -79,6 +79,9 @@ public class DocumentDaoImpl implements DocumentDao {
                     "DOC.GROUPS G ON D.DOC_GROUP = G.ID WHERE D.STATUS >= 9 AND D.DOC_GROUP IN (SELECT G.ID FROM " +
                     "DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID AND USER_ID = ? AND ROLE_ID = 9 " +
                     "AND STATE > 0) AND D.COMPANY = ? ORDER BY D.U_DATE DESC";
+    private static final String UPDATE_DOCUMENT_PART_AND_STATUS =
+            "UPDATE DOC.DOCUMENTS SET PUB_PART = 0, U_DATE = ?, U_USER = ?, STATUS = ? WHERE PUB_PART = ? " +
+                    "AND STATUS = ? AND COMPANY = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -291,6 +294,27 @@ public class DocumentDaoImpl implements DocumentDao {
                     document.setDocumentGroupName(rs.getString("GROUP_NAME"));
                     document.setStatusId(rs.getInt("STATUS_ID"));
                     return document;
+                }
+        );
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void cancelPublish(List<Part> parts, int userId, int companyId) throws DataAccessException {
+        Timestamp timestamp = Timestamp.from((new Date()).toInstant());
+        jdbcTemplate.batchUpdate(UPDATE_DOCUMENT_PART_AND_STATUS,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        pstmt.setTimestamp(1, timestamp);
+                        pstmt.setInt(2, userId);
+                        pstmt.setInt(3, Status.Id.COMPLETED);
+                        pstmt.setInt(4, parts.get(i).getId());
+                        pstmt.setInt(5, Status.Id.PUBLISHED);
+                        pstmt.setInt(6, companyId);
+                    }
+                    public int getBatchSize() {
+                        return parts.size();
+                    }
                 }
         );
     }

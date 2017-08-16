@@ -109,11 +109,26 @@
 					<p:outputLabel value="#{partView.selectedNode.data.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
-				<hr/>
+				<h:panelGroup rendered="#{partView.partType == 1}">
+					<h:panelGroup rendered="#{partView.notSelectableTemplateList.isEmpty() == false}">
+						<hr/>
+						<h4 align="center">#{text['part.del.notSelectableTemplate']}</h4>
+						<p:repeat value="#{partView.notSelectableTemplateList}" var="template" >
+							<i><h:outputLabel value="#{template}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
+				</h:panelGroup>
 
-				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять раздел. Проверять права на удаление дочерних разделов-->
-				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
-				<!--и отключить кнопку удаления.-->
+				<h:panelGroup rendered="#{partView.partType == 2}">
+					<h:panelGroup rendered="#{partView.docCountInPubPart > 0}">
+						<hr/>
+						<br/>
+						<i><h:outputLabel value="#{text['part.del.docCountInPubPart']} #{partView.docCountInPubPart}"/></i>
+						<br/>
+						<br/>
+					</h:panelGroup>
+				</h:panelGroup>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">

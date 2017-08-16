@@ -251,7 +251,6 @@ public class TemplateView implements Serializable {
 
     private Map<String, Integer> toRouteMap(Map<String, Route> routesMap) {
         Map<String, Integer> map = new LinkedHashMap<>();
-        map.put(bundle.getString("route.zero.name"), 0);
         for (Route route : routesMap.values()) {
             map.put(route.getName(), route.getId());
         }
@@ -260,7 +259,6 @@ public class TemplateView implements Serializable {
 
     private List<String> toRouteList(Map<String, Route> routesMap) {
         List<String> list = new LinkedList<>();
-        list.add(bundle.getString("route.zero.name"));
         for (Route route : routesMap.values()) {
             list.add(route.getName());
         }

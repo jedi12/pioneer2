@@ -42,6 +42,9 @@ public class PartView implements Serializable {
     private Map<String, Integer> selectGroupDefault;
     private String selectedGroup;
 
+    private List<String> notSelectableTemplateList;
+    private int docCountInPubPart;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{partService}")
@@ -127,15 +130,25 @@ public class PartView implements Serializable {
             return;
         }
 
-        // TODO: 06.05.2017 Необходима проверка на право удалить раздел для владельца или администратора (тут или в сервисе)
-
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            List<Part> partsForDelete = TreeNodeUtil.toList(selectedNode, new ArrayList<>(), 0);
+            if (partType == Part.Type.FOR_TEMPLATES) {
+                notSelectableTemplateList = partService.getTemplateListContainingInParts(partsForDelete);
+            } else if (partType == Part.Type.FOR_DOCUMENTS) {
+                docCountInPubPart = partService.getCountPubDocContainingInParts(partsForDelete);
+            }
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
         try {
             List<Part> parts = TreeNodeUtil.toList(selectedNode, new ArrayList<>(), 0);
-            partService.deleteParts(parts);
+            partService.deleteParts(parts, partType);
             refreshList();
         }
         catch (Exception e) {
@@ -271,5 +284,13 @@ public class PartView implements Serializable {
 
     public void setSelectedGroup(String selectedGroup) {
         this.selectedGroup = selectedGroup;
+    }
+
+    public List<String> getNotSelectableTemplateList() {
+        return notSelectableTemplateList;
+    }
+
+    public int getDocCountInPubPart() {
+        return docCountInPubPart;
     }
 }

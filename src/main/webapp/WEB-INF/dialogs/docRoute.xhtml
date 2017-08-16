@@ -20,7 +20,7 @@
 					<p:dataTable var="routePoint" value="#{documentView.routePoints}" emptyMessage="#{text['table.empty']}">
 
 						<p:column styleClass="#{(routePoint.signed == 2 || routePoint.signed == 3) ? 'lightPink' :
-								(routePoint.signed == 1 ? 'lightGreen' : 'default')}">
+								(routePoint.signed == 1 ? 'lightGreen' : 'default')}" style="text-align: center">
 							<p:commandButton icon="ui-icon-triangle-1-e" style="font-size: 60% !important" type="button"
 											 rendered="#{routePoint.receiptDate != null and routePoint.signDate == null}"/>
 							<p:commandButton icon="ui-icon-check" style="font-size: 60% !important" type="button"
