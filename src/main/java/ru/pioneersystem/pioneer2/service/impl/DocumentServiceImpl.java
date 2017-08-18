@@ -110,6 +110,17 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<String> getDocToCansel(int groupId) throws ServiceException {
+        try {
+            return documentDao.getDocToCansel(groupId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.docToCansel", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Document getNewDocument(int templateId) throws ServiceException {
         try {
             Document document = documentDao.getTemplateBased(templateId, currentUser.getUser().getCompanyId());

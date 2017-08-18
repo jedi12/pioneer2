@@ -14,6 +14,10 @@ public interface RouteService {
 
     Map<String, Integer> getUserRoutesMap() throws ServiceException;
 
+    List<String> getRoutesWithGroup(int groupId) throws ServiceException;
+
+    int getCountRoutesWithRestriction(int groupId) throws ServiceException;
+
     Route getNewRoute();
 
     Route getRoute(int routeId) throws ServiceException;

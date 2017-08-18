@@ -82,6 +82,9 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String UPDATE_DOCUMENT_PART_AND_STATUS =
             "UPDATE DOC.DOCUMENTS SET PUB_PART = 0, U_DATE = ?, U_USER = ?, STATUS = ? WHERE PUB_PART = ? " +
                     "AND STATUS = ? AND COMPANY = ?";
+    private static final String SELECT_DOC_TO_CANCEL =
+            "SELECT DISTINCT D.ID AS ID, NAME FROM DOC.DOCUMENTS D, DOC.DOCUMENTS_SIGN DS WHERE D.ID = DS.ID " +
+                    "AND D.STATUS > 9 AND DS.GROUP_ID = ? AND COMPANY = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -295,6 +298,14 @@ public class DocumentDaoImpl implements DocumentDao {
                     document.setStatusId(rs.getInt("STATUS_ID"));
                     return document;
                 }
+        );
+    }
+
+    @Override
+    public List<String> getDocToCansel(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_DOC_TO_CANCEL,
+                new Object[]{groupId, companyId},
+                (rs, rowNum) -> rs.getString("NAME") + " (Id: " + rs.getString("ID") + ")"
         );
     }
 

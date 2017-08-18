@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
@@ -48,6 +49,11 @@ public class PartDaoImpl implements PartDao {
             "SELECT NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
     private static final String SELECT_PUB_DOC_COUNT =
             "SELECT COUNT(*) FROM DOC.DOCUMENTS WHERE STATUS = ? AND PUB_PART = ? AND COMPANY = ?";
+    private static final String SELECT_PARTS_WITH_GROUP_COUNT =
+            "SELECT DISTINCT COUNT(P.ID) FROM DOC.PARTS P, DOC.PARTS_GROUP PG WHERE P.ID = PG.ID AND STATE > 0 " +
+                    "AND PG.GROUP_ID = ? AND COMPANY = ?";
+    private static final String DELETE_GROUP_RESTRICTION =
+            "DELETE FROM DOC.PARTS_GROUP WHERE GROUP_ID = ? AND ID IN (SELECT ID FROM DOC.PARTS WHERE COMPANY = ?)";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -162,6 +168,28 @@ public class PartDaoImpl implements PartDao {
         }
 
         return pubDocs;
+    }
+
+    @Override
+    public int getCountPartsWithRestriction(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_PARTS_WITH_GROUP_COUNT,
+                new Object[]{groupId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                    return 0;
+                }
+        );
+    }
+
+    @Override
+    @Transactional
+    public void removeGroupRestriction(int groupId, int companyId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_GROUP_RESTRICTION,
+                groupId,
+                companyId
+        );
     }
 
     @Override

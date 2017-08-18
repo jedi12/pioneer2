@@ -15,6 +15,10 @@ public interface PartDao {
 
     int getPubDocContainingInParts(List<Part> parts, int companyId) throws DataAccessException;
 
+    int getCountPartsWithRestriction(int groupId, int companyId) throws DataAccessException;
+
+    void removeGroupRestriction(int groupId, int companyId) throws DataAccessException;
+
     Part get(int partId, int companyId) throws DataAccessException;
 
     void create(Part part, int type, int companyId) throws DataAccessException;

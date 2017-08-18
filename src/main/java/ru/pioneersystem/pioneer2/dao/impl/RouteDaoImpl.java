@@ -49,7 +49,15 @@ public class RouteDaoImpl implements RouteDao {
     private static final String SELECT_USER_ROUTE_MAP =
             "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
                     "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID WHERE COMPANY = ? AND USER_ID = ? " +
-                    "AND STATE > 0 ORDER BY NAME ASC\n";
+                    "AND STATE > 0 ORDER BY NAME ASC";
+    private static final String SELECT_ROUTE_LIST_CONTAIN_GROUP =
+            "SELECT DISTINCT NAME FROM DOC.ROUTES R, DOC.ROUTES_POINT RP WHERE R.ID = RP.ID AND STATE > 0 " +
+                    "AND GROUP_ID = ? AND COMPANY = ?  ORDER BY NAME ASC";
+    private static final String SELECT_ROUTES_WITH_GROUP_COUNT =
+            "SELECT DISTINCT COUNT(R.ID) FROM DOC.ROUTES R, DOC.ROUTES_GROUP RG WHERE R.ID = RG.ID AND STATE > 0 " +
+                    "AND RG.GROUP_ID = ? AND COMPANY = ?";
+    private static final String DELETE_GROUP_RESTRICTION =
+            "DELETE FROM DOC.ROUTES_GROUP WHERE GROUP_ID = ? AND ID IN (SELECT ID FROM DOC.ROUTES WHERE COMPANY = ?)";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -139,6 +147,36 @@ public class RouteDaoImpl implements RouteDao {
                     }
                     return routes;
                 }
+        );
+    }
+
+    @Override
+    public List<String> getRoutesWithGroup(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_ROUTE_LIST_CONTAIN_GROUP,
+                new Object[]{groupId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    public int getCountRoutesWithRestriction(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_ROUTES_WITH_GROUP_COUNT,
+                new Object[]{groupId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                    return 0;
+                }
+        );
+    }
+
+    @Override
+    @Transactional
+    public void removeGroupRestriction(int groupId, int companyId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_GROUP_RESTRICTION,
+                groupId,
+                companyId
         );
     }
 

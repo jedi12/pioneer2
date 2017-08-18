@@ -75,6 +75,28 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
+    public List<String> getRoutesWithGroup(int groupId) throws ServiceException {
+        try {
+            return routeDao.getRoutesWithGroup(groupId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.route.routesWithGroup", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public int getCountRoutesWithRestriction(int groupId) throws ServiceException {
+        try {
+            return routeDao.getCountRoutesWithRestriction(groupId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.route.countRoutesWithRestriction", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Route getNewRoute() {
         Route route = new Route();
         route.setPoints(new LinkedList<>());

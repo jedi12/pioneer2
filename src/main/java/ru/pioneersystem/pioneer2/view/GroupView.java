@@ -2,9 +2,7 @@ package ru.pioneersystem.pioneer2.view;
 
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Group;
-import ru.pioneersystem.pioneer2.service.GroupService;
-import ru.pioneersystem.pioneer2.service.RoleService;
-import ru.pioneersystem.pioneer2.service.UserService;
+import ru.pioneersystem.pioneer2.service.*;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -34,13 +32,27 @@ public class GroupView implements Serializable {
     private Map<String, Integer> selectUserDefault;
     private String selectedUser;
 
+    private List<String> routesWithGroup;
+    private List<String> docToCansel;
+    private int countPartsWithRestriction;
+    private int countRoutesWithRestriction;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{groupService}")
     private GroupService groupService;
 
+    @ManagedProperty("#{partService}")
+    private PartService partService;
+
     @ManagedProperty("#{roleService}")
     private RoleService roleService;
+
+    @ManagedProperty("#{routeService}")
+    private RouteService routeService;
+
+    @ManagedProperty("#{documentService}")
+    private DocumentService documentService;
 
     @ManagedProperty("#{userService}")
     private UserService userService;
@@ -110,6 +122,21 @@ public class GroupView implements Serializable {
             return;
         }
 
+        try {
+            routesWithGroup = routeService.getRoutesWithGroup(selectedGroup.getId());
+            docToCansel = documentService.getDocToCansel(selectedGroup.getId());
+            if (routesWithGroup.isEmpty() && docToCansel.isEmpty()) {
+                countPartsWithRestriction = partService.getCountPartsWithRestriction(selectedGroup.getId());
+                countRoutesWithRestriction = routeService.getCountRoutesWithRestriction(selectedGroup.getId());
+            }
+
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
+
         RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
     }
 
@@ -157,8 +184,20 @@ public class GroupView implements Serializable {
         this.groupService = groupService;
     }
 
+    public void setPartService(PartService partService) {
+        this.partService = partService;
+    }
+
     public void setRoleService(RoleService roleService) {
         this.roleService = roleService;
+    }
+
+    public void setRouteService(RouteService routeService) {
+        this.routeService = routeService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
     }
 
     public void setUserService(UserService userService) {
@@ -207,5 +246,21 @@ public class GroupView implements Serializable {
 
     public void setSelectedUser(String selectedUser) {
         this.selectedUser = selectedUser;
+    }
+
+    public List<String> getRoutesWithGroup() {
+        return routesWithGroup;
+    }
+
+    public List<String> getDocToCansel() {
+        return docToCansel;
+    }
+
+    public int getCountPartsWithRestriction() {
+        return countPartsWithRestriction;
+    }
+
+    public int getCountRoutesWithRestriction() {
+        return countRoutesWithRestriction;
     }
 }

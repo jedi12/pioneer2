@@ -20,6 +20,8 @@ public interface DocumentService {
 
     List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException;
 
+    List<String> getDocToCansel(int groupId) throws ServiceException;
+
     Document getNewDocument(int templateId) throws ServiceException;
 
     Document getDocument(int id) throws ServiceException;

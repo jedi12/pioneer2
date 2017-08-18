@@ -6,7 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.GroupDao;
+import ru.pioneersystem.pioneer2.dao.PartDao;
+import ru.pioneersystem.pioneer2.dao.RouteDao;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
@@ -23,14 +27,18 @@ public class GroupServiceImpl implements GroupService {
     private Logger log = LoggerFactory.getLogger(GroupServiceImpl.class);
 
     private GroupDao groupDao;
+    private PartDao partDao;
+    private RouteDao routeDao;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public GroupServiceImpl(GroupDao groupDao, CurrentUser currentUser, LocaleBean localeBean,
-                            MessageSource messageSource) {
+    public GroupServiceImpl(GroupDao groupDao, PartDao partDao, RouteDao routeDao, CurrentUser currentUser,
+                            LocaleBean localeBean, MessageSource messageSource) {
         this.groupDao = groupDao;
+        this.partDao = partDao;
+        this.routeDao = routeDao;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -137,6 +145,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void deleteGroup(int groupId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной группы плюс еще какая-нибудь проверка
         // пример:
@@ -144,6 +153,8 @@ public class GroupServiceImpl implements GroupService {
         // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
         // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
+            partDao.removeGroupRestriction(groupId, currentUser.getUser().getCompanyId());
+            routeDao.removeGroupRestriction(groupId, currentUser.getUser().getCompanyId());
             groupDao.delete(groupId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.NotDeleted", null, localeBean.getLocale());

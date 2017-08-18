@@ -114,16 +114,46 @@
 					<p:outputLabel value="#{groupView.selectedGroup.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
-				<hr/>
+				<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty() || !groupView.docToCansel.isEmpty()}">
+					<hr/>
+				</h:panelGroup>
 
-				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять группу.-->
-				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
-				<!--и отключить кнопку удаления.-->
+				<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty()}">
+					<h4 align="center">#{text['group.del.routesWithGroup']}</h4>
+					<p:repeat value="#{groupView.routesWithGroup}" var="template" >
+						<i><h:outputLabel value="#{template}"/></i>
+						<br/>
+					</p:repeat>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{!groupView.docToCansel.isEmpty()}">
+					<h4 align="center">#{text['group.del.docToCansel']}</h4>
+					<p:repeat value="#{groupView.docToCansel}" var="document" >
+						<i><h:outputLabel value="#{document}"/></i>
+						<br/>
+					</p:repeat>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{groupView.routesWithGroup.isEmpty() &amp;&amp; groupView.docToCansel.isEmpty()}">
+					<hr/>
+					<h:panelGroup rendered="#{groupView.countPartsWithRestriction > 0}">
+						<br/>
+						<i><h:outputLabel value="#{text['group.del.countPartsWithRestriction']} #{groupView.countPartsWithRestriction}"/></i>
+						<br/>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{groupView.countRoutesWithRestriction > 0}">
+						<br/>
+						<i><h:outputLabel value="#{text['group.del.countRoutesWithRestriction']} #{groupView.countRoutesWithRestriction}"/></i>
+						<br/>
+					</h:panelGroup>
+				</h:panelGroup>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check" update=":centerPanel:groupTable"
-										 actionListener="#{groupView.deleteAction}"/>
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
+										 update=":centerPanel:groupTable" actionListener="#{groupView.deleteAction}"
+										 disabled="#{!groupView.routesWithGroup.isEmpty() || !groupView.docToCansel.isEmpty()}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('deleteDialog').hide();"/>
 					</h:panelGrid>

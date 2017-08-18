@@ -20,6 +20,8 @@ public interface PartService {
 
     int getCountPubDocContainingInParts(List<Part> parts) throws ServiceException;
 
+    int getCountPartsWithRestriction(int groupId) throws ServiceException;
+
     Part getNewPart();
 
     Part getPart(int partId) throws ServiceException;

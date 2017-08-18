@@ -108,6 +108,17 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
+    public int getCountPartsWithRestriction(int groupId) throws ServiceException {
+        try {
+            return partDao.getCountPartsWithRestriction(groupId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.part.countPartsWithRestriction", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Part getNewPart() {
         Part part = new Part();
         part.setLinkGroups(new LinkedList<>());
