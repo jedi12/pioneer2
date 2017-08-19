@@ -2,6 +2,8 @@ package ru.pioneersystem.pioneer2.view;
 
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Role;
+import ru.pioneersystem.pioneer2.service.DocumentService;
+import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RoleService;
 
 import javax.annotation.PostConstruct;
@@ -25,10 +27,19 @@ public class RoleView implements Serializable {
 
     private Role currRole;
 
+    private List<String> groupsWithRole;
+    private List<String> docToCansel;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{roleService}")
     private RoleService roleService;
+
+    @ManagedProperty("#{groupService}")
+    private GroupService groupService;
+
+    @ManagedProperty("#{documentService}")
+    private DocumentService documentService;
 
     @PostConstruct
     public void init() {
@@ -101,7 +112,16 @@ public class RoleView implements Serializable {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            groupsWithRole = groupService.groupsWithRole(selectedRole.getId());
+            docToCansel = documentService.getDocToCancelByRole(selectedRole.getId());
+
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
@@ -119,6 +139,14 @@ public class RoleView implements Serializable {
 
     public void setRoleService(RoleService roleService) {
         this.roleService = roleService;
+    }
+
+    public void setGroupService(GroupService groupService) {
+        this.groupService = groupService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
     }
 
     public List<Role> getRoleList() {
@@ -147,5 +175,13 @@ public class RoleView implements Serializable {
 
     public void setCurrRole(Role currRole) {
         this.currRole = currRole;
+    }
+
+    public List<String> getGroupsWithRole() {
+        return groupsWithRole;
+    }
+
+    public List<String> getDocToCansel() {
+        return docToCansel;
     }
 }

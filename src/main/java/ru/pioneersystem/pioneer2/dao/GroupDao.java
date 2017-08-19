@@ -18,6 +18,8 @@ public interface GroupDao {
 
     Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivity(int userId, int companyId) throws DataAccessException;
 
+    List<String> groupsWithRole(int roleId, int companyId) throws DataAccessException;
+
     Group get(int groupId, int companyId) throws DataAccessException;
 
     void create(Group group, int companyId) throws DataAccessException;

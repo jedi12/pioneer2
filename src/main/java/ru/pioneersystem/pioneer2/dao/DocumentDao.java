@@ -20,7 +20,9 @@ public interface DocumentDao {
 
     Document getTemplateBased(int templateId, int companyId) throws DataAccessException;
 
-    List<String> getDocToCansel(int groupId, int companyId) throws DataAccessException;
+    List<String> getDocToCancelByGroup(int groupId, int companyId) throws DataAccessException;
+
+    List<String> getDocToCancelByRole(int roleId, int companyId) throws DataAccessException;
 
     void cancelPublish(List<Part> parts, int userId, int companyId) throws DataAccessException;
 

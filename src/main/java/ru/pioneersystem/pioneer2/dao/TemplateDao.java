@@ -14,6 +14,8 @@ public interface TemplateDao {
 
     List<String> getListContainingChoiceList(int choiceListId, int companyId) throws DataAccessException;
 
+    List<String> getListContainingRoute(int routeId, int companyId) throws DataAccessException;
+
     void removeFromParts(List<Part> parts, int companyId) throws DataAccessException;
 
     Template get(int templateId, int companyId) throws DataAccessException;

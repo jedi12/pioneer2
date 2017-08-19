@@ -13,6 +13,8 @@ public interface TemplateService {
 
     List<String> getListContainingChoiceList(int choiceListId) throws ServiceException;
 
+    List<String> getListContainingRoute(int routeId) throws ServiceException;
+
     Template getNewTemplate();
 
     Template getTemplate(int templateId) throws ServiceException;

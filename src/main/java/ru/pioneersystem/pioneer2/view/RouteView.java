@@ -5,6 +5,7 @@ import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RouteService;
+import ru.pioneersystem.pioneer2.service.TemplateService;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -38,6 +39,8 @@ public class RouteView implements Serializable {
     private Map<String, Integer> selectGroupDefault;
     private String selectedGroup;
 
+    private List<String> templatesWithRoute;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{routeService}")
@@ -45,6 +48,9 @@ public class RouteView implements Serializable {
 
     @ManagedProperty("#{groupService}")
     private GroupService groupService;
+
+    @ManagedProperty("#{templateService}")
+    private TemplateService templateService;
 
     @PostConstruct
     public void init() {
@@ -112,7 +118,14 @@ public class RouteView implements Serializable {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            templatesWithRoute = templateService.getListContainingRoute(selectedRoute.getId());
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
@@ -200,6 +213,10 @@ public class RouteView implements Serializable {
         this.groupService = groupService;
     }
 
+    public void setTemplateService(TemplateService templateService) {
+        this.templateService = templateService;
+    }
+
     public List<Route> getRouteList() {
         return routeList;
     }
@@ -266,5 +283,9 @@ public class RouteView implements Serializable {
 
     public void setSelectedGroup(String selectedGroup) {
         this.selectedGroup = selectedGroup;
+    }
+
+    public List<String> getTemplatesWithRoute() {
+        return templatesWithRoute;
     }
 }

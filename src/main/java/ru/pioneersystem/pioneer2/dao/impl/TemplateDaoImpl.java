@@ -54,6 +54,9 @@ public class TemplateDaoImpl implements TemplateDao {
                     "AND FIELD_LIST = ? AND COMPANY = ? ORDER BY NAME";
     private static final String UPDATE_TEMPLATE_PARTS =
             "UPDATE DOC.TEMPLATES SET PART = 0 WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
+    private static final String SELECT_TEMPLATE_LIST_CONTAINING_ROUTE =
+            "SELECT DISTINCT NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.TEMPLATES_COND TC ON T.ID = TC.ID " +
+                    "WHERE T.STATE = 1 AND (T.ROUTE = ? OR TC.ROUTE = ?) AND COMPANY = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -159,6 +162,14 @@ public class TemplateDaoImpl implements TemplateDao {
     public List<String> getListContainingChoiceList(int choiceListId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST,
                 new Object[]{choiceListId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    public List<String> getListContainingRoute(int routeId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_ROUTE,
+                new Object[]{routeId, routeId, companyId},
                 (rs, rowNum) -> rs.getString("NAME")
         );
     }

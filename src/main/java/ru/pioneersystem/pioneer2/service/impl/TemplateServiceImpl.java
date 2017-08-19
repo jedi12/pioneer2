@@ -84,6 +84,17 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
+    public List<String> getListContainingRoute(int routeId) throws ServiceException {
+        try {
+            return templateDao.getListContainingRoute(routeId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.template.templateContainingRouteNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Template getNewTemplate() {
         Template template = new Template();
         template.setFields(new LinkedList<>());

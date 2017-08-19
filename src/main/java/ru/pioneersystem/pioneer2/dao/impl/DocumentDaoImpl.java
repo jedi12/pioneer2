@@ -82,9 +82,12 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String UPDATE_DOCUMENT_PART_AND_STATUS =
             "UPDATE DOC.DOCUMENTS SET PUB_PART = 0, U_DATE = ?, U_USER = ?, STATUS = ? WHERE PUB_PART = ? " +
                     "AND STATUS = ? AND COMPANY = ?";
-    private static final String SELECT_DOC_TO_CANCEL =
+    private static final String SELECT_DOC_TO_CANCEL_BY_GROUP =
             "SELECT DISTINCT D.ID AS ID, NAME FROM DOC.DOCUMENTS D, DOC.DOCUMENTS_SIGN DS WHERE D.ID = DS.ID " +
                     "AND D.STATUS > 9 AND DS.GROUP_ID = ? AND COMPANY = ?";
+    private static final String SELECT_DOC_TO_CANCEL_BY_ROLE =
+            "SELECT DISTINCT D.ID AS ID, NAME FROM DOC.DOCUMENTS D, DOC.DOCUMENTS_SIGN DS WHERE D.ID = DS.ID " +
+                    "AND D.STATUS > 9 AND DS.ROLE_ID = ? AND COMPANY = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -302,9 +305,17 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public List<String> getDocToCansel(int groupId, int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_DOC_TO_CANCEL,
+    public List<String> getDocToCancelByGroup(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_DOC_TO_CANCEL_BY_GROUP,
                 new Object[]{groupId, companyId},
+                (rs, rowNum) -> rs.getString("NAME") + " (Id: " + rs.getString("ID") + ")"
+        );
+    }
+
+    @Override
+    public List<String> getDocToCancelByRole(int roleId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_DOC_TO_CANCEL_BY_ROLE,
+                new Object[]{roleId, companyId},
                 (rs, rowNum) -> rs.getString("NAME") + " (Id: " + rs.getString("ID") + ")"
         );
     }

@@ -124,7 +124,7 @@ public class GroupView implements Serializable {
 
         try {
             routesWithGroup = routeService.getRoutesWithGroup(selectedGroup.getId());
-            docToCansel = documentService.getDocToCansel(selectedGroup.getId());
+            docToCansel = documentService.getDocToCancelByGroup(selectedGroup.getId());
             if (routesWithGroup.isEmpty() && docToCansel.isEmpty()) {
                 countPartsWithRestriction = partService.getCountPartsWithRestriction(selectedGroup.getId());
                 countRoutesWithRestriction = routeService.getCountRoutesWithRestriction(selectedGroup.getId());
@@ -136,8 +136,6 @@ public class GroupView implements Serializable {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
-
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
     }
 
     public void deleteAction() {

@@ -53,6 +53,8 @@ public class GroupDaoImpl implements GroupDao {
     private static final String SELECT_USER_GROUP_ACTIVITY_MAP =
             "SELECT ROLE_ID, G.ID, ACTOR_TYPE FROM DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID " +
                     "AND STATE > 0 AND USER_ID = ? AND COMPANY = ? ORDER BY ROLE_ID ASC";
+    private static final String SELECT_GROUP_LIST_CONTAIN_ROLE =
+            "SELECT NAME FROM DOC.GROUPS WHERE STATE = 1 AND ROLE_ID = ? AND COMPANY = ? ORDER BY NAME";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -184,6 +186,14 @@ public class GroupDaoImpl implements GroupDao {
                     }
                     return userRolesGroupActivity;
                 }
+        );
+    }
+
+    @Override
+    public List<String> groupsWithRole(int roleId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_GROUP_LIST_CONTAIN_ROLE,
+                new Object[]{roleId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
         );
     }
 

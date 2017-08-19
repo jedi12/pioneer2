@@ -109,6 +109,17 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public List<String> groupsWithRole(int roleId) throws ServiceException {
+        try {
+            return groupDao.groupsWithRole(roleId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.group.groupsWithRole", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Group getNewGroup() {
         Group group = new Group();
         group.setLinkUsers(new LinkedList<>());

@@ -110,11 +110,22 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<String> getDocToCansel(int groupId) throws ServiceException {
+    public List<String> getDocToCancelByGroup(int groupId) throws ServiceException {
         try {
-            return documentDao.getDocToCansel(groupId, currentUser.getUser().getCompanyId());
+            return documentDao.getDocToCancelByGroup(groupId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.document.docToCansel", null, localeBean.getLocale());
+            String mess = messageSource.getMessage("error.document.docToCanselByGroup", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<String> getDocToCancelByRole(int roleId) throws ServiceException {
+        try {
+            return documentDao.getDocToCancelByRole(roleId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.document.docToCanselByRole", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }
