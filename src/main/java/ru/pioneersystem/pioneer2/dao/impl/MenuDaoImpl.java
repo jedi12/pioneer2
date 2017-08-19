@@ -24,7 +24,7 @@ public class MenuDaoImpl implements MenuDao {
     private static final String INSERT_MENU =
             "INSERT INTO DOC.MENU (NAME, PAGE, NUM, PARENT, ROLE_ID, STATE, COMPANY) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_MENU =
-            "UPDATE DOC.MENU SET NAME = ? PAGE = ?, NUM = ?, ROLE_ID = ? WHERE ID = ? AND COMPANY = ?";
+            "UPDATE DOC.MENU SET NAME = ?, PAGE = ?, NUM = ?, ROLE_ID = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_MENU =
             "UPDATE DOC.MENU SET STATE = ? WHERE ID = ? OR PARENT = ? AND COMPANY = ?";
     private static final String SELECT_MENU =
@@ -69,8 +69,8 @@ public class MenuDaoImpl implements MenuDao {
         );
 
         List<Menu> subMenus = jdbcTemplate.query(SELECT_SUB_MENU,
-                new Object[]{menuWithSubMenu.getParent()},
-                rs -> {
+                new Object[]{menuWithSubMenu.getId()},
+                (rs) -> {
                     List<Menu> subMenu = new LinkedList<>();
                     while(rs.next()){
                         Menu menu = new Menu();
@@ -159,6 +159,11 @@ public class MenuDaoImpl implements MenuDao {
                     return pstmt;
                 }, keyHolder
         );
+
+        if (menu.getSubMenu() == null) {
+            return;
+        }
+
         jdbcTemplate.batchUpdate(INSERT_MENU,
                 new BatchPreparedStatementSetter() {
                     public void setValues(PreparedStatement pstmt, int i) throws SQLException {

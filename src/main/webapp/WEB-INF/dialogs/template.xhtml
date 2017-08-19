@@ -228,12 +228,6 @@
 					<p:outputLabel value="#{templateView.selectedTemplate.name}" style="font-weight: bold"/>
 				</h:panelGrid>
 
-				<hr/>
-
-				<!--TODO: 08.03.2017 Тут нужна проверка, можно ли удалять шаблон.-->
-				<!--Если список используется в каких-либо шаблонах - то нужно вывести список шаблонов-->
-				<!--и отключить кнопку удаления.-->
-
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check" update=":centerPanel:templateTable"
