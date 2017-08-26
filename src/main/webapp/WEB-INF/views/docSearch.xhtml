@@ -1,0 +1,127 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<h2 align="center"><h:outputLabel value="#{text['search.title']}"/></h2>
+
+	<p:panel>
+		<p:panel id="searchCond" style="height:240px" width="100%">
+			<p:selectOneRadio id="customRadio" value="#{searchView.searchDoc.byId}" layout="custom">
+				<p:ajax update="searchCond"/>
+				<f:selectItem itemValue="true"/>
+				<f:selectItem itemValue="false"/>
+			</p:selectOneRadio>
+
+			<h:panelGrid columns="3">
+				<p:radioButton itemIndex="0" for="customRadio"/>
+				<p:outputLabel value="#{text['search.filter.byId']}" style="margin: 5px"/>
+				<p:inputNumber value="#{searchView.searchDoc.id}" minValue="0" maxValue="2147483647"
+							   emptyValue="empty" thousandSeparator="" rendered="#{searchView.searchDoc.byId}"/>
+				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchDoc.byId}"/>
+			</h:panelGrid>
+
+			<h:panelGrid columns="3">
+				<p:radioButton itemIndex="1" for="customRadio"/>
+				<p:outputLabel value="#{text['search.filter.byDate']}" style="margin: 5px"/>
+				<h:panelGroup rendered="#{!searchView.searchDoc.byId}">
+					<p:calendar value="#{searchView.searchDoc.fromDate}" size="10" pattern="#{localeBean.datePattern}"
+								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+					<p:outputLabel value="-" style="margin: 5px"/>
+					<p:calendar value="#{searchView.searchDoc.toDate}" size="10" pattern="#{localeBean.datePattern}"
+								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+				</h:panelGroup>
+				<p:calendar style="visibility: hidden;" rendered="#{searchView.searchDoc.byId}"/>
+			</h:panelGrid>
+
+			<h:panelGrid id="grid" columns="2" cellpadding="0" style="margin-left: 25px;" rendered="#{!searchView.searchDoc.byId}">
+				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byName}" itemLabel="#{text['search.filter.byName']}">
+					<p:ajax update="grid"/>
+				</p:selectBooleanCheckbox>
+				<p:inputText value="#{searchView.searchDoc.name}" size="80" maxlength="80" rendered="#{searchView.searchDoc.byName}"/>
+				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchDoc.byName}"/>
+
+				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byContent}" itemLabel="#{text['search.filter.byContent']}">
+					<p:ajax update="grid"/>
+				</p:selectBooleanCheckbox>
+				<p:inputText value="#{searchView.searchDoc.content}" size="80" maxlength="80" rendered="#{searchView.searchDoc.byContent}"/>
+				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchDoc.byContent}"/>
+
+				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byTemplate}" itemLabel="#{text['search.filter.byTemplate']}">
+					<p:ajax update="grid"/>
+				</p:selectBooleanCheckbox>
+				<p:selectOneMenu value="#{searchView.searchDoc.templateId}" filter="true"
+								 filterMatchMode="contains" height="200" rendered="#{searchView.searchDoc.byTemplate}">
+					<f:selectItems value="#{searchView.forSearchTemplates}"/>
+				</p:selectOneMenu>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byTemplate}"/>
+
+				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byStatus}" itemLabel="#{text['search.filter.byStatus']}">
+					<p:ajax update="grid"/>
+				</p:selectBooleanCheckbox>
+				<p:selectOneMenu value="#{searchView.searchDoc.statusId}" rendered="#{searchView.searchDoc.byStatus}">
+					<f:selectItems value="#{searchView.forSearchStatuses}"/>
+				</p:selectOneMenu>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byStatus}"/>
+
+				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byOwner}" itemLabel="#{text['search.filter.byOwner']}">
+					<p:ajax update="grid"/>
+				</p:selectBooleanCheckbox>
+				<p:selectOneMenu value="#{searchView.searchDoc.ownerId}" filter="true"
+								 filterMatchMode="contains" height="200" rendered="#{searchView.searchDoc.byOwner}">
+					<f:selectItems value="#{searchView.forSearchCreateGroups}"/>
+				</p:selectOneMenu>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byOwner}"/>
+			</h:panelGrid>
+			<p:commandButton value="#{text['search.btn.search']}" icon="fa fa-fw fa-search" actionListener="#{searchView.findAction}"
+							 update="docSearchTable"/>
+		</p:panel>
+
+		<br/>
+
+		<p:panel>
+			<p:dataTable id="docSearchTable" widgetVar="docTable" value="#{searchView.documentList}" var="doc" rows="10"
+						 selectionMode="single" selection="#{searchView.selectedDocument}" rowKey="#{doc.id}"
+						 filteredValue="#{searchView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{doc.statusId == 2 ? 'lightPink' : (doc.statusId == 3 ? 'lightGreen' :
+						 (doc.statusId == 5 ? 'lightBlue' : 'default'))}">
+
+				<p:ajax event="filter" ignoreAutoUpdate="true"/>
+				<p:ajax event="rowDblselect" listener="#{searchView.openDocDialog}" update=":docDialog"
+						oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+
+				<p:column headerText="#{text['document.col.id']}" filterBy="#{doc.id}" filterMatchMode="contains">
+					<h:outputText value="#{doc.id}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.name']}" filterBy="#{doc.name}" filterMatchMode="contains">
+					<h:outputText value="#{doc.name}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.status']}" filterBy="#{doc.statusName}" filterMatchMode="contains">
+					<h:outputText value="#{doc.statusName}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.group']}" filterBy="#{doc.documentGroupName}" filterMatchMode="contains">
+					<h:outputText value="#{doc.documentGroupName}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.changeDate']}" filterBy="#{doc.changeDateFormatted}" filterMatchMode="contains">
+					<h:outputText value="#{doc.changeDateFormatted}"/>
+				</p:column>
+			</p:dataTable>
+
+			<f:facet name="footer">
+				<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o"
+								 actionListener="#{searchView.openDocDialog}" update=":docDialog"
+								 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+				<p:commandButton value="#{text['document.btn.openDocRoute']}" icon="fa fa-fw fa-share-alt"
+								 actionListener="#{searchView.openDocRouteDialog}" update=":docRouteDialog"/>
+			</f:facet>
+		</p:panel>
+	</p:panel>
+</ui:composition>

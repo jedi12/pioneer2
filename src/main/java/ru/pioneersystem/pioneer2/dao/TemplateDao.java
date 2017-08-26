@@ -5,6 +5,7 @@ import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.model.Template;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TemplateDao {
 
@@ -15,6 +16,10 @@ public interface TemplateDao {
     List<String> getListContainingChoiceList(int choiceListId, int companyId) throws DataAccessException;
 
     List<String> getListContainingRoute(int routeId, int companyId) throws DataAccessException;
+
+    Map<String, Integer> getTemplateMap(int companyId) throws DataAccessException;
+
+    Map<String, Integer> getUserTemplateMap(int userId, int companyId) throws DataAccessException;
 
     void removeFromParts(List<Part> parts, int companyId) throws DataAccessException;
 

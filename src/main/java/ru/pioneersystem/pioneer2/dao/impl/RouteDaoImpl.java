@@ -48,7 +48,7 @@ public class RouteDaoImpl implements RouteDao {
             "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROUTE_MAP =
             "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
-                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID WHERE COMPANY = ? AND USER_ID = ? " +
+                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID WHERE USER_ID = ? AND COMPANY = ? " +
                     "AND STATE > 0 ORDER BY NAME ASC";
     private static final String SELECT_ROUTE_LIST_CONTAIN_GROUP =
             "SELECT DISTINCT NAME FROM DOC.ROUTES R, DOC.ROUTES_POINT RP WHERE R.ID = RP.ID AND STATE > 0 " +
@@ -137,9 +137,9 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
-    public Map<String, Integer> getUserRouteMap(int companyId, int userId) throws DataAccessException {
+    public Map<String, Integer> getUserRouteMap(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_ROUTE_MAP,
-                new Object[]{companyId, userId},
+                new Object[]{userId, companyId},
                 rs -> {
                     Map<String, Integer> routes = new LinkedHashMap<>();
                     while(rs.next()){

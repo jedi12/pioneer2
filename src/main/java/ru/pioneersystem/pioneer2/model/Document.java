@@ -10,6 +10,7 @@ public class Document {
     private int statusId;
     private String statusName;
     private Date changeDate;
+    private String changeDateFormatted;
     private int templateId;
     private int changeUserId;
     private int documentGroupId;
@@ -429,6 +430,14 @@ public class Document {
 
     public void setChangeDate(Date changeDate) {
         this.changeDate = changeDate;
+    }
+
+    public String getChangeDateFormatted() {
+        return changeDateFormatted;
+    }
+
+    public void setChangeDateFormatted(String changeDateFormatted) {
+        this.changeDateFormatted = changeDateFormatted;
     }
 
     public int getTemplateId() {

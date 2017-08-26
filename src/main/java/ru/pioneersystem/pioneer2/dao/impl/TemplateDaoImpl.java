@@ -16,8 +16,10 @@ import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Repository(value = "templateDao")
 public class TemplateDaoImpl implements TemplateDao {
@@ -57,6 +59,13 @@ public class TemplateDaoImpl implements TemplateDao {
     private static final String SELECT_TEMPLATE_LIST_CONTAINING_ROUTE =
             "SELECT DISTINCT NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.TEMPLATES_COND TC ON T.ID = TC.ID " +
                     "WHERE T.STATE = 1 AND (T.ROUTE = ? OR TC.ROUTE = ?) AND COMPANY = ?";
+    private static final String SELECT_USER_TEMPLATE_MAP =
+            "SELECT DISTINCT T.ID AS ID, T.NAME AS NANE FROM DOC.TEMPLATES T LEFT JOIN DOC.PARTS P ON P.ID = T.PART " +
+                    "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID LEFT JOIN DOC.GROUPS_USER GU ON PG.GROUP_ID = GU.ID " +
+                    "WHERE TYPE = 1 AND T.STATE > 0 AND (GU.USER_ID = ? OR GU.USER_ID IS NULL) AND T.COMPANY = ? " +
+                    "ORDER BY T.NAME ASC";
+    private static final String SELECT_TEMPLATE_MAP =
+            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND COMPANY = ? ORDER BY NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -171,6 +180,34 @@ public class TemplateDaoImpl implements TemplateDao {
         return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_ROUTE,
                 new Object[]{routeId, routeId, companyId},
                 (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getTemplateMap(int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_MAP,
+                new Object[]{companyId},
+                (rs) -> {
+                    Map<String, Integer> routes = new LinkedHashMap<>();
+                    while(rs.next()){
+                        routes.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return routes;
+                }
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getUserTemplateMap(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_TEMPLATE_MAP,
+                new Object[]{userId, companyId},
+                (rs) -> {
+                    Map<String, Integer> routes = new LinkedHashMap<>();
+                    while(rs.next()){
+                        routes.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return routes;
+                }
         );
     }
 

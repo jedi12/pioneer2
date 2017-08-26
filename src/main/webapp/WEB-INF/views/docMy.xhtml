@@ -38,6 +38,7 @@
 					 rowStyleClass="#{doc.statusId == 2 ? 'lightPink' : (doc.statusId == 3 ? 'lightGreen' :
 					 (doc.statusId == 5 ? 'lightBlue' : 'default'))}">
 
+			<p:ajax event="filter" ignoreAutoUpdate="true"/>
 			<p:ajax event="rowDblselect" listener="#{documentView.openDocFromListDialog}" update=":docDialog"
 					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
 

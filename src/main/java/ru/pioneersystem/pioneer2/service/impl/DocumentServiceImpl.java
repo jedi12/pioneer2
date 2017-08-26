@@ -333,14 +333,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     private void setupViewElements(Document document, List<Integer> currNotSignedRoutePointGroups) {
-        Map<Integer, Role> currUserRoles = currentUser.getUserRoles();
         Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = currentUser.getUserRolesGroupActivity();
         Map<Integer, Integer> userGroupsActivity = userRolesGroupActivity.get(currentUser.getCurrRole().getId());
         Document.ViewElements viewElements = new Document.ViewElements();
 
         switch (currentUser.getCurrPage()) {
             case Menu.Page.PUBLIC_DOC:
-                if (currUserRoles.containsKey(Role.Type.PUBLIC)) {
+                if (currentUser.isPublicRole()) {
                     viewElements.setBtnPublishCancel(true);
                 }
                 break;
@@ -388,13 +387,13 @@ public class DocumentServiceImpl implements DocumentService {
                 switch (document.getStatusId()) {
                     case Status.Id.COMPLETED:
                         viewElements.setBtnCopy(true);
-                        if (currUserRoles.containsKey(Role.Type.PUBLIC)) {
+                        if (currentUser.isPublicRole()) {
                             viewElements.setBtnPublish(true);
                             viewElements.setElPublish(true);
                         }
                         break;
                     case Status.Id.PUBLISHED:
-                        if (currUserRoles.containsKey(Role.Type.PUBLIC)) {
+                        if (currentUser.isPublicRole()) {
                             viewElements.setBtnPublishCancel(true);
                         }
                         break;

@@ -77,7 +77,7 @@
 				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
 			</h:form>
 
-			<p:growl id="growl" showDetail="true" sticky="true" autoUpdate="true"/>
+			<p:growl id="growl" showDetail="true" life="10000" autoUpdate="true"/>
 		</h:body>
 	</f:view>
 </html>

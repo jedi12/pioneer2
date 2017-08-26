@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.FieldTypeService;
@@ -17,6 +18,7 @@ import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Service("templateService")
 public class TemplateServiceImpl implements TemplateService {
@@ -89,6 +91,21 @@ public class TemplateServiceImpl implements TemplateService {
             return templateDao.getListContainingRoute(routeId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.templateContainingRouteNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getForSearchTemplateMap() throws ServiceException {
+        try {
+            if (currentUser.isAdminRole()) {
+                return templateDao.getTemplateMap(currentUser.getUser().getCompanyId());
+            } else {
+                return templateDao.getUserTemplateMap(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            }
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.template.userTemplateNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

@@ -12,6 +12,7 @@ import ru.pioneersystem.pioneer2.dao.GroupDao;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
 import ru.pioneersystem.pioneer2.model.Group;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -92,6 +93,21 @@ public class GroupServiceImpl implements GroupService {
             return groupDao.getUserCreateGroup(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.userCreateGroupNotLoaded", null, localeBean.getLocale());
+            log.error(mess, e);
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getForSearchGroupMap() throws ServiceException {
+        try {
+            if (currentUser.isAdminRole()) {
+                return groupDao.getCreateGroup(currentUser.getUser().getCompanyId());
+            } else {
+                return groupDao.getUserCreateGroup(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            }
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.group.userGroupNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }

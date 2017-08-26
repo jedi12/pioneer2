@@ -4,6 +4,7 @@ import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TemplateService {
 
@@ -14,6 +15,8 @@ public interface TemplateService {
     List<String> getListContainingChoiceList(int choiceListId) throws ServiceException;
 
     List<String> getListContainingRoute(int routeId) throws ServiceException;
+
+    Map<String, Integer> getForSearchTemplateMap() throws ServiceException;
 
     Template getNewTemplate();
 

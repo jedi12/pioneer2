@@ -48,8 +48,10 @@ public class GroupDaoImpl implements GroupDao {
                     "WHERE G.ID = GU.ID AND G.ROLE_ID = R.ID AND TYPE IN (?, ?) AND G.STATE > 0 AND G.COMPANY = ? " +
                     "AND USER_ID = ? ORDER BY G.NAME ASC";
     private static final String SELECT_CREATE_GROUP_MAP =
+            "SELECT ID, NAME FROM DOC.GROUPS G WHERE STATE > 0 AND ROLE_ID = ? AND COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_USER_CREATE_GROUP_MAP =
             "SELECT G.ID AS ID, NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU " +
-                    "WHERE G.ID = GU.ID AND ROLE_ID = ? AND COMPANY = ? AND STATE > 0 AND USER_ID = ? ORDER BY NAME ASC";
+                    "WHERE G.ID = GU.ID AND STATE > 0 AND ROLE_ID = ? AND USER_ID = ? AND COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_USER_GROUP_ACTIVITY_MAP =
             "SELECT ROLE_ID, G.ID, ACTOR_TYPE FROM DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID " +
                     "AND STATE > 0 AND USER_ID = ? AND COMPANY = ? ORDER BY ROLE_ID ASC";
@@ -150,9 +152,23 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public Map<String, Integer> getUserCreateGroup(int userId, int companyId) throws DataAccessException {
+    public Map<String, Integer> getCreateGroup(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_CREATE_GROUP_MAP,
-                new Object[]{Role.Type.CREATE, companyId, userId},
+                new Object[]{Role.Type.CREATE, companyId},
+                rs -> {
+                    Map<String, Integer> groups = new LinkedHashMap<>();
+                    while(rs.next()){
+                        groups.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return groups;
+                }
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getUserCreateGroup(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_CREATE_GROUP_MAP,
+                new Object[]{Role.Type.CREATE, userId, companyId},
                 rs -> {
                     Map<String, Integer> groups = new LinkedHashMap<>();
                     while(rs.next()){

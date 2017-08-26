@@ -47,6 +47,11 @@ public class CurrentUser implements Serializable {
     private Menu currMenu;
     private Role currRole;
 
+    private boolean superRole;
+    private boolean adminRole;
+    private boolean userRole;
+    private boolean publicRole;
+
     private UserService userService;
     private MenuService menuService;
     private GroupService groupService;
@@ -91,8 +96,25 @@ public class CurrentUser implements Serializable {
             userCreateGroups = groupService.getUserCreateGroupsMap();
             userRoutes = routeService.getUserRoutesMap();
             userPubParts = partService.getUserPartMap(Part.Type.FOR_DOCUMENTS);
-            userRoles = roleService.getUserRoleMap();
             userRolesGroupActivity = groupService.getUserRolesGroupActivityMap();
+
+            userRoles = roleService.getUserRoleMap();
+            for (Role role: userRoles.values()) {
+                switch (role.getType()) {
+                    case Role.Type.SUPER:
+                        superRole = true;
+                        break;
+                    case Role.Type.ADMIN:
+                        adminRole = true;
+                        break;
+                    case Role.Type.USER:
+                        userRole = true;
+                        break;
+                    case Role.Type.PUBLIC:
+                        publicRole = true;
+                        break;
+                }
+            }
 
             // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
 
@@ -261,5 +283,21 @@ public class CurrentUser implements Serializable {
 
     public Role getCurrRole() {
         return currRole;
+    }
+
+    public boolean isSuperRole() {
+        return superRole;
+    }
+
+    public boolean isAdminRole() {
+        return adminRole;
+    }
+
+    public boolean isUserRole() {
+        return userRole;
+    }
+
+    public boolean isPublicRole() {
+        return publicRole;
     }
 }

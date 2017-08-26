@@ -7,13 +7,16 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.StatusDao;
+import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.model.Status;
 import ru.pioneersystem.pioneer2.service.StatusService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("statusService")
 public class StatusServiceImpl implements StatusService {
@@ -57,6 +60,15 @@ public class StatusServiceImpl implements StatusService {
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }
+    }
+
+    @Override
+    public Map<String, Integer> getStatusMap() throws ServiceException {
+        Map<String, Integer> statusMap = new LinkedHashMap<>();
+        for (Status status : getStatusList()) {
+            statusMap.put(status.getName(), status.getId());
+        }
+        return statusMap;
     }
 
     private Status setLocalizedStatusName(Status status) {

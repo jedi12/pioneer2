@@ -10,7 +10,7 @@ public interface RouteDao {
 
     List<Route> getList(int companyId) throws DataAccessException;
 
-    Map<String, Integer> getUserRouteMap(int companyId, int userId) throws DataAccessException;
+    Map<String, Integer> getUserRouteMap(int userId, int companyId) throws DataAccessException;
 
     List<String> getRoutesWithGroup(int groupId, int companyId) throws DataAccessException;
 
