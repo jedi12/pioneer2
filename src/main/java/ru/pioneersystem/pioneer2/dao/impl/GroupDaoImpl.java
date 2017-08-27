@@ -38,7 +38,9 @@ public class GroupDaoImpl implements GroupDao {
             "SELECT USER_ID, ACTOR_TYPE, NAME FROM DOC.GROUPS_USER GU " +
                     "LEFT JOIN DOC.USERS U ON GU.USER_ID = U.ID WHERE GU.ID = ? ORDER BY NAME ASC";
     private static final String SELECT_GROUP_LIST =
-            "SELECT ID, NAME, STATE FROM DOC.GROUPS WHERE STATE > 0 AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
+            "SELECT G.ID AS ID, G.NAME AS NAME, G.STATE AS STATE, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
+                    "LEFT JOIN DOC.ROLES R ON R.ID = G.ROLE_ID WHERE G.STATE > 0 AND G.COMPANY = ? " +
+                    "ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_POINT_MAP =
             "SELECT G.ID AS GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
                     "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID WHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
@@ -113,6 +115,7 @@ public class GroupDaoImpl implements GroupDao {
                     group.setId(rs.getInt("ID"));
                     group.setName(rs.getString("NAME"));
                     group.setState(rs.getInt("STATE"));
+                    group.setRoleName(rs.getString("ROLE_NAME"));
                     return group;
                 }
         );

@@ -73,6 +73,8 @@
 			</h:panelGroup>
 
 			<ui:include src="WEB-INF/dialogs/login.xhtml"/>
+			<ui:include src="WEB-INF/dialogs/changePass.xhtml"/>
+
 			<h:form>
 				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
 			</h:form>

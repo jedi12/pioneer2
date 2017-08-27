@@ -23,6 +23,10 @@
 			<p:column headerText="#{text['group.col.name']}" filterBy="#{groupList.name}" filterMatchMode="contains">
                 <h:outputText value="#{groupList.name}"/>
 	        </p:column>
+
+			<p:column headerText="#{text['group.col.roleName']}" filterBy="#{groupList.roleName}" filterMatchMode="contains">
+				<h:outputText value="#{groupList.roleName}"/>
+			</p:column>
 		</p:dataTable>
 
 		<f:facet name="footer">

@@ -7,7 +7,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.MenuDao;
+import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Menu;
+import ru.pioneersystem.pioneer2.model.Role;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.MenuService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -20,13 +23,16 @@ public class MenuServiceImpl implements MenuService {
     private Logger log = LoggerFactory.getLogger(MenuServiceImpl.class);
 
     private MenuDao menuDao;
+    private DictionaryService dictionaryService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
     private CurrentUser currentUser;
 
     @Autowired
-    public MenuServiceImpl(MenuDao menuDao, LocaleBean localeBean, CurrentUser currentUser, MessageSource messageSource) {
+    public MenuServiceImpl(MenuDao menuDao, DictionaryService dictionaryService, LocaleBean localeBean,
+                           CurrentUser currentUser, MessageSource messageSource) {
         this.menuDao = menuDao;
+        this.dictionaryService = dictionaryService;
         this.localeBean = localeBean;
         this.currentUser = currentUser;
         this.messageSource = messageSource;
@@ -37,7 +43,10 @@ public class MenuServiceImpl implements MenuService {
         try {
             List<Menu> menus = menuDao.getList(currentUser.getUser().getCompanyId());
             for (Menu menu : menus) {
-                setLocalizedMenuName(menu);
+                String menuName = dictionaryService.getLocalizedMenuName(menu.getId());
+                if (menuName != null) {
+                    menu.setName(menuName);
+                }
             }
             return menus;
         } catch (DataAccessException e) {
@@ -52,7 +61,10 @@ public class MenuServiceImpl implements MenuService {
         try {
             List<Menu> menus = menuDao.getUserMenu(currentUser.getUser().getId());
             for (Menu menu : menus) {
-                setLocalizedMenuName(menu);
+                String menuName = dictionaryService.getLocalizedMenuName(menu.getId());
+                if (menuName != null) {
+                    menu.setName(menuName);
+                }
             }
             return menus;
         } catch (DataAccessException e) {
@@ -84,7 +96,11 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public Menu getMenu(int menuId) throws ServiceException {
         try {
-            Menu menu = setLocalizedMenuName(menuDao.get(menuId, currentUser.getUser().getCompanyId()));
+            Menu menu = menuDao.get(menuId, currentUser.getUser().getCompanyId());
+            String menuName = dictionaryService.getLocalizedMenuName(menu.getId());
+            if (menuName != null) {
+                menu.setName(menuName);
+            }
             menu.setCreateFlag(false);
             return menu;
         } catch (DataAccessException e) {
@@ -123,72 +139,5 @@ public class MenuServiceImpl implements MenuService {
             log.error(mess, e);
             throw new ServiceException(mess, e);
         }
-    }
-
-    private Menu setLocalizedMenuName(Menu menu) {
-        if (menu.getState() == Menu.State.SYSTEM) {
-            switch (menu.getId()) {
-                case Menu.Id.PUB_DOCS:
-                    menu.setName(messageSource.getMessage("menu.name.pubDocs", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.CREATE_DOCS:
-                    menu.setName(messageSource.getMessage("menu.name.createDocs", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.SEARCH_DOCS:
-                    menu.setName(messageSource.getMessage("menu.name.searchDocs", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.SETTINGS:
-                    menu.setName(messageSource.getMessage("menu.name.settings", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.JOURNALS:
-                    menu.setName(messageSource.getMessage("menu.name.journals", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.USERS:
-                    menu.setName(messageSource.getMessage("menu.name.users", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.ROLES:
-                    menu.setName(messageSource.getMessage("menu.name.roles", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.MY_DOCS:
-                    menu.setName(messageSource.getMessage("menu.name.myDocs", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.GROUPS:
-                    menu.setName(messageSource.getMessage("menu.name.groups", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.ROUTES:
-                    menu.setName(messageSource.getMessage("menu.name.routes", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.PARTS:
-                    menu.setName(messageSource.getMessage("menu.name.parts", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.LISTS:
-                    menu.setName(messageSource.getMessage("menu.name.lists", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.TEMPLATES:
-                    menu.setName(messageSource.getMessage("menu.name.templates", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.EVENTS:
-                    menu.setName(messageSource.getMessage("menu.name.events", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.NOTICES:
-                    menu.setName(messageSource.getMessage("menu.name.notices", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.MENUS:
-                    menu.setName(messageSource.getMessage("menu.name.menus", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.ON_ROUTE_CONFIRM:
-                    menu.setName(messageSource.getMessage("menu.name.onRouteConfirm", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.ON_ROUTE_EXEC:
-                    menu.setName(messageSource.getMessage("menu.name.onRouteExec", null, localeBean.getLocale()));
-                    break;
-                case Menu.Id.COMPANY:
-                    menu.setName(messageSource.getMessage("menu.name.company", null, localeBean.getLocale()));
-                    break;
-                default:
-                    menu.setName("Unknown");
-            }
-        }
-        return menu;
     }
 }

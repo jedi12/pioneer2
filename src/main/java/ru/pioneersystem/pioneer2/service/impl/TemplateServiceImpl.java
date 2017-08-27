@@ -7,10 +7,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
-import ru.pioneersystem.pioneer2.model.Role;
-import ru.pioneersystem.pioneer2.model.Route;
+import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.FieldType;
 import ru.pioneersystem.pioneer2.model.Template;
-import ru.pioneersystem.pioneer2.service.FieldTypeService;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -25,16 +25,16 @@ public class TemplateServiceImpl implements TemplateService {
     private Logger log = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
     private TemplateDao templateDao;
-    private FieldTypeService fieldTypeService;
+    private DictionaryService dictionaryService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public TemplateServiceImpl(TemplateDao templateDao, FieldTypeService fieldTypeService, CurrentUser currentUser,
+    public TemplateServiceImpl(TemplateDao templateDao, DictionaryService dictionaryService, CurrentUser currentUser,
                                LocaleBean localeBean, MessageSource messageSource) {
         this.templateDao = templateDao;
-        this.fieldTypeService = fieldTypeService;
+        this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -123,7 +123,17 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public Template getTemplate(int templateId) throws ServiceException {
         try {
-            Template template = fieldTypeService.setLocalizedFieldTypeName(templateDao.get(templateId, currentUser.getUser().getCompanyId()));
+            Template template = templateDao.get(templateId, currentUser.getUser().getCompanyId());
+            for (Document.Field field: template.getFields()) {
+                String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(field.getTypeId());
+                if (fieldTypeName != null) {
+                    field.setTypeName(fieldTypeName);
+                }
+                if (field.getTypeId() == FieldType.Id.LIST) {
+                    field.setTypeName(field.getTypeName() + " (" + field.getChoiceListName() + ")");
+                }
+            }
+
             template.setCreateFlag(false);
             return template;
         } catch (DataAccessException e) {

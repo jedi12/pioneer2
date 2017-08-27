@@ -7,8 +7,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.StatusDao;
-import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.model.Status;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.StatusService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -23,14 +23,16 @@ public class StatusServiceImpl implements StatusService {
     private Logger log = LoggerFactory.getLogger(StatusServiceImpl.class);
 
     private StatusDao statusDao;
+    private DictionaryService dictionaryService;
     private LocaleBean localeBean;
     private CurrentUser currentUser;
     private MessageSource messageSource;
 
     @Autowired
-    public StatusServiceImpl(StatusDao statusDao, LocaleBean localeBean, CurrentUser currentUser,
-                             MessageSource messageSource) {
+    public StatusServiceImpl(StatusDao statusDao, DictionaryService dictionaryService, LocaleBean localeBean,
+                             CurrentUser currentUser, MessageSource messageSource) {
         this.statusDao = statusDao;
+        this.dictionaryService = dictionaryService;
         this.localeBean = localeBean;
         this.currentUser = currentUser;
         this.messageSource = messageSource;
@@ -39,7 +41,12 @@ public class StatusServiceImpl implements StatusService {
     @Override
     public Status getStatus(int statusId) throws ServiceException {
         try {
-            return setLocalizedStatusName(statusDao.get(statusId, currentUser.getUser().getCompanyId()));
+            Status status = statusDao.get(statusId, currentUser.getUser().getCompanyId());
+            String statusName = dictionaryService.getLocalizedStatusName(status.getId());
+            if (statusName != null) {
+                status.setName(statusName);
+            }
+            return status;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.status.NotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
@@ -52,7 +59,10 @@ public class StatusServiceImpl implements StatusService {
         try {
             List<Status> statuses = statusDao.getList(currentUser.getUser().getCompanyId());
             for (Status status : statuses) {
-                setLocalizedStatusName(status);
+                String statusName = dictionaryService.getLocalizedStatusName(status.getId());
+                if (statusName != null) {
+                    status.setName(statusName);
+                }
             }
             return statuses;
         } catch (DataAccessException e) {
@@ -69,48 +79,5 @@ public class StatusServiceImpl implements StatusService {
             statusMap.put(status.getName(), status.getId());
         }
         return statusMap;
-    }
-
-    private Status setLocalizedStatusName(Status status) {
-        if (status.getState() == Status.State.SYSTEM) {
-            switch (status.getId()) {
-                case Status.Id.DELETED:
-                    status.setName(messageSource.getMessage("status.name.deleted", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.CANCELED:
-                    status.setName(messageSource.getMessage("status.name.canceled", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.COMPLETED:
-                    status.setName(messageSource.getMessage("status.name.completed", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.EXECUTED:
-                    status.setName(messageSource.getMessage("status.name.executed", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.PUBLISHED:
-                    status.setName(messageSource.getMessage("status.name.published", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.REZ1:
-                    status.setName(messageSource.getMessage("status.name.rez1", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.REZ2:
-                    status.setName(messageSource.getMessage("status.name.rez2", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.REZ3:
-                    status.setName(messageSource.getMessage("status.name.rez3", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.CREATED:
-                    status.setName(messageSource.getMessage("status.name.created", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.ON_COORDINATION:
-                    status.setName(messageSource.getMessage("status.name.onCoordination", null, localeBean.getLocale()));
-                    break;
-                case Status.Id.ON_EXECUTION:
-                    status.setName(messageSource.getMessage("status.name.onExecution", null, localeBean.getLocale()));
-                    break;
-                default:
-                    status.setName("Unknown");
-            }
-        }
-        return status;
     }
 }

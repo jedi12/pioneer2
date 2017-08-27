@@ -12,7 +12,7 @@ import ru.pioneersystem.pioneer2.dao.GroupDao;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
 import ru.pioneersystem.pioneer2.model.Group;
-import ru.pioneersystem.pioneer2.model.Role;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.CurrentUser;
@@ -30,16 +30,18 @@ public class GroupServiceImpl implements GroupService {
     private GroupDao groupDao;
     private PartDao partDao;
     private RouteDao routeDao;
+    private DictionaryService dictionaryService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public GroupServiceImpl(GroupDao groupDao, PartDao partDao, RouteDao routeDao, CurrentUser currentUser,
-                            LocaleBean localeBean, MessageSource messageSource) {
+    public GroupServiceImpl(GroupDao groupDao, PartDao partDao, RouteDao routeDao, DictionaryService dictionaryService,
+                            CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource) {
         this.groupDao = groupDao;
         this.partDao = partDao;
         this.routeDao = routeDao;
+        this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -48,7 +50,14 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Group> getGroupList() throws ServiceException {
         try {
-            return groupDao.getList(currentUser.getUser().getCompanyId());
+            List<Group> groups = groupDao.getList(currentUser.getUser().getCompanyId());
+            for (Group group : groups) {
+                String roleName = dictionaryService.getLocalizedRoleName(group.getRoleId());
+                if (roleName != null) {
+                    group.setRoleName(roleName);
+                }
+            }
+            return groups;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.NotLoadedList", null, localeBean.getLocale());
             log.error(mess, e);

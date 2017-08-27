@@ -11,6 +11,7 @@ import ru.pioneersystem.pioneer2.dao.CompanyDao;
 import ru.pioneersystem.pioneer2.dao.UserDao;
 import ru.pioneersystem.pioneer2.dao.impl.UserDaoImpl;
 import ru.pioneersystem.pioneer2.model.User;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.SessionListener;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
@@ -29,16 +30,19 @@ public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
     private CompanyDao companyDao;
+    private DictionaryService dictionaryService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, CompanyDao companyDao, CurrentUser currentUser, LocaleBean localeBean,
-                           MessageSource messageSource, SessionListener sessionListener) {
+    public UserServiceImpl(UserDao userDao, CompanyDao companyDao, DictionaryService dictionaryService,
+                           CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource,
+                           SessionListener sessionListener) {
         this.userDao = userDao;
         this.companyDao = companyDao;
+        this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -49,7 +53,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserWithCompany(int userId) throws ServiceException {
         try {
-            return setLocalizedStateName(userDao.getWithCompany(userId));
+            User user = userDao.getWithCompany(userId);
+            String stateName = dictionaryService.getLocalizedStateName(user.getState());
+            if (stateName != null) {
+                user.setStateName(stateName);
+            }
+            return user;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.userWithCompanyNotLoaded", null, localeBean.getLocale());
             log.error(mess, e);
@@ -62,7 +71,10 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDao.getList(currentUser.getUser().getCompanyId());
             for (User user : users) {
-                setLocalizedStateName(user);
+                String stateName = dictionaryService.getLocalizedStateName(user.getState());
+                if (stateName != null) {
+                    user.setStateName(stateName);
+                }
             }
             return users;
         } catch (DataAccessException e) {
@@ -102,7 +114,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(int userId) throws ServiceException {
         try {
-            User user = setLocalizedStateName(userDao.get(userId, currentUser.getUser().getCompanyId()));
+            User user = userDao.get(userId, currentUser.getUser().getCompanyId());
+            String stateName = dictionaryService.getLocalizedStateName(user.getState());
+            if (stateName != null) {
+                user.setStateName(stateName);
+            }
             user.setCreateFlag(false);
             return user;
         } catch (DataAccessException e) {
@@ -217,20 +233,6 @@ public class UserServiceImpl implements UserService {
             log.error(mess);
             throw new PasswordException(mess);
         }
-    }
-
-    private User setLocalizedStateName(User user) {
-        switch (user.getState()) {
-            case User.State.LOCKED:
-                user.setStateName(messageSource.getMessage("status.locked", null, localeBean.getLocale()));
-                break;
-            case User.State.ACTIVE:
-                user.setStateName(messageSource.getMessage("status.active", null, localeBean.getLocale()));
-                break;
-            default:
-                user.setStateName("Unknown");
-        }
-        return user;
     }
 
     private String toHash(int userId, String pass) {
