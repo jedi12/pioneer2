@@ -19,6 +19,8 @@ import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
@@ -151,6 +153,7 @@ public class DocumentServiceImpl implements DocumentService {
     public Document getDocument(int id) throws ServiceException {
         try {
             Document document = documentDao.get(id, currentUser.getUser().getCompanyId());
+            offsetDateAndFormat(document);
             document.setCreateFlag(false);
             if (currentUser.getCurrRole().isCanEdit() || document.getStatusId() == Status.Id.CREATED) {
                 choiceListService.setChoiceListsForDocument(document);
@@ -415,5 +418,20 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         document.setElems(viewElements);
+    }
+
+    private void offsetDateAndFormat(Document document) {
+        Date changeDate = document.getChangeDate();
+        if (changeDate != null) {
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(changeDate.toInstant(), localeBean.getZoneId());
+            document.setChangeDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+            document.setChangeDateFormatted(localDateTime.format(localeBean.getDateFormatter()));
+        }
+        Date inputDate = document.getCreateDate();
+        if (inputDate != null) {
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(inputDate.toInstant(), localeBean.getZoneId());
+            document.setCreateDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+            document.setCreateDateFormatted(localDateTime.format(localeBean.getDateFormatter()));
+        }
     }
 }

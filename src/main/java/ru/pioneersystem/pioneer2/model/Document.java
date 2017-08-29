@@ -17,6 +17,9 @@ public class Document {
     private String documentGroupName;
     private int partId;
     private int routeId;
+    private Date createDate;
+    private String createDateFormatted;
+    private int createUserId;
 
     private boolean createFlag;
     private boolean newPart;
@@ -486,6 +489,30 @@ public class Document {
 
     public void setRouteId(int routeId) {
         this.routeId = routeId;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getCreateDateFormatted() {
+        return createDateFormatted;
+    }
+
+    public void setCreateDateFormatted(String createDateFormatted) {
+        this.createDateFormatted = createDateFormatted;
+    }
+
+    public int getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(int createUserId) {
+        this.createUserId = createUserId;
     }
 
     public boolean isCreateFlag() {

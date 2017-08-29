@@ -8,7 +8,9 @@
 		<p:dialog widgetVar="docDialog" resizable="true" width="1024" modal="true" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-file-text-o" style="margin-right:10px"/>
-				<p:outputLabel value="#{text['document.edit.header']} (#{text['label.id']} #{documentView.currDoc.id})"/>
+				<p:outputLabel value="#{text['document.header']} (#{text['label.id']} #{documentView.currDoc.id})"/>
+				<p:outputLabel value="#{text['document.header.created']} #{documentView.currDoc.createDateFormatted}"
+							   style="position: absolute;right: 30px"/>
 			</f:facet>
 
 			<h2 align="center">

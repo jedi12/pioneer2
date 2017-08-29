@@ -25,8 +25,8 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String INSERT_FILE =
             "INSERT INTO DOC.FILES (NAME, MIME_TYPE, LENGTH, DATA) VALUES (?, ?, ?, ?)";
     private static final String INSERT_DOCUMENT =
-            "INSERT INTO DOC.DOCUMENTS (NAME, STATUS, U_DATE, TEMPLATE, U_USER, DOC_GROUP, PUB_PART, ROUTE, COMPANY) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO DOC.DOCUMENTS (NAME, STATUS, U_DATE, TEMPLATE, U_USER, DOC_GROUP, PUB_PART, " +
+                    "ROUTE, COMPANY, I_DATE, I_USER) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_DOCUMENT_FIELD =
             "INSERT INTO DOC.DOCUMENTS_FIELD (ID, FIELD_NAME, FIELD_NUM, FIELD_TYPE, VALUE_TEXTFIELD, " +
                     "VALUE_LIST_SELECTED, VALUE_CALENDAR, VALUE_CHECKBOX, VALUE_TEXTAREA, VALUE_LIST, VALUE_FILE) " +
@@ -53,7 +53,7 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String SELECT_TEMPLATE_CONDITION = "SELECT COND_NUM, FIELD_NUM, COND, VALUE, ROUTE " +
             "FROM DOC.TEMPLATES_COND WHERE ID = ?";
     private static final String SELECT_DOCUMENT = "SELECT ID, NAME, STATUS, U_DATE, TEMPLATE, U_USER, DOC_GROUP, " +
-            "PUB_PART, ROUTE FROM DOC.DOCUMENTS WHERE ID = ? AND COMPANY = ?";
+            "PUB_PART, ROUTE, I_DATE, I_USER FROM DOC.DOCUMENTS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_DOCUMENT_FIELD = "SELECT FIELD_NAME, FIELD_NUM, FIELD_TYPE, VALUE_TEXTFIELD, " +
             "VALUE_LIST_SELECTED, VALUE_CALENDAR, VALUE_CHECKBOX, VALUE_TEXTAREA, VALUE_LIST, VALUE_FILE, " +
             "NAME AS FILE_NAME FROM DOC.DOCUMENTS_FIELD DF LEFT JOIN DOC.FILES F ON DF.VALUE_FILE = F.ID " +
@@ -171,6 +171,8 @@ public class DocumentDaoImpl implements DocumentDao {
                         document.setDocumentGroupId(rs.getInt("DOC_GROUP"));
                         document.setPartId(rs.getInt("PUB_PART"));
                         document.setRouteId(rs.getInt("ROUTE"));
+                        document.setCreateDate(Date.from(rs.getTimestamp("I_DATE").toInstant()));
+                        document.setCreateUserId(rs.getInt("I_USER"));
                         return document;
                     } else {
                         throw new NotFoundDaoException("Not found Document with documentId = " + documentId +
@@ -344,8 +346,7 @@ public class DocumentDaoImpl implements DocumentDao {
     @Override
     @Transactional
     public void create(Document document, int userId, int companyId) throws DataAccessException {
-        document.setChangeUserId(userId);
-        document.setChangeDate(new Date());
+        Date currDate = new Date();
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
@@ -353,18 +354,22 @@ public class DocumentDaoImpl implements DocumentDao {
                     PreparedStatement pstmt = connection.prepareStatement(INSERT_DOCUMENT, new String[] {"id"});
                     pstmt.setString(1, document.getName());
                     pstmt.setInt(2, Status.Id.CREATED);
-                    pstmt.setTimestamp(3, Timestamp.from(document.getChangeDate().toInstant()));
+                    pstmt.setTimestamp(3, Timestamp.from(currDate.toInstant()));
                     pstmt.setInt(4, document.getTemplateId());
-                    pstmt.setInt(5, document.getChangeUserId());
+                    pstmt.setInt(5, userId);
                     pstmt.setInt(6, document.getDocumentGroupId());
                     pstmt.setInt(7, 0);
                     pstmt.setInt(8, document.getRouteId());
                     pstmt.setInt(9, companyId);
+                    pstmt.setTimestamp(10, Timestamp.from(currDate.toInstant()));
+                    pstmt.setInt(11, userId);
                     return pstmt;
                 }, keyHolder
         );
 
         document.setId(keyHolder.getKey().intValue());
+        document.setChangeUserId(userId);
+        document.setChangeDate(currDate);
 
         Map<Integer, Integer> fileIds = new HashMap<>();
         for (Document.Field field: document.getFields()) {
