@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface SearchDao {
 
+    List<Document> findForSuperList(SearchDoc searchDoc) throws DataAccessException;
+
     List<Document> findForAdminList(SearchDoc searchDoc, int companyId) throws DataAccessException;
 
     List<Document> findForUserList(SearchDoc searchDoc, int userId, int companyId) throws DataAccessException;

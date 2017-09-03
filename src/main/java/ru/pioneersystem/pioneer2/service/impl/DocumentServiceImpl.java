@@ -318,15 +318,15 @@ public class DocumentServiceImpl implements DocumentService {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
                             userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
-            eventService.logError(mess, null, document.getId());
+            eventService.logError(mess, null);
             throw new LockException(mess);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotAccepted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), document.getId());
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("error.document.NotAccepted", null, localeBean.getLocale());
-            eventService.logError(mess + ": " + e.getMessage(), null, document.getId());
+            eventService.logError(mess + ": " + e.getMessage(), null);
             throw new ServiceException(mess, e);
         }
     }
@@ -342,15 +342,15 @@ public class DocumentServiceImpl implements DocumentService {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
                             userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
-            eventService.logError(mess, null, document.getId());
+            eventService.logError(mess, null);
             throw new LockException(mess);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotRejected", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), document.getId());
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("error.document.NotRejected", null, localeBean.getLocale());
-            eventService.logError(mess + ": " + e.getMessage(), null, document.getId());
+            eventService.logError(mess + ": " + e.getMessage(), null);
             throw new ServiceException(mess, e);
         }
     }

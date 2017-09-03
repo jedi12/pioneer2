@@ -51,6 +51,15 @@ public class SearchDaoImpl implements SearchDao {
                     "DOCS.TEMPLATE AS TEMPLATE FROM (" +  SELECT_FOR_ADMIN + ") DOCS " +
                     "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON DS.ID = DOCS.STATUS " +
                     "LEFT JOIN DOC.GROUPS G ON G.ID = DOCS.DOC_GROUP";
+    private static final String SELECT_FOR_SUPER =
+            "SELECT DISTINCT D.ID AS ID, D.NAME AS NAME, D.STATUS AS STATUS, " +
+                    "D.DOC_GROUP AS DOC_GROUP, D.U_DATE AS U_DATE, D.TEMPLATE AS TEMPLATE FROM DOC.DOCUMENTS D ";
+    private static final String SELECT_ALL_SUPER_ALLOWED_DOC_LIST =
+            "SELECT DOCS.ID AS ID, DOCS.NAME AS DOC_NAME, DS.NAME AS STATUS_NAME, DOCS.STATUS AS STATUS, " +
+                    "G.NAME AS GROUP_NAME, DOCS.DOC_GROUP AS DOC_GROUP, DOCS.U_DATE AS U_DATE, " +
+                    "DOCS.TEMPLATE AS TEMPLATE FROM (" +  SELECT_FOR_SUPER + ") DOCS " +
+                    "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON DS.ID = DOCS.STATUS " +
+                    "LEFT JOIN DOC.GROUPS G ON G.ID = DOCS.DOC_GROUP";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -60,18 +69,23 @@ public class SearchDaoImpl implements SearchDao {
     }
 
     @Override
+    public List<Document> findForSuperList(SearchDoc searchDoc) throws DataAccessException {
+        List<Object> params = new ArrayList<>();
+        String query = createQuery(searchDoc, SELECT_ALL_SUPER_ALLOWED_DOC_LIST, params);
+        return findList(query, params);
+    }
+
+    @Override
     public List<Document> findForAdminList(SearchDoc searchDoc, int companyId) throws DataAccessException {
         List<Object> params = new ArrayList<>(Arrays.asList(companyId));
-        String baseQuery = SELECT_ALL_ADMIN_ALLOWED_DOC_LIST;
-        String query = createQuery(searchDoc, baseQuery, params);
+        String query = createQuery(searchDoc, SELECT_ALL_ADMIN_ALLOWED_DOC_LIST, params);
         return findList(query, params);
     }
 
     @Override
     public List<Document> findForUserList(SearchDoc searchDoc, int userId, int companyId) throws DataAccessException {
         List<Object> params = new ArrayList<>(Arrays.asList(userId, companyId, userId, companyId, userId, companyId));
-        String baseQuery = SELECT_ALL_USER_ALLOWED_DOC_LIST;
-        String query = createQuery(searchDoc, baseQuery, params);
+        String query = createQuery(searchDoc, SELECT_ALL_USER_ALLOWED_DOC_LIST, params);
         return findList(query, params);
     }
 

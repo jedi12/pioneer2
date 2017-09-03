@@ -43,7 +43,9 @@ public class SearchServiceImpl implements SearchService {
     public List<Document> findList(SearchDoc searchDoc) throws ServiceException {
         List<Document> documents;
         try {
-            if (currentUser.isAdminRole()) {
+            if (currentUser.isSuperRole()) {
+                documents = searchDao.findForSuperList(searchDoc);
+            } else if (currentUser.isAdminRole()) {
                 documents = searchDao.findForAdminList(searchDoc, currentUser.getUser().getCompanyId());
             } else {
                 documents = searchDao.findForUserList(searchDoc, currentUser.getUser().getId(),
