@@ -28,7 +28,7 @@ public interface DocumentDao {
 
     Document get(int documentId, int companyId) throws DataAccessException;
 
-    void create(Document document, int userId, int companyId) throws DataAccessException;
+    int create(Document document, int userId, int companyId) throws DataAccessException;
 
     void update(Document document, int userId, int companyId) throws DataAccessException;
 

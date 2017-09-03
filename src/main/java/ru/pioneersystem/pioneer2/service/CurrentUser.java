@@ -1,23 +1,21 @@
-package ru.pioneersystem.pioneer2.view;
+package ru.pioneersystem.pioneer2.service;
 
-import org.primefaces.context.RequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.model.*;
-import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
-import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +27,6 @@ public class CurrentUser implements Serializable {
     private int screenHeight;
     private int screenWidth;
 
-    private String login;
-    private String pass;
-    private String newPass;
     private boolean logged;
     private User user;
     private List<Menu> userMenu;
@@ -52,6 +47,7 @@ public class CurrentUser implements Serializable {
     private boolean userRole;
     private boolean publicRole;
 
+    private EventService eventService;
     private UserService userService;
     private MenuService menuService;
     private GroupService groupService;
@@ -60,12 +56,12 @@ public class CurrentUser implements Serializable {
     private RoleService roleService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
-    private HttpServletRequest request;
 
     @Autowired
-    public CurrentUser(UserService userService, MenuService menuService, GroupService groupService,
-                       RouteService routeService, PartService partService, RoleService roleService,
-                       LocaleBean localeBean, MessageSource messageSource, HttpServletRequest request) {
+    public CurrentUser(EventService eventService, UserService userService, MenuService menuService,
+                       GroupService groupService, RouteService routeService, PartService partService,
+                       RoleService roleService, LocaleBean localeBean, MessageSource messageSource) {
+        this.eventService = eventService;
         this.userService = userService;
         this.menuService = menuService;
         this.groupService = groupService;
@@ -74,22 +70,23 @@ public class CurrentUser implements Serializable {
         this.roleService = roleService;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
-        this.request = request;
     }
 
-    public void signIn() {
+    public void signIn(String login, String pass) throws ServiceException {
         try {
             int userId = userService.checkLoginAndPass(login, pass);
             user = userService.getUserWithCompany(userId);
 
             if (user.getState() == 0) {
-                showGrowl(FacesMessage.SEVERITY_INFO, "warn", "warn.user.locked");
-                return;
+                String mess = messageSource.getMessage("warn.user.locked", null, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
+                throw new PasswordException(mess);
             }
 
             if (user.getCompany().getState() == 0) {
-                showGrowl(FacesMessage.SEVERITY_INFO, "warn", "warn.company.locked");
-                return;
+                String mess = messageSource.getMessage("warn.company.locked", null, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
+                throw new PasswordException(mess);
             }
 
             userMenu = menuService.getUserMenu();
@@ -120,36 +117,55 @@ public class CurrentUser implements Serializable {
 
 //            RequestContextHolder.currentRequestAttributes().setAttribute(SessionListener.USER_ID, user.getId(), RequestAttributes.SCOPE_SESSION);
 //            RequestContextHolder.currentRequestAttributes().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId(), RequestAttributes.SCOPE_SESSION);
-            request.getSession().setAttribute(SessionListener.USER_ID, user.getId());
-            request.getSession().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
 
-            login = null;
-            pass = null;
+//            request.getSession().setAttribute(SessionListener.USER_ID, user.getId());
+//            request.getSession().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
+
+            // TODO: 02.09.2017 Переделать через Spring?
+            HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+            session.setAttribute(SessionListener.USER_ID, user.getId());
+            session.setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
+
             logged = true;
 
-            RequestContext.getCurrentInstance().execute("PF('loginDialog').hide()");
-            RequestContext.getCurrentInstance().update(
-                    new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel"})));
+            eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + getIpAddress());
+
         } catch (PasswordException e) {
-            showGrowl(FacesMessage.SEVERITY_WARN, "warn", "error.user.userNameOrPassNotValid");
+            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
+            eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
+            throw new PasswordException(e.getMessage());
         } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.user.userSignInError");
+            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
+            eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
+            throw new ServiceException(e.getMessage(), e);
         }
     }
 
-    public void changePass() {
+    public void signOut() {
         try {
-            userService.changeUserPass(user.getLogin(), pass, newPass);
-            pass = null;
-            newPass = null;
+            // TODO: 02.09.2017 Переделать через Spring?
+            ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+            externalContext.redirect("signedOut.xhtml");
+            externalContext.setSessionMaxInactiveInterval(1);
 
-            showGrowl(FacesMessage.SEVERITY_INFO, "info", "info.changePass.success");
-            RequestContext.getCurrentInstance().execute("PF('changePassDialog').hide()");
-        } catch (PasswordException e) {
-            showGrowl(FacesMessage.SEVERITY_ERROR, "error", "error.oldPass.not.valid");
-        } catch (ServiceException e) {
-            showGrowl(FacesMessage.SEVERITY_FATAL, "fatal", "error.pass.not.checked");
+            eventService.logEvent(Event.Type.USER_SIGNED_OUT, 0, "IP: " + getIpAddress());
+        } catch (IOException e) {
+            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + user.getLogin() + ", IP: " + getIpAddress();
+            eventService.logEvent(Event.Type.ERROR, 0, mess);
         }
+    }
+
+    private String getIpAddress() {
+        // TODO: 02.09.2017 Переделать через Spring?
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+        if (ipAddress == null) {
+            ipAddress = request.getRemoteAddr();
+        }
+        return ipAddress;
     }
 
     public void setCurrMenuId(int currMenuId) {
@@ -183,12 +199,6 @@ public class CurrentUser implements Serializable {
 //                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }
 
-    private void showGrowl(FacesMessage.Severity severity, String shortMessage, String longMessage) {
-        FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(severity,
-                messageSource.getMessage(shortMessage, null, localeBean.getLocale()),
-                messageSource.getMessage(longMessage, null, localeBean.getLocale())));
-    }
-
     public int getScreenHeight() {
         return screenHeight;
     }
@@ -203,30 +213,6 @@ public class CurrentUser implements Serializable {
 
     public void setScreenWidth(int screenWidth) {
         this.screenWidth = screenWidth;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPass() {
-        return pass;
-    }
-
-    public void setPass(String pass) {
-        this.pass = pass;
-    }
-
-    public String getNewPass() {
-        return newPass;
-    }
-
-    public void setNewPass(String newPass) {
-        this.newPass = newPass;
     }
 
     public boolean isLogged() {

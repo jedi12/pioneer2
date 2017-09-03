@@ -1,7 +1,5 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
@@ -9,9 +7,10 @@ import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.StatusDao;
 import ru.pioneersystem.pioneer2.model.Status;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
+import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.StatusService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.LinkedHashMap;
@@ -20,8 +19,7 @@ import java.util.Map;
 
 @Service("statusService")
 public class StatusServiceImpl implements StatusService {
-    private Logger log = LoggerFactory.getLogger(StatusServiceImpl.class);
-
+    private EventService eventService;
     private StatusDao statusDao;
     private DictionaryService dictionaryService;
     private LocaleBean localeBean;
@@ -29,8 +27,9 @@ public class StatusServiceImpl implements StatusService {
     private MessageSource messageSource;
 
     @Autowired
-    public StatusServiceImpl(StatusDao statusDao, DictionaryService dictionaryService, LocaleBean localeBean,
-                             CurrentUser currentUser, MessageSource messageSource) {
+    public StatusServiceImpl(EventService eventService, StatusDao statusDao, DictionaryService dictionaryService,
+                             LocaleBean localeBean, CurrentUser currentUser, MessageSource messageSource) {
+        this.eventService = eventService;
         this.statusDao = statusDao;
         this.dictionaryService = dictionaryService;
         this.localeBean = localeBean;
@@ -49,7 +48,7 @@ public class StatusServiceImpl implements StatusService {
             return status;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.status.NotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), statusId);
             throw new ServiceException(mess, e);
         }
     }
@@ -67,7 +66,7 @@ public class StatusServiceImpl implements StatusService {
             return statuses;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.status.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }

@@ -16,7 +16,7 @@ public interface ChoiceListDao {
 
     List<ChoiceList> getList(int companyId) throws DataAccessException;
 
-    void create(ChoiceList choiceList, int companyId) throws DataAccessException;
+    int create(ChoiceList choiceList, int companyId) throws DataAccessException;
 
     void update(ChoiceList choiceList, int companyId) throws DataAccessException;
 

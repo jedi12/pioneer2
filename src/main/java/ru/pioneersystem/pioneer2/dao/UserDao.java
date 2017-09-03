@@ -16,7 +16,7 @@ public interface UserDao {
 
     User getWithCompany(int userId) throws DataAccessException;
 
-    void create(User user, int companyId) throws DataAccessException;
+    int create(User user, int companyId) throws DataAccessException;
 
     void update(User user, int companyId) throws DataAccessException;
 

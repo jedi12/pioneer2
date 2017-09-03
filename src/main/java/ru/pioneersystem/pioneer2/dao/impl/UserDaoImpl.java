@@ -145,7 +145,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public void create(User user, int companyId) throws DataAccessException {
+    public int create(User user, int companyId) throws DataAccessException {
         // TODO: 01.04.2017 Сделать обработку ошибки, связанной с неуникальным логином или емайлом
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
@@ -162,6 +162,7 @@ public class UserDaoImpl implements UserDao {
                     return pstmt;
                 }, keyHolder
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

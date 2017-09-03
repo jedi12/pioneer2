@@ -11,7 +11,7 @@ public interface MenuService {
 
     List<Menu> getUserMenu() throws ServiceException;
 
-    int getMenuIndex(int menuId, List<Menu> menus) throws ServiceException;
+    int getMenuIndex(int menuId, List<Menu> menus);
 
     Menu getNewMenu();
 

@@ -4,7 +4,7 @@ import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.service.exception.TooManyDocsException;
+import ru.pioneersystem.pioneer2.service.exception.TooManyObjectsException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
@@ -85,8 +85,8 @@ public class SearchView implements Serializable {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_INFO,
                     bundle.getString("info"), bundle.getString("search.message.found") + documentList.size()));
         }
-        catch (TooManyDocsException e) {
-            documentList = e.getDocuments();
+        catch (TooManyObjectsException e) {
+            documentList = e.getObjects();
 
             selectedDocument = null;
             RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");

@@ -1,7 +1,5 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
@@ -11,11 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.FieldType;
 import ru.pioneersystem.pioneer2.model.RoutePoint;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.time.LocalDateTime;
@@ -26,19 +25,17 @@ import java.util.List;
 
 @Service("routeProcessService")
 public class RouteProcessServiceImpl implements RouteProcessService {
-    private Logger log = LoggerFactory.getLogger(RouteProcessServiceImpl.class);
-
+    private EventService eventService;
     private RouteProcessDao routeProcessDao;
-    private UserService userService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public RouteProcessServiceImpl(RouteProcessDao routeProcessDao, UserService userService, CurrentUser currentUser,
+    public RouteProcessServiceImpl(EventService eventService, RouteProcessDao routeProcessDao, CurrentUser currentUser,
                                    LocaleBean localeBean, MessageSource messageSource) {
+        this.eventService = eventService;
         this.routeProcessDao = routeProcessDao;
-        this.userService = userService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -49,10 +46,11 @@ public class RouteProcessServiceImpl implements RouteProcessService {
         try {
             List<RoutePoint> routePoints = routeProcessDao.getRoute(documentId);
             offsetDateAndFormat(routePoints);
+            eventService.logEvent(Event.Type.ROUTE_PROCESS_GETED, documentId);
             return routePoints;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.NotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), documentId);
             throw new ServiceException(mess, e);
         }
     }
@@ -63,7 +61,7 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             return routeProcessDao.getCurrNotSignedRoutePointGroups(documentId);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.CurrentRoutePointNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), documentId);
             throw new ServiceException(mess, e);
         }
     }
@@ -75,7 +73,7 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             routeProcessDao.create(document.getId(), getCalculatedRoute(document));
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.NotCreated", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -87,7 +85,7 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             routeProcessDao.start(document.getId(), currentUser.getUser().getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.NotStarted", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -100,11 +98,11 @@ public class RouteProcessServiceImpl implements RouteProcessService {
                     document.isNewRoute(), document.getNewRouteId());
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.routeProcess.PointAlreadyProcessed", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.PointNotAccepted", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -116,11 +114,11 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             routeProcessDao.reject(document.getId(), currentUser.getUser().getId(), document.getSignerComment());
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.routeProcess.PointAlreadyProcessed", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.PointNotRejected", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -133,11 +131,11 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             routeProcessDao.cancel(document.getId(), currentUser.getUser().getId(), mess);
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.routeProcess.AlreadyFinished", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.routeProcess.NotCanceled", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
     }

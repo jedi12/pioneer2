@@ -1,17 +1,17 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.RoleDao;
+import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
+import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.RoleService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.LinkedHashMap;
@@ -20,8 +20,7 @@ import java.util.Map;
 
 @Service("roleService")
 public class RoleServiceImpl implements RoleService {
-    private Logger log = LoggerFactory.getLogger(RoleServiceImpl.class);
-
+    private EventService eventService;
     private RoleDao roleDao;
     private DictionaryService dictionaryService;
     private CurrentUser currentUser;
@@ -29,8 +28,9 @@ public class RoleServiceImpl implements RoleService {
     private MessageSource messageSource;
 
     @Autowired
-    public RoleServiceImpl(RoleDao roleDao, DictionaryService dictionaryService, CurrentUser currentUser,
-                           LocaleBean localeBean, MessageSource messageSource) {
+    public RoleServiceImpl(EventService eventService, RoleDao roleDao, DictionaryService dictionaryService,
+                           CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource) {
+        this.eventService = eventService;
         this.roleDao = roleDao;
         this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
@@ -51,7 +51,7 @@ public class RoleServiceImpl implements RoleService {
             return roles;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }
@@ -71,7 +71,7 @@ public class RoleServiceImpl implements RoleService {
             return roleDao.getUserRole(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.userRoleNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }
@@ -92,10 +92,11 @@ public class RoleServiceImpl implements RoleService {
                 role.setName(roleName);
             }
             role.setCreateFlag(false);
+            eventService.logEvent(Event.Type.ROLE_GETED, roleId);
             return role;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), roleId);
             throw new ServiceException(mess, e);
         }
     }
@@ -104,13 +105,15 @@ public class RoleServiceImpl implements RoleService {
     public void saveRole(Role role) throws ServiceException {
         try {
             if (role.isCreateFlag()) {
-                roleDao.create(role, currentUser.getUser().getCompanyId());
+                int roleId = roleDao.create(role, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.ROLE_CREATED, roleId);
             } else {
                 roleDao.update(role, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.ROLE_CHANGED, role.getId());
             }
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotSaved", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), role.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -118,15 +121,12 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void deleteRole(int roleId) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной роли плюс еще какая-нибудь проверка
-        // пример:
-        // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
-        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             roleDao.delete(roleId, currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.ROLE_DELETED, roleId);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotDeleted", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), roleId);
             throw new ServiceException(mess, e);
         }
     }

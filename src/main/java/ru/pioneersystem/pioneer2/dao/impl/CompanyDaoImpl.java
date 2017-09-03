@@ -72,7 +72,7 @@ public class CompanyDaoImpl implements CompanyDao {
 
     @Override
     @Transactional
-    public void create(Company company) throws DataAccessException {
+    public int create(Company company) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -89,6 +89,7 @@ public class CompanyDaoImpl implements CompanyDao {
                     return pstmt;
                 }, keyHolder
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

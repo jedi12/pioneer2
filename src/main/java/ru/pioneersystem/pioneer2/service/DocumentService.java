@@ -18,15 +18,13 @@ public interface DocumentService {
 
     List<Document> getMyWorkingDocumentList() throws ServiceException;
 
-    List<RoutePoint> getDocumentRoute(int documentId) throws ServiceException;
-
     List<String> getDocToCancelByGroup(int groupId) throws ServiceException;
 
     List<String> getDocToCancelByRole(int roleId) throws ServiceException;
 
     Document getNewDocument(int templateId) throws ServiceException;
 
-    Document getDocument(int id) throws ServiceException;
+    Document getDocument(int documentId) throws ServiceException;
 
     void saveDocument(Document document) throws ServiceException, LockException;
 

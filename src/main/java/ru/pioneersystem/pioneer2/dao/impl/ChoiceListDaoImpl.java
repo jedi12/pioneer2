@@ -16,10 +16,7 @@ import ru.pioneersystem.pioneer2.model.ChoiceList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository(value = "choiceListDao")
 public class ChoiceListDaoImpl implements ChoiceListDao {
@@ -65,7 +62,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         List<String> resultValues = jdbcTemplate.query(SELECT_LIST_FIELD,
                 new Object[]{choiceListId},
                 rs -> {
-                    List<String> values = new LinkedList<>();
+                    List<String> values = new ArrayList<>();
                     while(rs.next()){
                         values.add(rs.getString("VALUE"));
                     }
@@ -89,7 +86,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                         String value = rs.getString("VALUE");
 
                         if (id != oldlistId) {
-                            result.put(id, new LinkedList<>());
+                            result.put(id, new ArrayList<>());
                             oldlistId = id;
                         }
                         result.get(id).add(value);
@@ -111,7 +108,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                         String value = rs.getString("VALUE");
 
                         if (id != oldlistId) {
-                            result.put(id, new LinkedList<>());
+                            result.put(id, new ArrayList<>());
                             oldlistId = id;
                         }
                         result.get(id).add(value);
@@ -133,7 +130,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
 
     @Override
     @Transactional
-    public void create(ChoiceList choiceList, int companyId) throws DataAccessException {
+    public int create(ChoiceList choiceList, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -156,6 +153,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

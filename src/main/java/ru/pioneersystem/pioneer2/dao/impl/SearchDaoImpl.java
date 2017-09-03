@@ -5,7 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.pioneersystem.pioneer2.dao.SearchDao;
-import ru.pioneersystem.pioneer2.dao.exception.TooManyDocsDaoException;
+import ru.pioneersystem.pioneer2.dao.exception.TooManyRowsDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.SearchDoc;
 
@@ -61,7 +61,7 @@ public class SearchDaoImpl implements SearchDao {
 
     @Override
     public List<Document> findForAdminList(SearchDoc searchDoc, int companyId) throws DataAccessException {
-        List<Object> params = new LinkedList<>(Arrays.asList(companyId));
+        List<Object> params = new ArrayList<>(Arrays.asList(companyId));
         String baseQuery = SELECT_ALL_ADMIN_ALLOWED_DOC_LIST;
         String query = createQuery(searchDoc, baseQuery, params);
         return findList(query, params);
@@ -69,15 +69,14 @@ public class SearchDaoImpl implements SearchDao {
 
     @Override
     public List<Document> findForUserList(SearchDoc searchDoc, int userId, int companyId) throws DataAccessException {
-        List<Object> params = new LinkedList<>(Arrays.asList(userId, companyId, userId, companyId, userId, companyId));
+        List<Object> params = new ArrayList<>(Arrays.asList(userId, companyId, userId, companyId, userId, companyId));
         String baseQuery = SELECT_ALL_USER_ALLOWED_DOC_LIST;
         String query = createQuery(searchDoc, baseQuery, params);
         return findList(query, params);
     }
 
     public List<Document> findList(String query, List<Object> params) throws DataAccessException {
-        return jdbcTemplate.query(query,
-                params.toArray(),
+        return jdbcTemplate.query(query, params.toArray(),
                 (rs) -> {
                     int count = 0;
                     List<Document> documents = new ArrayList<>();
@@ -94,7 +93,7 @@ public class SearchDaoImpl implements SearchDao {
                         count = count + 1;
 
                         if (count >= 1000) {
-                            throw new TooManyDocsDaoException("Over 1000 documents found", documents);
+                            throw new TooManyRowsDaoException("Over 1000 documents found", documents);
                         }
                     }
 

@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
@@ -17,7 +16,6 @@ import ru.pioneersystem.pioneer2.model.Status;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Repository(value = "partDao")
@@ -42,9 +40,9 @@ public class PartDaoImpl implements PartDao {
                     "AND COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
     private static final String SELECT_USER_PART_LIST =
             "SELECT DISTINCT P.ID AS ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS P " +
-                    "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID WHERE STATE > 0 AND TYPE = ? " +
-                    "AND (GROUP_ID IS NULL OR GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) " +
-                    "AND P.COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
+                    "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID LEFT JOIN DOC.GROUPS_USER GU ON PG.GROUP_ID = GU.ID " +
+                    "WHERE STATE > 0 AND TYPE = ? AND (GROUP_ID IS NULL OR USER_ID = ?) AND P.COMPANY = ? " +
+                    "ORDER BY TREE_LEVEL DESC, NAME ASC";
     private static final String SELECT_TEMPLATES_LIST =
             "SELECT NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
     private static final String SELECT_PUB_DOC_COUNT =
@@ -86,7 +84,7 @@ public class PartDaoImpl implements PartDao {
         List<Part.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_PART_GROUP,
                 new Object[]{partId},
                 rs -> {
-                    List<Part.LinkGroup> linkGroups = new LinkedList<>();
+                    List<Part.LinkGroup> linkGroups = new ArrayList<>();
                     while(rs.next()){
                         Part.LinkGroup linkGroup = new Part.LinkGroup();
                         linkGroup.setGroupId(rs.getInt("GROUP_ID"));
@@ -194,7 +192,7 @@ public class PartDaoImpl implements PartDao {
 
     @Override
     @Transactional
-    public void create(Part part, int type, int companyId) throws DataAccessException {
+    public int create(Part part, int type, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -221,6 +219,7 @@ public class PartDaoImpl implements PartDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

@@ -15,8 +15,8 @@ import ru.pioneersystem.pioneer2.model.Role;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +89,7 @@ public class GroupDaoImpl implements GroupDao {
         List<Group.LinkUser> resultLinkUsers = jdbcTemplate.query(SELECT_GROUP_USER,
                 new Object[]{groupId},
                 rs -> {
-                    List<Group.LinkUser> linkUsers = new LinkedList<>();
+                    List<Group.LinkUser> linkUsers = new ArrayList<>();
                     while(rs.next()){
                         Group.LinkUser linkUser = new Group.LinkUser();
                         linkUser.setUserId(rs.getInt("USER_ID"));
@@ -218,7 +218,7 @@ public class GroupDaoImpl implements GroupDao {
 
     @Override
     @Transactional
-    public void create(Group group, int companyId) throws DataAccessException {
+    public int create(Group group, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -244,6 +244,7 @@ public class GroupDaoImpl implements GroupDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

@@ -21,7 +21,7 @@ public interface PartDao {
 
     Part get(int partId, int companyId) throws DataAccessException;
 
-    void create(Part part, int type, int companyId) throws DataAccessException;
+    int create(Part part, int type, int companyId) throws DataAccessException;
 
     void update(Part part, int type, int companyId) throws DataAccessException;
 

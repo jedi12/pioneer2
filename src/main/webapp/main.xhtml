@@ -79,6 +79,10 @@
 				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
 			</h:form>
 
+			<p:idleMonitor timeout="600000">
+				<p:ajax event="idle" listener="#{currentUser.signOut}"/>
+			</p:idleMonitor>
+
 			<p:growl id="growl" showDetail="true" life="10000" autoUpdate="true"/>
 		</h:body>
 	</f:view>

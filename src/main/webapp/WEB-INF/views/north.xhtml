@@ -16,8 +16,7 @@
 				<p:menuitem value="#{text['login.signIn.name']}" icon="fa fa-fw fa-sign-in"
 							oncomplete="PF('loginDialog').show()" rendered="#{!currentUser.logged}"/>
 				<p:menuitem value="#{text['login.signOut.name']}" icon="fa fa-fw fa-sign-out"
-							actionListener="#{session.invalidate()}" action="main.jsf?faces-redirect=true"
-							rendered="#{currentUser.logged}"/>
+							actionListener="#{currentUser.signOut}" rendered="#{currentUser.logged}"/>
 				<p:menuitem value="#{text['login.changePass.name']}" icon="fa fa-fw fa-key"
 							oncomplete="PF('changePassDialog').show()" rendered="#{currentUser.logged}"/>
 			</p:menuButton>

@@ -1,7 +1,5 @@
 package ru.pioneersystem.pioneer2.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -10,8 +8,6 @@ import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 @Service("dictionaryService")
 public class DictionaryService {
-	private Logger log = LoggerFactory.getLogger(DictionaryService.class);
-
 	private LocaleBean localeBean;
 	private MessageSource messageSource;
 
@@ -166,6 +162,208 @@ public class DictionaryService {
 				return messageSource.getMessage("fieldType.type.input", null, localeBean.getLocale());
 			case FieldType.Type.DECORATE:
 				return messageSource.getMessage("fieldType.type.decorate", null, localeBean.getLocale());
+			default:
+				return null;
+		}
+	}
+
+	public String getLocalizedEventTypeName(int eventTypeId) {
+		switch (eventTypeId) {
+			case Event.Type.ERROR:
+				return messageSource.getMessage("event.name.error", null, localeBean.getLocale());
+			case Event.Type.CHANNEL_SN:
+				return messageSource.getMessage("event.name.channelSN", null, localeBean.getLocale());
+			case Event.Type.CHANNEL_MC:
+				return messageSource.getMessage("event.name.channelMC", null, localeBean.getLocale());
+			case Event.Type.CHANNEL_CD:
+				return messageSource.getMessage("event.name.channelCD", null, localeBean.getLocale());
+			case Event.Type.NOTICE_DOC_RECEIVED:
+				return messageSource.getMessage("event.name.noticeDocReceived", null, localeBean.getLocale());
+			case Event.Type.NOTICE_DOC_STATUS_CHANGED:
+				return messageSource.getMessage("event.name.noticeDocStatusChanged", null, localeBean.getLocale());
+			case Event.Type.PROC_SYNC_COMPLETED:
+				return messageSource.getMessage("event.name.procSyncCompleted", null, localeBean.getLocale());
+
+			case Event.Type.DOC_ERROR:
+				return messageSource.getMessage("event.name.docError", null, localeBean.getLocale());
+			case Event.Type.DOC_PUBLISHED:
+				return messageSource.getMessage("event.name.docPublished", null, localeBean.getLocale());
+			case Event.Type.DOC_PUBLISH_CANCELED:
+				return messageSource.getMessage("event.name.docPublishCanceled", null, localeBean.getLocale());
+			case Event.Type.DOC_GETED:
+				return messageSource.getMessage("event.name.docGeted", null, localeBean.getLocale());
+			case Event.Type.DOC_CREATED:
+				return messageSource.getMessage("event.name.docCreated", null, localeBean.getLocale());
+			case Event.Type.DOC_CHANGED:
+				return messageSource.getMessage("event.name.docChanged", null, localeBean.getLocale());
+			case Event.Type.DOC_SENDED:
+				return messageSource.getMessage("event.name.docSended", null, localeBean.getLocale());
+			case Event.Type.DOC_SAVED:
+				return messageSource.getMessage("event.name.docSaved", null, localeBean.getLocale());
+			case Event.Type.DOC_ROUTE_GETED:
+				return messageSource.getMessage("event.name.docRouteGeted", null, localeBean.getLocale());
+			case Event.Type.DOC_RECALLED:
+				return messageSource.getMessage("event.name.docRecalled", null, localeBean.getLocale());
+			case Event.Type.DOC_COPIED:
+				return messageSource.getMessage("event.name.docCopied", null, localeBean.getLocale());
+			case Event.Type.DOC_DELETED:
+				return messageSource.getMessage("event.name.docDeleted", null, localeBean.getLocale());
+			case Event.Type.DOC_ACCEPTED:
+				return messageSource.getMessage("event.name.docAccepted", null, localeBean.getLocale());
+			case Event.Type.DOC_REJECTED:
+				return messageSource.getMessage("event.name.docRejected", null, localeBean.getLocale());
+			case Event.Type.DOC_ROUTE_CHANGED:
+				return messageSource.getMessage("event.name.docRouteChanged", null, localeBean.getLocale());
+			case Event.Type.DOC_FILE_UPLOADED:
+				return messageSource.getMessage("event.name.docFileUploaded", null, localeBean.getLocale());
+			case Event.Type.DOC_FILE_DOWNLOADED:
+				return messageSource.getMessage("event.name.docFileDownloaded", null, localeBean.getLocale());
+
+			case Event.Type.GROUP_ERROR:
+				return messageSource.getMessage("event.name.groupError", null, localeBean.getLocale());
+			case Event.Type.GROUP_CREATED:
+				return messageSource.getMessage("event.name.groupCreated", null, localeBean.getLocale());
+			case Event.Type.GROUP_CHANGED:
+				return messageSource.getMessage("event.name.groupChanged", null, localeBean.getLocale());
+			case Event.Type.GROUP_GETED:
+				return messageSource.getMessage("event.name.groupGeted", null, localeBean.getLocale());
+			case Event.Type.GROUP_DELETED:
+				return messageSource.getMessage("event.name.groupDeleted", null, localeBean.getLocale());
+			case Event.Type.GROUP_GETED_FROM_ROUTE:
+				return messageSource.getMessage("event.name.groupGetedFromRoute", null, localeBean.getLocale());
+
+			case Event.Type.LIST_ERROR:
+				return messageSource.getMessage("event.name.listError", null, localeBean.getLocale());
+			case Event.Type.LIST_CREATED:
+				return messageSource.getMessage("event.name.listCreated", null, localeBean.getLocale());
+			case Event.Type.LIST_CHANGED:
+				return messageSource.getMessage("event.name.listChanged", null, localeBean.getLocale());
+			case Event.Type.LIST_GETED:
+				return messageSource.getMessage("event.name.listGeted", null, localeBean.getLocale());
+			case Event.Type.LIST_DELETED:
+				return messageSource.getMessage("event.name.listDeleted", null, localeBean.getLocale());
+
+			case Event.Type.PART_ERROR:
+				return messageSource.getMessage("event.name.partError", null, localeBean.getLocale());
+			case Event.Type.PART_CREATED:
+				return messageSource.getMessage("event.name.partCreated", null, localeBean.getLocale());
+			case Event.Type.PART_CHANGED:
+				return messageSource.getMessage("event.name.partChanged", null, localeBean.getLocale());
+			case Event.Type.PART_GETED:
+				return messageSource.getMessage("event.name.partGeted", null, localeBean.getLocale());
+			case Event.Type.PART_DELETED:
+				return messageSource.getMessage("event.name.partDeleted", null, localeBean.getLocale());
+			case Event.Type.PART_TREE_REORDERED:
+				return messageSource.getMessage("event.name.partTreeReordered", null, localeBean.getLocale());
+			case Event.Type.PART_LIST_DELETED:
+				return messageSource.getMessage("event.name.partListDeleted", null, localeBean.getLocale());
+
+			case Event.Type.ROUTE_ERROR:
+				return messageSource.getMessage("event.name.routeError", null, localeBean.getLocale());
+			case Event.Type.ROUTE_CREATED:
+				return messageSource.getMessage("event.name.routeCreated", null, localeBean.getLocale());
+			case Event.Type.ROUTE_CHANGED:
+				return messageSource.getMessage("event.name.routeChanged", null, localeBean.getLocale());
+			case Event.Type.ROUTE_GETED:
+				return messageSource.getMessage("event.name.routeGeted", null, localeBean.getLocale());
+			case Event.Type.ROUTE_DELETED:
+				return messageSource.getMessage("event.name.routeDeleted", null, localeBean.getLocale());
+
+			case Event.Type.TEMPLATE_ERROR:
+				return messageSource.getMessage("event.name.templateError", null, localeBean.getLocale());
+			case Event.Type.TEMPLATE_CREATED:
+				return messageSource.getMessage("event.name.templateCreated", null, localeBean.getLocale());
+			case Event.Type.TEMPLATE_CHANGED:
+				return messageSource.getMessage("event.name.templateChanged", null, localeBean.getLocale());
+			case Event.Type.TEMPLATE_GETED:
+				return messageSource.getMessage("event.name.templateGeted", null, localeBean.getLocale());
+			case Event.Type.TEMPLATE_DELETED:
+				return messageSource.getMessage("event.name.templateDeleted", null, localeBean.getLocale());
+			case Event.Type.TEMPLATE_GETED_FOR_DOC_CREATE:
+				return messageSource.getMessage("event.name.templateGetedForDocCreate", null, localeBean.getLocale());
+
+			case Event.Type.USER_ERROR:
+				return messageSource.getMessage("event.name.userError", null, localeBean.getLocale());
+			case Event.Type.USER_CREATED:
+				return messageSource.getMessage("event.name.userCreated", null, localeBean.getLocale());
+			case Event.Type.USER_CHANGED:
+				return messageSource.getMessage("event.name.userChanged", null, localeBean.getLocale());
+			case Event.Type.USER_GETED:
+				return messageSource.getMessage("event.name.userGeted", null, localeBean.getLocale());
+			case Event.Type.USER_LOCKED:
+				return messageSource.getMessage("event.name.userLocked", null, localeBean.getLocale());
+			case Event.Type.USER_UNLOCKED:
+				return messageSource.getMessage("event.name.userUnlocked", null, localeBean.getLocale());
+			case Event.Type.USER_FIRST_ADMIN_SETTED:
+				return messageSource.getMessage("event.name.userFirstAdminSetted", null, localeBean.getLocale());
+			case Event.Type.USER_AUTO_CREATED:
+				return messageSource.getMessage("event.name.userAutoCreated", null, localeBean.getLocale());
+			case Event.Type.USER_SIGN_IN_SSO_SUCCESS:
+				return messageSource.getMessage("event.name.userSignInSsoSuccess", null, localeBean.getLocale());
+			case Event.Type.USER_SIGN_IN_SSO_FAIL:
+				return messageSource.getMessage("event.name.userSignInSsoFail", null, localeBean.getLocale());
+			case Event.Type.USER_SIGNED_IN:
+				return messageSource.getMessage("event.name.userSignedIn", null, localeBean.getLocale());
+			case Event.Type.USER_TRY_SIGN_IN:
+				return messageSource.getMessage("event.name.userTrySignIn", null, localeBean.getLocale());
+			case Event.Type.USER_SIGN_IN_EMAIL_SUCCESS:
+				return messageSource.getMessage("event.name.userSignInEmailSuccess", null, localeBean.getLocale());
+			case Event.Type.USER_SIGN_IN_EMAIL_FAIL:
+				return messageSource.getMessage("event.name.userSignInEmailFail", null, localeBean.getLocale());
+			case Event.Type.USER_SIGNED_OUT:
+				return messageSource.getMessage("event.name.userSignedOut", null, localeBean.getLocale());
+			case Event.Type.USER_PASS_SETUP:
+				return messageSource.getMessage("event.name.userPassSetup", null, localeBean.getLocale());
+			case Event.Type.USER_PASS_CHANGED:
+				return messageSource.getMessage("event.name.userPassChanged", null, localeBean.getLocale());
+
+			case Event.Type.ROLE_ERROR:
+				return messageSource.getMessage("event.name.roleError", null, localeBean.getLocale());
+			case Event.Type.ROLE_CREATED:
+				return messageSource.getMessage("event.name.roleCreated", null, localeBean.getLocale());
+			case Event.Type.ROLE_CHANGED:
+				return messageSource.getMessage("event.name.roleChanged", null, localeBean.getLocale());
+			case Event.Type.ROLE_GETED:
+				return messageSource.getMessage("event.name.roleGeted", null, localeBean.getLocale());
+			case Event.Type.ROLE_DELETED:
+				return messageSource.getMessage("event.name.roleDeleted", null, localeBean.getLocale());
+
+			case Event.Type.MENU_ERROR:
+				return messageSource.getMessage("event.name.menuError", null, localeBean.getLocale());
+			case Event.Type.MENU_CREATED:
+				return messageSource.getMessage("event.name.menuCreated", null, localeBean.getLocale());
+			case Event.Type.MENU_CHANGED:
+				return messageSource.getMessage("event.name.menuChanged", null, localeBean.getLocale());
+			case Event.Type.MENU_GETED:
+				return messageSource.getMessage("event.name.menuGeted", null, localeBean.getLocale());
+			case Event.Type.MENU_DELETED:
+				return messageSource.getMessage("event.name.menuDeleted", null, localeBean.getLocale());
+			case Event.Type.MENU_REORDERED:
+				return messageSource.getMessage("event.name.menuReordered", null, localeBean.getLocale());
+
+			case Event.Type.COMPANY_ERROR:
+				return messageSource.getMessage("event.name.companyError", null, localeBean.getLocale());
+			case Event.Type.COMPANY_CREATED:
+				return messageSource.getMessage("event.name.companyCreated", null, localeBean.getLocale());
+			case Event.Type.COMPANY_CHANGED:
+				return messageSource.getMessage("event.name.companyChanged", null, localeBean.getLocale());
+			case Event.Type.COMPANY_GETED:
+				return messageSource.getMessage("event.name.companyGeted", null, localeBean.getLocale());
+			case Event.Type.COMPANY_LOCKED:
+				return messageSource.getMessage("event.name.companyLocked", null, localeBean.getLocale());
+			case Event.Type.COMPANY_UNLOCKED:
+				return messageSource.getMessage("event.name.companyUnlocked", null, localeBean.getLocale());
+
+			case Event.Type.ROUTE_PROCESS_ERROR:
+				return messageSource.getMessage("event.name.routeProcessError", null, localeBean.getLocale());
+			case Event.Type.ROUTE_PROCESS_GETED:
+				return messageSource.getMessage("event.name.routeProcessGeted", null, localeBean.getLocale());
+
+			case Event.Type.SEARCH_ERROR:
+				return messageSource.getMessage("event.name.searchError", null, localeBean.getLocale());
+			case Event.Type.SEARCH_FIND:
+				return messageSource.getMessage("event.name.searchFind", null, localeBean.getLocale());
+
 			default:
 				return null;
 		}

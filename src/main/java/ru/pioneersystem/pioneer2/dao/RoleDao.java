@@ -14,7 +14,7 @@ public interface RoleDao {
 
     Role get(int roleId, int companyId) throws DataAccessException;
 
-    void create(Role role, int companyId) throws DataAccessException;
+    int create(Role role, int companyId) throws DataAccessException;
 
     void update(Role role, int companyId) throws DataAccessException;
 

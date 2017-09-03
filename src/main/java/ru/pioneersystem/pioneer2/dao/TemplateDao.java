@@ -25,7 +25,7 @@ public interface TemplateDao {
 
     Template get(int templateId, int companyId) throws DataAccessException;
 
-    void create(Template template, int companyId) throws DataAccessException;
+    int create(Template template, int companyId) throws DataAccessException;
 
     void update(Template template, int companyId) throws DataAccessException;
 

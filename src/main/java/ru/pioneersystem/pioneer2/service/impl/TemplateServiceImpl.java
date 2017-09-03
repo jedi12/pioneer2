@@ -1,29 +1,29 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.FieldType;
 import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
+import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 @Service("templateService")
 public class TemplateServiceImpl implements TemplateService {
-    private Logger log = LoggerFactory.getLogger(TemplateServiceImpl.class);
-
+    private EventService eventService;
     private TemplateDao templateDao;
     private DictionaryService dictionaryService;
     private CurrentUser currentUser;
@@ -31,8 +31,9 @@ public class TemplateServiceImpl implements TemplateService {
     private MessageSource messageSource;
 
     @Autowired
-    public TemplateServiceImpl(TemplateDao templateDao, DictionaryService dictionaryService, CurrentUser currentUser,
-                               LocaleBean localeBean, MessageSource messageSource) {
+    public TemplateServiceImpl(EventService eventService, TemplateDao templateDao, DictionaryService dictionaryService,
+                               CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource) {
+        this.eventService = eventService;
         this.templateDao = templateDao;
         this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
@@ -58,7 +59,7 @@ public class TemplateServiceImpl implements TemplateService {
             return templateList;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }
@@ -69,7 +70,7 @@ public class TemplateServiceImpl implements TemplateService {
             return templateDao.getListByPartId(partId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.partTemplateNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), partId);
             throw new ServiceException(mess, e);
         }
     }
@@ -80,7 +81,7 @@ public class TemplateServiceImpl implements TemplateService {
             return templateDao.getListContainingChoiceList(choiceListId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.templateContainingChoiceListNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), choiceListId);
             throw new ServiceException(mess, e);
         }
     }
@@ -91,7 +92,7 @@ public class TemplateServiceImpl implements TemplateService {
             return templateDao.getListContainingRoute(routeId, currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.templateContainingRouteNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), routeId);
             throw new ServiceException(mess, e);
         }
     }
@@ -106,7 +107,7 @@ public class TemplateServiceImpl implements TemplateService {
             }
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.userTemplateNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }
@@ -115,7 +116,7 @@ public class TemplateServiceImpl implements TemplateService {
     public Template getNewTemplate() {
         Template template = new Template();
         template.setFields(new LinkedList<>());
-        template.setConditions(new LinkedList<>());
+        template.setConditions(new ArrayList<>());
         template.setCreateFlag(true);
         return template;
     }
@@ -135,10 +136,11 @@ public class TemplateServiceImpl implements TemplateService {
             }
 
             template.setCreateFlag(false);
+            eventService.logEvent(Event.Type.TEMPLATE_GETED, templateId);
             return template;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), templateId);
             throw new ServiceException(mess, e);
         }
     }
@@ -147,13 +149,15 @@ public class TemplateServiceImpl implements TemplateService {
     public void saveTemplate(Template template) throws ServiceException {
         try {
             if (template.isCreateFlag()) {
-                templateDao.create(template, currentUser.getUser().getCompanyId());
+                int templateId = templateDao.create(template, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.TEMPLATE_GETED, templateId);
             } else {
                 templateDao.update(template, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.TEMPLATE_CHANGED, template.getId());
             }
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotSaved", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), template.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -161,15 +165,12 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public void deleteTemplate(int templateId) throws ServiceException {
         // TODO: 28.02.2017 Сделать проверку, используется ли данный шаблон или не нужна проверка вообще
-        // пример:
-        // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
-        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
         try {
             templateDao.delete(templateId, currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.TEMPLATE_DELETED, templateId);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotDeleted", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), templateId);
             throw new ServiceException(mess, e);
         }
     }

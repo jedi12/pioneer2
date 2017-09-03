@@ -14,10 +14,7 @@ import ru.pioneersystem.pioneer2.model.Route;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository(value = "routeDao")
 public class RouteDaoImpl implements RouteDao {
@@ -48,8 +45,8 @@ public class RouteDaoImpl implements RouteDao {
             "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROUTE_MAP =
             "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
-                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID WHERE USER_ID = ? AND COMPANY = ? " +
-                    "AND STATE > 0 ORDER BY NAME ASC";
+                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID " +
+                    "WHERE (GROUP_ID IS NULL OR USER_ID = ?) AND (COMPANY = 0 OR COMPANY = ?) AND STATE > 0 ORDER BY NAME ASC";
     private static final String SELECT_ROUTE_LIST_CONTAIN_GROUP =
             "SELECT DISTINCT NAME FROM DOC.ROUTES R, DOC.ROUTES_POINT RP WHERE R.ID = RP.ID AND STATE > 0 " +
                     "AND GROUP_ID = ? AND COMPANY = ?  ORDER BY NAME ASC";
@@ -87,7 +84,7 @@ public class RouteDaoImpl implements RouteDao {
         List<Route.Point> resultPoints = jdbcTemplate.query(SELECT_ROUTE_POINT,
                 new Object[]{routeId},
                 rs -> {
-                    List<Route.Point> points = new LinkedList<>();
+                    List<Route.Point> points = new ArrayList<>();
                     while(rs.next()){
                         Route.Point point = new Route.Point();
                         point.setStage(rs.getInt("STAGE"));
@@ -105,7 +102,7 @@ public class RouteDaoImpl implements RouteDao {
         List<Route.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_ROUTE_GROUP,
                 new Object[]{routeId},
                 rs -> {
-                    List<Route.LinkGroup> linkGroups = new LinkedList<>();
+                    List<Route.LinkGroup> linkGroups = new ArrayList<>();
                     while(rs.next()){
                         Route.LinkGroup linkGroup = new Route.LinkGroup();
                         linkGroup.setGroupId(rs.getInt("GROUP_ID"));
@@ -182,7 +179,7 @@ public class RouteDaoImpl implements RouteDao {
 
     @Override
     @Transactional
-    public void create(Route route, int companyId) throws DataAccessException {
+    public int create(Route route, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -218,6 +215,7 @@ public class RouteDaoImpl implements RouteDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

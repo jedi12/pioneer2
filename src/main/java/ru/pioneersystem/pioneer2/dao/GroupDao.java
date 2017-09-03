@@ -24,7 +24,7 @@ public interface GroupDao {
 
     Group get(int groupId, int companyId) throws DataAccessException;
 
-    void create(Group group, int companyId) throws DataAccessException;
+    int create(Group group, int companyId) throws DataAccessException;
 
     void update(Group group, int companyId) throws DataAccessException;
 

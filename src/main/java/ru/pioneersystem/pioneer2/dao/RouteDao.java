@@ -20,7 +20,7 @@ public interface RouteDao {
 
     Route get(int routeId, int companyId) throws DataAccessException;
 
-    void create(Route route, int companyId) throws DataAccessException;
+    int create(Route route, int companyId) throws DataAccessException;
 
     void update(Route route, int companyId) throws DataAccessException;
 

@@ -114,10 +114,10 @@ public class DocumentDaoImpl implements DocumentDao {
                 }
         );
 
-        LinkedList<Document.Field> resultFields = jdbcTemplate.query(SELECT_TEMPLATE_FIELD,
+        ArrayList<Document.Field> resultFields = jdbcTemplate.query(SELECT_TEMPLATE_FIELD,
                 new Object[]{templateId},
                 rs -> {
-                    LinkedList<Document.Field> fields = new LinkedList<>();
+                    ArrayList<Document.Field> fields = new ArrayList<>();
                     while(rs.next()){
                         Document.Field field = new Document.Field();
                         field.setName(rs.getString("FIELD_NAME"));
@@ -134,7 +134,7 @@ public class DocumentDaoImpl implements DocumentDao {
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
                 new Object[]{templateId},
                 rs -> {
-                    List<Document.Condition> conditions = new LinkedList<>();
+                    List<Document.Condition> conditions = new ArrayList<>();
                     while(rs.next()){
                         Document.Condition condition = new Document.Condition();
                         condition.setCondNum(rs.getInt("COND_NUM"));
@@ -181,10 +181,10 @@ public class DocumentDaoImpl implements DocumentDao {
                 }
         );
 
-        LinkedList<Document.Field> resultFields = jdbcTemplate.query(SELECT_DOCUMENT_FIELD,
+        ArrayList<Document.Field> resultFields = jdbcTemplate.query(SELECT_DOCUMENT_FIELD,
                 new Object[]{documentId},
                 rs -> {
-                    LinkedList<Document.Field> fields = new LinkedList<>();
+                    ArrayList<Document.Field> fields = new ArrayList<>();
                     while(rs.next()){
                         Document.Field field = new Document.Field();
                         field.setName(rs.getString("FIELD_NAME"));
@@ -226,7 +226,7 @@ public class DocumentDaoImpl implements DocumentDao {
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_DOCUMENT_CONDITION,
                 new Object[]{documentId},
                 rs -> {
-                    List<Document.Condition> conditions = new LinkedList<>();
+                    List<Document.Condition> conditions = new ArrayList<>();
                     while(rs.next()){
                         Document.Condition condition = new Document.Condition();
                         condition.setCondNum(rs.getInt("COND_NUM"));
@@ -345,7 +345,7 @@ public class DocumentDaoImpl implements DocumentDao {
 
     @Override
     @Transactional
-    public void create(Document document, int userId, int companyId) throws DataAccessException {
+    public int create(Document document, int userId, int companyId) throws DataAccessException {
         Date currDate = new Date();
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -432,6 +432,7 @@ public class DocumentDaoImpl implements DocumentDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

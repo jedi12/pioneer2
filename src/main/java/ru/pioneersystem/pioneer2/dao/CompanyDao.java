@@ -11,7 +11,7 @@ public interface CompanyDao {
 
     List<Company> getList() throws DataAccessException;
 
-    void create(Company company) throws DataAccessException;
+    int create(Company company) throws DataAccessException;
 
     void update(Company company) throws DataAccessException;
 

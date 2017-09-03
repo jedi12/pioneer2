@@ -46,12 +46,8 @@ public class SessionListener implements HttpSessionListener {
 	public List<HttpSession> getUserSessions(int userId) {
 		List<HttpSession> sessionsList = new ArrayList<>();
 		for (HttpSession session : sessions.values()) {
-			try {
-				if (userId == (int) session.getAttribute(USER_ID)) {
-					sessionsList.add(session);
-				}
-			} catch (Exception e) {
-				continue;
+			if (userId == (int) session.getAttribute(USER_ID)) {
+				sessionsList.add(session);
 			}
 		}
 		return sessionsList;
@@ -60,17 +56,13 @@ public class SessionListener implements HttpSessionListener {
 	public List<HttpSession> getCompanySessions(int companyId) {
 		List<HttpSession> sessionsList = new ArrayList<>();
 		for (HttpSession session : sessions.values()) {
-			try {
-				if (companyId == (int) session.getAttribute(COMPANY_ID)) {
-					sessionsList.add(session);
-				}
-			} catch (Exception e) {
-				continue;
+			if (companyId == (int) session.getAttribute(COMPANY_ID)) {
+				sessionsList.add(session);
 			}
 		}
 		return sessionsList;
 	}
-	
+
 	public int getActiveSessionsCount() {
 		return sessions.size();
 	}

@@ -11,10 +11,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -170,7 +167,7 @@ public class GroupView implements Serializable {
     }
 
     private List<String> getCurrSelectUser(Group currGroup) {
-        List<String> currSelectUser = new LinkedList<>();
+        List<String> currSelectUser = new ArrayList<>();
         currSelectUser.addAll(selectUserDefault.keySet());
         for (Group.LinkUser linkUser: currGroup.getLinkUsers()) {
             currSelectUser.remove(linkUser.getUserName());

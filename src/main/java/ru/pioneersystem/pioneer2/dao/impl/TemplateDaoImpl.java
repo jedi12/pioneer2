@@ -16,10 +16,7 @@ import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository(value = "templateDao")
 public class TemplateDaoImpl implements TemplateDao {
@@ -114,7 +111,7 @@ public class TemplateDaoImpl implements TemplateDao {
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
                 new Object[]{templateId},
                 rs -> {
-                    List<Document.Condition> conditions = new LinkedList<>();
+                    List<Document.Condition> conditions = new ArrayList<>();
                     while(rs.next()){
                         Document.Condition condition = new Document.Condition();
                         condition.setCondNum(rs.getInt("COND_NUM"));
@@ -229,7 +226,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
     @Override
     @Transactional
-    public void create(Template template, int companyId) throws DataAccessException {
+    public int create(Template template, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -277,6 +274,7 @@ public class TemplateDaoImpl implements TemplateDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

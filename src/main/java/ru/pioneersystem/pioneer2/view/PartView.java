@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -202,7 +201,7 @@ public class PartView implements Serializable {
     }
 
     private List<String> getCurrSelectPart(Part currPart) {
-        List<String> currSelectGroup = new LinkedList<>();
+        List<String> currSelectGroup = new ArrayList<>();
         currSelectGroup.addAll(selectGroupDefault.keySet());
         for (Part.LinkGroup linkGroup: currPart.getLinkGroups()) {
             currSelectGroup.remove(linkGroup.getGroupName());

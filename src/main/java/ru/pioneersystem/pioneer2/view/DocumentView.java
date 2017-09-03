@@ -56,6 +56,9 @@ public class DocumentView implements Serializable {
     @ManagedProperty("#{documentService}")
     private DocumentService documentService;
 
+    @ManagedProperty("#{routeProcessService}")
+    private RouteProcessService routeProcessService;
+
     @ManagedProperty("#{partService}")
     private PartService partService;
 
@@ -233,7 +236,7 @@ public class DocumentView implements Serializable {
         }
 
         try {
-            routePoints = documentService.getDocumentRoute(selectedDocument.getId());
+            routePoints = routeProcessService.getDocumentRoute(selectedDocument.getId());
 
             RequestContext.getCurrentInstance().execute("PF('docRouteDialog').show()");
         }
@@ -252,7 +255,7 @@ public class DocumentView implements Serializable {
 
         try {
             int docId = ((Document) selectedNode.getData()).getId();
-            routePoints = documentService.getDocumentRoute(docId);
+            routePoints = routeProcessService.getDocumentRoute(docId);
 
             RequestContext.getCurrentInstance().execute("PF('docRouteDialog').show()");
         }
@@ -359,6 +362,12 @@ public class DocumentView implements Serializable {
     }
 
     public void publishAction() {
+        if (!currDoc.isNewPart()) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.document.NotPartSelected")));
+            return;
+        }
+
         try {
             documentService.publishDocument(currDoc);
             initDefault();
@@ -491,6 +500,10 @@ public class DocumentView implements Serializable {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
+    }
+
+    public void setRouteProcessService(RouteProcessService routeProcessService) {
+        this.routeProcessService = routeProcessService;
     }
 
     public void setPartService(PartService partService) {

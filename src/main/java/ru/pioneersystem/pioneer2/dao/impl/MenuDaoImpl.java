@@ -14,10 +14,7 @@ import ru.pioneersystem.pioneer2.model.Menu;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository(value = "menuDao")
 public class MenuDaoImpl implements MenuDao {
@@ -71,7 +68,7 @@ public class MenuDaoImpl implements MenuDao {
         List<Menu> subMenus = jdbcTemplate.query(SELECT_SUB_MENU,
                 new Object[]{menuWithSubMenu.getId()},
                 (rs) -> {
-                    List<Menu> subMenu = new LinkedList<>();
+                    List<Menu> subMenu = new ArrayList<>();
                     while(rs.next()){
                         Menu menu = new Menu();
                         menu.setId(rs.getInt("ID"));
@@ -110,7 +107,7 @@ public class MenuDaoImpl implements MenuDao {
         return jdbcTemplate.query(SELECT_USER_MENU_LIST,
                 new Object[]{userId},
                 rs -> {
-                    List<Menu> menus = new LinkedList<>();
+                    List<Menu> menus = new ArrayList<>();
                     Map<Integer, List<Menu>> subMenus = new HashMap<>();
                     int oldParent = 0;
                     while(rs.next()){
@@ -127,7 +124,7 @@ public class MenuDaoImpl implements MenuDao {
 
                         if (parent != 0) {
                             if (parent != oldParent) {
-                                subMenus.put(parent, new LinkedList<>());
+                                subMenus.put(parent, new ArrayList<>());
                                 oldParent = parent;
                             }
                             subMenus.get(parent).add(menu);
@@ -144,7 +141,7 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     @Transactional
-    public void create(Menu menu, int companyId) throws DataAccessException {
+    public int create(Menu menu, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -161,7 +158,7 @@ public class MenuDaoImpl implements MenuDao {
         );
 
         if (menu.getSubMenu() == null) {
-            return;
+            return keyHolder.getKey().intValue();
         }
 
         jdbcTemplate.batchUpdate(INSERT_MENU,
@@ -180,6 +177,7 @@ public class MenuDaoImpl implements MenuDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

@@ -14,10 +14,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -188,7 +185,7 @@ public class RouteView implements Serializable {
     }
 
     private List<String> getCurrSelectPoint(Route currRoute) {
-        List<String> currSelectRoute = new LinkedList<>();
+        List<String> currSelectRoute = new ArrayList<>();
         currSelectRoute.addAll(selectPointDefault.keySet());
         for (Route.Point point: currRoute.getPoints()) {
             currSelectRoute.remove(point.getGroupName());
@@ -197,7 +194,7 @@ public class RouteView implements Serializable {
     }
 
     private List<String> getCurrSelectGroup(Route currRoute) {
-        List<String> currSelectGroup = new LinkedList<>();
+        List<String> currSelectGroup = new ArrayList<>();
         currSelectGroup.addAll(selectGroupDefault.keySet());
         for (Route.LinkGroup linkGroup : currRoute.getGroups()) {
             currSelectGroup.remove(linkGroup.getGroupName());

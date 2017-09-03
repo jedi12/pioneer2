@@ -1,20 +1,19 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.SearchDao;
-import ru.pioneersystem.pioneer2.dao.exception.TooManyDocsDaoException;
+import ru.pioneersystem.pioneer2.dao.exception.TooManyRowsDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
-import ru.pioneersystem.pioneer2.model.Role;
+import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.SearchDoc;
+import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.SearchService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.service.exception.TooManyDocsException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.service.exception.TooManyObjectsException;
+import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.time.LocalDateTime;
@@ -24,16 +23,16 @@ import java.util.List;
 
 @Service("searchService")
 public class SearchServiceImpl implements SearchService {
-    private Logger log = LoggerFactory.getLogger(SearchServiceImpl.class);
-
+    private EventService eventService;
     private SearchDao searchDao;
     private LocaleBean localeBean;
     private CurrentUser currentUser;
     private MessageSource messageSource;
 
     @Autowired
-    public SearchServiceImpl(SearchDao searchDao, LocaleBean localeBean, CurrentUser currentUser,
-                             MessageSource messageSource) {
+    public SearchServiceImpl(EventService eventService, SearchDao searchDao, LocaleBean localeBean,
+                             CurrentUser currentUser, MessageSource messageSource) {
+        this.eventService = eventService;
         this.searchDao = searchDao;
         this.localeBean = localeBean;
         this.currentUser = currentUser;
@@ -51,17 +50,17 @@ public class SearchServiceImpl implements SearchService {
                         currentUser.getUser().getCompanyId());
             }
             offsetDateAndFormat(documents);
+            eventService.logEvent(Event.Type.SEARCH_FIND, 0);
             return documents;
-        } catch (TooManyDocsDaoException e) {
-            documents = e.getDocuments();
+        } catch (TooManyRowsDaoException e) {
+            documents = e.getObject();
             offsetDateAndFormat(documents);
-
             String mess = messageSource.getMessage("error.search.TooManyDocsFound", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new TooManyDocsException(mess, documents);
+            eventService.logEvent(Event.Type.SEARCH_FIND, 0, mess);
+            throw new TooManyObjectsException(mess, documents);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.search.NotFound", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }

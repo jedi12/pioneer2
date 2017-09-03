@@ -226,10 +226,10 @@ public class TemplateView implements Serializable {
     }
 
     private List<SelectItem> toSelectItemList(Map<Integer, FieldType> fieldTypes) {
-        List<SelectItem> selectItems = new LinkedList<>();
-        List<SelectItem> inputSelectItem = new LinkedList<>();
+        List<SelectItem> selectItems = new ArrayList<>();
+        List<SelectItem> inputSelectItem = new ArrayList<>();
         SelectItemGroup inputItemGroup = new SelectItemGroup();
-        List<SelectItem> decorateSelectItem = new LinkedList<>();
+        List<SelectItem> decorateSelectItem = new ArrayList<>();
         SelectItemGroup decorateItemGroup = new SelectItemGroup();
 
         for (FieldType fieldType : fieldTypes.values()) {
@@ -258,7 +258,7 @@ public class TemplateView implements Serializable {
     }
 
     private List<String> toRouteList(Map<String, Route> routesMap) {
-        List<String> list = new LinkedList<>();
+        List<String> list = new ArrayList<>();
         for (Route route : routesMap.values()) {
             list.add(route.getName());
         }
@@ -267,7 +267,7 @@ public class TemplateView implements Serializable {
 
     public void tabChanged() {
         selectFieldNameDefault = new HashMap<>();
-        selectFieldName = new LinkedList<>();
+        selectFieldName = new ArrayList<>();
         selectedFieldName = null;
 
         for (Document.Field field : currTemplate.getFields()) {

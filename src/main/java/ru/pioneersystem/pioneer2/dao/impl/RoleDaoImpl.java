@@ -129,7 +129,7 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     @Transactional
-    public void create(Role role, int companyId) throws DataAccessException {
+    public int create(Role role, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -172,6 +172,7 @@ public class RoleDaoImpl implements RoleDao {
                     return pstmt;
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

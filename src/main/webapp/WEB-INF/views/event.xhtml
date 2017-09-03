@@ -1,0 +1,64 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<h2 align="center"><h:outputLabel value="#{text['event.title']}"/></h2>
+
+	<p:panel>
+		<p:panel id="searchCond" width="100%">
+			<h:panelGrid columns="2" style="margin: auto">
+				<h:panelGroup>
+					<p:outputLabel value="#{text['event.search.byDate']}" style="margin: 5px"/>
+					<p:calendar value="#{eventView.fromDate}" size="10" pattern="#{localeBean.datePattern}"
+								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+					<p:outputLabel value="-" style="margin: 5px"/>
+					<p:calendar value="#{eventView.toDate}" size="10" pattern="#{localeBean.datePattern}"
+								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+				</h:panelGroup>
+				<p:commandButton value="#{text['event.btn.search']}" icon="fa fa-fw fa-search"
+								 actionListener="#{eventView.findAction}" update="eventTable"/>
+			</h:panelGrid>
+		</p:panel>
+		<p:panel>
+			<p:dataTable id="eventTable" widgetVar="eventTable" value="#{eventView.eventList}" var="event" rows="20"
+						 selectionMode="single" selection="#{eventView.selectedEvent}" rowKey="#{event.id}"
+						 filteredValue="#{eventView.filteredEventList}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{event.typeId == 0 ? 'lightPink' : 'default'}">
+
+				<p:ajax event="filter" ignoreAutoUpdate="true"/>
+				<p:ajax event="rowDblselect" listener="#{eventView.detailDialog}" disabled="#{!currentUser.superRole}"
+						update=":detailDialog" oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+
+				<p:column headerText="#{text['event.col.date']}" filterBy="#{event.dateFormatted}" filterMatchMode="contains">
+					<h:outputText value="#{event.dateFormatted}"/>
+				</p:column>
+
+				<p:column headerText="#{text['event.col.login']}" filterBy="#{event.userLogin}" filterMatchMode="contains">
+					<h:outputText value="#{event.userLogin}"/>
+				</p:column>
+
+				<p:column headerText="#{text['event.col.type']}" filterBy="#{event.typeName}" filterMatchMode="contains">
+					<h:outputText value="#{event.typeName}"/>
+				</p:column>
+
+				<p:column headerText="#{text['event.col.objectId']}" filterBy="#{event.objectId}" filterMatchMode="contains">
+					<h:outputText value="#{event.objectId}"/>
+				</p:column>
+
+				<p:column headerText="#{text['event.col.detail1']}" filterBy="#{event.detail1}" filterMatchMode="contains">
+					<h:outputText value="#{event.detail1}"/>
+				</p:column>
+			</p:dataTable>
+
+			<f:facet name="footer">
+				<p:commandButton value="#{text['event.btn.detail']}" icon="fa fa-fw fa-info" update=":detailDialog"
+								 actionListener="#{eventView.detailDialog}" rendered="#{currentUser.superRole}"/>
+			</f:facet>
+		</p:panel>
+	</p:panel>
+</ui:composition>
