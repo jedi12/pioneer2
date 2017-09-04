@@ -72,7 +72,7 @@ public class SearchServiceImpl implements SearchService {
             Date changeDate = document.getChangeDate();
             if (changeDate != null) {
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(changeDate.toInstant(), localeBean.getZoneId());
-                document.setChangeDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+//                document.setChangeDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
                 document.setChangeDateFormatted(localDateTime.format(localeBean.getDateTimeFormatter()));
             }
         }

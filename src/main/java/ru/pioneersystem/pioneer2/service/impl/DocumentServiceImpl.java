@@ -444,7 +444,7 @@ public class DocumentServiceImpl implements DocumentService {
         Date inputDate = document.getCreateDate();
         if (inputDate != null) {
             LocalDateTime localDateTime = LocalDateTime.ofInstant(inputDate.toInstant(), localeBean.getZoneId());
-            document.setCreateDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+//            document.setCreateDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
             document.setCreateDateFormatted(localDateTime.format(localeBean.getDateFormatter()));
         }
     }

@@ -145,14 +145,14 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             Date receiptDate = routePoint.getReceiptDate();
             if (receiptDate != null) {
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(receiptDate.toInstant(), localeBean.getZoneId());
-                routePoint.setReceiptDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+//                routePoint.setReceiptDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
                 routePoint.setReceiptDateFormatted(localDateTime.format(localeBean.getDateTimeFormatter()));
             }
 
             Date signDate = routePoint.getSignDate();
             if (signDate != null) {
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(signDate.toInstant(), localeBean.getZoneId());
-                routePoint.setSignDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+//                routePoint.setSignDate(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
                 routePoint.setSignDateFormatted(localDateTime.format(localeBean.getDateTimeFormatter()));
             }
         }
