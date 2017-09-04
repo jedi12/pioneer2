@@ -1,34 +1,68 @@
 package ru.pioneersystem.pioneer2.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.pioneersystem.pioneer2.dao.EventDao;
+import ru.pioneersystem.pioneer2.model.Event;
 
-import javax.servlet.annotation.WebListener;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-@WebListener
 @Component
 @Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class SessionListener implements HttpSessionListener {
+public class SessionListener implements HttpSessionListener, ServletContextListener {
 	private static final ConcurrentHashMap<String, HttpSession> sessions = new ConcurrentHashMap<>();
 	public static final String USER_ID = "userId";
 	public static final String COMPANY_ID = "companyId";
+	public static final String IP_ADDRESS = "IPAddress";
+
+	@Autowired
+	private EventDao eventDao;
+
+	@Override
+	public void contextInitialized(ServletContextEvent sce) {
+		WebApplicationContextUtils
+				.getRequiredWebApplicationContext(sce.getServletContext())
+				.getAutowireCapableBeanFactory()
+				.autowireBean(this);
+	}
+
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+		//
+	}
 
 	@Override
 	public void sessionCreated(HttpSessionEvent event) {
 		HttpSession session = event.getSession();
-		sessions.put(session.getId(), event.getSession());
+		sessions.put(session.getId(), session);
 	}
 
 	@Override
 	public void sessionDestroyed(HttpSessionEvent event) {
-		sessions.remove(event.getSession().getId());
+		HttpSession session = event.getSession();
+		sessions.remove(session.getId());
+
+		logSignOutEvent(session);
+	}
+
+	private void logSignOutEvent(HttpSession session) {
+		int userId = session.getAttribute(USER_ID) != null ? (int) session.getAttribute(USER_ID) : 0;
+		int companyId = session.getAttribute(COMPANY_ID) != null ? (int) session.getAttribute(COMPANY_ID) : 0;
+		String ipAddress = session.getAttribute(IP_ADDRESS) != null ? (String) session.getAttribute(IP_ADDRESS) : "";
+
+		Event signOutEvent = new Event(new Date(), userId, Event.Type.USER_SIGNED_OUT, 0, "IP: " + ipAddress, null);
+		eventDao.create(signOutEvent, companyId);
 	}
 
 	public void invalidateUserSessions(int userId) {

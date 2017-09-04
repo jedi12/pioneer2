@@ -121,14 +121,16 @@ public class CurrentUser implements Serializable {
 //            request.getSession().setAttribute(SessionListener.USER_ID, user.getId());
 //            request.getSession().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
 
+            String ipAddress = getIpAddress();
             // TODO: 02.09.2017 Переделать через Spring?
             HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
             session.setAttribute(SessionListener.USER_ID, user.getId());
             session.setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
+            session.setAttribute(SessionListener.IP_ADDRESS, ipAddress);
 
             logged = true;
 
-            eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + getIpAddress());
+            eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + ipAddress);
 
         } catch (PasswordException e) {
             String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
@@ -149,8 +151,6 @@ public class CurrentUser implements Serializable {
             ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
             externalContext.redirect("signedOut.xhtml");
             externalContext.setSessionMaxInactiveInterval(1);
-
-            eventService.logEvent(Event.Type.USER_SIGNED_OUT, 0, "IP: " + getIpAddress());
         } catch (IOException e) {
             String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
                     ": " + user.getLogin() + ", IP: " + getIpAddress();
