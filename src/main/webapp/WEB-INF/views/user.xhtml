@@ -17,7 +17,7 @@
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{user.name}">
 
 			<p:ajax event="rowDblselect" listener="#{userView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+					oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 
 			<p:column headerText="#{text['user.col.name']}" filterBy="#{user.name}" filterMatchMode="contains">
                 <h:outputText value="#{user.name}"/>
@@ -39,10 +39,10 @@
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
                              actionListener="#{userView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
                              actionListener="#{userView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="usersTable"
 							 actionListener="#{userView.lockAction}"/>
 			<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="usersTable"

@@ -41,7 +41,7 @@ public class MenuServiceImpl implements MenuService {
         try {
             List<Menu> menus = menuDao.getList(currentUser.getUser().getCompanyId());
             for (Menu menu : menus) {
-                String menuName = dictionaryService.getLocalizedMenuName(menu.getId());
+                String menuName = dictionaryService.getLocalizedMenuName(menu.getId(), localeBean.getLocale());
                 if (menuName != null) {
                     menu.setName(menuName);
                 }
@@ -59,7 +59,7 @@ public class MenuServiceImpl implements MenuService {
         try {
             List<Menu> menus = menuDao.getUserMenu(currentUser.getUser().getId());
             for (Menu menu : menus) {
-                String menuName = dictionaryService.getLocalizedMenuName(menu.getId());
+                String menuName = dictionaryService.getLocalizedMenuName(menu.getId(), localeBean.getLocale());
                 if (menuName != null) {
                     menu.setName(menuName);
                 }
@@ -95,7 +95,7 @@ public class MenuServiceImpl implements MenuService {
     public Menu getMenu(int menuId) throws ServiceException {
         try {
             Menu menu = menuDao.get(menuId, currentUser.getUser().getCompanyId());
-            String menuName = dictionaryService.getLocalizedMenuName(menu.getId());
+            String menuName = dictionaryService.getLocalizedMenuName(menu.getId(), localeBean.getLocale());
             if (menuName != null) {
                 menu.setName(menuName);
             }

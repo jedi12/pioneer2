@@ -16,45 +16,63 @@
 			</h2>
 
 			<p:panel>
-				<h:panelGrid id="userGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
-					<p:outputLabel value="#{text['user.edit.name']}" for="name"/>
-					<p:inputText id="name" value="#{userView.currUser.name}" styleClass="width100" maxlength="64"
-								 validator="notEmptyString"/>
-					<p:message for="name" display="icon" styleClass="width38px"/>
+				<p:tabView id="tabView" widgetVar="tabView">
+					<p:tab id="tab1" title="#{text['user.tab1.name']}">
+						<h:panelGrid id="userGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+							<p:outputLabel value="#{text['user.edit.name']}" for="name"/>
+							<p:inputText id="name" value="#{userView.currUser.name}" styleClass="width100" maxlength="64"
+										 validator="notEmptyString"/>
+							<p:message for="name" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['user.edit.login']}" for="login"/>
-					<p:inputText id="login" value="#{userView.currUser.login}" style="width: 100%" maxlength="64"
-								 validator="notEmptyString"/>
-					<p:message for="login" display="icon"/>
+							<p:outputLabel value="#{text['user.edit.login']}" for="login"/>
+							<p:inputText id="login" value="#{userView.currUser.login}" style="width: 100%" maxlength="64"
+										 validator="notEmptyString"/>
+							<p:message for="login" display="icon"/>
 
-					<p:outputLabel value="#{text['user.edit.email']}" for="email"/>
-					<p:inputText id="email" value="#{userView.currUser.email}" style="width: 100%" maxlength="64"
-								 validator="notEmptyString"/>
-					<p:message for="email" display="icon"/>
+							<p:outputLabel value="#{text['user.edit.email']}" for="email"/>
+							<p:inputText id="email" value="#{userView.currUser.email}" style="width: 100%" maxlength="64"
+										 validator="notEmptyString"/>
+							<p:message for="email" display="icon"/>
 
-					<p:outputLabel value="#{text['user.edit.phone']}" for="phone"/>
-					<p:inputText id="phone" value="#{userView.currUser.phone}" style="width: 100%" maxlength="64"/>
-					<p:message for="phone" display="icon"/>
+							<p:outputLabel value="#{text['user.edit.phone']}" for="phone"/>
+							<p:inputText id="phone" value="#{userView.currUser.phone}" style="width: 100%" maxlength="64"/>
+							<p:message for="phone" display="icon"/>
 
-					<p:outputLabel value="#{text['user.edit.position']}" for="position"/>
-					<p:inputText id="position" value="#{userView.currUser.position}" style="width: 100%" maxlength="64"/>
-					<p:message for="position" display="icon"/>
+							<p:outputLabel value="#{text['user.edit.position']}" for="position"/>
+							<p:inputText id="position" value="#{userView.currUser.position}" style="width: 100%" maxlength="64"/>
+							<p:message for="position" display="icon"/>
 
-					<p:outputLabel value="#{text['user.edit.company']}" for="company"/>
-					<p:inputText id="company" value="#{userView.currUser.company.name}" style="width: 100%" maxlength="50"
-								 disabled="true"/>
-					<p:message for="company" display="icon"/>
+							<p:outputLabel value="#{text['user.edit.company']}" for="company"/>
+							<p:inputText id="company" value="#{userView.currUser.company.name}" style="width: 100%" maxlength="50"
+										 disabled="true"/>
+							<p:message for="company" display="icon"/>
 
-					<p:outputLabel value="#{text['user.edit.comment']}" for="comment"/>
-					<p:inputTextarea id="comment" value="#{userView.currUser.comment}" rows="4" autoResize="true"
-									 maxlength="250" style="width: 100%;max-height: 64px"/>
-					<p:message for="comment" display="icon"/>
-				</h:panelGrid>
+							<p:outputLabel value="#{text['user.edit.comment']}" for="comment"/>
+							<p:inputTextarea id="comment" value="#{userView.currUser.comment}" rows="4" autoResize="true"
+											 maxlength="250" style="width: 100%;max-height: 64px"/>
+							<p:message for="comment" display="icon"/>
+						</h:panelGrid>
+					</p:tab>
+
+					<p:tab id="tab2" title="#{text['user.tab2.name']}">
+						<h4 align="center">Группы, в которые входит пользователь</h4>
+
+					</p:tab>
+
+					<p:tab id="tab3" title="#{text['user.tab3.name']}">
+						<h:panelGrid columns="2">
+							<h:outputLabel value="#{text['user.edit.noticeDocIncoming']}"/>
+							<p:selectBooleanCheckbox value="#{userView.currUser.noticeDocIncoming}"/>
+							<h:outputLabel value="#{text['user.edit.noticeStatusChanged']}"/>
+							<p:selectBooleanCheckbox value="#{userView.currUser.noticeStatusChanged}"/>
+						</h:panelGrid>
+					</p:tab>
+				</p:tabView>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:usersTable userGrid"
+										 update=":centerPanel:usersTable editDialog:tabView:userGrid"
 										 actionListener="#{userView.saveAction}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>

@@ -6,6 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.pioneersystem.pioneer2.AppProps;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
 import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
 import ru.pioneersystem.pioneer2.model.*;
@@ -18,11 +19,8 @@ import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("documentService")
 public class DocumentServiceImpl implements DocumentService {
@@ -34,11 +32,13 @@ public class DocumentServiceImpl implements DocumentService {
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
+    private AppProps appProps;
 
     @Autowired
     public DocumentServiceImpl(EventService eventService, DocumentDao documentDao, ChoiceListService choiceListService,
-                               RouteProcessService routeProcessService,UserService userService,
-                               CurrentUser currentUser, LocaleBean localeBean,MessageSource messageSource) {
+                               RouteProcessService routeProcessService, UserService userService,
+                               CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource,
+                               AppProps appProps) {
         this.eventService = eventService;
         this.documentDao = documentDao;
         this.choiceListService = choiceListService;
@@ -47,6 +47,7 @@ public class DocumentServiceImpl implements DocumentService {
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
+        this.appProps = appProps;
     }
 
     @Override

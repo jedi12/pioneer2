@@ -15,7 +15,7 @@ public interface RouteProcessDao {
 
     void start(int documentId, int userId) throws DataAccessException;
 
-    void accept(int documentId, int userId, String message, boolean changeRoute, int newRouteId) throws DataAccessException;
+    boolean accept(int documentId, int userId, String message, boolean changeRoute, int newRouteId) throws DataAccessException;
 
     void reject(int documentId, int userId, String message) throws DataAccessException;
 

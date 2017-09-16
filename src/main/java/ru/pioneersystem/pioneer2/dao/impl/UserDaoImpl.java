@@ -25,18 +25,19 @@ public class UserDaoImpl implements UserDao {
     public static final String PASS = "pass";
 
     private static final String INSERT_USER = "INSERT INTO DOC.USERS (LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, " +
-            "COMMENT, POSITION) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "COMMENT, POSITION, NOTICE_DOC_IN, NOTICE_STATUS_CH) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_USER = "UPDATE DOC.USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, PHONE = ?, " +
-            "COMMENT = ?, POSITION = ? WHERE ID = ? AND COMPANY = ?";
+            "COMMENT = ?, POSITION = ?, NOTICE_DOC_IN = ?, NOTICE_STATUS_CH = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_LOCK = "UPDATE DOC.USERS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_CHANGE_PASS = "UPDATE DOC.USERS SET PASS = ? WHERE ID = ?";
     private static final String SELECT_USER = "SELECT ID, LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, COMMENT, " +
-            "POSITION FROM DOC.USERS WHERE ID = ? AND COMPANY = ?";
+            "POSITION, NOTICE_DOC_IN, NOTICE_STATUS_CH FROM DOC.USERS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_USER_WITH_COMPANY = "SELECT U.ID AS U_ID, U.LOGIN AS U_LOGIN, U.NAME AS U_NAME, " +
             "U.STATE AS U_STATE, U.EMAIL AS U_EMAIL, U.PHONE AS U_PHONE, U.COMPANY AS U_COMPANY, U.COMMENT AS U_COMMENT, " +
-            "U.POSITION AS U_POSITION, C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, " +
-            "C.EMAIL AS C_EMAIL,  C.ADDRESS AS C_ADDRESS, C.STATE AS C_STATE, C.MAX_USERS AS C_MAX_USERS, " +
-            "C.SITE AS C_SITE, C.COMMENT AS C_COMMENT FROM DOC.USERS U, DOC.COMPANY C WHERE U.COMPANY = C.ID AND U.ID = ?";
+            "U.POSITION AS U_POSITION, U.NOTICE_DOC_IN AS U_NOTICE_DOC_IN, U.NOTICE_STATUS_CH AS U_NOTICE_STATUS_CH, " +
+            "C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, C.EMAIL AS C_EMAIL, " +
+            "C.ADDRESS AS C_ADDRESS, C.STATE AS C_STATE, C.MAX_USERS AS C_MAX_USERS, C.SITE AS C_SITE, " +
+            "C.COMMENT AS C_COMMENT FROM DOC.USERS U, DOC.COMPANY C WHERE U.COMPANY = C.ID AND U.ID = ?";
     private static final String SELECT_USER_LIST =
             "SELECT ID, NAME, LOGIN, EMAIL, STATE FROM DOC.USERS WHERE COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_USERS_IN_GROUP_LIST =
@@ -68,6 +69,8 @@ public class UserDaoImpl implements UserDao {
                         user.setComment(rs.getString("COMMENT"));
                         user.setPosition(rs.getString("POSITION"));
                         user.setState(rs.getInt("STATE"));
+                        user.setNoticeDocIncoming(rs.getInt("NOTICE_DOC_IN") == 1);
+                        user.setNoticeStatusChanged(rs.getInt("NOTICE_STATUS_CH") == 1);
                         return user;
                     } else {
                         throw new NotFoundDaoException("Not found User with userId = " + userId +
@@ -92,6 +95,8 @@ public class UserDaoImpl implements UserDao {
                     user.setComment(rs.getString("U_COMMENT"));
                     user.setPosition(rs.getString("U_POSITION"));
                     user.setState(rs.getInt("U_STATE"));
+                    user.setNoticeDocIncoming(rs.getInt("U_NOTICE_DOC_IN") == 1);
+                    user.setNoticeStatusChanged(rs.getInt("U_NOTICE_STATUS_CH") == 1);
 
                     Company comp = new Company();
                     comp.setId(rs.getInt("C_ID"));
@@ -159,6 +164,8 @@ public class UserDaoImpl implements UserDao {
                     pstmt.setInt(6, companyId);
                     pstmt.setString(7, user.getComment());
                     pstmt.setString(8, user.getPosition());
+                    pstmt.setInt(9, user.isNoticeDocIncoming() ? 1 : 0);
+                    pstmt.setInt(10, user.isNoticeStatusChanged() ? 1 : 0);
                     return pstmt;
                 }, keyHolder
         );
@@ -176,6 +183,8 @@ public class UserDaoImpl implements UserDao {
                 user.getPhone(),
                 user.getComment(),
                 user.getPosition(),
+                user.isNoticeDocIncoming() ? 1 : 0,
+                user.isNoticeStatusChanged() ? 1 : 0,
                 user.getId(),
                 companyId
         );

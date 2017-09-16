@@ -248,6 +248,51 @@ public class DocumentDaoImpl implements DocumentDao {
     }
 
     @Override
+    public ArrayList<Document.Field> getDocFields(int documentId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_DOCUMENT_FIELD,
+                new Object[]{documentId},
+                rs -> {
+                    ArrayList<Document.Field> fields = new ArrayList<>();
+                    while(rs.next()){
+                        Document.Field field = new Document.Field();
+                        field.setName(rs.getString("FIELD_NAME"));
+                        field.setNum(rs.getInt("FIELD_NUM"));
+                        int fieldType = rs.getInt("FIELD_TYPE");
+                        field.setTypeId(fieldType);
+
+                        switch (fieldType) {
+                            case FieldType.Id.TEXT_STRING:
+                                field.setValueTextField(rs.getString("VALUE_TEXTFIELD"));
+                                break;
+                            case FieldType.Id.LIST:
+                                field.setValueChoiceList(rs.getString("VALUE_LIST_SELECTED"));
+                                field.setChoiceListId(rs.getObject("VALUE_LIST", Integer.class));
+                                List<String> choiceListValues = new ArrayList<>();
+                                choiceListValues.add(rs.getString("VALUE_LIST_SELECTED"));
+                                field.setChoiceListValues(choiceListValues);
+                                break;
+                            case FieldType.Id.CALENDAR:
+                                field.setValueCalendar(Date.from(rs.getTimestamp("VALUE_CALENDAR").toInstant()));
+                                break;
+                            case FieldType.Id.CHECKBOX:
+                                field.setValueCheckBox(rs.getObject("VALUE_CHECKBOX", Boolean.class));
+                                break;
+                            case FieldType.Id.TEXT_AREA:
+                                field.setValueTextArea(rs.getString("VALUE_TEXTAREA"));
+                                break;
+                            case FieldType.Id.FILE:
+                                field.setFileId(rs.getObject("VALUE_FILE", Integer.class));
+                                field.setFileName(rs.getString("FILE_NAME"));
+                                break;
+                        }
+                        fields.add(field);
+                    }
+                    return fields;
+                }
+        );
+    }
+
+    @Override
     public List<Document> getOnRouteList(int roleId, int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_ON_ROUTE_DOCUMENT_LIST,
                 new Object[]{roleId, userId, companyId},

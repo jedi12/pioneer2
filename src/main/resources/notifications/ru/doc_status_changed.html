@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Пионер 2</title>
+		<meta charset="UTF-8">
+	</head>
+
+	<body>
+		<p align=left>Документ: <b>${emailSendInfo.docName}</b> (ид. ${emailSendInfo.docId})</p>
+
+		<#switch emailSendInfo.docStatusId>
+			<#case 6>
+				<p align=left>Статус изменился на: <span style='color:red'>${emailSendInfo.docStatusName}</span></p>
+				<#break>
+			<#case 7>
+				<p align=left>Статус изменился на: <span style='color:green'>${emailSendInfo.docStatusName}</span></p>
+				<#break>
+			<#case 8>
+				<p align=left>Статус изменился на: <span style='color:blue'>${emailSendInfo.docStatusName}</span></p>
+				<#break>
+			<#default>
+				<p align=left>Статус изменился на: ${emailSendInfo.docStatusName}</p>
+		</#switch>
+
+		<p><span style='font-size:10.0pt'>
+			<a href="${serverBackRef}?currMenuId=${emailSendInfo.menuId}&curDocId=${emailSendInfo.docId}">
+				Ссылка</a> на документ в системе Пионер 2</span></p>
+	</body>
+</html>

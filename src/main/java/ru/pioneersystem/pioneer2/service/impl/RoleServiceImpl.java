@@ -43,7 +43,7 @@ public class RoleServiceImpl implements RoleService {
         try {
             List<Role> roles = roleDao.getList(currentUser.getUser().getCompanyId());
             for (Role role : roles) {
-                String roleName = dictionaryService.getLocalizedRoleName(role.getId());
+                String roleName = dictionaryService.getLocalizedRoleName(role.getId(), localeBean.getLocale());
                 if (roleName != null) {
                     role.setName(roleName);
                 }
@@ -87,7 +87,7 @@ public class RoleServiceImpl implements RoleService {
     public Role getRole(int roleId) throws ServiceException {
         try {
             Role role = roleDao.get(roleId, currentUser.getUser().getCompanyId());
-            String roleName = dictionaryService.getLocalizedRoleName(role.getId());
+            String roleName = dictionaryService.getLocalizedRoleName(role.getId(), localeBean.getLocale());
             if (roleName != null) {
                 role.setName(roleName);
             }

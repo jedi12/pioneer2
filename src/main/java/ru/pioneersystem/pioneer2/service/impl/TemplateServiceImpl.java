@@ -126,7 +126,7 @@ public class TemplateServiceImpl implements TemplateService {
         try {
             Template template = templateDao.get(templateId, currentUser.getUser().getCompanyId());
             for (Document.Field field: template.getFields()) {
-                String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(field.getTypeId());
+                String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(field.getTypeId(), localeBean.getLocale());
                 if (fieldTypeName != null) {
                     field.setTypeName(fieldTypeName);
                 }

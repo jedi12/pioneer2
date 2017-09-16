@@ -6,6 +6,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.pioneersystem.pioneer2.AppProps;
+import ru.pioneersystem.pioneer2.dao.MailProcessDao;
 import ru.pioneersystem.pioneer2.dao.RouteProcessDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
@@ -26,19 +28,24 @@ import java.util.List;
 @Service("routeProcessService")
 public class RouteProcessServiceImpl implements RouteProcessService {
     private EventService eventService;
+    private MailProcessDao mailProcessDao;
     private RouteProcessDao routeProcessDao;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
+    private AppProps appProps;
 
     @Autowired
-    public RouteProcessServiceImpl(EventService eventService, RouteProcessDao routeProcessDao, CurrentUser currentUser,
-                                   LocaleBean localeBean, MessageSource messageSource) {
+    public RouteProcessServiceImpl(EventService eventService, MailProcessDao mailProcessDao,
+                                   RouteProcessDao routeProcessDao, CurrentUser currentUser, LocaleBean localeBean,
+                                   MessageSource messageSource, AppProps appProps) {
         this.eventService = eventService;
+        this.mailProcessDao = mailProcessDao;
         this.routeProcessDao = routeProcessDao;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
+        this.appProps = appProps;
     }
 
     @Override
@@ -88,14 +95,24 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
+
+        if (appProps.sendNoticesEnabled) {
+            try {
+                mailProcessDao.prepareNotice(document.getId(), currentUser.getUser().getCompanyId());
+            } catch (DataAccessException e) {
+                String mess = messageSource.getMessage("error.mailProcess.NotPrepared", null, localeBean.getLocale());
+                eventService.logError(mess, e.getMessage(), document.getId());
+            }
+        }
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void acceptRoutePointProcess(Document document) throws ServiceException {
+        boolean routeStageChanged;
         try {
-            routeProcessDao.accept(document.getId(), currentUser.getUser().getId(), document.getSignerComment(),
-                    document.isNewRoute(), document.getNewRouteId());
+            routeStageChanged = routeProcessDao.accept(document.getId(), currentUser.getUser().getId(),
+                    document.getSignerComment(), document.isNewRoute(), document.getNewRouteId());
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.routeProcess.PointAlreadyProcessed", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), document.getId());
@@ -104,6 +121,15 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             String mess = messageSource.getMessage("error.routeProcess.PointNotAccepted", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
+        }
+
+        if (routeStageChanged && appProps.sendNoticesEnabled) {
+            try {
+                mailProcessDao.prepareNotice(document.getId(), currentUser.getUser().getCompanyId());
+            } catch (DataAccessException e) {
+                String mess = messageSource.getMessage("error.mailProcess.NotPrepared", null, localeBean.getLocale());
+                eventService.logError(mess, e.getMessage(), document.getId());
+            }
         }
     }
 
@@ -121,6 +147,15 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
         }
+
+        if (appProps.sendNoticesEnabled) {
+            try {
+                mailProcessDao.prepareNotice(document.getId(), currentUser.getUser().getCompanyId());
+            } catch (DataAccessException e) {
+                String mess = messageSource.getMessage("error.mailProcess.NotPrepared", null, localeBean.getLocale());
+                eventService.logError(mess, e.getMessage(), document.getId());
+            }
+        }
     }
 
     @Override
@@ -137,6 +172,15 @@ public class RouteProcessServiceImpl implements RouteProcessService {
             String mess = messageSource.getMessage("error.routeProcess.NotCanceled", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), document.getId());
             throw new ServiceException(mess, e);
+        }
+
+        if (appProps.sendNoticesEnabled) {
+            try {
+                mailProcessDao.prepareNotice(document.getId(), currentUser.getUser().getCompanyId());
+            } catch (DataAccessException e) {
+                String mess = messageSource.getMessage("error.mailProcess.NotPrepared", null, localeBean.getLocale());
+                eventService.logError(mess, e.getMessage(), document.getId());
+            }
         }
     }
 

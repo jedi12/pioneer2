@@ -41,7 +41,7 @@ public class StatusServiceImpl implements StatusService {
     public Status getStatus(int statusId) throws ServiceException {
         try {
             Status status = statusDao.get(statusId, currentUser.getUser().getCompanyId());
-            String statusName = dictionaryService.getLocalizedStatusName(status.getId());
+            String statusName = dictionaryService.getLocalizedStatusName(status.getId(), localeBean.getLocale());
             if (statusName != null) {
                 status.setName(statusName);
             }
@@ -58,7 +58,7 @@ public class StatusServiceImpl implements StatusService {
         try {
             List<Status> statuses = statusDao.getList(currentUser.getUser().getCompanyId());
             for (Status status : statuses) {
-                String statusName = dictionaryService.getLocalizedStatusName(status.getId());
+                String statusName = dictionaryService.getLocalizedStatusName(status.getId(), localeBean.getLocale());
                 if (statusName != null) {
                     status.setName(statusName);
                 }

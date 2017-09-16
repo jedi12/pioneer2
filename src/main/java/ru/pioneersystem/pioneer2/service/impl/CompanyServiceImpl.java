@@ -41,7 +41,7 @@ public class CompanyServiceImpl implements CompanyService {
         try {
             List<Company> companies = companyDao.getList();
             for (Company company : companies) {
-                String stateName = dictionaryService.getLocalizedStateName(company.getState());
+                String stateName = dictionaryService.getLocalizedStateName(company.getState(), localeBean.getLocale());
                 if (stateName != null) {
                     company.setStateName(stateName);
                 }
@@ -65,7 +65,7 @@ public class CompanyServiceImpl implements CompanyService {
     public Company getCompany(int companyId) throws ServiceException {
         try {
             Company company = companyDao.get(companyId);
-            String stateName = dictionaryService.getLocalizedStateName(company.getState());
+            String stateName = dictionaryService.getLocalizedStateName(company.getState(), localeBean.getLocale());
             if (stateName != null) {
                 company.setStateName(stateName);
             }

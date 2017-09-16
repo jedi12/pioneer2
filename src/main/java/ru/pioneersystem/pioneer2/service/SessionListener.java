@@ -26,6 +26,9 @@ public class SessionListener implements HttpSessionListener, ServletContextListe
 	public static final String COMPANY_ID = "companyId";
 	public static final String IP_ADDRESS = "IPAddress";
 
+	// TODO: 10.09.2017 Добавить ServletRequestListener и в нем в сессию записывать IP-адрес
+
+	// TODO: 09.09.2017 Переделать через EventService
 	@Autowired
 	private EventDao eventDao;
 

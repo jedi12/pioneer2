@@ -12,6 +12,8 @@ public class User {
     private String stateName;
     private int companyId;
     private Company company;
+    private boolean noticeDocIncoming;
+    private boolean noticeStatusChanged;
 
     private boolean createFlag;
 
@@ -114,5 +116,21 @@ public class User {
 
     public void setCreateFlag(boolean createFlag) {
         this.createFlag = createFlag;
+    }
+
+    public boolean isNoticeDocIncoming() {
+        return noticeDocIncoming;
+    }
+
+    public void setNoticeDocIncoming(boolean noticeDocIncoming) {
+        this.noticeDocIncoming = noticeDocIncoming;
+    }
+
+    public boolean isNoticeStatusChanged() {
+        return noticeStatusChanged;
+    }
+
+    public void setNoticeStatusChanged(boolean noticeStatusChanged) {
+        this.noticeStatusChanged = noticeStatusChanged;
     }
 }

@@ -6,7 +6,6 @@ import ru.pioneersystem.pioneer2.model.Part;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public interface DocumentDao {
 
@@ -23,6 +22,8 @@ public interface DocumentDao {
     List<String> getDocToCancelByGroup(int groupId, int companyId) throws DataAccessException;
 
     List<String> getDocToCancelByRole(int roleId, int companyId) throws DataAccessException;
+
+    List<Document.Field> getDocFields(int documentId) throws DataAccessException;
 
     void cancelPublish(List<Part> parts, int userId, int companyId) throws DataAccessException;
 

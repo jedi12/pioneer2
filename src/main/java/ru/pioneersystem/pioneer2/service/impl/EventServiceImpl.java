@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service("eventService")
 public class EventServiceImpl implements EventService {
@@ -28,15 +29,17 @@ public class EventServiceImpl implements EventService {
     private EventDao eventDao;
     private DictionaryService dictionaryService;
     private LocaleBean localeBean;
+    private Locale systemLocale;
     private CurrentUser currentUser;
     private MessageSource messageSource;
 
     @Autowired
     public EventServiceImpl(EventDao eventDao, DictionaryService dictionaryService, LocaleBean localeBean,
-                            CurrentUser currentUser, MessageSource messageSource) {
+                            Locale systemLocale, CurrentUser currentUser, MessageSource messageSource) {
         this.eventDao = eventDao;
         this.dictionaryService = dictionaryService;
         this.localeBean = localeBean;
+        this.systemLocale = systemLocale;
         this.currentUser = currentUser;
         this.messageSource = messageSource;
     }
@@ -52,6 +55,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public void logMailError(String detail1, String detail2) {
+        logEvent(Event.Type.CHANNEL_SN, 0, detail1, detail2);
+    }
+
+    @Override
+    public void logMailError(String detail1, String detail2, int objectId) {
+        logEvent(Event.Type.CHANNEL_SN, objectId, detail1, detail2);
+    }
+
+    @Override
     public void logEvent(int eventType, int objectId) {
         logEvent(eventType, objectId, null, null);
     }
@@ -63,14 +76,22 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void logEvent(int eventType, int objectId, String detail1, String detail2) {
-        int userId = 0;
-        int companyId = 0;
+        int userId;
+        int companyId;
         try {
-            if (currentUser.getUser() != null) {
-                userId = currentUser.getUser().getId();
-                companyId = currentUser.getUser().getCompanyId();
-            }
+            userId = currentUser.getUser().getId();
+            companyId = currentUser.getUser().getCompanyId();
+        } catch (Exception ex) {
+            userId = 0;
+            companyId = 0;
+        }
 
+        logEvent(userId, companyId, eventType, objectId, detail1, detail2);
+    }
+
+    @Override
+    public void logEvent(int userId, int companyId, int eventType, int objectId, String detail1, String detail2) {
+        try {
             if (detail1 != null && detail1.length() > 100) {
                 detail1 = detail1.substring(0, 100);
             }
@@ -82,8 +103,14 @@ public class EventServiceImpl implements EventService {
             Event event = new Event(new Date(), userId, eventType, objectId, detail1, detail2);
             eventDao.create(event, companyId);
         } catch (DataAccessException e) {
+            Locale locale;
+            try {
+                locale = localeBean.getLocale();
+            } catch (Exception ex) {
+                locale = systemLocale;
+            }
             String mess = messageSource.getMessage("error.event.NotSaved",
-                    new Object[]{userId, eventType, objectId, detail1, detail2}, localeBean.getLocale());
+                    new Object[]{userId, eventType, objectId, detail1, detail2}, locale);
             log.error(mess, e);
         }
     }
@@ -131,7 +158,7 @@ public class EventServiceImpl implements EventService {
 
             offsetDateAndFormat(event);
 
-            String eventTypeName = dictionaryService.getLocalizedEventTypeName(event.getTypeId());
+            String eventTypeName = dictionaryService.getLocalizedEventTypeName(event.getTypeId(), localeBean.getLocale());
             if (eventTypeName != null) {
                 event.setTypeName(eventTypeName);
             }

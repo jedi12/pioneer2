@@ -39,11 +39,11 @@ public class FieldTypeServiceImpl implements FieldTypeService {
     public FieldType getFieldType(int fieldTypeId) throws ServiceException {
         try {
             FieldType fieldType = fieldTypeDao.get(fieldTypeId);
-            String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(fieldType.getId());
+            String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(fieldType.getId(), localeBean.getLocale());
             if (fieldTypeName != null) {
                 fieldType.setName(fieldTypeName);
             }
-            String fieldTypeTypeName = dictionaryService.getLocalizedFieldTypeTypeName(fieldType.getTypeId());
+            String fieldTypeTypeName = dictionaryService.getLocalizedFieldTypeTypeName(fieldType.getTypeId(), localeBean.getLocale());
             if (fieldTypeTypeName != null) {
                 fieldType.setTypeName(fieldTypeTypeName);
             }
@@ -60,11 +60,11 @@ public class FieldTypeServiceImpl implements FieldTypeService {
         try {
             List<FieldType> fieldTypes = fieldTypeDao.getList();
             for (FieldType fieldType : fieldTypes) {
-                String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(fieldType.getId());
+                String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(fieldType.getId(), localeBean.getLocale());
                 if (fieldTypeName != null) {
                     fieldType.setName(fieldTypeName);
                 }
-                String fieldTypeTypeName = dictionaryService.getLocalizedFieldTypeTypeName(fieldType.getTypeId());
+                String fieldTypeTypeName = dictionaryService.getLocalizedFieldTypeTypeName(fieldType.getTypeId(), localeBean.getLocale());
                 if (fieldTypeTypeName != null) {
                     fieldType.setTypeName(fieldTypeTypeName);
                 }

@@ -54,7 +54,7 @@ public class GroupServiceImpl implements GroupService {
         try {
             List<Group> groups = groupDao.getList(currentUser.getUser().getCompanyId());
             for (Group group : groups) {
-                String roleName = dictionaryService.getLocalizedRoleName(group.getRoleId());
+                String roleName = dictionaryService.getLocalizedRoleName(group.getRoleId(), localeBean.getLocale());
                 if (roleName != null) {
                     group.setRoleName(roleName);
                 }

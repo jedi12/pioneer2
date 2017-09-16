@@ -19,14 +19,10 @@ public class Status {
     }
 
     public static class Id {
-        public static final int DELETED = 1;
-        public static final int CANCELED = 2;
-        public static final int COMPLETED = 3;
-        public static final int EXECUTED = 4;
-        public static final int PUBLISHED = 5;
-        public static final int REZ1 = 6;
-        public static final int REZ2 = 7;
-        public static final int REZ3 = 8;
+        public static final int DELETED = 0;
+        public static final int CANCELED = 6;
+        public static final int COMPLETED = 7;
+        public static final int PUBLISHED = 8;
         public static final int CREATED = 9;
         public static final int ON_COORDINATION = 10;
         public static final int ON_EXECUTION = 11;

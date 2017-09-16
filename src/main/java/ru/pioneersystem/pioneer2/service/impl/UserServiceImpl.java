@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
     public User getUserWithCompany(int userId) throws ServiceException {
         try {
             User user = userDao.getWithCompany(userId);
-            String stateName = dictionaryService.getLocalizedStateName(user.getState());
+            String stateName = dictionaryService.getLocalizedStateName(user.getState(), localeBean.getLocale());
             if (stateName != null) {
                 user.setStateName(stateName);
             }
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
         try {
             List<User> users = userDao.getList(currentUser.getUser().getCompanyId());
             for (User user : users) {
-                String stateName = dictionaryService.getLocalizedStateName(user.getState());
+                String stateName = dictionaryService.getLocalizedStateName(user.getState(), localeBean.getLocale());
                 if (stateName != null) {
                     user.setStateName(stateName);
                 }
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
     public User getUser(int userId) throws ServiceException {
         try {
             User user = userDao.get(userId, currentUser.getUser().getCompanyId());
-            String stateName = dictionaryService.getLocalizedStateName(user.getState());
+            String stateName = dictionaryService.getLocalizedStateName(user.getState(), localeBean.getLocale());
             if (stateName != null) {
                 user.setStateName(stateName);
             }

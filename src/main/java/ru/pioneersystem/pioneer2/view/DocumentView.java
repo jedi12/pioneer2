@@ -199,8 +199,8 @@ public class DocumentView implements Serializable {
         }
 
         try {
-            int docId = ((Document) selectedNode.getData()).getId();
-            currDoc = documentService.getDocument(docId);
+            int documentId = ((Document) selectedNode.getData()).getId();
+            currDoc = documentService.getDocument(documentId);
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
@@ -254,8 +254,8 @@ public class DocumentView implements Serializable {
         }
 
         try {
-            int docId = ((Document) selectedNode.getData()).getId();
-            routePoints = routeProcessService.getDocumentRoute(docId);
+            int documentId = ((Document) selectedNode.getData()).getId();
+            routePoints = routeProcessService.getDocumentRoute(documentId);
 
             RequestContext.getCurrentInstance().execute("PF('docRouteDialog').show()");
         }

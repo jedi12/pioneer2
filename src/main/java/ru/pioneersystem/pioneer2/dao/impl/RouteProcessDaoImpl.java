@@ -159,7 +159,7 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void accept(int documentId, int userId, String message, boolean changeRoute, int newRouteId) throws DataAccessException {
+    public boolean accept(int documentId, int userId, String message, boolean changeRoute, int newRouteId) throws DataAccessException {
         int currStage = jdbcTemplate.query(SELECT_ACTIVE_ROUTE_POINT,
                 new Object[]{userId, documentId},
                 (rs) -> {
@@ -198,14 +198,14 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                 (rs) -> {
                     if (!rs.next()) {
                         throw new NotFoundDaoException("Active route point for Document with documentId = " +
-                                documentId + " is in not found");
+                                documentId + " is not found");
                     }
                     return rs.getInt("MIN_SIGNED");
                 }
         );
 
         if (routePointSignStatus == RoutePoint.Signed.NOT_SIGNED) {
-            return;
+            return false;
         }
 
         RoutePoint tempVal = jdbcTemplate.query(SELECT_NEXT_ROUTE_STAGE,
@@ -252,6 +252,7 @@ public class RouteProcessDaoImpl implements RouteProcessDao {
                     documentId
             );
         }
+        return true;
     }
 
     @Override

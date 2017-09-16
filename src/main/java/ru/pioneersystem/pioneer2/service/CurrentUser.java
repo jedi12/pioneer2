@@ -113,8 +113,6 @@ public class CurrentUser implements Serializable {
                 }
             }
 
-            // TODO: 03.04.2017 Добавить начальных данных пользователя, которых не хватает
-
 //            RequestContextHolder.currentRequestAttributes().setAttribute(SessionListener.USER_ID, user.getId(), RequestAttributes.SCOPE_SESSION);
 //            RequestContextHolder.currentRequestAttributes().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId(), RequestAttributes.SCOPE_SESSION);
 
@@ -195,7 +193,7 @@ public class CurrentUser implements Serializable {
         this.currMenuId = menu.getId();
         this.currPage = menu.getPage();
         this.currRole = userRoles.get(menu.getRoleId());
-//        RequestContext.getCurrentInstance().update(
+//        RequestContext.getCurrentInstance().updateNoticeInfo(
 //                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }
 
