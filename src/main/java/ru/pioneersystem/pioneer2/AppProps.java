@@ -83,11 +83,26 @@ public class AppProps {
 
 
 
+
+
+
+
     @Value("${processMailCommand.enabled: false}")
     public boolean processMailCommandEnabled;
 
     @Value("${processMailCommand.period: 6000}")
     public int processMailCommandPeriod;
+
+    @Value("${processMailCommand.mail.username: mail1@yandex.ru}")
+    public String processMailCommandMailUsername;
+
+    @Value("${processMailCommand.mail.password: pass}")
+    public String processMailCommandMailPassword;
+
+    @Value("${processMailCommand.mail.debug: false}")
+    public String processMailCommandMailDebug;
+
+
 
 
 
@@ -100,6 +115,8 @@ public class AppProps {
 
     @Value("${serverBackRef: http://localhost:8080/main.jsf}")
     public String serverBackRef;
+
+
 
 
 

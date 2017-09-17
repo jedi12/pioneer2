@@ -2,7 +2,7 @@ package ru.pioneersystem.pioneer2.model;
 
 import java.util.Date;
 
-public class EmailSendInfo {
+public class Notice {
     private int id;
     private String email;
     private int sendStatusId;
@@ -12,6 +12,7 @@ public class EmailSendInfo {
     private String docGroupName;
     private int attempt;
     private Date changeDate;
+    private String changeDateFormatted;
     private int docStatusId;
     private String docStatusName;
     private String info;
@@ -19,8 +20,8 @@ public class EmailSendInfo {
     private String eventName;
     private int menuId;
 
-    public static class SendStatus {
-        public static final int NOT_SENDED = 0;
+    public static class Status {
+        public static final int PREPARED_TO_SENDED = 0;
         public static final int SENDED = 1;
         public static final int DELAYED = 2;
         public static final int NOT_DELIVERED = 3;
@@ -97,6 +98,14 @@ public class EmailSendInfo {
 
     public void setChangeDate(Date changeDate) {
         this.changeDate = changeDate;
+    }
+
+    public String getChangeDateFormatted() {
+        return changeDateFormatted;
+    }
+
+    public void setChangeDateFormatted(String changeDateFormatted) {
+        this.changeDateFormatted = changeDateFormatted;
     }
 
     public int getDocStatusId() {

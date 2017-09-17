@@ -5,30 +5,21 @@ import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.AppProps;
-import ru.pioneersystem.pioneer2.dao.MailProcessDao;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.Locale;
 
-@Service("mailProcessService")
-public class MailProcessService {
-    private MailProcessDao mailProcessDao;
-    private CurrentUser currentUser;
+@Service("scheduleService")
+public class ScheduleService {
     private EventService eventService;
-    private LocaleBean localeBean;
     private Locale systemLocale;
     private MessageSource messageSource;
     private AppProps appProps;
     private SendNoticesMailService sendNoticesMailService;
 
     @Autowired
-    public MailProcessService(MailProcessDao mailProcessDao, CurrentUser currentUser, EventService eventService,
-                              LocaleBean localeBean, Locale systemLocale, MessageSource messageSource,
-                              AppProps appProps, SendNoticesMailService sendNoticesMailService) {
-        this.mailProcessDao = mailProcessDao;
-        this.currentUser = currentUser;
+    public ScheduleService(EventService eventService, Locale systemLocale, MessageSource messageSource,
+                           AppProps appProps, SendNoticesMailService sendNoticesMailService) {
         this.eventService = eventService;
-        this.localeBean = localeBean;
         this.systemLocale = systemLocale;
         this.messageSource = messageSource;
         this.appProps = appProps;
@@ -48,11 +39,17 @@ public class MailProcessService {
         }
     }
 
-    public void processingMailCommands() {
+//    @Scheduled(initialDelay = 3000, fixedDelayString = "${processMailCommand.period: 60000}")
+//    public void processingMailCommands() {
+//        if (appProps.processMailCommandEnabled) {
+//            //
+//        }
+//    }
 
-    }
-
-    public void processingMailCreateDocs() {
-
-    }
+//    @Scheduled(initialDelay = 3000, fixedDelayString = "${createDocumentsFromMail.period: 60000}")
+//    public void processingMailCreateDocs() {
+//        if (appProps.createDocumentsFromMailEnabled) {
+//            //
+//        }
+//    }
 }

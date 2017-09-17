@@ -143,7 +143,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public String getEventDetail(Date eventDate, int eventUser) throws ServiceException {
         try {
-            return eventDao.getDetail(eventDate, eventUser, currentUser.getUser().getCompanyId());
+            return eventDao.getDetail(eventDate, eventUser);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.event.NotLoaded", null, localeBean.getLocale());
             logError(mess, e.getMessage());

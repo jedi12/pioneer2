@@ -136,60 +136,60 @@ public class SendNoticesMailService {
 
     private void processingSendNotices() {
         try {
-            List<EmailSendInfo> emailSendInfos = mailProcessDao.getForSendList();
-            if (emailSendInfos.isEmpty()) {
+            List<Notice> notices = mailProcessDao.getForSendList();
+            if (notices.isEmpty()) {
                 return;
             }
 
             mailTransport.connect();
 
-            for (EmailSendInfo emailSendInfo: emailSendInfos) {
-                String docStatusName = dictionaryService.getLocalizedStatusName(emailSendInfo.getDocStatusId(), systemLocale);
+            for (Notice notice : notices) {
+                String docStatusName = dictionaryService.getLocalizedStatusName(notice.getDocStatusId(), systemLocale);
                 if (docStatusName != null) {
-                    emailSendInfo.setDocStatusName(docStatusName);
+                    notice.setDocStatusName(docStatusName);
                 }
 
                 try {
                     String mailBody = null;
                     List<File> mailAttachments = null;
-                    switch (emailSendInfo.getEventId()) {
+                    switch (notice.getEventId()) {
                         case Event.Type.NOTICE_DOC_RECEIVED:
                             if (appProps.processMailCommandEnabled) {
-                                mailBody = createHtmlReceivedNoticeWithDocument(emailSendInfo);
-                                mailAttachments = getDocumentFiles(emailSendInfo);
+                                mailBody = createHtmlReceivedNoticeWithDocument(notice);
+                                mailAttachments = getDocumentFiles(notice);
                             } else {
-                                mailBody = createHtmlReceivedNotice(emailSendInfo);
+                                mailBody = createHtmlReceivedNotice(notice);
                             }
 
                             break;
                         case Event.Type.NOTICE_DOC_STATUS_CHANGED:
-                            mailBody = createHtmlStatusChangedNotice(emailSendInfo);
+                            mailBody = createHtmlStatusChangedNotice(notice);
                             break;
                     }
 
-                    MimeMessage mimeMessage = createMimeMessage(emailSendInfo, mailBody, mailAttachments);
-                    mailTransport.sendMessage(mimeMessage, InternetAddress.parse(emailSendInfo.getEmail()));
+                    MimeMessage mimeMessage = createMimeMessage(notice, mailBody, mailAttachments);
+                    mailTransport.sendMessage(mimeMessage, InternetAddress.parse(notice.getEmail()));
 
-                    emailSendInfo.setSendStatusId(EmailSendInfo.SendStatus.SENDED);
+                    notice.setSendStatusId(Notice.Status.SENDED);
                 } catch (ServiceException e) {
-                    emailSendInfo.setSendStatusId(EmailSendInfo.SendStatus.NOT_SENDED);
+                    notice.setSendStatusId(Notice.Status.PREPARED_TO_SENDED);
                     String mess = e.getCause().getMessage();
                     if (mess.length() > 2000) {
                         mess = mess.substring(0, 2000);
                     }
-                    emailSendInfo.setInfo(mess);
+                    notice.setInfo(mess);
                 } catch (MessagingException e) {
-                    emailSendInfo.setSendStatusId(EmailSendInfo.SendStatus.NOT_SENDED);
+                    notice.setSendStatusId(Notice.Status.PREPARED_TO_SENDED);
                     String mess = e.getMessage();
                     if (mess.length() > 2000) {
                         mess = mess.substring(0, 2000);
                     }
-                    emailSendInfo.setInfo(mess);
+                    notice.setInfo(mess);
                 }
 
-                emailSendInfo.setAttempt(emailSendInfo.getAttempt() + 1);
-                emailSendInfo.setChangeDate(new Date());
-                mailProcessDao.updateNoticeInfo(emailSendInfo);
+                notice.setAttempt(notice.getAttempt() + 1);
+                notice.setChangeDate(new Date());
+                mailProcessDao.updateEmailSend(notice);
             }
         } catch (DataAccessException | MessagingException e) {
             String mess = messageSource.getMessage("error.mailProcess.CancelProcessing", null, systemLocale);
@@ -203,19 +203,20 @@ public class SendNoticesMailService {
         }
     }
 
-    private String createHtmlReceivedNoticeWithDocument(EmailSendInfo emailSendInfo) {
+    private String createHtmlReceivedNoticeWithDocument(Notice notice) {
         try {
             Map<String, Object> root = new HashMap<>();
-            root.put("emailSendInfo", emailSendInfo);
+            root.put("notice", notice);
 
-            List<Document.Field> fields = documentDao.getDocFields(emailSendInfo.getDocId());
+            List<Document.Field> fields = documentDao.getDocFields(notice.getDocId());
             root.put("fields", fields);
 
             // TODO: 14.09.2017 Чтобы добавить в уведомление маршрут, нужно решить проблему с хранением часовой зоны пользователя
-//            List<RoutePoint> routePoints = routeProcessService.getDocumentRoute(emailSendInfo.getDocId());
+//            List<RoutePoint> routePoints = routeProcessService.getDocumentRoute(notice.getDocId());
 //            root.put("routePoints", routePoints);
 
             root.put("serverBackRef", appProps.serverBackRef);
+            root.put("emailForCommandProcessing", appProps.processMailCommandMailUsername);
 
             // TODO: 15.09.2017 для локализации (выбора) шаблонов уведомлений нужно хранить локаль по умолчанию для каждого пользователя
             Template mailTemplate = freemarkerConfiguration.getTemplate("ru/doc_received_with_doc.html");
@@ -226,16 +227,16 @@ public class SendNoticesMailService {
             return out.getBuffer().toString();
         } catch (TemplateException | IOException | DataAccessException e) {
             String mess = messageSource.getMessage("error.mailProcess.NotCreatedNotice", null, systemLocale);
-            eventService.logMailError(mess, e.getMessage(), emailSendInfo.getId());
+            eventService.logMailError(mess, e.getMessage(), notice.getId());
         }
 
         return "Получен документ";
     }
 
-    private String createHtmlReceivedNotice(EmailSendInfo emailSendInfo) {
+    private String createHtmlReceivedNotice(Notice notice) {
         try {
             Map<String, Object> root = new HashMap<>();
-            root.put("emailSendInfo", emailSendInfo);
+            root.put("notice", notice);
 
             root.put("serverBackRef", appProps.serverBackRef);
 
@@ -248,20 +249,20 @@ public class SendNoticesMailService {
             return out.getBuffer().toString();
         } catch (TemplateException | IOException e) {
             String mess = messageSource.getMessage("error.mailProcess.NotCreatedNotice", null, systemLocale);
-            eventService.logMailError(mess, e.getMessage(), emailSendInfo.getId());
+            eventService.logMailError(mess, e.getMessage(), notice.getId());
         }
 
         return "Получен документ";
     }
 
-    private String createHtmlStatusChangedNotice(EmailSendInfo emailSendInfo) {
+    private String createHtmlStatusChangedNotice(Notice notice) {
         try {
             Map<String, Object> root = new HashMap<>();
-            emailSendInfo.setMenuId(Menu.Id.MY_DOCS);
-            root.put("emailSendInfo", emailSendInfo);
+            notice.setMenuId(Menu.Id.MY_DOCS);
+            root.put("notice", notice);
 
             // TODO: 14.09.2017 Чтобы добавить в уведомление маршрут, нужно решить проблему с хранением часовой зоны пользователя
-//            List<RoutePoint> routePoints = routeProcessService.getDocumentRoute(emailSendInfo.getDocId());
+//            List<RoutePoint> routePoints = routeProcessService.getDocumentRoute(notice.getDocId());
 //            root.put("routePoints", routePoints);
 
             root.put("serverBackRef", appProps.serverBackRef);
@@ -275,16 +276,16 @@ public class SendNoticesMailService {
             return out.getBuffer().toString();
         } catch (TemplateException | IOException e) {
             String mess = messageSource.getMessage("error.mailProcess.NotCreatedNotice", null, systemLocale);
-            eventService.logMailError(mess, e.getMessage(), emailSendInfo.getId());
+            eventService.logMailError(mess, e.getMessage(), notice.getId());
         }
 
         return "Статус документа изменился";
     }
 
-    private List<File> getDocumentFiles(EmailSendInfo emailSendInfo) throws ServiceException {
+    private List<File> getDocumentFiles(Notice notice) throws ServiceException {
         try {
             List<File> files = new ArrayList<>();
-            List<Document.Field> fields = documentDao.getDocFields(emailSendInfo.getDocId());
+            List<Document.Field> fields = documentDao.getDocFields(notice.getDocId());
             for (Document.Field field : fields) {
                 if (field.getTypeId() == FieldType.Id.FILE) {
                     files.add(fileDao.get(field.getFileId()));
@@ -293,21 +294,21 @@ public class SendNoticesMailService {
             return files.isEmpty() ? null : files;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.mailProcess.NotLoadedFilesForNotice", null, systemLocale);
-            eventService.logMailError(mess, e.getMessage(), emailSendInfo.getId());
+            eventService.logMailError(mess, e.getMessage(), notice.getId());
             throw new ServiceException(mess, e);
         }
     }
 
-    private MimeMessage createMimeMessage(EmailSendInfo emailSendInfo, String mailBody, List<File> mailAttachments) throws ServiceException {
+    private MimeMessage createMimeMessage(Notice notice, String mailBody, List<File> mailAttachments) throws ServiceException {
         try {
             MimeMessage mimeMessage = new MimeMessage(mailSession);
             //mimeMessage.setReturnOption(SMTPMessage.RETURN_HDRS);
             //mimeMessage.setNotifyOptions(SMTPMessage.NOTIFY_SUCCESS | SMTPMessage.NOTIFY_FAILURE | SMTPMessage.NOTIFY_DELAY);
             mimeMessage.setFrom(new InternetAddress(appProps.sendNoticesFromEmailAddress, appProps.sendNoticesFromPersonName));
-            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailSendInfo.getEmail()));
-            String subject = "[" + emailSendInfo.getDocId() + "] " + emailSendInfo.getDocName();
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(notice.getEmail()));
+            String subject = "[" + notice.getDocId() + "] " + notice.getDocName();
             mimeMessage.setSubject(subject);
-            mimeMessage.setHeader(EMAIL_SEND_ID, String.valueOf(emailSendInfo.getId()));
+            mimeMessage.setHeader(EMAIL_SEND_ID, String.valueOf(notice.getId()));
 
             Multipart multipart = new MimeMultipart();
             MimeBodyPart messageBodyPart = new MimeBodyPart();
@@ -329,7 +330,7 @@ public class SendNoticesMailService {
             return mimeMessage;
         } catch (Exception e) {
             String mess = messageSource.getMessage("error.mailProcess.NotCreatedMimeMessage", null, systemLocale);
-            eventService.logMailError(mess, e.getMessage(), emailSendInfo.getId());
+            eventService.logMailError(mess, e.getMessage(), notice.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -374,23 +375,23 @@ public class SendNoticesMailService {
                 }
 
                 try {
-                    EmailSendInfo emailSendInfo = new EmailSendInfo();
+                    Notice notice = new Notice();
                     Multipart multiPart = (Multipart) msg.getContent();
                     for (int j = 0; j < multiPart.getCount(); j++) {
                         BodyPart bodyPart = multiPart.getBodyPart(j);
                         if (bodyPart.isMimeType("text/plain")) {
                             String deliveryMessage = (String) bodyPart.getContent();
-                            emailSendInfo.setInfo(deliveryMessage);
+                            notice.setInfo(deliveryMessage);
                         }
                         else if (bodyPart.isMimeType("message/rfc822")) {
                             MimeMessage rfc822 = (MimeMessage) bodyPart.getContent();
                             int esId = Integer.parseInt(rfc822.getHeader(EMAIL_SEND_ID)[0]);
-                            emailSendInfo.setId(esId);
+                            notice.setId(esId);
                         }
                         else if (bodyPart.isMimeType("text/rfc822-headers")) {
                             MessageHeaders messHeaders = (MessageHeaders) bodyPart.getContent();
                             int esId = Integer.parseInt(messHeaders.getHeader(EMAIL_SEND_ID)[0]);
-                            emailSendInfo.setId(esId);
+                            notice.setId(esId);
                         }
                         else if (bodyPart.isMimeType("message/delivery-status")) {
                             DeliveryStatus messStatus = (DeliveryStatus) bodyPart.getContent();
@@ -398,16 +399,16 @@ public class SendNoticesMailService {
                             String deliveryStatus = deliveryHeaders.getHeader("Action")[0];
                             switch (deliveryStatus.toLowerCase()) {
                                 case "delayed":
-                                    emailSendInfo.setSendStatusId(EmailSendInfo.SendStatus.DELAYED);
+                                    notice.setSendStatusId(Notice.Status.DELAYED);
                                     break;
                                 case "failed":
-                                    emailSendInfo.setSendStatusId(EmailSendInfo.SendStatus.NOT_DELIVERED);
+                                    notice.setSendStatusId(Notice.Status.NOT_DELIVERED);
                                     break;
                                 case "delivered":
                                 case "relayed":
                                 case "expanded":
-                                    emailSendInfo.setSendStatusId(EmailSendInfo.SendStatus.DELIVERED);
-                                    emailSendInfo.setInfo(null);
+                                    notice.setSendStatusId(Notice.Status.DELIVERED);
+                                    notice.setInfo(null);
                                     break;
                             }
                         }
@@ -420,8 +421,8 @@ public class SendNoticesMailService {
                         }
                     }
 
-                    emailSendInfo.setChangeDate(new Date());
-                    mailProcessDao.updateDeliveryStatus(emailSendInfo);
+                    notice.setChangeDate(new Date());
+                    mailProcessDao.updateDeliveryStatus(notice);
                 } catch (Exception e) {
                     badMessages.add(message);
                     String mess = messageSource.getMessage("error.mailProcess.NotDefinedDeliveryStatus",

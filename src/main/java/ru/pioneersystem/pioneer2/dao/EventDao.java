@@ -12,7 +12,7 @@ public interface EventDao {
 
     List<Event> getSuperList(Date beginDate, Date endDate) throws DataAccessException;
 
-    String getDetail(Date eventDate, int userId, int companyId) throws DataAccessException;
+    String getDetail(Date eventDate, int userId) throws DataAccessException;
 
     void create(Event event, int companyId) throws DataAccessException;
 }

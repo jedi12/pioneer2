@@ -30,7 +30,7 @@ public class EventDaoImpl implements EventDao {
                     "LEFT JOIN DOC.USERS U ON U.ID = E.E_USER " +
                     "WHERE E_DATE >= ? AND E_DATE < ? ORDER BY E_DATE ASC";
     private static final String SELECT_EVENT_DETAIL =
-            "SELECT DETAIL2 FROM DOC.EVENTS WHERE E_DATE = ? AND E_USER = ? AND COMPANY = ?";
+            "SELECT DETAIL2 FROM DOC.EVENTS WHERE E_DATE = ? AND E_USER = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -69,7 +69,7 @@ public class EventDaoImpl implements EventDao {
                         count = count + 1;
 
                         if (count >= 10000) {
-                            throw new TooManyRowsDaoException("Over 10000 documents found", events);
+                            throw new TooManyRowsDaoException("Over 10000 events found", events);
                         }
                     }
 
@@ -79,9 +79,9 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public String getDetail(Date eventDate, int userId, int companyId) throws DataAccessException {
+    public String getDetail(Date eventDate, int userId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_EVENT_DETAIL,
-                new Object[]{eventDate, userId, companyId},
+                new Object[]{eventDate, userId},
                 (rs) -> {
                     if (rs.next()) {
                         return rs.getString("DETAIL2");

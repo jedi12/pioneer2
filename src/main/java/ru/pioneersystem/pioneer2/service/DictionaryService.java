@@ -365,15 +365,15 @@ public class DictionaryService {
 
 	public String getLocalizedEmailSendStatus(int sendStatusId, Locale locale) {
 		switch (sendStatusId) {
-			case EmailSendInfo.SendStatus.NOT_SENDED:
-				return messageSource.getMessage("mailSendStatus.name.notSended", null, locale);
-			case EmailSendInfo.SendStatus.SENDED:
+			case Notice.Status.PREPARED_TO_SENDED:
+				return messageSource.getMessage("mailSendStatus.name.preparedToSend", null, locale);
+			case Notice.Status.SENDED:
 				return messageSource.getMessage("mailSendStatus.name.sended", null, locale);
-			case EmailSendInfo.SendStatus.DELAYED:
+			case Notice.Status.DELAYED:
 				return messageSource.getMessage("mailSendStatus.name.delayed", null, locale);
-			case EmailSendInfo.SendStatus.NOT_DELIVERED:
+			case Notice.Status.NOT_DELIVERED:
 				return messageSource.getMessage("mailSendStatus.name.notDelivered", null, locale);
-			case EmailSendInfo.SendStatus.DELIVERED:
+			case Notice.Status.DELIVERED:
 				return messageSource.getMessage("mailSendStatus.name.delivered", null, locale);
 			default:
 				return null;
