@@ -32,13 +32,14 @@ public class DocumentServiceImpl implements DocumentService {
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
+    private DictionaryService dictionaryService;
     private AppProps appProps;
 
     @Autowired
     public DocumentServiceImpl(EventService eventService, DocumentDao documentDao, ChoiceListService choiceListService,
                                RouteProcessService routeProcessService, UserService userService,
                                CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource,
-                               AppProps appProps) {
+                               DictionaryService dictionaryService, AppProps appProps) {
         this.eventService = eventService;
         this.documentDao = documentDao;
         this.choiceListService = choiceListService;
@@ -47,6 +48,7 @@ public class DocumentServiceImpl implements DocumentService {
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
+        this.dictionaryService = dictionaryService;
         this.appProps = appProps;
     }
 
@@ -77,7 +79,14 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             Timestamp beginDate = Timestamp.from(dateIn.toInstant());
             Timestamp endDate = Timestamp.from(dateIn.toInstant().plus(1, ChronoUnit.DAYS));
-            return documentDao.getMyOnDateList(beginDate, endDate, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            List<Document> documents = documentDao.getMyOnDateList(beginDate, endDate, currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            for (Document document : documents) {
+                String statusName = dictionaryService.getLocalizedStatusName(document.getStatusId(), localeBean.getLocale());
+                if (statusName != null) {
+                    document.setStatusName(statusName);
+                }
+            }
+            return documents;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());
@@ -88,7 +97,14 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<Document> getMyWorkingDocumentList() throws ServiceException {
         try {
-            return documentDao.getMyOnWorkingList(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            List<Document> documents = documentDao.getMyOnWorkingList(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            for (Document document : documents) {
+                String statusName = dictionaryService.getLocalizedStatusName(document.getStatusId(), localeBean.getLocale());
+                if (statusName != null) {
+                    document.setStatusName(statusName);
+                }
+            }
+            return documents;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());

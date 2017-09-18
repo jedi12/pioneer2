@@ -9,6 +9,7 @@ import ru.pioneersystem.pioneer2.dao.exception.TooManyRowsDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.SearchDoc;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.SearchService;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
@@ -17,7 +18,6 @@ import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -28,15 +28,17 @@ public class SearchServiceImpl implements SearchService {
     private LocaleBean localeBean;
     private CurrentUser currentUser;
     private MessageSource messageSource;
+    private DictionaryService dictionaryService;
 
     @Autowired
     public SearchServiceImpl(EventService eventService, SearchDao searchDao, LocaleBean localeBean,
-                             CurrentUser currentUser, MessageSource messageSource) {
+                             CurrentUser currentUser, MessageSource messageSource, DictionaryService dictionaryService) {
         this.eventService = eventService;
         this.searchDao = searchDao;
         this.localeBean = localeBean;
         this.currentUser = currentUser;
         this.messageSource = messageSource;
+        this.dictionaryService = dictionaryService;
     }
 
     @Override
@@ -51,6 +53,14 @@ public class SearchServiceImpl implements SearchService {
                 documents = searchDao.findForUserList(searchDoc, currentUser.getUser().getId(),
                         currentUser.getUser().getCompanyId());
             }
+
+            for (Document document : documents) {
+                String statusName = dictionaryService.getLocalizedStatusName(document.getStatusId(), localeBean.getLocale());
+                if (statusName != null) {
+                    document.setStatusName(statusName);
+                }
+            }
+
             offsetDateAndFormat(documents);
             eventService.logEvent(Event.Type.SEARCH_FIND, 0);
             return documents;
