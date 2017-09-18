@@ -117,12 +117,8 @@ public class SendNoticesMailService {
             return false;
         } finally {
             try {
-                if (mailTransport != null) {
-                    mailTransport.close();
-                }
-                if (mailStore != null) {
-                    mailStore.close();
-                }
+                if (mailTransport != null) { mailTransport.close(); }
+                if (mailStore != null) { mailStore.close(); }
             } catch (Exception e) {
                 eventService.logMailError(e.getMessage(), null);
             }
