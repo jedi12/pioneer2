@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.AppProps;
 import ru.pioneersystem.pioneer2.dao.DocumentDao;
 import ru.pioneersystem.pioneer2.dao.exception.LockDaoException;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.LockException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
@@ -55,7 +57,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<Document> getOnRouteDocumentList() throws ServiceException {
         try {
-            return documentDao.getOnRouteList(currentUser.getCurrMenu().getRoleId(), currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+            return documentDao.getOnRouteList(currentUser.getCurrRole().getId(), currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());
@@ -143,6 +145,10 @@ public class DocumentServiceImpl implements DocumentService {
             document.setEditMode(true);
             setupViewElements(document, null);
             return document;
+        } catch (NotFoundDaoException e) {
+            String mess = messageSource.getMessage("error.document.templateNotFound", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage(), templateId);
+            throw new ServiceException(mess, e);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.templateNotLoaded", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), templateId);
@@ -171,6 +177,10 @@ public class DocumentServiceImpl implements DocumentService {
             setupViewElements(document, routeProcessService.getCurrNotSignedRoutePointGroups(documentId));
             eventService.logEvent(Event.Type.DOC_GETED, documentId);
             return document;
+        } catch (NotFoundDaoException e) {
+            String mess = messageSource.getMessage("error.document.NotFound", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage(), documentId);
+            throw new RestrictionException(mess);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoaded", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), documentId);

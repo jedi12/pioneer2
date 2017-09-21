@@ -167,8 +167,6 @@ public class CurrentUser implements Serializable {
     }
 
     public void setCurrMenuId(int currMenuId) {
-//        this.currMenuId = currMenuId;
-
         if (userMenu == null) {
             return;
         }
@@ -177,12 +175,13 @@ public class CurrentUser implements Serializable {
         for (Menu menu: userMenu) {
             if (menu.getId() == currMenuId) {
                 currMenuIndex = menuIndex;
-                currMenu = menu;
-                setCurrPage(currMenu);
-                break;
+                setCurrPage(menu);
+                return;
             }
             menuIndex = menuIndex + 1;
         }
+        currMenuIndex = -1;
+        currPage = "welcome.xhtml";
     }
 
     public void setCurrPage(Menu menu) {

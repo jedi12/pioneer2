@@ -8,6 +8,7 @@ import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.LockException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -185,6 +186,10 @@ public class DocumentView implements Serializable {
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
+        catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -204,6 +209,10 @@ public class DocumentView implements Serializable {
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
+        catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -221,6 +230,10 @@ public class DocumentView implements Serializable {
             currDoc = documentService.getDocument(selectedDocument.getId());
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
+        }
+        catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
