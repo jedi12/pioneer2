@@ -11,7 +11,7 @@
 	<p:panel>
 		<p:panel>
 			<p:selectOneRadio id="customRadio" value="#{documentView.radioSelect}" layout="custom">
-				<p:ajax listener="#{documentView.refreshMyDocListFilter}" update="docMyTable calendar"/>
+				<p:ajax listener="#{documentView.refreshMyDocListFilter}" update="calendar"/>
 				<f:selectItem itemLabel="Документы с датой изменения" itemValue="date"/>
 				<f:selectItem itemLabel="Документы в работе" itemValue="working"/>
 			</p:selectOneRadio>
@@ -21,7 +21,7 @@
 				<p:calendar id="calendar" value="#{documentView.dateIn}" size="10" pattern="#{localeBean.datePattern}"
 							locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}"
 							disabled="#{documentView.radioSelect == 'date' ? 'false' : 'true'}" readonlyInput="true">
-					<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="@this docMyTable"/>
+					<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="@this"/>
 				</p:calendar>
 				<p:radioButton for="customRadio" itemIndex="1"/>
 				<h:outputLabel value="Документы в работе"/>
@@ -29,7 +29,7 @@
 			</h:panelGrid>
 		</p:panel>
 
-		<p:dataTable id="docMyTable" widgetVar="docTable" value="#{documentView.documentList}" var="doc" rows="20"
+		<p:dataTable id="docTable" widgetVar="docTable" value="#{documentView.documentList}" var="doc" rows="20"
 					 selectionMode="single" selection="#{documentView.selectedDocument}" rowKey="#{doc.id}"
 					 filteredValue="#{documentView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

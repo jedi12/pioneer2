@@ -74,14 +74,13 @@
 				</p:selectOneMenu>
 				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byOwner}"/>
 			</h:panelGrid>
-			<p:commandButton value="#{text['search.btn.search']}" icon="fa fa-fw fa-search" actionListener="#{searchView.findAction}"
-							 update="docSearchTable"/>
+			<p:commandButton value="#{text['search.btn.search']}" icon="fa fa-fw fa-search" actionListener="#{searchView.findAction}"/>
 		</p:panel>
 
 		<br/>
 
 		<p:panel>
-			<p:dataTable id="docSearchTable" widgetVar="docTable" value="#{searchView.documentList}" var="doc" rows="10"
+			<p:dataTable id="docTable" widgetVar="docTable" value="#{searchView.documentList}" var="doc" rows="10"
 						 selectionMode="single" selection="#{searchView.selectedDocument}" rowKey="#{doc.id}"
 						 filteredValue="#{searchView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
 						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

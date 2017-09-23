@@ -26,7 +26,7 @@
 			<h:outputScript name="js/script.js"/>
 		</h:head>
 
-		<h:body>
+		<h:body onload="formatMenuTabs()">
 			<h:form id="initProp">
 				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
 				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
@@ -45,7 +45,7 @@
 				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
 					<h:form id="leftPanel">
 						<p:accordionPanel widgetVar="menuAccordion" value="#{currentUser.userMenu}" var="menu"
-										  activeIndex="#{currentUser.currMenuIndex}">
+										  activeIndex="#{currentUser.currMenuIndex}" onTabChange="formatMenuTabs()">
 							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu)}"
 									update="centerPanel dialogsPanel"/>
 
@@ -59,7 +59,6 @@
 								</p:repeat>
 							</p:tab>
 						</p:accordionPanel>
-						<p:remoteCommand ignoreAutoUpdate="true" oncomplete="formatMenuTabs()" autoRun="true"/>
 					</h:form>
 				</p:layoutUnit>
 

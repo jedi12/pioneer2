@@ -18,7 +18,7 @@
 								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
 				</h:panelGroup>
 				<p:commandButton value="#{text['event.btn.search']}" icon="fa fa-fw fa-search"
-								 actionListener="#{eventView.findAction}" update="eventTable"/>
+								 actionListener="#{eventView.findAction}"/>
 			</h:panelGrid>
 		</p:panel>
 		<p:panel>

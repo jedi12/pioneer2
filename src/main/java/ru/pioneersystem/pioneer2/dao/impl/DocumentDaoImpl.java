@@ -70,7 +70,7 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String SELECT_MY_ON_DATE_DOCUMENT_LIST =
             "SELECT D.ID AS ID, D.NAME AS NAME, DS.NAME AS STATUS_NAME, G.NAME AS GROUP_NAME, D.STATUS AS STATUS_ID " +
                     "FROM DOC.DOCUMENTS D LEFT JOIN DOC.DOCUMENTS_STATUS DS ON D.STATUS = DS.ID LEFT JOIN " +
-                    "DOC.GROUPS G ON D.DOC_GROUP = G.ID WHERE DS.ID <> 1 AND D.U_DATE >= ? AND D.U_DATE < ? " +
+                    "DOC.GROUPS G ON D.DOC_GROUP = G.ID WHERE DS.ID <> ? AND D.U_DATE >= ? AND D.U_DATE < ? " +
                     "AND D.DOC_GROUP IN (SELECT G.ID FROM DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID " +
                     "AND USER_ID = ? AND ROLE_ID = 9 AND STATE > 0) AND D.COMPANY = ? ORDER BY D.U_DATE DESC";
     private static final String SELECT_MY_ON_WORK_DOCUMENT_LIST =
@@ -204,7 +204,8 @@ public class DocumentDaoImpl implements DocumentDao {
                                 field.setChoiceListValues(choiceListValues);
                                 break;
                             case FieldType.Id.CALENDAR:
-                                field.setValueCalendar(Date.from(rs.getTimestamp("VALUE_CALENDAR").toInstant()));
+                                Timestamp timestamp = rs.getTimestamp("VALUE_CALENDAR");
+                                field.setValueCalendar(timestamp == null ? null : Date.from(timestamp.toInstant()));
                                 break;
                             case FieldType.Id.CHECKBOX:
                                 field.setValueCheckBox(rs.getObject("VALUE_CHECKBOX", Boolean.class));
@@ -272,7 +273,8 @@ public class DocumentDaoImpl implements DocumentDao {
                                 field.setChoiceListValues(choiceListValues);
                                 break;
                             case FieldType.Id.CALENDAR:
-                                field.setValueCalendar(Date.from(rs.getTimestamp("VALUE_CALENDAR").toInstant()));
+                                Timestamp timestamp = rs.getTimestamp("VALUE_CALENDAR");
+                                field.setValueCalendar(timestamp == null ? null : Date.from(timestamp.toInstant()));
                                 break;
                             case FieldType.Id.CHECKBOX:
                                 field.setValueCheckBox(rs.getObject("VALUE_CHECKBOX", Boolean.class));
@@ -322,7 +324,7 @@ public class DocumentDaoImpl implements DocumentDao {
     @Override
     public List<Document> getMyOnDateList(Date beginDate, Date endDate, int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_MY_ON_DATE_DOCUMENT_LIST,
-                new Object[]{beginDate, endDate, userId, companyId},
+                new Object[]{Status.Id.DELETED, beginDate, endDate, userId, companyId},
                 (rs, rowNum) -> {
                     Document document = new Document();
                     document.setId(rs.getInt("ID"));

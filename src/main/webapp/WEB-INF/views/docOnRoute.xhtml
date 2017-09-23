@@ -9,7 +9,7 @@
 	<h2 align="center"><h:outputLabel value="#{currentUser.currMenu.name}"/></h2>
 
 	<p:panel>
-		<p:dataTable id="docOnRouteTable" widgetVar="docTable" value="#{documentView.documentList}" var="doc" rows="20"
+		<p:dataTable id="docTable" widgetVar="docTable" value="#{documentView.documentList}" var="doc" rows="20"
 					 selectionMode="single" selection="#{documentView.selectedDocument}" rowKey="#{doc.id}"
 					 filteredValue="#{documentView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
