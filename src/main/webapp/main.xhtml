@@ -31,7 +31,7 @@
 				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
 				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
 				<h:inputHidden id="zoneOffset" value="#{localeBean.timezoneOffsetMinutes}"/>
-				<p:remoteCommand onstart="initClientProp();" autoRun="true" update="leftPanel centerPanel"
+				<p:remoteCommand onstart="initClientProp()" autoRun="true" update="leftPanel centerPanel"
 								 actionListener="#{currentUser.selectMenu(currentUser.currMenuId)}"/>
 			</h:form>
 
@@ -85,6 +85,11 @@
 			<p:idleMonitor timeout="600000">
 				<p:ajax event="idle" listener="#{currentUser.signOut}"/>
 			</p:idleMonitor>
+
+            <p:ajaxStatus onstart="openLoadingDialog()" onsuccess="closeLoadingDialog()"/>
+            <p:dialog widgetVar="loading" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <p:graphicImage value="#{resource['images/ajax-loader.gif']}"/>
+            </p:dialog>
 
 			<p:growl id="growl" showDetail="true" life="10000" autoUpdate="true"/>
 		</h:body>

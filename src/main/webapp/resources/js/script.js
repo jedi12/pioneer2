@@ -1,3 +1,18 @@
+var ajaxResponse;
+function openLoadingDialog() {
+    ajaxResponse = false;
+    setTimeout(function() {
+        if (ajaxResponse == false) {
+            PF('loading').show();
+        }
+    }, 800);
+}
+
+function closeLoadingDialog() {
+    ajaxResponse = true;
+    PF('loading').hide();
+}
+
 function initClientProp() {
     document.getElementById("initProp:screenHeight").value = screen.height;
     document.getElementById("initProp:screenWidth").value = screen.width;

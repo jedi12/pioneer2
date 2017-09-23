@@ -134,6 +134,10 @@ public class CurrentUser implements Serializable {
             String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
                     ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
             eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
+
+            // Задержка 500 мс при неправильном вводе логина или пароля
+            try {Thread.sleep(500);} catch (Exception ex) {}
+
             throw new PasswordException(e.getMessage());
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
