@@ -9,8 +9,9 @@
 
 	<f:view contentType="text/html" locale="#{localeBean.locale}">
 		<f:metadata>
-			<!--<f:viewParam name="curDocId" value="#{currentUser.curDocId}"/>-->
 			<f:viewParam name="currMenuId" value="#{currentUser.currMenuId}"/>
+			<f:viewParam name="currDocId" value="#{currentUserView.currDocId}"/>
+			<f:viewParam name="showRoute" value="#{currentUserView.showRoute}"/>
 		</f:metadata>
 
 		<h:head>
@@ -30,7 +31,8 @@
 				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
 				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
 				<h:inputHidden id="zoneOffset" value="#{localeBean.timezoneOffsetMinutes}"/>
-				<p:remoteCommand onstart="initClientProp();" autoRun="true"/>
+				<p:remoteCommand onstart="initClientProp();" autoRun="true" update="leftPanel centerPanel"
+								 actionListener="#{currentUser.selectMenu(currentUser.currMenuId)}"/>
 			</h:form>
 
 			<p:layout id="layout" fullPage="true">
@@ -47,7 +49,7 @@
 							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu)}"
 									update="centerPanel dialogsPanel"/>
 
-							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_BLANC')}">
+							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_')}">
 								<p:repeat value="#{menu.subMenu}" var="subMenu">
 									<p:commandLink value="#{subMenu.name}"
 												   actionListener="#{currentUser.setCurrPage(subMenu)}"
@@ -75,8 +77,10 @@
 			<ui:include src="WEB-INF/dialogs/login.xhtml"/>
 			<ui:include src="WEB-INF/dialogs/changePass.xhtml"/>
 
-			<h:form>
+			<h:form id="autoOpen">
 				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
+				<p:remoteCommand actionListener="#{documentView.autoOpenDocument(currentUserView.currDocId, currentUserView.showRoute)}"
+								 autoRun="true" rendered="#{currentUser.logged}" update="dialogsPanel"/>
 			</h:form>
 
 			<p:idleMonitor timeout="600000">

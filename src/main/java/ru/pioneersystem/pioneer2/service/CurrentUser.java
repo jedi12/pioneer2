@@ -166,7 +166,7 @@ public class CurrentUser implements Serializable {
         return ipAddress;
     }
 
-    public void setCurrMenuId(int currMenuId) {
+    public void selectMenu(int currMenuId) {
         if (userMenu == null) {
             return;
         }
@@ -192,7 +192,7 @@ public class CurrentUser implements Serializable {
         this.currMenuId = menu.getId();
         this.currPage = menu.getPage();
         this.currRole = userRoles.get(menu.getRoleId());
-//        RequestContext.getCurrentInstance().updateNoticeInfo(
+//        RequestContext.getCurrentInstance().update(
 //                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }
 
@@ -258,6 +258,10 @@ public class CurrentUser implements Serializable {
 
     public int getCurrMenuId() {
         return currMenuId;
+    }
+
+    public void setCurrMenuId(int currMenuId) {
+        this.currMenuId = currMenuId;
     }
 
     public Menu getCurrMenu() {

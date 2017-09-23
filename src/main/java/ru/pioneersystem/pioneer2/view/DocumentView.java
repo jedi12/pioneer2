@@ -25,9 +25,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -241,6 +239,24 @@ public class DocumentView implements Serializable {
         }
     }
 
+    public void autoOpenDocument(int currDocId, boolean showRoute) {
+        if (currDocId <= 0 || currentUser.getCurrMenuId() <= 0 || documentList == null) {
+            return;
+        }
+
+        for (Document document: documentList) {
+            if (document.getId() == currDocId) {
+                selectedDocument = document;
+                if (showRoute) {
+                    openDocRouteFromListDialog();
+                } else {
+                    openDocFromListDialog();
+                }
+                return;
+            }
+        }
+    }
+
     public void openDocRouteFromListDialog() {
         if (selectedDocument == null) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
@@ -295,7 +311,7 @@ public class DocumentView implements Serializable {
             documentService.saveDocument(currDoc);
 
             if (currDoc.isCreateFlag()) {
-                currentUser.setCurrMenuId(Menu.Id.MY_DOCS);
+                currentUser.selectMenu(Menu.Id.MY_DOCS);
             }
             initDefault();
 
@@ -316,7 +332,7 @@ public class DocumentView implements Serializable {
             documentService.saveAndSendDocument(currDoc);
 
             if (currDoc.isCreateFlag()) {
-                currentUser.setCurrMenuId(Menu.Id.MY_DOCS);
+                currentUser.selectMenu(Menu.Id.MY_DOCS);
             }
             initDefault();
 

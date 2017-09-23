@@ -8,7 +8,7 @@
 		<p:dialog widgetVar="docRouteDialog" resizable="true" width="1024" modal="true" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-share-alt" style="margin-right:10px"/>
-				<p:outputLabel value="#{text['docRoute.header']}"/>
+				<p:outputLabel value="#{text['docRoute.header']} (#{text['label.id']} #{documentView.currDoc.id})"/>
 			</f:facet>
 
 			<h2 align="center">

@@ -25,6 +25,9 @@ public class CurrentUserView implements Serializable {
     private String pass;
     private String newPass;
 
+    private int currDocId;
+    private boolean showRoute;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{currentUser}")
@@ -41,12 +44,13 @@ public class CurrentUserView implements Serializable {
     public void signInAction() {
         try {
             currentUser.signIn(login, pass);
-
             pass = null;
+
+            currentUser.selectMenu(currentUser.getCurrMenuId());
 
             RequestContext.getCurrentInstance().execute("PF('loginDialog').hide()");
             RequestContext.getCurrentInstance().update(
-                    new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel"})));
+                    new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel", "autoOpen"})));
         }
         catch (PasswordException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
@@ -107,5 +111,21 @@ public class CurrentUserView implements Serializable {
 
     public void setNewPass(String newPass) {
         this.newPass = newPass;
+    }
+
+    public int getCurrDocId() {
+        return currDocId;
+    }
+
+    public void setCurrDocId(int currDocId) {
+        this.currDocId = currDocId;
+    }
+
+    public boolean isShowRoute() {
+        return showRoute;
+    }
+
+    public void setShowRoute(boolean showRoute) {
+        this.showRoute = showRoute;
     }
 }
