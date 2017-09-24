@@ -4,6 +4,7 @@ import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -48,11 +49,11 @@ public class CurrentUserView implements Serializable {
 
             currentUser.selectMenu(currentUser.getCurrMenuId());
 
-            RequestContext.getCurrentInstance().execute("PF('loginDialog').hide()");
+            RequestContext.getCurrentInstance().execute("PF('loginDialog').hide();formatMenuTabs()");
             RequestContext.getCurrentInstance().update(
                     new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel", "autoOpen"})));
         }
-        catch (PasswordException e) {
+        catch (PasswordException | RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
         }

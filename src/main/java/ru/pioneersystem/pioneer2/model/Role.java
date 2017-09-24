@@ -13,7 +13,6 @@ public class Role {
     private String statusName;
     private String menuName;
 
-
     private boolean createFlag;
 
     public static class State {

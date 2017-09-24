@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
@@ -56,11 +57,13 @@ public class CurrentUser implements Serializable {
     private RoleService roleService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
+    private SessionListener sessionListener;
 
     @Autowired
     public CurrentUser(EventService eventService, UserService userService, MenuService menuService,
                        GroupService groupService, RouteService routeService, PartService partService,
-                       RoleService roleService, LocaleBean localeBean, MessageSource messageSource) {
+                       RoleService roleService, LocaleBean localeBean, MessageSource messageSource,
+                       SessionListener sessionListener) {
         this.eventService = eventService;
         this.userService = userService;
         this.menuService = menuService;
@@ -70,6 +73,7 @@ public class CurrentUser implements Serializable {
         this.roleService = roleService;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
+        this.sessionListener = sessionListener;
     }
 
     public void signIn(String login, String pass) throws ServiceException {
@@ -79,13 +83,11 @@ public class CurrentUser implements Serializable {
 
             if (user.getState() == 0) {
                 String mess = messageSource.getMessage("warn.user.locked", null, localeBean.getLocale());
-                eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
                 throw new PasswordException(mess);
             }
 
             if (user.getCompany().getState() == 0) {
                 String mess = messageSource.getMessage("warn.company.locked", null, localeBean.getLocale());
-                eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
                 throw new PasswordException(mess);
             }
 
@@ -119,16 +121,19 @@ public class CurrentUser implements Serializable {
 //            request.getSession().setAttribute(SessionListener.USER_ID, user.getId());
 //            request.getSession().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
 
-            String ipAddress = getIpAddress();
+            if (!sessionListener.getUserSessions(user.getId()).isEmpty()) {
+                String mess = messageSource.getMessage("warn.user.alreadySignedIn", null, localeBean.getLocale());
+                throw new RestrictionException(mess);
+            }
+
             // TODO: 02.09.2017 Переделать через Spring?
             HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
             session.setAttribute(SessionListener.USER_ID, user.getId());
             session.setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
-            session.setAttribute(SessionListener.IP_ADDRESS, ipAddress);
 
             logged = true;
 
-            eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + ipAddress);
+            eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + getIpAddress());
 
         } catch (PasswordException e) {
             String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
@@ -139,6 +144,13 @@ public class CurrentUser implements Serializable {
             try {Thread.sleep(500);} catch (Exception ex) {}
 
             throw new PasswordException(e.getMessage());
+        } catch (RestrictionException e) {
+            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
+            eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
+
+            sessionListener.invalidateUserSessions(user.getId());
+            throw new RestrictionException(e.getMessage());
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
                     ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();

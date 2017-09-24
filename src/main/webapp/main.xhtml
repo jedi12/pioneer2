@@ -26,12 +26,12 @@
 			<h:outputScript name="js/script.js"/>
 		</h:head>
 
-		<h:body onload="formatMenuTabs()">
+		<h:body>
 			<h:form id="initProp">
 				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
 				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
 				<h:inputHidden id="zoneOffset" value="#{localeBean.timezoneOffsetMinutes}"/>
-				<p:remoteCommand onstart="initClientProp()" autoRun="true" update="leftPanel centerPanel"
+				<p:remoteCommand id="props" onstart="initClientProp()" autoRun="true" update="leftPanel centerPanel"
 								 actionListener="#{currentUser.selectMenu(currentUser.currMenuId)}"/>
 			</h:form>
 
@@ -45,7 +45,7 @@
 				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
 					<h:form id="leftPanel">
 						<p:accordionPanel widgetVar="menuAccordion" value="#{currentUser.userMenu}" var="menu"
-										  activeIndex="#{currentUser.currMenuIndex}" onTabChange="formatMenuTabs()">
+										  activeIndex="#{currentUser.currMenuIndex}">
 							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu)}"
 									update="centerPanel dialogsPanel"/>
 
@@ -59,6 +59,7 @@
 								</p:repeat>
 							</p:tab>
 						</p:accordionPanel>
+						<p:remoteCommand id="formatMenu" ignoreAutoUpdate="true" oncomplete="formatMenuTabs()" autoRun="true"/>
 					</h:form>
 				</p:layoutUnit>
 
@@ -77,9 +78,9 @@
 			<ui:include src="WEB-INF/dialogs/changePass.xhtml"/>
 
 			<h:form id="autoOpen">
-				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
-				<p:remoteCommand actionListener="#{documentView.autoOpenDocument(currentUserView.currDocId, currentUserView.showRoute)}"
-								 autoRun="true" rendered="#{currentUser.logged}" update="dialogsPanel"/>
+				<p:remoteCommand id="openLogin" oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
+				<p:remoteCommand id="openDoc" autoRun="true" rendered="#{currentUser.logged}" update="dialogsPanel"
+								 actionListener="#{documentView.autoOpenDocument(currentUserView.currDocId, currentUserView.showRoute)}"/>
 			</h:form>
 
 			<p:idleMonitor timeout="600000">

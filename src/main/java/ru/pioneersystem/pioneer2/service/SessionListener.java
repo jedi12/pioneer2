@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.pioneersystem.pioneer2.dao.EventDao;
 import ru.pioneersystem.pioneer2.model.Event;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
@@ -20,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class SessionListener implements HttpSessionListener, ServletContextListener {
+public class SessionListener extends RequestContextListener implements HttpSessionListener, ServletContextListener {
 	private static final ConcurrentHashMap<String, HttpSession> sessions = new ConcurrentHashMap<>();
 	public static final String USER_ID = "userId";
 	public static final String COMPANY_ID = "companyId";
@@ -43,6 +46,28 @@ public class SessionListener implements HttpSessionListener, ServletContextListe
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		//
+	}
+
+	@Override
+	public void requestInitialized(ServletRequestEvent requestEvent) {
+		super.requestInitialized(requestEvent);
+
+		HttpServletRequest request = (HttpServletRequest) requestEvent.getServletRequest();
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			return;
+		}
+
+		String ipAddress = (String) session.getAttribute(SessionListener.IP_ADDRESS);
+		if (ipAddress != null) {
+			return;
+		}
+
+		ipAddress = request.getHeader("X-FORWARDED-FOR");
+		if (ipAddress == null) {
+			ipAddress = request.getRemoteAddr();
+		}
+		session.setAttribute(SessionListener.IP_ADDRESS, ipAddress);
 	}
 
 	@Override
@@ -83,7 +108,8 @@ public class SessionListener implements HttpSessionListener, ServletContextListe
 	public List<HttpSession> getUserSessions(int userId) {
 		List<HttpSession> sessionsList = new ArrayList<>();
 		for (HttpSession session : sessions.values()) {
-			if (userId == (int) session.getAttribute(USER_ID)) {
+			Object obj = session.getAttribute(USER_ID);
+			if (obj != null && (int) obj == userId) {
 				sessionsList.add(session);
 			}
 		}
@@ -93,7 +119,8 @@ public class SessionListener implements HttpSessionListener, ServletContextListe
 	public List<HttpSession> getCompanySessions(int companyId) {
 		List<HttpSession> sessionsList = new ArrayList<>();
 		for (HttpSession session : sessions.values()) {
-			if (companyId == (int) session.getAttribute(COMPANY_ID)) {
+			Object obj = session.getAttribute(COMPANY_ID);
+			if (obj != null && (int) obj == companyId) {
 				sessionsList.add(session);
 			}
 		}
