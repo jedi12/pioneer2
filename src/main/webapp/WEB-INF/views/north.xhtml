@@ -4,15 +4,23 @@
 	xmlns:f="http://java.sun.com/jsf/core" 
 	xmlns:ui="http://java.sun.com/jsf/facelets" 
 	xmlns:p="http://primefaces.org/ui">
-	
-	<h:panelGrid columns="2">
-		<p:selectOneMenu value="#{localeBean.language}" onchange="submit()">
-			<f:selectItem itemValue="ru" itemLabel="Русский"/>
-			<f:selectItem itemValue="en" itemLabel="English"/>
-		</p:selectOneMenu>
+
+	<h:panelGrid columns="4" columnClasses=",width100,columnLang," styleClass="ui-widget-header">
+		<p:commandLink onclick="PF('about').show()">
+			<h:graphicImage value="#{resource['images/logo64x64.png']}"/>
+		</p:commandLink>
+		<h:panelGrid columns="1" style="width:100%;line-height:1px">
+			<h1 style="text-align:center;font-weight:normal;">#{text['system.name']}</h1>
+		</h:panelGrid>
 		<h:panelGroup>
+			<p:selectOneMenu value="#{localeBean.language}" style="min-width: 0px;font-size: small;" onchange="submit()">
+				<f:selectItem itemValue="ru" itemLabel="Русский"/>
+				<f:selectItem itemValue="en" itemLabel="English" itemDisabled="true"/>
+			</p:selectOneMenu>
+		</h:panelGroup>
+		<h:panelGroup style="position: absolute;bottom: 8px;right: 7px;text-align: right">
 			<h:outputText value="#{currentUser.user.name}"/>
-			<p:menuButton value="#{currentUser.user.name}">
+			<p:menuButton style="font-size: 70%; margin-left: 4px">
 				<p:menuitem value="#{text['login.signIn.name']}" icon="fa fa-fw fa-sign-in"
 							oncomplete="PF('loginDialog').show()" rendered="#{!currentUser.logged}"/>
 				<p:menuitem value="#{text['login.signOut.name']}" icon="fa fa-fw fa-sign-out"
@@ -22,5 +30,4 @@
 			</p:menuButton>
 		</h:panelGroup>
 	</h:panelGrid>
-
 </ui:composition>

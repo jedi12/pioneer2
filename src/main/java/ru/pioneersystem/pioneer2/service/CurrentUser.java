@@ -136,8 +136,8 @@ public class CurrentUser implements Serializable {
             eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + getIpAddress());
 
         } catch (PasswordException e) {
-            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
-                    ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
+            String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + login + " - " + e.getMessage();
             eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
 
             // Задержка 500 мс при неправильном вводе логина или пароля
@@ -145,15 +145,15 @@ public class CurrentUser implements Serializable {
 
             throw new PasswordException(e.getMessage());
         } catch (RestrictionException e) {
-            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
-                    ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
+            String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + login + " - " + e.getMessage();
             eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
 
             sessionListener.invalidateUserSessions(user.getId());
             throw new RestrictionException(e.getMessage());
         } catch (ServiceException e) {
-            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
-                    ": " + login + ", IP: " + getIpAddress() + " - " + e.getMessage();
+            String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + login + " - " + e.getMessage();
             eventService.logEvent(Event.Type.USER_TRY_SIGN_IN, 0, mess);
             throw new ServiceException(e.getMessage(), e);
         }
@@ -166,8 +166,8 @@ public class CurrentUser implements Serializable {
             externalContext.redirect("signedOut.xhtml");
             externalContext.setSessionMaxInactiveInterval(1);
         } catch (IOException e) {
-            String mess = messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
-                    ": " + user.getLogin() + ", IP: " + getIpAddress();
+            String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
+                    ": " + user.getLogin();
             eventService.logEvent(Event.Type.ERROR, 0, mess);
         }
     }
