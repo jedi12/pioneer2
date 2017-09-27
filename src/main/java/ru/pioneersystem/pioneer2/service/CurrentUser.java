@@ -37,7 +37,7 @@ public class CurrentUser implements Serializable {
     private Map<Integer, Role> userRoles;
     private Map<Integer, Map<Integer, Integer>> userRolesGroupActivity;
 
-    private String currPage = "welcome.xhtml";
+    private String currPage = Menu.Page.WELCOME_GUEST;
     private int currMenuIndex = -1;
     private int currMenuId;
     private Menu currMenu;
@@ -115,6 +115,15 @@ public class CurrentUser implements Serializable {
                 }
             }
 
+            currMenuIndex = -1;
+            if (superRole) {
+                currPage = Menu.Page.WELCOME_SUPER;
+            } else if (adminRole) {
+                currPage = Menu.Page.WELCOME_ADMIN;
+            } else {
+                currPage = Menu.Page.WELCOME_USER;
+            }
+
 //            RequestContextHolder.currentRequestAttributes().setAttribute(SessionListener.USER_ID, user.getId(), RequestAttributes.SCOPE_SESSION);
 //            RequestContextHolder.currentRequestAttributes().setAttribute(SessionListener.COMPANY_ID, user.getCompanyId(), RequestAttributes.SCOPE_SESSION);
 
@@ -130,6 +139,8 @@ public class CurrentUser implements Serializable {
             HttpSession session = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
             session.setAttribute(SessionListener.USER_ID, user.getId());
             session.setAttribute(SessionListener.COMPANY_ID, user.getCompanyId());
+
+            selectMenu(currMenuId);
 
             logged = true;
 
@@ -163,7 +174,7 @@ public class CurrentUser implements Serializable {
         try {
             // TODO: 02.09.2017 Переделать через Spring?
             ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-            externalContext.redirect("signedOut.xhtml");
+            externalContext.redirect(Menu.Page.SIGNED_OUT);
             externalContext.setSessionMaxInactiveInterval(1);
         } catch (IOException e) {
             String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
@@ -196,8 +207,6 @@ public class CurrentUser implements Serializable {
             }
             menuIndex = menuIndex + 1;
         }
-        currMenuIndex = -1;
-        currPage = "welcome.xhtml";
     }
 
     public void setCurrPage(Menu menu) {
@@ -208,8 +217,6 @@ public class CurrentUser implements Serializable {
         this.currMenuId = menu.getId();
         this.currPage = menu.getPage();
         this.currRole = userRoles.get(menu.getRoleId());
-//        RequestContext.getCurrentInstance().update(
-//                new ArrayList<>(Arrays.asList(new String[] {"leftPanel", "centerPanel", "dialogsPanel"})));
     }
 
     public int getScreenHeight() {

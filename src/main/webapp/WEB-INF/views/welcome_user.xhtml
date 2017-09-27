@@ -1,0 +1,23 @@
+<ui:composition
+		xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="welcomeForm" style="background-color: #F5FFFA;">
+		<center>
+			<h2>Краткая инструкция пользователя</h2>
+		</center>
+		<p>1. Выберите меню "Создать документ":
+			<h:graphicImage value="#{resource['images/welcome1.png']}"/>
+		</p>
+		<p>2. Раскройте нужный раздел:
+			<h:graphicImage value="#{resource['images/welcome2.png']}"/>
+		</p>
+		<p>3. Выделите нужный Вам шаблон и нажмите кнопку "Заполнить документ" (либо выберите шаблон двойным кликом): </p>
+		<h:graphicImage value="#{resource['images/welcome3.png']}"/>
+		<p>4. Для облегчения поиска нужного шаблона среди множества других - можно использовать контекстный фильтр: </p>
+		<h:graphicImage value="#{resource['images/welcome4.png']}"/>
+	</h:form>
+</ui:composition>

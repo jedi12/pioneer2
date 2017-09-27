@@ -47,8 +47,6 @@ public class CurrentUserView implements Serializable {
             currentUser.signIn(login, pass);
             pass = null;
 
-            currentUser.selectMenu(currentUser.getCurrMenuId());
-
             RequestContext.getCurrentInstance().execute("PF('loginDialog').hide();formatMenuTabs()");
             RequestContext.getCurrentInstance().update(
                     new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel", "autoOpen"})));
@@ -66,7 +64,6 @@ public class CurrentUserView implements Serializable {
     public void changePassAction() {
         try {
             userService.changeUserPass(login, pass, newPass);
-
             pass = null;
             newPass = null;
 
