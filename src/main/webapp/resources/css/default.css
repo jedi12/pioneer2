@@ -23,8 +23,8 @@ table {border-collapse: collapse;}
 .width38px {width: 38px}
 .labelNoWrap {white-space: nowrap}
 .emptyTreeNode {display: none}
-.outerPanel .ui-panel-content {padding:0px !important;}
 .northPanel .ui-panel-title {margin:0px !important;}
+.scrollPanel .ui-panel-content {padding: 0 !important;}
 
 .lightGrey {background-color:#E8E8E8}
 .lightPink {background-color:#FFC0C0}

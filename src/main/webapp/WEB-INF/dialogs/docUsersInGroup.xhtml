@@ -15,8 +15,8 @@
 				<p:outputLabel value="#{text['groupsActiveUsers.title']}"/>
 			</h2>
 
-			<p:panel id="fieldsPanel" style="word-wrap:break-word">
-				<p:panel widgetVar="fieldsPanel" style="border-width:0px;padding:0px" styleClass="outerPanel">
+			<p:panel style="word-wrap:break-word">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
 					<p:dataTable var="user" value="#{documentView.usersInGroup}" emptyMessage="#{text['table.empty']}">
 
 						<p:column headerText="#{text['groupsActiveUsers.user']}">

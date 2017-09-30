@@ -28,41 +28,78 @@ function formatMenuTabs() {
     })
 }
 
+var maxScrollPanel;
 function formatDialog() {
+    maxScrollPanel = getTopVisibleDialog().find('.scrollPanel').filter(":visible").height();
+    formatTab();
+}
+
+function formatTabDefault() {
+    var visibleDialog = getTopVisibleDialog();
+    var scrollPanel = visibleDialog.find('.scrollPanel').filter(":visible");
+    scrollPanel.height('auto');
+}
+
+function formatTab() {
+    var visibleDialog = getTopVisibleDialog();
+    var scrollPanel = visibleDialog.find('.scrollPanel').filter(":visible");
+
+    if (scrollPanel.height() > maxScrollPanel) {
+        maxScrollPanel = scrollPanel.height();
+    } else {
+        scrollPanel.height(maxScrollPanel);
+    }
+
     var winHeight = $(window).height();
-    var dialogHeight = $(PF('docDialog').jqId).height();
-    var panelHeight = $(PF('fieldsPanel').jqId).height();
+    var dialogHeight = visibleDialog.height();
 
     if (dialogHeight > winHeight) {
-        $(PF('fieldsPanel').jqId).css('overflow','auto');
-        $(PF('fieldsPanel').jqId).height(panelHeight - dialogHeight + winHeight);
+        scrollPanel.css('overflow-y','auto');
+        scrollPanel.css('overflow-x','hidden');
+        scrollPanel.height(scrollPanel.filter(":visible").height() - dialogHeight + winHeight);
     }
+    visibleDialog.position({my: 'center', at: 'center', of: window})
 }
 
-function selectOneMenuCut() {
-    selectOneMenuList = document.getElementsByClassName('ui-selectonemenu');
-    for (j = 0; j < selectOneMenuList.length; ++j) {
-        element = selectOneMenuList[j];
-        selectOneMenuWidth = element.clientWidth;
-        elementParentNode = element.parentNode;
-        while (elementParentNode != 'undefined') {
-            if (elementParentNode.tagName == 'TABLE') {
-                tableWidth = elementParentNode.clientWidth;
-                prop = window.getComputedStyle(elementParentNode.parentNode, null);
-                panelWidth = prop.getPropertyValue('width').replace("px","");
-                if (tableWidth > panelWidth) {
-                    pribavka = tableWidth - panelWidth;
-                    element.style['width'] = selectOneMenuWidth - pribavka + 'px';
-                    element.style['min-width'] = '';
-                }
-                break;
-            }
-            else {
-                elementParentNode = elementParentNode.parentNode;
-            }
+function getTopVisibleDialog() {
+    var visibleDialogs = $('.ui-dialog').filter(":visible");
+    var maxZIndex = Math.max.apply(null, visibleDialogs.map(function() {
+        var z;
+        return isNaN(z = parseInt($(this).css("z-index"), 10)) ? 0 : z;
+    }));
+    var topVisibleDialog;
+    visibleDialogs.each(function() {
+        if ($(this).css("z-index") == maxZIndex) {
+            topVisibleDialog = $(this);
         }
-    }
+    });
+    return topVisibleDialog ? topVisibleDialog : visibleDialogs;
 }
+
+// function selectOneMenuCut() {
+//     selectOneMenuList = document.getElementsByClassName('ui-selectonemenu');
+//     for (j = 0; j < selectOneMenuList.length; ++j) {
+//         element = selectOneMenuList[j];
+//         selectOneMenuWidth = element.clientWidth;
+//         elementParentNode = element.parentNode;
+//         while (elementParentNode != 'undefined') {
+//             if (elementParentNode.tagName == 'TABLE') {
+//                 tableWidth = elementParentNode.clientWidth;
+//                 prop = window.getComputedStyle(elementParentNode.parentNode, null);
+//                 panelWidth = prop.getPropertyValue('width').replace("px","");
+//                 if (tableWidth > panelWidth) {
+//                     pribavka = tableWidth - panelWidth;
+//                     element.style['width'] = selectOneMenuWidth - pribavka + 'px';
+//                     element.style['min-width'] = '';
+//                 }
+//                 break;
+//             }
+//             else {
+//                 elementParentNode = elementParentNode.parentNode;
+//             }
+//         }
+//     }
+// }
 
 // Костыль, для <p:calendar> не дает открываться, если это поле в диалоге идет первым
 PrimeFaces.widget.Dialog.prototype.applyFocus = function() {

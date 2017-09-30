@@ -69,7 +69,7 @@
 			</h:panelGrid>
 
 			<p:panel id="fieldsPanel" style="word-wrap:break-word">
-				<p:panel widgetVar="fieldsPanel" style="border-width:0px;padding:0px" styleClass="outerPanel">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
 					<p:repeat value="#{documentView.currDoc.fields}" varStatus="loop" var="field">
 						<h:panelGrid columns="1" rendered="#{field.typeId == 5}" style="width:100%">
 							<h:outputLabel value="#{field.name}" style="font-weight:bold" rendered="#{field.name != ''}"/>
