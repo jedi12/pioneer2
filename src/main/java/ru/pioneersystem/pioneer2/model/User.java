@@ -1,5 +1,7 @@
 package ru.pioneersystem.pioneer2.model;
 
+import java.util.List;
+
 public class User {
     private int id;
     private String name;
@@ -11,15 +13,47 @@ public class User {
     private int state;
     private String stateName;
     private int companyId;
+    private String companyName;
     private Company company;
     private boolean noticeDocIncoming;
     private boolean noticeStatusChanged;
+    private List<LinkGroup> linkGroups;
 
     private boolean createFlag;
 
     public static class State {
         public static final int LOCKED = 0;
         public static final int ACTIVE = 1;
+    }
+
+    public static class LinkGroup {
+        private int groupId;
+        private String groupName;
+        private boolean isParticipant;
+
+        public int getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(int groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
+        }
+
+        public boolean isParticipant() {
+            return isParticipant;
+        }
+
+        public void setParticipant(boolean participant) {
+            isParticipant = participant;
+        }
     }
 
     public int getId() {
@@ -102,6 +136,14 @@ public class User {
         this.companyId = companyId;
     }
 
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     public Company getCompany() {
         return company;
     }
@@ -132,5 +174,13 @@ public class User {
 
     public void setNoticeStatusChanged(boolean noticeStatusChanged) {
         this.noticeStatusChanged = noticeStatusChanged;
+    }
+
+    public List<LinkGroup> getLinkGroups() {
+        return linkGroups;
+    }
+
+    public void setLinkGroups(List<LinkGroup> linkGroups) {
+        this.linkGroups = linkGroups;
     }
 }

@@ -2,6 +2,7 @@ package ru.pioneersystem.pioneer2.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -10,9 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.UserDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Company;
+import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.User;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +30,22 @@ public class UserDaoImpl implements UserDao {
 
     private static final String INSERT_USER = "INSERT INTO DOC.USERS (LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, " +
             "COMMENT, POSITION, NOTICE_DOC_IN, NOTICE_STATUS_CH) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_GROUP_USER =
+            "INSERT INTO DOC.GROUPS_USER (ID, USER_ID, ACTOR_TYPE) VALUES (?, ?, ?)";
+    private static final String DELETE_GROUP_USER =
+            "DELETE FROM DOC.GROUPS_USER WHERE USER_ID = ?";
     private static final String UPDATE_USER = "UPDATE DOC.USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, PHONE = ?, " +
             "COMMENT = ?, POSITION = ?, NOTICE_DOC_IN = ?, NOTICE_STATUS_CH = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_LOCK = "UPDATE DOC.USERS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String UPDATE_USER_CHANGE_PASS = "UPDATE DOC.USERS SET PASS = ? WHERE ID = ?";
-    private static final String SELECT_USER = "SELECT ID, LOGIN, NAME, STATE, EMAIL, PHONE, COMPANY, COMMENT, " +
-            "POSITION, NOTICE_DOC_IN, NOTICE_STATUS_CH FROM DOC.USERS WHERE ID = ? AND COMPANY = ?";
+    private static final String SELECT_USER =
+            "SELECT U.ID AS ID, LOGIN, U.NAME AS USER_NAME, U.STATE AS STATE, U.EMAIL AS EMAIL, " +
+                    "U.PHONE AS PHONE, COMPANY, U.COMMENT AS COMMENT, POSITION, NOTICE_DOC_IN, NOTICE_STATUS_CH, " +
+                    "C.NAME AS COMPANY_NAME FROM DOC.USERS U LEFT JOIN DOC.COMPANY C ON C.ID = U.COMPANY " +
+                    "WHERE U.ID = ? AND COMPANY = ?";
+    private static final String SELECT_GROUP_USER =
+            "SELECT G.ID AS GROUP_ID, ACTOR_TYPE, NAME FROM DOC.GROUPS_USER GU LEFT JOIN DOC.GROUPS G ON G.ID = GU.ID " +
+                    "WHERE USER_ID = ? ORDER BY NAME ASC";
     private static final String SELECT_USER_WITH_COMPANY = "SELECT U.ID AS U_ID, U.LOGIN AS U_LOGIN, U.NAME AS U_NAME, " +
             "U.STATE AS U_STATE, U.EMAIL AS U_EMAIL, U.PHONE AS U_PHONE, U.COMPANY AS U_COMPANY, U.COMMENT AS U_COMMENT, " +
             "U.POSITION AS U_POSITION, U.NOTICE_DOC_IN AS U_NOTICE_DOC_IN, U.NOTICE_STATUS_CH AS U_NOTICE_STATUS_CH, " +
@@ -55,20 +69,21 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User get(int userId, int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_USER,
+        User resultUser =  jdbcTemplate.query(SELECT_USER,
                 new Object[]{userId, companyId},
                 (rs) -> {
                     if (rs.next()) {
                         User user = new User();
                         user.setId(rs.getInt("ID"));
                         user.setLogin(rs.getString("LOGIN"));
-                        user.setName(rs.getString("NAME"));
+                        user.setName(rs.getString("USER_NAME"));
+                        user.setState(rs.getInt("STATE"));
                         user.setEmail(rs.getString("EMAIL"));
                         user.setPhone(rs.getString("PHONE"));
                         user.setCompanyId(rs.getInt("COMPANY"));
+                        user.setCompanyName(rs.getString("COMPANY_NAME"));
                         user.setComment(rs.getString("COMMENT"));
                         user.setPosition(rs.getString("POSITION"));
-                        user.setState(rs.getInt("STATE"));
                         user.setNoticeDocIncoming(rs.getInt("NOTICE_DOC_IN") == 1);
                         user.setNoticeStatusChanged(rs.getInt("NOTICE_STATUS_CH") == 1);
                         return user;
@@ -78,6 +93,25 @@ public class UserDaoImpl implements UserDao {
                     }
                 }
         );
+
+        List<User.LinkGroup> resultLinkGroups = jdbcTemplate.query(SELECT_GROUP_USER,
+                new Object[]{userId},
+                rs -> {
+                    List<User.LinkGroup> linkGroups = new ArrayList<>();
+                    while(rs.next()){
+                        User.LinkGroup linkGroup = new User.LinkGroup();
+                        linkGroup.setGroupId(rs.getInt("GROUP_ID"));
+                        linkGroup.setGroupName(rs.getString("NAME"));
+                        linkGroup.setParticipant(rs.getInt("ACTOR_TYPE") == Group.ActorType.PARTICIPANT);
+
+                        linkGroups.add(linkGroup);
+                    }
+                    return linkGroups;
+                }
+        );
+
+        resultUser.setLinkGroups(resultLinkGroups);
+        return resultUser;
     }
 
     @Override
@@ -169,6 +203,20 @@ public class UserDaoImpl implements UserDao {
                     return pstmt;
                 }, keyHolder
         );
+
+        jdbcTemplate.batchUpdate(INSERT_GROUP_USER,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        pstmt.setInt(1, user.getLinkGroups().get(i).getGroupId());
+                        pstmt.setInt(2, keyHolder.getKey().intValue());
+                        pstmt.setInt(3, user.getLinkGroups().get(i).isParticipant()
+                                ? Group.ActorType.PARTICIPANT : Group.ActorType.SPECTATOR);
+                    }
+                    public int getBatchSize() {
+                        return user.getLinkGroups().size();
+                    }
+                }
+        );
         return keyHolder.getKey().intValue();
     }
 
@@ -193,6 +241,24 @@ public class UserDaoImpl implements UserDao {
             throw new NotFoundDaoException("Not found User with userId = " + user.getId() +
                     " and companyId = " + companyId);
         }
+
+        jdbcTemplate.update(DELETE_GROUP_USER,
+                user.getId()
+        );
+
+        jdbcTemplate.batchUpdate(INSERT_GROUP_USER,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        pstmt.setInt(1, user.getLinkGroups().get(i).getGroupId());
+                        pstmt.setInt(2, user.getId());
+                        pstmt.setInt(3, user.getLinkGroups().get(i).isParticipant()
+                                ? Group.ActorType.PARTICIPANT : Group.ActorType.SPECTATOR);
+                    }
+                    public int getBatchSize() {
+                        return user.getLinkGroups().size();
+                    }
+                }
+        );
     }
 
     @Override

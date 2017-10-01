@@ -12,18 +12,12 @@
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{companyView.currCompany.createFlag
-					? text['company.edit.create'] : text['company.edit.change']}"/>
+				<h:outputLabel value="#{companyView.currCompany.createFlag ? text['company.edit.create'] : text['company.edit.change']}"/>
 			</h2>
 
 			<p:panel>
-				<p:tabView id="tabView" widgetVar="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
-					<p:tab id="tab2" title="qwefqwf">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
-							<p:outputLabel value="#{text['company.edit.header']} (#{text['label.id']} #{companyView.currCompany.id})"/>
-						</p:panel>
-					</p:tab>
-					<p:tab id="tab1" title="#{text['company.tab1.name']}">
+				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+					<p:tab title="#{text['company.tab1.name']}">
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
 							<h:panelGrid id="companyGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['company.edit.name']}" for="name"/>
@@ -58,8 +52,8 @@
 								<p:message for="maxUsers" display="icon"/>
 
 								<p:outputLabel value="#{text['company.edit.comment']}" for="comment"/>
-								<p:inputTextarea id="comment" value="#{companyView.currCompany.comment}" rows="8" autoResize="true"
-												 maxlength="500" style="width: 100%;max-height: 128px"/>
+								<p:inputTextarea id="comment" value="#{companyView.currCompany.comment}" rows="5" autoResize="true"
+												 maxlength="500" style="width: 100%;max-height: 80px"/>
 								<p:message for="comment" display="icon"/>
 							</h:panelGrid>
 						</p:panel>

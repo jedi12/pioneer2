@@ -21,6 +21,7 @@ import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getNewUser() {
         User user = new User();
+        user.setLinkGroups(new ArrayList<>());
         user.setCreateFlag(true);
         return user;
     }

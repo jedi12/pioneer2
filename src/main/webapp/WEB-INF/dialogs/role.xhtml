@@ -5,7 +5,7 @@
 	xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
+		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-cubes" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['role.edit.header']} (#{text['label.id']} #{roleView.currRole.id})"/>
@@ -22,45 +22,51 @@
 								 validator="notEmptyString"/>
 					<p:message for="name" display="icon" styleClass="width38px"/>
 				</h:panelGrid>
-				<hr/>
-				<h:panelGrid id="valueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
-					<p:outputLabel value="#{text['role.edit.accept']}" for="accept"/>
-					<p:inputText id="accept" value="#{roleView.currRole.acceptButton}" styleClass="width100" maxlength="30"
-								 validator="notEmptyString"/>
-					<p:message for="accept" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['role.edit.reject']}" for="reject"/>
-					<p:inputText id="reject" value="#{roleView.currRole.rejectButton}" styleClass="width100" maxlength="30"
-								 validator="notEmptyString"/>
-					<p:message for="reject" display="icon" styleClass="width38px"/>
+				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+					<p:tab title="#{text['role.tab1.name']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+							<h:panelGrid id="valueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<p:outputLabel value="#{text['role.edit.accept']}" for="accept"/>
+								<p:inputText id="accept" value="#{roleView.currRole.acceptButton}" styleClass="width100" maxlength="30"
+											 validator="notEmptyString"/>
+								<p:message for="accept" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['role.edit.status']}" for="status"/>
-					<p:inputText id="status" value="#{roleView.currRole.statusName}" styleClass="width100" maxlength="30"
-								 validator="notEmptyString"/>
-					<p:message for="status" display="icon" styleClass="width38px"/>
+								<p:outputLabel value="#{text['role.edit.reject']}" for="reject"/>
+								<p:inputText id="reject" value="#{roleView.currRole.rejectButton}" styleClass="width100" maxlength="30"
+											 validator="notEmptyString"/>
+								<p:message for="reject" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['role.edit.menu']}" for="menu"/>
-					<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="30"
-								 validator="notEmptyString"/>
-					<p:message for="menu" display="icon" styleClass="width38px"/>
+								<p:outputLabel value="#{text['role.edit.status']}" for="status"/>
+								<p:inputText id="status" value="#{roleView.currRole.statusName}" styleClass="width100" maxlength="30"
+											 validator="notEmptyString"/>
+								<p:message for="status" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['role.edit.canRouteChange']}" for="routeChange"/>
-					<p:selectBooleanCheckbox id="routeChange" value="#{roleView.currRole.canRouteChange}"/>
-					<p:message for="routeChange" display="icon" styleClass="width38px"/>
+								<p:outputLabel value="#{text['role.edit.menu']}" for="menu"/>
+								<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="30"
+											 validator="notEmptyString"/>
+								<p:message for="menu" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['role.edit.canEdit']}" for="edit"/>
-					<p:selectBooleanCheckbox id="edit" value="#{roleView.currRole.canEdit}"/>
-					<p:message for="edit" display="icon" styleClass="width38px"/>
+								<p:outputLabel value="#{text['role.edit.canRouteChange']}" for="routeChange"/>
+								<p:selectBooleanCheckbox id="routeChange" value="#{roleView.currRole.canRouteChange}"/>
+								<p:message for="routeChange" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['role.edit.canComment']}" for="comment"/>
-					<p:selectBooleanCheckbox id="comment" value="#{roleView.currRole.canComment}"/>
-					<p:message for="comment" display="icon" styleClass="width38px"/>
-				</h:panelGrid>
+								<p:outputLabel value="#{text['role.edit.canEdit']}" for="edit"/>
+								<p:selectBooleanCheckbox id="edit" value="#{roleView.currRole.canEdit}"/>
+								<p:message for="edit" display="icon" styleClass="width38px"/>
+
+								<p:outputLabel value="#{text['role.edit.canComment']}" for="comment"/>
+								<p:selectBooleanCheckbox id="comment" value="#{roleView.currRole.canComment}"/>
+								<p:message for="comment" display="icon" styleClass="width38px"/>
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+				</p:tabView>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:roleTable roleGrid valueGrid"
+										 update=":centerPanel:roleTable roleGrid tabView:valueGrid"
 										 actionListener="#{roleView.saveAction}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>

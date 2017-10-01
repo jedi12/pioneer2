@@ -30,7 +30,7 @@ public class GroupView implements Serializable {
     private String selectedUser;
 
     private List<String> routesWithGroup;
-    private List<String> docToCansel;
+    private List<String> docToCancel;
     private int countPartsWithRestriction;
     private int countRoutesWithRestriction;
 
@@ -121,8 +121,8 @@ public class GroupView implements Serializable {
 
         try {
             routesWithGroup = routeService.getRoutesWithGroup(selectedGroup.getId());
-            docToCansel = documentService.getDocToCancelByGroup(selectedGroup.getId());
-            if (routesWithGroup.isEmpty() && docToCansel.isEmpty()) {
+            docToCancel = documentService.getDocToCancelByGroup(selectedGroup.getId());
+            if (routesWithGroup.isEmpty() && docToCancel.isEmpty()) {
                 countPartsWithRestriction = partService.getCountPartsWithRestriction(selectedGroup.getId());
                 countRoutesWithRestriction = routeService.getCountRoutesWithRestriction(selectedGroup.getId());
             }
@@ -247,8 +247,8 @@ public class GroupView implements Serializable {
         return routesWithGroup;
     }
 
-    public List<String> getDocToCansel() {
-        return docToCansel;
+    public List<String> getDocToCancel() {
+        return docToCancel;
     }
 
     public int getCountPartsWithRestriction() {

@@ -18,7 +18,7 @@
 					 rowStyleClass="#{templateList.state == 2 ? 'lightGrey' : 'default'}">
 
 			<p:ajax event="rowDblselect" listener="#{templateView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+					oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 
 			<p:column headerText="#{text['template.col.name']}" filterBy="#{templateList.name}" filterMatchMode="contains">
                 <h:outputText value="#{templateList.name}"/>
@@ -36,10 +36,10 @@
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
                              actionListener="#{templateView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
                              actionListener="#{templateView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+							 oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
                              actionListener="#{templateView.deleteDialog}"/>
 		</f:facet>

@@ -32,4 +32,4 @@ table {border-collapse: collapse;}
 .lightBlue {background-color:#BFEFFF}
 .lightYellow {background-color:#FFFACD}
 
-.collectedTable {height: 305px; background-color: lightgray;}
+.collectedTable {min-height: 305px; background-color: lightgray;}
