@@ -28,37 +28,63 @@ function formatMenuTabs() {
     })
 }
 
-var maxScrollPanel;
 function formatDialog() {
-    maxScrollPanel = getTopVisibleDialog().find('.scrollPanel').filter(":visible").height();
-    formatTab();
-}
-
-function formatTabDefault() {
-    var visibleDialog = getTopVisibleDialog();
-    var scrollPanel = visibleDialog.find('.scrollPanel').filter(":visible");
-    scrollPanel.height('auto');
-}
-
-function formatTab() {
-    var visibleDialog = getTopVisibleDialog();
-    var scrollPanel = visibleDialog.find('.scrollPanel').filter(":visible");
-
-    if (scrollPanel.height() > maxScrollPanel) {
-        maxScrollPanel = scrollPanel.height();
+    var dialog = getTopVisibleDialog();
+    var tabs = dialog.find('.ui-tabs-panel');
+    if (tabs.length == 0) {
+        formatPanel(dialog);
     } else {
-        scrollPanel.height(maxScrollPanel);
+        formatTabs(dialog);
     }
+    formatChoiceList();
+
+    dialog.position({my: 'center', at: 'center', of: window})
+}
+
+function formatTabs(dialog) {
+    var tabs = dialog.find('.ui-tabs-panel');
+    var maxTabsHeight = Math.max.apply(null, tabs.map(function() {
+        return $(this).height();
+    }));
+    tabs.height(maxTabsHeight);
 
     var winHeight = $(window).height();
-    var dialogHeight = visibleDialog.height();
+    var dialogHeight = dialog.height();
+    var diff = dialogHeight - winHeight;
 
-    if (dialogHeight > winHeight) {
-        scrollPanel.css('overflow-y','auto');
-        scrollPanel.css('overflow-x','hidden');
-        scrollPanel.height(scrollPanel.filter(":visible").height() - dialogHeight + winHeight);
+    if (diff > 0) {
+        tabs.height(maxTabsHeight - diff);
     }
-    visibleDialog.position({my: 'center', at: 'center', of: window})
+}
+
+function formatPanel(dialog) {
+    var scrollPanel = dialog.find('.scrollPanel');
+
+    var winHeight = $(window).height();
+    var dialogHeight = dialog.height();
+    var diff = dialogHeight - winHeight;
+
+    if (diff > 0) {
+        scrollPanel.height(scrollPanel.height() - diff);
+    }
+}
+
+function formatChoiceList() {
+    var selectOneMenus = getTopVisibleDialog().find('.ui-selectonemenu').filter(":visible");
+    selectOneMenus.each(function() {
+        var parentPanelWidth = $(this).parents('table').parent().width();
+        var tableWidth = $(this).parents('table').width();
+        var parentWidth = $(this).parent().width();
+        var width = $(this).width();
+        var diff = tableWidth - parentPanelWidth;
+        if (diff > 0) {
+            $(this).css('max-width', (width - diff) + 'px');
+            $(this).css('min-width', (width - diff) + 'px');
+        } else {
+            $(this).css('max-width', (parentWidth - 30) + 'px');
+            $(this).css('min-width', '0px');
+        }
+    });
 }
 
 function getTopVisibleDialog() {
@@ -76,41 +102,16 @@ function getTopVisibleDialog() {
     return topVisibleDialog ? topVisibleDialog : visibleDialogs;
 }
 
-// function selectOneMenuCut() {
-//     selectOneMenuList = document.getElementsByClassName('ui-selectonemenu');
-//     for (j = 0; j < selectOneMenuList.length; ++j) {
-//         element = selectOneMenuList[j];
-//         selectOneMenuWidth = element.clientWidth;
-//         elementParentNode = element.parentNode;
-//         while (elementParentNode != 'undefined') {
-//             if (elementParentNode.tagName == 'TABLE') {
-//                 tableWidth = elementParentNode.clientWidth;
-//                 prop = window.getComputedStyle(elementParentNode.parentNode, null);
-//                 panelWidth = prop.getPropertyValue('width').replace("px","");
-//                 if (tableWidth > panelWidth) {
-//                     pribavka = tableWidth - panelWidth;
-//                     element.style['width'] = selectOneMenuWidth - pribavka + 'px';
-//                     element.style['min-width'] = '';
-//                 }
-//                 break;
-//             }
-//             else {
-//                 elementParentNode = elementParentNode.parentNode;
-//             }
-//         }
-//     }
-// }
-
 // Костыль, для <p:calendar> не дает открываться, если это поле в диалоге идет первым
 PrimeFaces.widget.Dialog.prototype.applyFocus = function() {
     var firstInput = this.jq.find(':not(:submit):not(:button):input:visible:enabled:first');
     if(!firstInput.hasClass('hasDatepicker')) {
         firstInput.focus();
     }
-}
+};
 
 PrimeFaces.locales ['ru_RU'] = {
-	closeText: 'Закрыть',
+    closeText: 'Закрыть',
     prevText: 'Назад',
     nextText: 'Вперёд',
     monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],

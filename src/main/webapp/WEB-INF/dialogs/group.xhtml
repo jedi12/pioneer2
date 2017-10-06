@@ -18,7 +18,7 @@
 			<p:panel>
 				<h:panelGrid id="groupNameGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 					<p:outputLabel value="#{text['group.edit.name.label']}" for="groupName"/>
-					<p:inputText id="groupName" value="#{groupView.currGroup.name}" styleClass="width100" maxlength="50"
+					<p:inputText id="groupName" value="#{groupView.currGroup.name}" styleClass="width100" maxlength="64"
 								 validator="notEmptyString" disabled="#{groupView.currGroup.state > 1}"/>
 					<p:message for="groupName" display="icon" styleClass="width38px"/>
 
@@ -29,14 +29,14 @@
 					<h:outputLabel/>
 				</h:panelGrid>
 
-				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+				<p:tabView id="tabView">
 					<p:tab title="#{text['group.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="listsTable" value="#{groupView.currGroup.linkUsers}" var="collectedList" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.userName}"
-										 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
 										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false"
+										 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
 										 editable="true" editMode="cell">
 								<p:column>
 									<f:facet name="header">
@@ -66,7 +66,8 @@
 										<h:outputText value="#{text['operation.name']}" />
 									</f:facet>
 									<p:commandLink value="#{text['operation.delete']}" update="listsTable :editDialog:tabView:addValueGrid"
-												   actionListener="#{groupView.removeValue(collectedList)}"	process="@this">
+												   actionListener="#{groupView.removeValue(collectedList)}"	process="@this"
+												   oncomplete="formatChoiceList()">
 										<p:collector value="#{collectedList}" removeFrom="#{groupView.currGroup.linkUsers}" unique="true"/>
 									</p:commandLink>
 								</p:column>
@@ -75,15 +76,15 @@
 							<br />
 
 							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
-								<h:panelGrid id="addValueGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['group.edit.add.label']}" for="addValue"/>
 									<p:selectOneMenu id="addValue" value="#{groupView.selectedUser}" styleClass="width100" effect="fade"
 													 filter="true" filterMatchMode="contains">
 										<f:selectItems value="#{groupView.selectUser}" />
 									</p:selectOneMenu>
-									<p:message for="addValue" display="icon" styleClass="width38px"/>
 									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="listsTable addValueGrid"
-													 process="listsTable addValueGrid" actionListener="#{groupView.addValue}"/>
+													 process="listsTable addValueGrid" actionListener="#{groupView.addValue}"
+													 oncomplete="formatChoiceList()"/>
 								</h:panelGrid>
 							</p:panel>
 						</p:panel>
@@ -103,7 +104,7 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-users"/>
 				<p:outputLabel value=" #{text['group.del.header']} (ID: #{groupView.selectedGroup.id})"/>
@@ -111,45 +112,47 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['group.del.delete']}"/></h2>
 			<p:panel>
-				<h:panelGrid columns="2" cellpadding="5">
-					<p:outputLabel value="#{text['group.del.title']}"/>
-					<p:outputLabel value="#{groupView.selectedGroup.name}" style="font-weight: bold"/>
-				</h:panelGrid>
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+					<h:panelGrid columns="2" cellpadding="5">
+						<p:outputLabel value="#{text['group.del.title']}"/>
+						<p:outputLabel value="#{groupView.selectedGroup.name}" style="font-weight: bold"/>
+					</h:panelGrid>
 
-				<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty() || !groupView.docToCancel.isEmpty()}">
-					<hr/>
-				</h:panelGroup>
-
-				<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty()}">
-					<h4 align="center">#{text['group.del.routesWithGroup']}</h4>
-					<p:repeat value="#{groupView.routesWithGroup}" var="template" >
-						<i><h:outputLabel value="#{template}"/></i>
-						<br/>
-					</p:repeat>
-				</h:panelGroup>
-
-				<h:panelGroup rendered="#{!groupView.docToCancel.isEmpty()}">
-					<h4 align="center">#{text['group.del.docToCansel']}</h4>
-					<p:repeat value="#{groupView.docToCancel}" var="document" >
-						<i><h:outputLabel value="#{document}"/></i>
-						<br/>
-					</p:repeat>
-				</h:panelGroup>
-
-				<h:panelGroup rendered="#{groupView.routesWithGroup.isEmpty() &amp;&amp; groupView.docToCansel.isEmpty()}">
-					<hr/>
-					<h:panelGroup rendered="#{groupView.countPartsWithRestriction > 0}">
-						<br/>
-						<i><h:outputLabel value="#{text['group.del.countPartsWithRestriction']} #{groupView.countPartsWithRestriction}"/></i>
-						<br/>
+					<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty() || !groupView.docToCancel.isEmpty()}">
+						<hr/>
 					</h:panelGroup>
 
-					<h:panelGroup rendered="#{groupView.countRoutesWithRestriction > 0}">
-						<br/>
-						<i><h:outputLabel value="#{text['group.del.countRoutesWithRestriction']} #{groupView.countRoutesWithRestriction}"/></i>
-						<br/>
+					<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty()}">
+						<h4 align="center">#{text['group.del.routesWithGroup']}</h4>
+						<p:repeat value="#{groupView.routesWithGroup}" var="template" >
+							<i><h:outputLabel value="#{template}"/></i>
+							<br/>
+						</p:repeat>
 					</h:panelGroup>
-				</h:panelGroup>
+
+					<h:panelGroup rendered="#{!groupView.docToCancel.isEmpty()}">
+						<h4 align="center">#{text['group.del.docToCansel']}</h4>
+						<p:repeat value="#{groupView.docToCancel}" var="document" >
+							<i><h:outputLabel value="#{document}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{groupView.routesWithGroup.isEmpty() &amp;&amp; groupView.docToCancel.isEmpty()}">
+						<hr/>
+						<h:panelGroup rendered="#{groupView.countPartsWithRestriction > 0}">
+							<br/>
+							<i><h:outputLabel value="#{text['group.del.countPartsWithRestriction']} #{groupView.countPartsWithRestriction}"/></i>
+							<br/>
+						</h:panelGroup>
+
+						<h:panelGroup rendered="#{groupView.countRoutesWithRestriction > 0}">
+							<br/>
+							<i><h:outputLabel value="#{text['group.del.countRoutesWithRestriction']} #{groupView.countRoutesWithRestriction}"/></i>
+							<br/>
+						</h:panelGroup>
+					</h:panelGroup>
+				</p:panel>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">

@@ -18,32 +18,32 @@
 			<p:panel>
 				<h:panelGrid id="roleGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 					<p:outputLabel value="#{text['role.edit.name']}" for="name"/>
-					<p:inputText id="name" value="#{roleView.currRole.name}" styleClass="width100" maxlength="50"
+					<p:inputText id="name" value="#{roleView.currRole.name}" styleClass="width100" maxlength="64"
 								 validator="notEmptyString"/>
 					<p:message for="name" display="icon" styleClass="width38px"/>
 				</h:panelGrid>
 
-				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+				<p:tabView id="tabView">
 					<p:tab title="#{text['role.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<h:panelGrid id="valueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['role.edit.accept']}" for="accept"/>
-								<p:inputText id="accept" value="#{roleView.currRole.acceptButton}" styleClass="width100" maxlength="30"
+								<p:inputText id="accept" value="#{roleView.currRole.acceptButton}" styleClass="width100" maxlength="32"
 											 validator="notEmptyString"/>
 								<p:message for="accept" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['role.edit.reject']}" for="reject"/>
-								<p:inputText id="reject" value="#{roleView.currRole.rejectButton}" styleClass="width100" maxlength="30"
+								<p:inputText id="reject" value="#{roleView.currRole.rejectButton}" styleClass="width100" maxlength="32"
 											 validator="notEmptyString"/>
 								<p:message for="reject" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['role.edit.status']}" for="status"/>
-								<p:inputText id="status" value="#{roleView.currRole.statusName}" styleClass="width100" maxlength="30"
+								<p:inputText id="status" value="#{roleView.currRole.statusName}" styleClass="width100" maxlength="32"
 											 validator="notEmptyString"/>
 								<p:message for="status" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['role.edit.menu']}" for="menu"/>
-								<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="30"
+								<p:inputText id="menu" value="#{roleView.currRole.menuName}" styleClass="width100" maxlength="32"
 											 validator="notEmptyString"/>
 								<p:message for="menu" display="icon" styleClass="width38px"/>
 
@@ -77,7 +77,7 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-share-alt"/>
 				<p:outputLabel value=" #{text['role.del.header']} (ID: #{roleView.selectedRole.id})"/>
@@ -85,30 +85,32 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['role.del.delete']}"/></h2>
 			<p:panel>
-				<h:panelGrid columns="2" cellpadding="5">
-					<p:outputLabel value="#{text['role.del.title']}"/>
-					<p:outputLabel value="#{roleView.selectedRole.name}" style="font-weight: bold"/>
-				</h:panelGrid>
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+					<h:panelGrid columns="2" cellpadding="5">
+						<p:outputLabel value="#{text['role.del.title']}"/>
+						<p:outputLabel value="#{roleView.selectedRole.name}" style="font-weight: bold"/>
+					</h:panelGrid>
 
-				<h:panelGroup rendered="#{!roleView.groupsWithRole.isEmpty() || !roleView.docToCansel.isEmpty()}">
-					<hr/>
-				</h:panelGroup>
+					<h:panelGroup rendered="#{!roleView.groupsWithRole.isEmpty() || !roleView.docToCansel.isEmpty()}">
+						<hr/>
+					</h:panelGroup>
 
-				<h:panelGroup rendered="#{!roleView.groupsWithRole.isEmpty()}">
-					<h4 align="center">#{text['role.del.groupsWithRole']}</h4>
-					<p:repeat value="#{roleView.groupsWithRole}" var="group" >
-						<i><h:outputLabel value="#{group}"/></i>
-						<br/>
-					</p:repeat>
-				</h:panelGroup>
+					<h:panelGroup rendered="#{!roleView.groupsWithRole.isEmpty()}">
+						<h4 align="center">#{text['role.del.groupsWithRole']}</h4>
+						<p:repeat value="#{roleView.groupsWithRole}" var="group" >
+							<i><h:outputLabel value="#{group}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
 
-				<h:panelGroup rendered="#{!roleView.docToCansel.isEmpty()}">
-					<h4 align="center">#{text['role.del.docToCansel']}</h4>
-					<p:repeat value="#{roleView.docToCansel}" var="document" >
-						<i><h:outputLabel value="#{document}"/></i>
-						<br/>
-					</p:repeat>
-				</h:panelGroup>
+					<h:panelGroup rendered="#{!roleView.docToCansel.isEmpty()}">
+						<h4 align="center">#{text['role.del.docToCansel']}</h4>
+						<p:repeat value="#{roleView.docToCansel}" var="document" >
+							<i><h:outputLabel value="#{document}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
+				</p:panel>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">

@@ -35,15 +35,16 @@
 					<h:outputLabel/>
 				</h:panelGrid>
 
-				<p:tabView id="tabView" widgetVar="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
-					<p:ajax event="tabChange" listener="#{templateView.tabChanged}" update="addConditionGrid"/>
+				<p:tabView id="tabView" widgetVar="tabView">
+					<p:ajax event="tabChange" listener="#{templateView.tabChanged}" update="addConditionGrid"
+							oncomplete="formatChoiceList()"/>
 					<p:tab title="#{text['template.edit.fields.tab']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="fieldsTable" value="#{templateView.currTemplate.fields}" var="collectedField" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedField.num}"
-										 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
 										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false">
+										 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
 
 								<p:column>
 									<f:facet name="header">
@@ -71,7 +72,8 @@
 										<h:outputText value="#{text['operation.name']}" />
 									</f:facet>
 									<p:commandLink value="#{text['operation.delete']}" process="@this"
-												   update="fieldsTable :editDialog:tabView:addFieldGrid">
+												   update="fieldsTable :editDialog:tabView:addFieldGrid"
+												   oncomplete="formatChoiceList()">
 										<p:collector value="#{collectedField}" removeFrom="#{templateView.currTemplate.fields}" unique="true"/>
 									</p:commandLink>
 								</p:column>
@@ -83,13 +85,13 @@
 								<h:panelGrid id="addFieldGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['template.edit.fields.add.type.label']}" for="addFieldType"/>
 									<h:panelGroup>
-										<p:selectOneMenu id="addFieldType" value="#{templateView.selectedFieldType}" styleClass="width100" effect="fade">
+										<p:selectOneMenu id="addFieldType" value="#{templateView.selectedFieldType}"
+														 style="margin-right: 10px" styleClass="width100" effect="fade">
 											<p:ajax listener="#{templateView.fieldTypeChanged}" process="@this"
-													update="addFieldGrid"/>
+													update="addFieldGrid" oncomplete="formatChoiceList()"/>
 											<f:selectItems value="#{templateView.selectFieldType}" />
 										</p:selectOneMenu>
-										<p:selectOneMenu value="#{templateView.selectedChoiceList}" style="margin-left: 10px"
-														 rendered="#{templateView.addChoiceListRendered}">
+										<p:selectOneMenu value="#{templateView.selectedChoiceList}" rendered="#{templateView.addChoiceListRendered}">
 											<f:selectItems value="#{templateView.selectChoiceList}"/>
 										</p:selectOneMenu>
 									</h:panelGroup>
@@ -100,7 +102,8 @@
 												 maxlength="100" disabled="#{templateView.addFieldNameRendered}"/>
 									<p:message for="addFieldName" display="icon" styleClass="width38px"/>
 
-									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="fieldsTable addFieldGrid"
+									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus"
+													 update="fieldsTable addFieldGrid" oncomplete="formatChoiceList()"
 													 process="fieldsTable addFieldGrid" actionListener="#{templateView.addField}"/>
 								</h:panelGrid>
 							</p:panel>
@@ -108,12 +111,12 @@
 					</p:tab>
 
 					<p:tab title="#{text['template.edit.conditions.tab']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="conditionsTable" value="#{templateView.currTemplate.conditions}" var="collectedCond" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedCond.condNum}"
-										 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
 										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false">
+										 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
 
 								<p:column>
 									<f:facet name="header">
@@ -155,7 +158,8 @@
 										<h:outputText value="#{text['operation.name']}" />
 									</f:facet>
 									<p:commandLink value="#{text['operation.delete']}" process="@this"
-												   update="conditionsTable :editDialog:tabView:addConditionGrid">
+												   update="conditionsTable :editDialog:tabView:addConditionGrid"
+												   oncomplete="formatChoiceList()">
 										<p:collector value="#{collectedCond}" removeFrom="#{templateView.currTemplate.conditions}" unique="true"/>
 									</p:commandLink>
 								</p:column>
@@ -164,24 +168,22 @@
 							<br />
 
 							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
-								<h:panelGrid id="addConditionGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<h:panelGrid id="addConditionGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['template.edit.conditions.add.num.label']}" for="addCondNum"/>
 									<p:spinner id="addCondNum" value="#{templateView.condNum}" min="1" max="99" maxlength="2" size="2"
 											   validator="notEmptyString"/>
-									<p:message for="addCondNum" display="icon" styleClass="width38px"/>
 
 									<p:outputLabel value="#{text['template.edit.conditions.add.name.label']}" for="addCondName"/>
 									<p:selectOneMenu id="addCondName" value="#{templateView.selectedFieldName}" styleClass="width100" effect="fade">
-										<p:ajax listener="#{templateView.fieldNameListChanged}" process="@this" update="addConditionGrid"/>
+										<p:ajax listener="#{templateView.fieldNameListChanged}" process="@this" update="addConditionGrid"
+												oncomplete="formatChoiceList()"/>
 										<f:selectItems value="#{templateView.selectFieldName}"/>
 									</p:selectOneMenu>
-									<p:outputLabel/>
 
 									<p:outputLabel value="#{text['template.edit.conditions.add.cond.label']}" for="addCond"/>
 									<p:selectOneMenu id="addCond" value="#{templateView.selectedCond}" styleClass="width100" effect="fade">
 										<f:selectItems value="#{templateView.selectCond}"/>
 									</p:selectOneMenu>
-									<p:outputLabel/>
 
 									<p:outputLabel value="#{text['template.edit.conditions.add.value.label']}" for="addCondValue"/>
 									<p:inputText id="addCondValue" value="#{templateView.condValue}" styleClass="width100"
@@ -190,16 +192,15 @@
 															 rendered="#{templateView.condCheckBoxValueRendered}"/>
 									<p:calendar value="#{templateView.condCalendarValue}" size="10" pattern="#{localeBean.datePattern}"
 												locale="#{localeBean.locale}" rendered="#{templateView.condCalendarValueRendered}"/>
-									<p:message for="addCondValue" display="icon" styleClass="width38px"/>
 
 									<p:outputLabel value="#{text['template.edit.conditions.add.route.label']}" for="addCondRoute"/>
 									<p:selectOneMenu id="addCondRoute" value="#{templateView.selectedCondRoute}" styleClass="width100" effect="fade">
 										<f:selectItems value="#{templateView.selectRouteList}"/>
 									</p:selectOneMenu>
-									<p:outputLabel/>
 
 									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="conditionsTable addConditionGrid"
-													 process="conditionsTable addConditionGrid" actionListener="#{templateView.addCond}"/>
+													 process="conditionsTable addConditionGrid" actionListener="#{templateView.addCond}"
+													 oncomplete="formatChoiceList()"/>
 								</h:panelGrid>
 							</p:panel>
 						</p:panel>

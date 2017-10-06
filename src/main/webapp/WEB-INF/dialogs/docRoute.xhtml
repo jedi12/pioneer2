@@ -5,7 +5,7 @@
 				xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="docRouteDialog" target="_blank">
-		<p:dialog widgetVar="docRouteDialog" resizable="true" width="1024" modal="true" onShow="formatDialog()">
+		<p:dialog widgetVar="docRouteDialog" resizable="false" width="1024" modal="true" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-share-alt" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['docRoute.header']} (#{text['label.id']} #{documentView.currDoc.id})"/>
@@ -16,7 +16,7 @@
 			</h2>
 
 			<p:panel style="word-wrap:break-word">
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 					<p:dataTable var="routePoint" value="#{documentView.routePoints}" emptyMessage="#{text['table.empty']}">
 
 						<p:column styleClass="#{(routePoint.signed == 2 || routePoint.signed == 3) ? 'lightPink' :

@@ -16,9 +16,9 @@
 			</h2>
 
 			<p:panel>
-				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+				<p:tabView id="tabView">
 					<p:tab title="#{text['menu.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 
 						</p:panel>
 					</p:tab>
@@ -38,7 +38,7 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-list"/>
 				<p:outputLabel value=" #{text['menu.del.header']} (ID: #{menuView.selectedMenu.id})"/>
@@ -46,6 +46,9 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['menu.del.delete']}"/></h2>
 			<p:panel>
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+
+				</p:panel>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">

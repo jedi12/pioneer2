@@ -16,34 +16,34 @@
 			</h2>
 
 			<p:panel>
-				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+				<p:tabView id="tabView">
 					<p:tab title="#{text['company.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<h:panelGrid id="companyGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['company.edit.name']}" for="name"/>
-								<p:inputText id="name" value="#{companyView.currCompany.name}" styleClass="width100" maxlength="50"
+								<p:inputText id="name" value="#{companyView.currCompany.name}" styleClass="width100" maxlength="64"
 											 validator="notEmptyString"/>
 								<p:message for="name" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['company.edit.fullName']}" for="fullName"/>
-								<p:inputText id="fullName" value="#{companyView.currCompany.fullName}" style="width: 100%" maxlength="100"/>
+								<p:inputText id="fullName" value="#{companyView.currCompany.fullName}" style="width: 100%" maxlength="128"/>
 								<p:message for="fullName" display="icon"/>
 
 								<p:outputLabel value="#{text['company.edit.address']}" for="address"/>
 								<p:inputTextarea id="address" value="#{companyView.currCompany.address}" rows="3" autoResize="true"
-												 maxlength="200" style="width: 100%;max-height: 48px"/>
+												 maxlength="256" style="width: 100%;max-height: 48px"/>
 								<p:message for="address" display="icon"/>
 
 								<p:outputLabel value="#{text['company.edit.phone']}" for="phone"/>
-								<p:inputText id="phone" value="#{companyView.currCompany.phone}" style="width: 100%" maxlength="50"/>
+								<p:inputText id="phone" value="#{companyView.currCompany.phone}" style="width: 100%" maxlength="64"/>
 								<p:message for="phone" display="icon"/>
 
 								<p:outputLabel value="#{text['company.edit.email']}" for="email"/>
-								<p:inputText id="email" value="#{companyView.currCompany.email}" style="width: 100%" maxlength="50"/>
+								<p:inputText id="email" value="#{companyView.currCompany.email}" style="width: 100%" maxlength="64"/>
 								<p:message for="email" display="icon"/>
 
 								<p:outputLabel value="#{text['company.edit.site']}" for="site"/>
-								<p:inputText id="site" value="#{companyView.currCompany.site}" style="width: 100%" maxlength="50"/>
+								<p:inputText id="site" value="#{companyView.currCompany.site}" style="width: 100%" maxlength="128"/>
 								<p:message for="site" display="icon"/>
 
 								<p:outputLabel value="#{text['company.edit.maxUsers']}" for="maxUsers"/>
@@ -53,7 +53,7 @@
 
 								<p:outputLabel value="#{text['company.edit.comment']}" for="comment"/>
 								<p:inputTextarea id="comment" value="#{companyView.currCompany.comment}" rows="5" autoResize="true"
-												 maxlength="500" style="width: 100%;max-height: 80px"/>
+												 maxlength="512" style="width: 100%;max-height: 80px"/>
 								<p:message for="comment" display="icon"/>
 							</h:panelGrid>
 						</p:panel>

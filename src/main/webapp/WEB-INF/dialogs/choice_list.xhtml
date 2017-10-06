@@ -18,19 +18,19 @@
 			<p:panel>
 				<h:panelGrid id="listNameGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 					<p:outputLabel value="#{text['choiceList.edit.header.label']}" for="listName"/>
-					<p:inputText id="listName" value="#{choiceListView.currChoiceList.name}" styleClass="width100" maxlength="50"
+					<p:inputText id="listName" value="#{choiceListView.currChoiceList.name}" styleClass="width100" maxlength="64"
 								 validator="notEmptyString"/>
 					<p:message for="listName" display="icon" styleClass="width38px"/>
 				</h:panelGrid>
 
-				<p:tabView id="tabView" onTabChange="formatTabDefault()" onTabShow="formatTab()">
+				<p:tabView id="tabView">
 					<p:tab title="#{text['choiceList.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="listsTable" value="#{choiceListView.currChoiceList.values}" var="collectedList" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList}"
-										 paginator="true" paginatorPosition="top" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
 										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}" paginatorAlwaysVisible="false">
+										 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
 								<p:column>
 									<f:facet name="header">
 										<h:outputText value="#{text['choiceList.edit.col.name']}" />
@@ -51,10 +51,9 @@
 							<br/>
 
 							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
-								<h:panelGrid id="addValueGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['choiceList.edit.add.label']}" for="addValue"/>
-									<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="100"/>
-									<p:message for="addValue" display="icon" styleClass="width38px"/>
+									<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="64"/>
 									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="listsTable addValueGrid"
 													 process="listsTable addValueGrid" actionListener="#{choiceListView.addValue}"/>
 								</h:panelGrid>
@@ -76,7 +75,7 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-list"/>
 				<p:outputLabel value=" #{text['choiceList.del.header']} (ID: #{choiceListView.selectedChoiceList.id})"/>
@@ -84,19 +83,21 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['choiceList.del.delete']}"/></h2>
 			<p:panel>
-				<h:panelGrid columns="2" cellpadding="5">
-					<p:outputLabel value="#{text['choiceList.del.title']}"/>
-					<p:outputLabel value="#{choiceListView.selectedChoiceList.name}" style="font-weight: bold"/>
-				</h:panelGrid>
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+					<h:panelGrid columns="2" cellpadding="5">
+						<p:outputLabel value="#{text['choiceList.del.title']}"/>
+						<p:outputLabel value="#{choiceListView.selectedChoiceList.name}" style="font-weight: bold"/>
+					</h:panelGrid>
 
-				<h:panelGroup rendered="#{choiceListView.templatesContainingChoiceList.isEmpty() == false}">
-					<hr/>
-					<h4 align="center">#{text['choiceList.del.templateWithChoiceList']}</h4>
-					<p:repeat value="#{choiceListView.templatesContainingChoiceList}" var="template" >
-						<i><h:outputLabel value="#{template}"/></i>
-						<br/>
-					</p:repeat>
-				</h:panelGroup>
+					<h:panelGroup rendered="#{choiceListView.templatesContainingChoiceList.isEmpty() == false}">
+						<hr/>
+						<h4 align="center">#{text['choiceList.del.templateWithChoiceList']}</h4>
+						<p:repeat value="#{choiceListView.templatesContainingChoiceList}" var="template" >
+							<i><h:outputLabel value="#{template}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
+				</p:panel>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">

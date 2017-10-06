@@ -92,12 +92,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public void logEvent(int userId, int companyId, int eventType, int objectId, String detail1, String detail2) {
         try {
-            if (detail1 != null && detail1.length() > 100) {
-                detail1 = detail1.substring(0, 100);
+            if (detail1 != null && detail1.length() > 128) {
+                detail1 = detail1.substring(0, 128);
             }
 
-            if (detail2 != null && detail2.length() > 500) {
-                detail2 = detail2.substring(0, 500);
+            if (detail2 != null && detail2.length() > 512) {
+                detail2 = detail2.substring(0, 512);
             }
 
             Event event = new Event(new Date(), userId, eventType, objectId, detail1, detail2);

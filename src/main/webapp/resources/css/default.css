@@ -32,4 +32,5 @@ table {border-collapse: collapse;}
 .lightBlue {background-color:#BFEFFF}
 .lightYellow {background-color:#FFFACD}
 
-.collectedTable {min-height: 305px; background-color: lightgray;}
+.collectedTable .ui-datatable-tablewrapper {background-color: lightgray; min-height: 276px}
+
