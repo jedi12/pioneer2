@@ -18,7 +18,7 @@
 			<p:panel>
 				<h:panelGrid id="templateGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
 					<p:outputLabel value="#{text['template.edit.name.label']}" for="templateName"/>
-					<p:inputText id="templateName" value="#{templateView.currTemplate.name}" styleClass="width100" maxlength="50"
+					<p:inputText id="templateName" value="#{templateView.currTemplate.name}" styleClass="width100" maxlength="64"
 								 validator="notEmptyString"/>
 					<p:message for="templateName" display="icon" styleClass="width38px"/>
 
@@ -99,7 +99,7 @@
 
 									<p:outputLabel value="#{text['template.edit.fields.add.name.label']}" for="addFieldName"/>
 									<p:inputText id="addFieldName" value="#{templateView.fieldName}" styleClass="width100"
-												 maxlength="100" disabled="#{templateView.addFieldNameRendered}"/>
+												 maxlength="96" disabled="#{templateView.addFieldNameRendered}"/>
 									<p:message for="addFieldName" display="icon" styleClass="width38px"/>
 
 									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus"
@@ -187,7 +187,7 @@
 
 									<p:outputLabel value="#{text['template.edit.conditions.add.value.label']}" for="addCondValue"/>
 									<p:inputText id="addCondValue" value="#{templateView.condValue}" styleClass="width100"
-												 maxlength="100" rendered="#{templateView.condValueRendered}"/>
+												 maxlength="96" rendered="#{templateView.condValueRendered}"/>
 									<p:selectBooleanCheckbox value="#{templateView.condCheckBoxValue}" style="padding:2px 0px;"
 															 rendered="#{templateView.condCheckBoxValueRendered}"/>
 									<p:calendar value="#{templateView.condCalendarValue}" size="10" pattern="#{localeBean.datePattern}"

@@ -16,7 +16,7 @@
 
 			<h2 align="center">
 				<p:inplace id="title" disabled="#{!documentView.currDoc.editMode}">
-					<p:inputText value="#{documentView.currDoc.name}" required="true" maxlength="80" style="width:80%"/>
+					<p:inputText value="#{documentView.currDoc.name}" required="true" maxlength="64" style="width:80%"/>
 				</p:inplace>
 			</h2>
 
@@ -74,7 +74,7 @@
 						<h:panelGrid columns="1" rendered="#{field.typeId == 5}" style="width:100%">
 							<h:outputLabel value="#{field.name}" style="font-weight:bold" rendered="#{field.name != ''}"/>
 							<p:inputText value="#{field.valueTextField}" readonly="#{!documentView.currDoc.editMode}"
-										 style="width:99%" maxlength="100"/>
+										 style="width:99%" maxlength="96"/>
 						</h:panelGrid>
 
 						<h:panelGrid columns="1" rendered="#{field.typeId == 6}" style="width:100%">
@@ -102,7 +102,7 @@
 						<h:panelGrid columns="1" rendered="#{field.typeId == 9}" style="width:100%">
 							<h:outputLabel value="#{field.name}" style="font-weight:bold" rendered="#{field.name != ''}"/>
 							<p:inputTextarea value="#{field.valueTextArea}" readonly="#{!documentView.currDoc.editMode}"
-											 style="width:99%" autoResize="false" maxlength="1000" rows="5"/>
+											 style="width:99%" autoResize="false" maxlength="512" rows="5"/>
 						</h:panelGrid>
 
 						<h:panelGrid id="fileUp" columns="1" rendered="#{field.typeId == 10}" style="width:100%">

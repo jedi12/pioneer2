@@ -53,7 +53,7 @@
 							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
 								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['choiceList.edit.add.label']}" for="addValue"/>
-									<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="64"/>
+									<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="96"/>
 									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="listsTable addValueGrid"
 													 process="listsTable addValueGrid" actionListener="#{choiceListView.addValue}"/>
 								</h:panelGrid>
