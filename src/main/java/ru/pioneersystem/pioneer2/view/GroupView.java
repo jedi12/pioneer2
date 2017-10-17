@@ -3,6 +3,8 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.*;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -66,8 +68,7 @@ public class GroupView implements Serializable {
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -81,19 +82,15 @@ public class GroupView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedGroup == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.group.NotSelected")));
-            return;
-        }
-
         try {
-            currGroup = groupService.getGroup(selectedGroup.getId());
+            currGroup = groupService.getGroup(selectedGroup);
             selectUser = getCurrSelectUser(currGroup);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -106,7 +103,7 @@ public class GroupView implements Serializable {
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
-        catch (Exception e) {
+        catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -129,7 +126,7 @@ public class GroupView implements Serializable {
 
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
         }
-        catch (Exception e) {
+        catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -137,10 +134,10 @@ public class GroupView implements Serializable {
 
     public void deleteAction() {
         try {
-            groupService.deleteGroup(selectedGroup.getId());
+            groupService.deleteGroup(selectedGroup);
             refreshList();
         }
-        catch (Exception e) {
+        catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }

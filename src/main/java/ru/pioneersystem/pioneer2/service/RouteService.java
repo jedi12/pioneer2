@@ -20,9 +20,9 @@ public interface RouteService {
 
     Route getNewRoute();
 
-    Route getRoute(int routeId) throws ServiceException;
+    Route getRoute(Route selectedRoute) throws ServiceException;
 
     void saveRoute(Route route) throws ServiceException;
 
-    void deleteRoute(int routeId) throws ServiceException;
+    void deleteRoute(Route route) throws ServiceException;
 }

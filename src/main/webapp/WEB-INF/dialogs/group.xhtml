@@ -93,8 +93,9 @@
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check" update=":centerPanel:groupTable groupNameGrid"
-										 actionListener="#{groupView.saveAction}"/>
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
+										 update=":centerPanel:groupTable groupNameGrid"
+										 actionListener="#{groupView.saveAction}" disabled="#{currentUser.superRole}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>
 					</h:panelGrid>

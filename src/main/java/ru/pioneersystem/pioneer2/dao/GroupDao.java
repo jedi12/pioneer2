@@ -8,7 +8,9 @@ import java.util.Map;
 
 public interface GroupDao {
 
-    List<Group> getList(int companyId) throws DataAccessException;
+    List<Group> getSuperList() throws DataAccessException;
+
+    List<Group> getAdminList(int companyId) throws DataAccessException;
 
     Map<String, Group> getRouteGroup(int companyId) throws DataAccessException;
 

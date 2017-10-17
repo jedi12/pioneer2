@@ -9,6 +9,7 @@ import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.RouteService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -39,7 +40,14 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public List<Route> getRouteList() throws ServiceException {
         try {
-            return routeDao.getList(currentUser.getUser().getCompanyId());
+            List<Route> routes;
+            if (currentUser.isSuperRole()) {
+                routes = routeDao.getSuperList();
+            } else {
+                routes = routeDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
+
+            return routes;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.route.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());
@@ -106,15 +114,27 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public Route getRoute(int routeId) throws ServiceException {
+    public Route getRoute(Route selectedRoute) throws ServiceException {
+        if (selectedRoute == null) {
+            String mess = messageSource.getMessage("error.route.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Route route = routeDao.get(routeId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedRoute.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            Route route = routeDao.get(selectedRoute.getId(), companyId);
             route.setCreateFlag(false);
-            eventService.logEvent(Event.Type.ROUTE_GETED, routeId);
+            eventService.logEvent(Event.Type.ROUTE_GETED, selectedRoute.getId());
             return route;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.route.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), routeId);
+            eventService.logError(mess, e.getMessage(), selectedRoute.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -137,14 +157,14 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public void deleteRoute(int routeId) throws ServiceException {
+    public void deleteRoute(Route route) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного маршрута плюс еще какая-нибудь проверка
         try {
-            routeDao.delete(routeId, currentUser.getUser().getCompanyId());
-            eventService.logEvent(Event.Type.ROUTE_DELETED, routeId);
+            routeDao.delete(route.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.ROUTE_DELETED, route.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.route.NotDeleted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), routeId);
+            eventService.logError(mess, e.getMessage(), route.getId());
             throw new ServiceException(mess, e);
         }
     }

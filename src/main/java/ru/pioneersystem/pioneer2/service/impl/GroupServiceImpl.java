@@ -14,6 +14,7 @@ import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.GroupService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -52,7 +53,13 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Group> getGroupList() throws ServiceException {
         try {
-            List<Group> groups = groupDao.getList(currentUser.getUser().getCompanyId());
+            List<Group> groups;
+            if (currentUser.isSuperRole()) {
+                groups = groupDao.getSuperList();
+            } else {
+                groups = groupDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
+
             for (Group group : groups) {
                 String roleName = dictionaryService.getLocalizedRoleName(group.getRoleId(), localeBean.getLocale());
                 if (roleName != null) {
@@ -155,15 +162,27 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group getGroup(int groupId) throws ServiceException {
+    public Group getGroup(Group selectedGroup) throws ServiceException {
+        if (selectedGroup == null) {
+            String mess = messageSource.getMessage("error.group.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Group group = groupDao.get(groupId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedGroup.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            Group group = groupDao.get(selectedGroup.getId(), companyId);
             group.setCreateFlag(false);
-            eventService.logEvent(Event.Type.GROUP_GETED, groupId);
+            eventService.logEvent(Event.Type.GROUP_GETED, selectedGroup.getId());
             return group;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), groupId);
+            eventService.logError(mess, e.getMessage(), selectedGroup.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -173,10 +192,10 @@ public class GroupServiceImpl implements GroupService {
         try {
             if (group.isCreateFlag()) {
                 int groupId = groupDao.create(group, currentUser.getUser().getCompanyId());
-                eventService.logEvent(Event.Type.GROUP_GETED, groupId);
+                eventService.logEvent(Event.Type.GROUP_CREATED, groupId);
             } else {
                 groupDao.update(group, currentUser.getUser().getCompanyId());
-                eventService.logEvent(Event.Type.GROUP_GETED, group.getId());
+                eventService.logEvent(Event.Type.GROUP_CHANGED, group.getId());
             }
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.NotSaved", null, localeBean.getLocale());
@@ -187,16 +206,16 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void deleteGroup(int groupId) throws ServiceException {
+    public void deleteGroup(Group group) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной группы плюс еще какая-нибудь проверка
         try {
-            partDao.removeGroupRestriction(groupId, currentUser.getUser().getCompanyId());
-            routeDao.removeGroupRestriction(groupId, currentUser.getUser().getCompanyId());
-            groupDao.delete(groupId, currentUser.getUser().getCompanyId());
-            eventService.logEvent(Event.Type.GROUP_DELETED, groupId);
+            partDao.removeGroupRestriction(group.getId(), currentUser.getUser().getCompanyId());
+            routeDao.removeGroupRestriction(group.getId(), currentUser.getUser().getCompanyId());
+            groupDao.delete(group.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.GROUP_DELETED, group.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.group.NotDeleted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), groupId);
+            eventService.logError(mess, e.getMessage(), group.getId());
             throw new ServiceException(mess, e);
         }
     }

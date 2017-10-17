@@ -26,9 +26,9 @@ public interface GroupService {
 
     Group getNewGroup();
 
-    Group getGroup(int groupId) throws ServiceException;
+    Group getGroup(Group selectedGroup) throws ServiceException;
 
-    void saveGroup(Group role) throws ServiceException;
+    void saveGroup(Group group) throws ServiceException;
 
-    void deleteGroup(int groupId) throws ServiceException;
+    void deleteGroup(Group group) throws ServiceException;
 }

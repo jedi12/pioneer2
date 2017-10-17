@@ -37,10 +37,14 @@ public class GroupDaoImpl implements GroupDao {
     private static final String SELECT_GROUP_USER =
             "SELECT USER_ID, ACTOR_TYPE, NAME FROM DOC.GROUPS_USER GU " +
                     "LEFT JOIN DOC.USERS U ON GU.USER_ID = U.ID WHERE GU.ID = ? ORDER BY NAME ASC";
-    private static final String SELECT_GROUP_LIST =
-            "SELECT G.ID AS ID, G.NAME AS NAME, G.STATE AS STATE, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
-                    "LEFT JOIN DOC.ROLES R ON R.ID = G.ROLE_ID WHERE G.STATE > 0 AND G.COMPANY = ? " +
-                    "ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_SUPER_GROUP_LIST =
+            "SELECT G.ID AS ID, G.NAME AS NAME, G.STATE AS STATE, R.NAME AS ROLE_NAME, G.COMPANY AS COMPANY, " +
+                    "C.NAME AS COMPANY_NAME FROM DOC.GROUPS G LEFT JOIN DOC.ROLES R ON R.ID = G.ROLE_ID " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = G.COMPANY WHERE G.STATE > 0 ORDER BY G.COMPANY ASC, NAME ASC";
+    private static final String SELECT_ADMIN_GROUP_LIST =
+            "SELECT G.ID AS ID, G.NAME AS NAME, G.STATE AS STATE, R.NAME AS ROLE_NAME, G.COMPANY AS COMPANY, " +
+                    "NULL AS COMPANY_NAME FROM DOC.GROUPS G LEFT JOIN DOC.ROLES R ON R.ID = G.ROLE_ID " +
+                    "WHERE G.STATE > 0 AND G.COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_POINT_MAP =
             "SELECT G.ID AS GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
                     "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID WHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
@@ -107,16 +111,33 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public List<Group> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_GROUP_LIST,
-                new Object[]{companyId},
-                (rs, rowNum) -> {
-                    Group group = new Group();
-                    group.setId(rs.getInt("ID"));
-                    group.setName(rs.getString("NAME"));
-                    group.setState(rs.getInt("STATE"));
-                    group.setRoleName(rs.getString("ROLE_NAME"));
-                    return group;
+    public List<Group> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_GROUP_LIST, params);
+    }
+
+    @Override
+    public List<Group> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_GROUP_LIST, params);
+    }
+
+    private List<Group> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Group> groups = new ArrayList<>();
+                    while(rs.next()){
+                        Group group = new Group();
+                        group.setId(rs.getInt("ID"));
+                        group.setName(rs.getString("NAME"));
+                        group.setState(rs.getInt("STATE"));
+                        group.setRoleName(rs.getString("ROLE_NAME"));
+                        group.setCompanyId(rs.getInt("COMPANY"));
+                        group.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        groups.add(group);
+                    }
+                    return groups;
                 }
         );
     }

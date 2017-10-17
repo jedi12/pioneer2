@@ -136,7 +136,7 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:routeTable routeNameGrid"
+										 update=":centerPanel:routeTable routeNameGrid" disabled="#{currentUser.superRole}"
 										 actionListener="#{routeView.saveAction}" process="@this routeNameGrid"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>

@@ -70,8 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getUserList() throws ServiceException {
-        List<User> users;
         try {
+            List<User> users;
             if (currentUser.isSuperRole()) {
                 users = userDao.getSuperList();
             } else {
@@ -122,11 +122,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(User selectedUser) throws ServiceException {
-        if (selectedUser == null) {
-            String mess = messageSource.getMessage("error.user.NotSelected", null, localeBean.getLocale());
-            throw new RestrictionException(mess);
-        }
-
         try {
             int companyId;
             if (currentUser.isSuperRole()) {

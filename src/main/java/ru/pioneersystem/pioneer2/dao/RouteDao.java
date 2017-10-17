@@ -8,7 +8,9 @@ import java.util.Map;
 
 public interface RouteDao {
 
-    List<Route> getList(int companyId) throws DataAccessException;
+    List<Route> getSuperList() throws DataAccessException;
+
+    List<Route> getAdminList(int companyId) throws DataAccessException;
 
     Map<String, Integer> getUserRouteMap(int userId, int companyId) throws DataAccessException;
 

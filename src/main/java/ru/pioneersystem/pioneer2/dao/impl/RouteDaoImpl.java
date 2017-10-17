@@ -41,8 +41,13 @@ public class RouteDaoImpl implements RouteDao {
     private static final String SELECT_ROUTE_GROUP =
             "SELECT GROUP_ID, NAME FROM DOC.ROUTES_GROUP RG " +
                     "LEFT JOIN DOC.GROUPS G ON RG.GROUP_ID = G.ID WHERE RG.ID = ? ORDER BY NAME ASC";
-    private static final String SELECT_ROUTE_LIST =
-            "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_SUPER_ROUTE_LIST =
+            "SELECT R.ID AS ID, R.NAME AS NAME, R.STATE AS STATE, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.ROUTES R " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY WHERE R.STATE > 0 OR R.STATE = ? " +
+                    "ORDER BY R.COMPANY ASC, R.NAME ASC";
+    private static final String SELECT_ADMIN_ROUTE_LIST =
+            "SELECT ID, NAME, STATE, COMPANY, NULL AS COMPANY_NAME FROM DOC.ROUTES WHERE STATE > 0 " +
+                    "AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROUTE_MAP =
             "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
                     "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID " +
@@ -119,16 +124,32 @@ public class RouteDaoImpl implements RouteDao {
         return resultRoute;
     }
 
+    public List<Route> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{Route.State.SYSTEM};
+        return getList(SELECT_SUPER_ROUTE_LIST, params);
+    }
+
     @Override
-    public List<Route> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_ROUTE_LIST,
-                new Object[]{companyId, Route.State.SYSTEM},
-                (rs, rowNum) -> {
-                    Route route = new Route();
-                    route.setId(rs.getInt("ID"));
-                    route.setName(rs.getString("NAME"));
-                    route.setState(rs.getInt("STATE"));
-                    return route;
+    public List<Route> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId, Route.State.SYSTEM};
+        return getList(SELECT_ADMIN_ROUTE_LIST, params);
+    }
+
+    private List<Route> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Route> routes = new ArrayList<>();
+                    while(rs.next()){
+                        Route route = new Route();
+                        route.setId(rs.getInt("ID"));
+                        route.setName(rs.getString("NAME"));
+                        route.setState(rs.getInt("STATE"));
+                        route.setCompanyId(rs.getInt("COMPANY"));
+                        route.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        routes.add(route);
+                    }
+                    return routes;
                 }
         );
     }

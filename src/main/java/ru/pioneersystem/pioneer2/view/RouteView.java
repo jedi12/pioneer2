@@ -6,6 +6,8 @@ import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RouteService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -60,8 +62,7 @@ public class RouteView implements Serializable {
             routeList = routeService.getRouteList();
             selectPointDefault = groupService.getPointMap();
             selectGroupDefault = groupService.getGroupMap();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -83,13 +84,15 @@ public class RouteView implements Serializable {
         }
 
         try {
-            currRoute = routeService.getRoute(selectedRoute.getId());
+            currRoute = routeService.getRoute(selectedRoute);
             selectPoint = getCurrSelectPoint(currRoute);
             selectGroup = getCurrSelectGroup(currRoute);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -101,8 +104,7 @@ public class RouteView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -118,8 +120,7 @@ public class RouteView implements Serializable {
         try {
             templatesWithRoute = templateService.getListContainingRoute(selectedRoute.getId());
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -127,10 +128,9 @@ public class RouteView implements Serializable {
 
     public void deleteAction() {
         try {
-            routeService.deleteRoute(selectedRoute.getId());
+            routeService.deleteRoute(selectedRoute);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
