@@ -84,7 +84,7 @@ public class Event {
         public static final int USER_LOCKED = 104;
         public static final int USER_UNLOCKED = 105;
         public static final int USER_AUTO_CREATED = 106;
-        public static final int USER_FIRST_ADMIN_SETTED = 107;
+        public static final int USER_RESTRICTION_ACHIEVED = 107;
         public static final int USER_SIGN_IN_SSO_SUCCESS = 110;
         public static final int USER_SIGN_IN_SSO_FAIL = 111;
         public static final int USER_SIGNED_IN = 112;

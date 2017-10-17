@@ -295,7 +295,7 @@ public class DocumentView implements Serializable {
 
     public void openDocUsersInGroupDialog(int groupId) {
         try {
-            usersInGroup = userService.getUserList(groupId);
+            usersInGroup = userService.getUsersInGroup(groupId);
 
             RequestContext.getCurrentInstance().execute("PF('docUsersInGroupDialog').show()");
         }

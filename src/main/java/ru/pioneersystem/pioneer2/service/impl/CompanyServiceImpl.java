@@ -11,6 +11,7 @@ import ru.pioneersystem.pioneer2.service.CompanyService;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.SessionListener;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
@@ -62,19 +63,24 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public Company getCompany(int companyId) throws ServiceException {
+    public Company getCompany(Company selectedCompany) throws ServiceException {
+        if (selectedCompany == null) {
+            String mess = messageSource.getMessage("error.company.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Company company = companyDao.get(companyId);
+            Company company = companyDao.get(selectedCompany.getId());
             String stateName = dictionaryService.getLocalizedStateName(company.getState(), localeBean.getLocale());
             if (stateName != null) {
                 company.setStateName(stateName);
             }
             company.setCreateFlag(false);
-            eventService.logEvent(Event.Type.COMPANY_GETED, companyId);
+            eventService.logEvent(Event.Type.COMPANY_GETED, selectedCompany.getId());
             return company;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.company.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), companyId);
+            eventService.logError(mess, e.getMessage(), selectedCompany.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -97,26 +103,46 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void lockCompany(int companyId) throws ServiceException {
+    public void lockCompany(Company company) throws ServiceException {
+        if (company == null) {
+            String mess = messageSource.getMessage("error.company.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (company.getState() == Company.State.SYSTEM) {
+            String mess = messageSource.getMessage("error.operation.NotAllowed", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            companyDao.lock(companyId);
-            eventService.logEvent(Event.Type.COMPANY_LOCKED, companyId);
-            sessionListener.invalidateCompanySessions(companyId);
+            companyDao.lock(company.getId());
+            eventService.logEvent(Event.Type.COMPANY_LOCKED, company.getId());
+            sessionListener.invalidateCompanySessions(company.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.company.NotLocked", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), companyId);
+            eventService.logError(mess, e.getMessage(), company.getId());
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void unlockCompany(int companyId) throws ServiceException {
+    public void unlockCompany(Company company) throws ServiceException {
+        if (company == null) {
+            String mess = messageSource.getMessage("error.company.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (company.getState() == Company.State.SYSTEM) {
+            String mess = messageSource.getMessage("error.operation.NotAllowed", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            companyDao.unlock(companyId);
-            eventService.logEvent(Event.Type.COMPANY_UNLOCKED, companyId);
+            companyDao.unlock(company.getId());
+            eventService.logEvent(Event.Type.COMPANY_UNLOCKED, company.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.company.NotUnLocked", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), companyId);
+            eventService.logError(mess, e.getMessage(), company.getId());
             throw new ServiceException(mess, e);
         }
     }

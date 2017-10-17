@@ -124,7 +124,7 @@
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
 										 update=":centerPanel:usersTable editDialog:tabView:userGrid"
-										 actionListener="#{userView.saveAction}"/>
+										 actionListener="#{userView.saveAction}" disabled="#{currentUser.superRole}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>
 					</h:panelGrid>
@@ -134,22 +134,20 @@
 	</h:form>
 
 	<h:form id="setPassDialog" target="_blank">
-		<p:dialog widgetVar="setPassDialog" resizable="false" width="1024" modal="true" onShow="formatDialog()">
+		<p:dialog widgetVar="setPassDialog" resizable="false" width="400" modal="true">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-key"/>
 				<p:outputLabel value=" #{userView.selectedUser.name}"/>
 			</f:facet>
 
 			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
-					<h:panelGrid id="setPassFields" columns="2" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100">
-						<p:outputLabel for="newPass" value="#{text['user.setPass.newPass']}"/>
-						<p:password id="newPass" value="#{userView.newPass}" match="newPassRepeat" style="width: 100%"
-									validator="notEmptyString"/>
-						<p:outputLabel for="newPassRepeat" value="#{text['user.setPass.confirmPass']}"/>
-						<p:password id="newPassRepeat" value="#{userView.newPass}" style="width: 100%" validator="notEmptyString"/>
-					</h:panelGrid>
-				</p:panel>
+				<h:panelGrid id="setPassFields" columns="2" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100">
+					<p:outputLabel for="newPass" value="#{text['user.setPass.newPass']}"/>
+					<p:password id="newPass" value="#{userView.newPass}" match="newPassRepeat" style="width: 100%"
+								validator="notEmptyString"/>
+					<p:outputLabel for="newPassRepeat" value="#{text['user.setPass.confirmPass']}"/>
+					<p:password id="newPassRepeat" value="#{userView.newPass}" style="width: 100%" validator="notEmptyString"/>
+				</h:panelGrid>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">

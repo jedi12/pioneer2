@@ -64,7 +64,8 @@
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
 										 update=":centerPanel:companiesTable :editDialog:tabView:companyGrid"
-										 actionListener="#{companyView.saveAction}"/>
+										 actionListener="#{companyView.saveAction}"
+										 disabled="#{companyView.currCompany.state == 2}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>
 					</h:panelGrid>

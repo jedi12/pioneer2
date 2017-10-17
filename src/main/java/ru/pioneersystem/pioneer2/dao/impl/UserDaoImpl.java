@@ -52,8 +52,11 @@ public class UserDaoImpl implements UserDao {
             "C.ID AS C_ID, C.NAME AS C_NAME, C.FULL_NAME AS C_FULL_NAME, C.PHONE AS C_PHONE, C.EMAIL AS C_EMAIL, " +
             "C.ADDRESS AS C_ADDRESS, C.STATE AS C_STATE, C.MAX_USERS AS C_MAX_USERS, C.SITE AS C_SITE, " +
             "C.COMMENT AS C_COMMENT FROM DOC.USERS U, DOC.COMPANY C WHERE U.COMPANY = C.ID AND U.ID = ?";
-    private static final String SELECT_USER_LIST =
-            "SELECT ID, NAME, LOGIN, EMAIL, STATE FROM DOC.USERS WHERE COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_SUPER_USER_LIST =
+            "SELECT U.ID AS ID, U.NAME AS NAME, LOGIN, U.EMAIL AS EMAIL, U.STATE AS STATE, COMPANY, " +
+                    "C.NAME AS COMPANY_NAME FROM DOC.USERS U LEFT JOIN DOC.COMPANY C ON C.ID = U.COMPANY ORDER BY NAME ASC";
+    private static final String SELECT_ADMIN_USER_LIST =
+            "SELECT ID, NAME, LOGIN, EMAIL, STATE, COMPANY, NULL AS COMPANY_NAME FROM DOC.USERS WHERE COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_USERS_IN_GROUP_LIST =
             "SELECT USER_ID, NAME, EMAIL, PHONE, POSITION FROM DOC.GROUPS_USER GU, DOC.USERS U WHERE GU.USER_ID = U.ID " +
                     "AND GU.ID = ? AND ACTOR_TYPE = 1 AND STATE = 1 AND COMPANY = ? ORDER BY NAME";
@@ -151,23 +154,40 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_USER_LIST,
-                new Object[]{companyId},
-                (rs, rowNum) -> {
-                    User user = new User();
-                    user.setId(rs.getInt("ID"));
-                    user.setName(rs.getString("NAME"));
-                    user.setLogin(rs.getString("LOGIN"));
-                    user.setEmail(rs.getString("EMAIL"));
-                    user.setState(rs.getInt("STATE"));
-                    return user;
+    public List<User> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_USER_LIST, params);
+    }
+
+    @Override
+    public List<User> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_USER_LIST, params);
+    }
+
+    private List<User> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<User> users = new ArrayList<>();
+                    while(rs.next()){
+                        User user = new User();
+                        user.setId(rs.getInt("ID"));
+                        user.setName(rs.getString("NAME"));
+                        user.setLogin(rs.getString("LOGIN"));
+                        user.setEmail(rs.getString("EMAIL"));
+                        user.setState(rs.getInt("STATE"));
+                        user.setCompanyId(rs.getInt("COMPANY"));
+                        user.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        users.add(user);
+                    }
+                    return users;
                 }
         );
     }
 
     @Override
-    public List<User> getList(int groupId, int companyId) throws DataAccessException {
+    public List<User> getInGroup(int groupId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USERS_IN_GROUP_LIST,
                 new Object[]{groupId, companyId},
                 (rs, rowNum) -> {

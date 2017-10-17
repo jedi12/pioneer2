@@ -26,7 +26,8 @@ public class CompanyDaoImpl implements CompanyDao {
     private static final String UPDATE_COMPANY_UNLOCK = "UPDATE DOC.COMPANY SET STATE = ? WHERE ID = ?";
     private static final String SELECT_COMPANY = "SELECT ID, NAME, FULL_NAME, PHONE, EMAIL, ADDRESS, STATE, " +
             "MAX_USERS, SITE, COMMENT FROM DOC.COMPANY WHERE ID = ?";
-    private static final String SELECT_COMPANY_LIST = "SELECT ID, NAME, STATE FROM DOC.COMPANY";
+    private static final String SELECT_COMPANY_LIST =
+            "SELECT ID, NAME, STATE FROM DOC.COMPANY ORDER BY NAME ASC";
     private static final String SELECT_MAX_USER = "SELECT MAX_USERS FROM DOC.COMPANY WHERE ID = ?";
 
     private JdbcTemplate jdbcTemplate;

@@ -89,7 +89,7 @@ public class SearchDaoImpl implements SearchDao {
         return findList(query, params);
     }
 
-    public List<Document> findList(String query, List<Object> params) throws DataAccessException {
+    private List<Document> findList(String query, List<Object> params) throws DataAccessException {
         return jdbcTemplate.query(query, params.toArray(),
                 (rs) -> {
                     int count = 0;

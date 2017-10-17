@@ -11,11 +11,11 @@ public interface CompanyService {
 
     Company getNewCompany();
 
-    Company getCompany(int companyId) throws ServiceException;
+    Company getCompany(Company selectedCompany) throws ServiceException;
 
     void saveCompany(Company company) throws ServiceException;
 
-    void lockCompany(int companyId) throws ServiceException;
+    void lockCompany(Company company) throws ServiceException;
 
-    void unlockCompany(int companyId) throws ServiceException;
+    void unlockCompany(Company company) throws ServiceException;
 }

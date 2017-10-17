@@ -60,18 +60,18 @@ public class MailProcessDaoImpl implements MailProcessDao {
 
     @Override
     public List<Notice> getAdminList(Date beginDate, Date endDate, int companyId) throws DataAccessException {
-        List<Object> params = new ArrayList<>(Arrays.asList(beginDate, endDate, companyId));
+        Object[] params = new Object[]{beginDate, endDate, companyId};
         return getList(SELECT_ADMIN_EMAIL_SEND_LIST, params);
     }
 
     @Override
     public List<Notice> getSuperList(Date beginDate, Date endDate) throws DataAccessException {
-        List<Object> params = new ArrayList<>(Arrays.asList(beginDate, endDate));
+        Object[] params = new Object[]{beginDate, endDate};
         return getList(SELECT_SUPER_EMAIL_SEND_LIST, params);
     }
 
-    private List<Notice> getList(String query, List<Object> params) throws DataAccessException {
-        return jdbcTemplate.query(query, params.toArray(),
+    private List<Notice> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
                 (rs) -> {
                     int count = 0;
                     List<Notice> notices = new ArrayList<>();

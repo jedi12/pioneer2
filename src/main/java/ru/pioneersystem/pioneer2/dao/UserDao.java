@@ -8,13 +8,15 @@ import java.util.Map;
 
 public interface UserDao {
 
-    List<User> getList(int companyId) throws DataAccessException;
+    List<User> getSuperList() throws DataAccessException;
 
-    List<User> getList(int groupId, int companyId) throws DataAccessException;
+    List<User> getAdminList(int companyId) throws DataAccessException;
 
     User get(int userId, int companyId) throws DataAccessException;
 
     User getWithCompany(int userId) throws DataAccessException;
+
+    List<User> getInGroup(int groupId, int companyId) throws DataAccessException;
 
     int create(User user, int companyId) throws DataAccessException;
 

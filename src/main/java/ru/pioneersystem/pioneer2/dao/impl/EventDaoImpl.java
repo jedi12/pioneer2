@@ -41,18 +41,18 @@ public class EventDaoImpl implements EventDao {
 
     @Override
     public List<Event> getAdminList(Date beginDate, Date endDate, int companyId) throws DataAccessException {
-        List<Object> params = new ArrayList<>(Arrays.asList(beginDate, endDate, companyId));
+        Object[] params = new Object[]{beginDate, endDate, companyId};
         return getList(SELECT_ADMIN_EVENT_LIST, params);
     }
 
     @Override
     public List<Event> getSuperList(Date beginDate, Date endDate) throws DataAccessException {
-        List<Object> params = new ArrayList<>(Arrays.asList(beginDate, endDate));
+        Object[] params = new Object[]{beginDate, endDate};
         return getList(SELECT_SUPER_EVENT_LIST, params);
     }
 
-    private List<Event> getList(String query, List<Object> params) throws DataAccessException {
-        return jdbcTemplate.query(query, params.toArray(),
+    private List<Event> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
                 (rs) -> {
                     int count = 0;
                     List<Event> events = new ArrayList<>();

@@ -120,6 +120,8 @@ public class DictionaryService {
 				return messageSource.getMessage("status.locked", null, locale);
 			case User.State.ACTIVE:
 				return messageSource.getMessage("status.active", null, locale);
+			case User.State.SYSTEM:
+				return messageSource.getMessage("status.system", null, locale);
 			default:
 				return null;
 		}
@@ -288,8 +290,8 @@ public class DictionaryService {
 				return messageSource.getMessage("event.name.userLocked", null, locale);
 			case Event.Type.USER_UNLOCKED:
 				return messageSource.getMessage("event.name.userUnlocked", null, locale);
-			case Event.Type.USER_FIRST_ADMIN_SETTED:
-				return messageSource.getMessage("event.name.userFirstAdminSetted", null, locale);
+			case Event.Type.USER_RESTRICTION_ACHIEVED:
+				return messageSource.getMessage("event.name.userRestrictionAchieved", null, locale);
 			case Event.Type.USER_AUTO_CREATED:
 				return messageSource.getMessage("event.name.userAutoCreated", null, locale);
 			case Event.Type.USER_SIGN_IN_SSO_SUCCESS:

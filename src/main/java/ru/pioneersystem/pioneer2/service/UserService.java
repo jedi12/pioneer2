@@ -12,21 +12,23 @@ public interface UserService {
 
     List<User> getUserList() throws ServiceException;
 
-    List<User> getUserList(int groupId) throws ServiceException;
+    List<User> getUsersInGroup(int groupId) throws ServiceException;
 
     Map<String, Integer> getUserMap() throws ServiceException;
 
     User getNewUser();
 
-    User getUser(int userId) throws ServiceException;
+    User getUser(User selectedUser) throws ServiceException;
+
+    User getUserById(int userId) throws ServiceException;
 
     void saveUser(User user) throws ServiceException;
 
-    void lockUser(int userId) throws ServiceException;
+    void lockUser(User user) throws ServiceException;
 
-    void unlockUser(int userId) throws ServiceException;
+    void unlockUser(User user) throws ServiceException;
 
-    void setUserPass(int userId, String newPass) throws ServiceException;
+    void setUserPass(User user, String newPass) throws ServiceException;
 
     void changeUserPass(String login, String oldPass, String newPass) throws ServiceException;
 

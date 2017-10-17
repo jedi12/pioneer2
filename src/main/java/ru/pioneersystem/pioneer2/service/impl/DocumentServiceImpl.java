@@ -209,7 +209,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
-                            userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
+                            userService.getUserById(e.getUserId()).getName()}, localeBean.getLocale());
             eventService.logError(mess, null, document.getId());
             throw new LockException(mess);
         } catch (DataAccessException e) {
@@ -248,7 +248,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
-                            userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
+                            userService.getUserById(e.getUserId()).getName()}, localeBean.getLocale());
             eventService.logError(mess, null, document.getId());
             throw new LockException(mess);
         } catch (DataAccessException e) {
@@ -269,7 +269,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.changed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
-                            userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
+                            userService.getUserById(e.getUserId()).getName()}, localeBean.getLocale());
             eventService.logError(mess, null, document.getId());
             throw new LockException(mess);
         } catch (DataAccessException e) {
@@ -293,7 +293,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
-                            userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
+                            userService.getUserById(e.getUserId()).getName()}, localeBean.getLocale());
             eventService.logError(mess, null, document.getId());
             throw new LockException(mess);
         } catch (DataAccessException e) {
@@ -344,7 +344,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
-                            userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
+                            userService.getUserById(e.getUserId()).getName()}, localeBean.getLocale());
             eventService.logError(mess, null);
             throw new LockException(mess);
         } catch (DataAccessException e) {
@@ -368,7 +368,7 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (LockDaoException e) {
             String mess = messageSource.getMessage("warn.document.processed",
                     new Object[]{(new SimpleDateFormat(localeBean.getDateTimePattern())).format(e.getDate()),
-                            userService.getUser(e.getUserId()).getName()}, localeBean.getLocale());
+                            userService.getUserById(e.getUserId()).getName()}, localeBean.getLocale());
             eventService.logError(mess, null);
             throw new LockException(mess);
         } catch (DataAccessException e) {

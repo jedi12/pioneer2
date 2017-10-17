@@ -179,7 +179,7 @@ public class CurrentUser implements Serializable {
         } catch (IOException e) {
             String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +
                     ": " + user.getLogin();
-            eventService.logEvent(Event.Type.ERROR, 0, mess);
+            eventService.logError(mess, null);
         }
     }
 

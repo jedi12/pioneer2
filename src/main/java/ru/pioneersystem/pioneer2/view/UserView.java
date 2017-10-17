@@ -55,8 +55,7 @@ public class UserView implements Serializable {
         try {
             userList = userService.getUserList();
             selectGroupDefault = groupService.getGroupMap();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -70,19 +69,15 @@ public class UserView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedUser == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
-            return;
-        }
-
         try {
-            currUser = userService.getUser(selectedUser.getId());
+            currUser = userService.getUser(selectedUser);
             selectGroup = getCurrSelectGroup(currUser);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -94,46 +89,33 @@ public class UserView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (ServiceException e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void lockAction() {
-        if (selectedUser == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
-            return;
-        }
-
         try {
-            userService.lockUser(selectedUser.getId());
+            userService.lockUser(selectedUser);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
     }
 
     public void unlockAction() {
-        if (selectedUser == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.user.NotSelected")));
-            return;
-        }
-
         try {
-            userService.unlockUser(selectedUser.getId());
+            userService.unlockUser(selectedUser);
             refreshList();
-        }
-        catch (RestrictionException e) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
-                    bundle.getString("error"), e.getMessage()));
-        }
-        catch (ServiceException e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -146,18 +128,23 @@ public class UserView implements Serializable {
             return;
         }
 
+        if (selectedUser.getId() == 0) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), bundle.getString("error.operation.NotAllowed")));
+            return;
+        }
+
         RequestContext.getCurrentInstance().execute("PF('setPassDialog').show()");
     }
 
     public void setPassAction() {
         try {
-            userService.setUserPass(selectedUser.getId(), newPass);
+            userService.setUserPass(selectedUser, newPass);
             newPass = "";
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('setPassDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
