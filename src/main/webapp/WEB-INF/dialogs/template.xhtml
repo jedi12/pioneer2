@@ -42,9 +42,9 @@
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="fieldsTable" value="#{templateView.currTemplate.fields}" var="collectedField" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedField.num}"
-										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
 
 								<p:column>
 									<f:facet name="header">
@@ -114,9 +114,9 @@
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="conditionsTable" value="#{templateView.currTemplate.conditions}" var="collectedCond" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedCond.condNum}"
-										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
 
 								<p:column>
 									<f:facet name="header">

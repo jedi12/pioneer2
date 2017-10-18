@@ -28,9 +28,9 @@
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<p:dataTable id="listsTable" value="#{choiceListView.currChoiceList.values}" var="collectedList" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList}"
-										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-										 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-										 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
 								<p:column>
 									<f:facet name="header">
 										<h:outputText value="#{text['choiceList.edit.col.name']}" />
