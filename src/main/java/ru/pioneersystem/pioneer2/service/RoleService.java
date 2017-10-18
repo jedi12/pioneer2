@@ -16,9 +16,9 @@ public interface RoleService {
 
     Role getNewRole();
 
-    Role getRole(int roleId) throws ServiceException;
+    Role getRole(Role selectedRole) throws ServiceException;
 
     void saveRole(Role role) throws ServiceException;
 
-    void deleteRole(int roleId) throws ServiceException;
+    void deleteRole(Role role) throws ServiceException;
 }

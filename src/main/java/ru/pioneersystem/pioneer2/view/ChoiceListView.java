@@ -4,6 +4,8 @@ import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -48,8 +50,7 @@ public class ChoiceListView implements Serializable {
     public void refreshList() {
         try {
             choiceListList = choiceListService.getChoiceListList();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -65,17 +66,13 @@ public class ChoiceListView implements Serializable {
     public void editDialog() {
         addElement = null;
 
-        if (selectedChoiceList == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.choiceList.NotSelected")));
-            return;
-        }
-
         try {
-            currChoiceList = choiceListService.getChoiceList(selectedChoiceList.getId());
+            currChoiceList = choiceListService.getChoiceList(selectedChoiceList);
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -96,8 +93,7 @@ public class ChoiceListView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -113,8 +109,7 @@ public class ChoiceListView implements Serializable {
         try {
             templatesContainingChoiceList = templateService.getListContainingChoiceList(selectedChoiceList.getId());
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -122,10 +117,9 @@ public class ChoiceListView implements Serializable {
 
     public void deleteAction() {
         try {
-            choiceListService.deleteChoiceList(selectedChoiceList.getId());
+            choiceListService.deleteChoiceList(selectedChoiceList);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }

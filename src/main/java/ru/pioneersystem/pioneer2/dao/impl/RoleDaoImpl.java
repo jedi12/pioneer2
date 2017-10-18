@@ -14,6 +14,7 @@ import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.Status;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +46,13 @@ public class RoleDaoImpl implements RoleDao {
                     "ROUTE_CHANGE, EDIT, COMMENT, DS.NAME AS STATUS_NAME, M.NAME AS MENU_NAME FROM DOC.ROLES R " +
                     "LEFT JOIN DOC.DOCUMENTS_STATUS DS ON R.ID = DS.ID LEFT JOIN DOC.MENU M ON R.ID = M.ROLE_ID " +
                     "WHERE R.ID = ? AND R.COMPANY IN (0, ?)";
-    private static final String SELECT_ROLE_LIST =
-            "SELECT ID, NAME, STATE, TYPE FROM DOC.ROLES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? " +
-                    "ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_SUPER_ROLE_LIST =
+            "SELECT R.ID AS ID, R.NAME AS NAME, R.STATE AS STATE, TYPE, COMPANY, C.NAME AS COMPANY_NAME " +
+                    "FROM DOC.ROLES R LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY " +
+                    "WHERE R.STATE > 0 ORDER BY R.COMPANY ASC, R.NAME ASC";
+    private static final String SELECT_ADMIN_ROLE_LIST =
+            "SELECT ID, NAME, STATE, TYPE, COMPANY, NULL AS COMPANY_NAME FROM DOC.ROLES WHERE STATE > 0 " +
+                    "AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROLE =
             "SELECT DISTINCT R.ID AS ID, R.NAME AS NAME, R.TYPE AS TYPE, ACCEPT, REJECT, ROUTE_CHANGE, EDIT, " +
                     "R.COMMENT AS COMMENT FROM DOC.GROUPS G, DOC.GROUPS_USER GU, DOC.ROLES R, DOC.USERS U " +
@@ -89,16 +94,33 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public List<Role> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_ROLE_LIST,
-                new Object[]{companyId, Role.State.SYSTEM},
-                (rs, rowNum) -> {
-                    Role role = new Role();
-                    role.setId(rs.getInt("ID"));
-                    role.setName(rs.getString("NAME"));
-                    role.setState(rs.getInt("STATE"));
-                    role.setType(rs.getInt("TYPE"));
-                    return role;
+    public List<Role> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_ROLE_LIST, params);
+    }
+
+    @Override
+    public List<Role> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId, Role.State.SYSTEM};
+        return getList(SELECT_ADMIN_ROLE_LIST, params);
+    }
+
+    private List<Role> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Role> roles = new ArrayList<>();
+                    while(rs.next()){
+                        Role role = new Role();
+                        role.setId(rs.getInt("ID"));
+                        role.setName(rs.getString("NAME"));
+                        role.setState(rs.getInt("STATE"));
+                        role.setType(rs.getInt("TYPE"));
+                        role.setCompanyId(rs.getInt("COMPANY"));
+                        role.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        roles.add(role);
+                    }
+                    return roles;
                 }
         );
     }

@@ -41,11 +41,16 @@ public class TemplateDaoImpl implements TemplateDao {
                     "FROM DOC.TEMPLATES_COND TC LEFT JOIN DOC.ROUTES R ON TC.ROUTE = R.ID " +
                     "LEFT JOIN DOC.TEMPLATES_FIELD TF ON TC.ID = TF.ID AND TF.FIELD_NUM = TC.FIELD_NUM " +
                     "WHERE TC.ID = ? ORDER BY FIELD_NUM ASC";
-    private static final String SELECT_TEMPLATE_LIST =
+    private static final String SELECT_SUPER_TEMPLATE_LIST =
             "SELECT T.ID AS ID, T.NAME AS NAME, T.STATE AS STATE, R.ID AS ROUTE_ID, R.NAME AS ROUTE_NAME, " +
-                    "P.ID AS PART_ID, P.NAME AS PART_NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.ROUTES R " +
-                    "ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID WHERE T.STATE > 0 AND T.COMPANY = ? " +
-                    "ORDER BY STATE DESC, NAME ASC";
+                    "P.ID AS PART_ID, P.NAME AS PART_NAME, T.COMPANY, C.NAME AS COMPANY_NAME FROM DOC.TEMPLATES T " +
+                    "LEFT JOIN DOC.ROUTES R ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = T.COMPANY WHERE T.STATE > 0 ORDER BY T.COMPANY ASC, NAME ASC";
+    private static final String SELECT_ADMIN_TEMPLATE_LIST =
+            "SELECT T.ID AS ID, T.NAME AS NAME, T.STATE AS STATE, R.ID AS ROUTE_ID, R.NAME AS ROUTE_NAME, " +
+                    "P.ID AS PART_ID, P.NAME AS PART_NAME, T.COMPANY, NULL AS COMPANY_NAME FROM DOC.TEMPLATES T " +
+                    "LEFT JOIN DOC.ROUTES R ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID " +
+                    "WHERE T.STATE > 0 AND T.COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_TEMPLATE_LIST_BY_PART =
             "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST =
@@ -134,19 +139,36 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public List<Template> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_TEMPLATE_LIST,
-                new Object[]{companyId},
-                (rs, rowNum) -> {
-                    Template template = new Template();
-                    template.setId(rs.getInt("ID"));
-                    template.setName(rs.getString("NAME"));
-                    template.setState(rs.getInt("STATE"));
-                    template.setRouteId(rs.getInt("ROUTE_ID"));
-                    template.setRouteName(rs.getString("ROUTE_NAME"));
-                    template.setPartId(rs.getInt("PART_ID"));
-                    template.setPartName(rs.getString("PART_NAME"));
-                    return template;
+    public List<Template> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_TEMPLATE_LIST, params);
+    }
+
+    @Override
+    public List<Template> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_TEMPLATE_LIST, params);
+    }
+
+    private List<Template> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Template> templates = new ArrayList<>();
+                    while(rs.next()){
+                        Template template = new Template();
+                        template.setId(rs.getInt("ID"));
+                        template.setName(rs.getString("NAME"));
+                        template.setState(rs.getInt("STATE"));
+                        template.setRouteId(rs.getInt("ROUTE_ID"));
+                        template.setRouteName(rs.getString("ROUTE_NAME"));
+                        template.setPartId(rs.getInt("PART_ID"));
+                        template.setPartName(rs.getString("PART_NAME"));
+                        template.setCompanyId(rs.getInt("COMPANY"));
+                        template.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        templates.add(template);
+                    }
+                    return templates;
                 }
         );
     }

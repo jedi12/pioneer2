@@ -8,7 +8,9 @@ import java.util.Map;
 
 public interface RoleDao {
 
-    List<Role> getList(int companyId) throws DataAccessException;
+    List<Role> getSuperList() throws DataAccessException;
+
+    List<Role> getAdminList(int companyId) throws DataAccessException;
 
     Map<Integer, Role> getUserRole(int userId, int companyId) throws DataAccessException;
 

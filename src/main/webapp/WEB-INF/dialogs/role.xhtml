@@ -67,7 +67,7 @@
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
 										 update=":centerPanel:roleTable roleGrid tabView:valueGrid"
-										 actionListener="#{roleView.saveAction}"/>
+										 actionListener="#{roleView.saveAction}" disabled="#{currentUser.superRole}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>
 					</h:panelGrid>

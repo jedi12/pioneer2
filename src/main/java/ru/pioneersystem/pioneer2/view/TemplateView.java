@@ -3,6 +3,8 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -92,8 +94,7 @@ public class TemplateView implements Serializable {
             selectChoiceListDefault = choiceListService.getChoiceListMap();
             selectChoiceList = new ArrayList<>(selectChoiceListDefault.keySet());
             selectCond = Document.Condition.Operation.LIST;
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -106,18 +107,14 @@ public class TemplateView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedTemplate == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.template.NotSelected")));
-            return;
-        }
-
         try {
-            currTemplate = templateService.getTemplate(selectedTemplate.getId());
+            currTemplate = templateService.getTemplate(selectedTemplate);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -129,8 +126,7 @@ public class TemplateView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -148,10 +144,9 @@ public class TemplateView implements Serializable {
 
     public void deleteAction() {
         try {
-            templateService.deleteTemplate(selectedTemplate.getId());
+            templateService.deleteTemplate(selectedTemplate);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }

@@ -77,12 +77,6 @@ public class RouteView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedRoute == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.route.NotSelected")));
-            return;
-        }
-
         try {
             currRoute = routeService.getRoute(selectedRoute);
             selectPoint = getCurrSelectPoint(currRoute);

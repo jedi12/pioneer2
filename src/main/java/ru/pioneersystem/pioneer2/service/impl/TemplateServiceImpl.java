@@ -12,6 +12,7 @@ import ru.pioneersystem.pioneer2.model.Template;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -44,11 +45,16 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public List<Template> getTemplateList() throws ServiceException {
         try {
-            List<Template> templateList = templateDao.getList(currentUser.getUser().getCompanyId());
+            List<Template> templates;
+            if (currentUser.isSuperRole()) {
+                templates = templateDao.getSuperList();
+            } else {
+                templates = templateDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
 
             String noRouteName = messageSource.getMessage("route.zero.name", null, localeBean.getLocale());
             String noPartName = messageSource.getMessage("part.zero.name", null, localeBean.getLocale());
-            for (Template template: templateList) {
+            for (Template template: templates) {
                 if (template.getRouteId() == 0) {
                     template.setRouteName(noRouteName);
                 }
@@ -56,7 +62,7 @@ public class TemplateServiceImpl implements TemplateService {
                     template.setPartName(noPartName);
                 }
             }
-            return templateList;
+            return templates;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());
@@ -122,9 +128,21 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Template getTemplate(int templateId) throws ServiceException {
+    public Template getTemplate(Template selectedTemplate) throws ServiceException {
+        if (selectedTemplate == null) {
+            String mess = messageSource.getMessage("error.template.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Template template = templateDao.get(templateId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedTemplate.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            Template template = templateDao.get(selectedTemplate.getId(), companyId);
             for (Document.Field field: template.getFields()) {
                 String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(field.getTypeId(), localeBean.getLocale());
                 if (fieldTypeName != null) {
@@ -136,11 +154,11 @@ public class TemplateServiceImpl implements TemplateService {
             }
 
             template.setCreateFlag(false);
-            eventService.logEvent(Event.Type.TEMPLATE_GETED, templateId);
+            eventService.logEvent(Event.Type.TEMPLATE_GETED, selectedTemplate.getId());
             return template;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), templateId);
+            eventService.logError(mess, e.getMessage(), selectedTemplate.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -163,14 +181,14 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public void deleteTemplate(int templateId) throws ServiceException {
+    public void deleteTemplate(Template template) throws ServiceException {
         // TODO: 28.02.2017 Сделать проверку, используется ли данный шаблон или не нужна проверка вообще
         try {
-            templateDao.delete(templateId, currentUser.getUser().getCompanyId());
-            eventService.logEvent(Event.Type.TEMPLATE_DELETED, templateId);
+            templateDao.delete(template.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.TEMPLATE_DELETED, template.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotDeleted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), templateId);
+            eventService.logError(mess, e.getMessage(), template.getId());
             throw new ServiceException(mess, e);
         }
     }

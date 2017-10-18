@@ -13,6 +13,7 @@ import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.PartService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -48,7 +49,13 @@ public class PartServiceImpl implements PartService {
     @Override
     public List<Part> getPartList(int type) throws ServiceException {
         try {
-            return partDao.getList(type, currentUser.getUser().getCompanyId());
+            List<Part> parts;
+            if (currentUser.isSuperRole()) {
+                parts = partDao.getSuperList(type);
+            } else {
+                parts = partDao.getAdminList(type, currentUser.getUser().getCompanyId());
+            }
+            return parts;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.part.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), type);
@@ -128,15 +135,27 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public Part getPart(int partId) throws ServiceException {
+    public Part getPart(Part selectedPart) throws ServiceException {
+        if (selectedPart == null) {
+            String mess = messageSource.getMessage("error.part.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Part part = partDao.get(partId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedPart.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            Part part = partDao.get(selectedPart.getId(), companyId);
             part.setCreateFlag(false);
-            eventService.logEvent(Event.Type.PART_GETED, partId);
+            eventService.logEvent(Event.Type.PART_GETED, selectedPart.getId());
             return part;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.part.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), partId);
+            eventService.logError(mess, e.getMessage(), selectedPart.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -171,14 +190,14 @@ public class PartServiceImpl implements PartService {
     }
 
     @Override
-    public void deletePart(int partId) throws ServiceException {
+    public void deletePart(Part part) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системного раздела плюс еще какая-нибудь проверка
         try {
-            partDao.delete(partId, currentUser.getUser().getCompanyId());
-            eventService.logEvent(Event.Type.PART_DELETED, partId);
+            partDao.delete(part.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.PART_DELETED, part.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.part.NotDeleted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), partId);
+            eventService.logError(mess, e.getMessage(), part.getId());
             throw new ServiceException(mess, e);
         }
     }

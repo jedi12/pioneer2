@@ -87,7 +87,7 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:partTree partNameGrid"
+										 update=":centerPanel:partTree partNameGrid" disabled="#{currentUser.superRole}"
 										 actionListener="#{partView.saveAction}" process="@this partNameGrid"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>

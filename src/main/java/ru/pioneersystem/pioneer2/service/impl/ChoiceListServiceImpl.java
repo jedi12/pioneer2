@@ -10,6 +10,7 @@ import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.EventService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -40,7 +41,13 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     @Override
     public List<ChoiceList> getChoiceListList() throws ServiceException {
         try {
-            return choiceListDao.getList(currentUser.getUser().getCompanyId());
+            List<ChoiceList> choiceLists;
+            if (currentUser.isSuperRole()) {
+                choiceLists = choiceListDao.getSuperList();
+            } else {
+                choiceLists = choiceListDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
+            return choiceLists;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.choiceList.NotLoadedList", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());
@@ -104,15 +111,27 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
-    public ChoiceList getChoiceList(int choiceListId) throws ServiceException {
+    public ChoiceList getChoiceList(ChoiceList selectedChoiceList) throws ServiceException {
+        if (selectedChoiceList == null) {
+            String mess = messageSource.getMessage("error.choiceList.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            ChoiceList choiceList = choiceListDao.get(choiceListId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedChoiceList.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            ChoiceList choiceList = choiceListDao.get(selectedChoiceList.getId(), companyId);
             choiceList.setCreateFlag(false);
-            eventService.logEvent(Event.Type.LIST_GETED, choiceListId);
+            eventService.logEvent(Event.Type.LIST_GETED, selectedChoiceList.getId());
             return choiceList;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.choiceList.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), choiceListId);
+            eventService.logError(mess, e.getMessage(), selectedChoiceList.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -135,14 +154,14 @@ public class ChoiceListServiceImpl implements ChoiceListService {
     }
 
     @Override
-    public void deleteChoiceList(int choiceListId) throws ServiceException {
+    public void deleteChoiceList(ChoiceList choiceList) throws ServiceException {
         // TODO: 28.02.2017 Сделать проверку, используется ли данный список в шаблоне или нет
         try {
-            choiceListDao.delete(choiceListId, currentUser.getUser().getCompanyId());
-            eventService.logEvent(Event.Type.LIST_DELETED, choiceListId);
+            choiceListDao.delete(choiceList.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.LIST_DELETED, choiceList.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.choiceList.NotDeleted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), choiceListId);
+            eventService.logError(mess, e.getMessage(), choiceList.getId());
             throw new ServiceException(mess, e);
         }
     }

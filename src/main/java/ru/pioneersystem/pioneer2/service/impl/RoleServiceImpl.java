@@ -10,6 +10,7 @@ import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.RoleService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
@@ -41,7 +42,13 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> getRoleList() throws ServiceException {
         try {
-            List<Role> roles = roleDao.getList(currentUser.getUser().getCompanyId());
+            List<Role> roles;
+            if (currentUser.isSuperRole()) {
+                roles = roleDao.getSuperList();
+            } else {
+                roles = roleDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
+
             for (Role role : roles) {
                 String roleName = dictionaryService.getLocalizedRoleName(role.getId(), localeBean.getLocale());
                 if (roleName != null) {
@@ -84,19 +91,36 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role getRole(int roleId) throws ServiceException {
+    public Role getRole(Role selectedRole) throws ServiceException {
+        if (selectedRole == null) {
+            String mess = messageSource.getMessage("error.role.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (selectedRole.getState() == Role.State.SYSTEM) {
+            String mess = messageSource.getMessage("warn.system.edit.restriction", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Role role = roleDao.get(roleId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedRole.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            Role role = roleDao.get(selectedRole.getId(), companyId);
             String roleName = dictionaryService.getLocalizedRoleName(role.getId(), localeBean.getLocale());
             if (roleName != null) {
                 role.setName(roleName);
             }
             role.setCreateFlag(false);
-            eventService.logEvent(Event.Type.ROLE_GETED, roleId);
+            eventService.logEvent(Event.Type.ROLE_GETED, selectedRole.getId());
             return role;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), roleId);
+            eventService.logError(mess, e.getMessage(), selectedRole.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -119,14 +143,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void deleteRole(int roleId) throws ServiceException {
+    public void deleteRole(Role role) throws ServiceException {
         // TODO: 28.02.2017 Проверка на удаление системной роли плюс еще какая-нибудь проверка
         try {
-            roleDao.delete(roleId, currentUser.getUser().getCompanyId());
-            eventService.logEvent(Event.Type.ROLE_DELETED, roleId);
+            roleDao.delete(role.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.ROLE_DELETED, role.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotDeleted", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), roleId);
+            eventService.logError(mess, e.getMessage(), role.getId());
             throw new ServiceException(mess, e);
         }
     }

@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface PartDao {
 
-    List<Part> getList(int type, int companyId) throws DataAccessException;
+    List<Part> getSuperList(int type) throws DataAccessException;
+
+    List<Part> getAdminList(int type, int companyId) throws DataAccessException;
 
     List<Part> getUserPart(int type, int userId, int companyId) throws DataAccessException;
 

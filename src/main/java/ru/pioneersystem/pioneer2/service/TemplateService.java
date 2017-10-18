@@ -20,9 +20,9 @@ public interface TemplateService {
 
     Template getNewTemplate();
 
-    Template getTemplate(int templateId) throws ServiceException;
+    Template getTemplate(Template selectedTemplate) throws ServiceException;
 
     void saveTemplate(Template template) throws ServiceException;
 
-    void deleteTemplate(int templateId) throws ServiceException;
+    void deleteTemplate(Template template) throws ServiceException;
 }

@@ -35,9 +35,13 @@ public class PartDaoImpl implements PartDao {
             "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_PART_GROUP =
             "SELECT GROUP_ID, NAME FROM DOC.PARTS_GROUP PG LEFT JOIN DOC.GROUPS G ON PG.GROUP_ID = G.ID WHERE PG.ID = ?";
-    private static final String SELECT_PART_LIST =
-            "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE STATE > 0 AND TYPE = ? " +
-                    "AND COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
+    private static final String SELECT_SUPER_PART_LIST =
+            "SELECT P.ID AS ID, P.NAME AS NAME, P.STATE AS STATE, PARENT, TREE_LEVEL, OWNER_G, COMPANY, " +
+                    "C.NAME AS COMPANY_NAME FROM DOC.PARTS P LEFT JOIN DOC.COMPANY C ON C.ID = P.COMPANY " +
+                    "WHERE P.STATE > 0 AND TYPE = ? ORDER BY COMPANY ASC, NAME ASC";
+    private static final String SELECT_ADMIN_PART_LIST =
+            "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G, COMPANY, NULL AS COMPANY_NAME FROM DOC.PARTS " +
+                    "WHERE STATE > 0 AND TYPE = ? AND COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
     private static final String SELECT_USER_PART_LIST =
             "SELECT DISTINCT P.ID AS ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS P " +
                     "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID LEFT JOIN DOC.GROUPS_USER GU ON PG.GROUP_ID = GU.ID " +
@@ -101,18 +105,35 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public List<Part> getList(int type, int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_PART_LIST,
-                new Object[]{type, companyId},
-                (rs, rowNum) -> {
-                    Part part = new Part();
-                    part.setId(rs.getInt("ID"));
-                    part.setName(rs.getString("NAME"));
-                    part.setState(rs.getInt("STATE"));
-                    part.setParent(rs.getInt("PARENT"));
-                    part.setTreeLevel(rs.getInt("TREE_LEVEL"));
-                    part.setOwnerGroup(rs.getInt("OWNER_G"));
-                    return part;
+    public List<Part> getSuperList(int type) throws DataAccessException {
+        Object[] params = new Object[]{type};
+        return getList(SELECT_SUPER_PART_LIST, params);
+    }
+
+    @Override
+    public List<Part> getAdminList(int type, int companyId) throws DataAccessException {
+        Object[] params = new Object[]{type, companyId};
+        return getList(SELECT_ADMIN_PART_LIST, params);
+    }
+
+    private List<Part> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Part> parts = new ArrayList<>();
+                    while(rs.next()){
+                        Part part = new Part();
+                        part.setId(rs.getInt("ID"));
+                        part.setName(rs.getString("NAME"));
+                        part.setState(rs.getInt("STATE"));
+                        part.setParent(rs.getInt("PARENT"));
+                        part.setTreeLevel(rs.getInt("TREE_LEVEL"));
+                        part.setOwnerGroup(rs.getInt("OWNER_G"));
+                        part.setCompanyId(rs.getInt("COMPANY"));
+                        part.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        parts.add(part);
+                    }
+                    return parts;
                 }
         );
     }

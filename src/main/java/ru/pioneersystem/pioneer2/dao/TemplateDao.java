@@ -9,7 +9,9 @@ import java.util.Map;
 
 public interface TemplateDao {
 
-    List<Template> getList(int companyId) throws DataAccessException;
+    List<Template> getSuperList() throws DataAccessException;
+
+    List<Template> getAdminList(int companyId) throws DataAccessException;
 
     List<Template> getListByPartId(int partId, int companyId) throws DataAccessException;
 

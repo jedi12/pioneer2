@@ -27,7 +27,12 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     private static final String DELETE_LIST_FIELD = "DELETE FROM DOC.LISTS_FIELD WHERE ID = ?";
     private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE > 0 AND ID = ? AND COMPANY = ?";
     private static final String SELECT_LIST_FIELD = "SELECT VALUE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE > 0 AND COMPANY = ?";
+    private static final String SELECT_SUPER_CHOICE_LIST_LIST =
+            "SELECT L.ID AS ID, L.NAME AS NAME, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.LISTS L " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = L.COMPANY WHERE L.STATE > 0 ORDER BY L.COMPANY ASC, L.NAME ASC";
+    private static final String SELECT_ADMIN_CHOICE_LIST_LIST =
+            "SELECT ID, NAME, COMPANY, NULL AS COMPANY_NAME FROM DOC.LISTS WHERE STATE > 0 AND COMPANY = ? " +
+                    "ORDER BY NAME ASC";
     private static final String MAP_FIELD_FOR_DOC = "SELECT ID, VALUE FROM DOC.LISTS_FIELD WHERE ID IN (" +
             "SELECT VALUE_LIST FROM DOC.DOCUMENTS_FIELD WHERE ID = ? AND VALUE_LIST IS NOT NULL) " +
             "ORDER BY ID ASC, VALUE ASC";
@@ -76,31 +81,19 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
 
     @Override
     public Map<Integer, List<String>> getForTemplate(int templateId) throws DataAccessException {
-        return jdbcTemplate.query(MAP_FIELD_FOR_TEMP,
-                new Object[]{templateId},
-                rs -> {
-                    Map<Integer, List<String>> result = new HashMap<>();
-                    int oldlistId = 0;
-                    while(rs.next()){
-                        int id = rs.getInt("ID");
-                        String value = rs.getString("VALUE");
-
-                        if (id != oldlistId) {
-                            result.put(id, new ArrayList<>());
-                            oldlistId = id;
-                        }
-                        result.get(id).add(value);
-                    }
-                    return result;
-                }
-        );
+        Object[] params = new Object[]{templateId};
+        return getMap(MAP_FIELD_FOR_TEMP, params);
     }
 
     @Override
     public Map<Integer, List<String>> getForDocument(int documentId) throws DataAccessException {
-        return jdbcTemplate.query(MAP_FIELD_FOR_DOC,
-                new Object[]{documentId},
-                rs -> {
+        Object[] params = new Object[]{documentId};
+        return getMap(MAP_FIELD_FOR_DOC, params);
+    }
+
+    private Map<Integer, List<String>> getMap(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
                     Map<Integer, List<String>> result = new HashMap<>();
                     int oldlistId = 0;
                     while(rs.next()){
@@ -119,13 +112,33 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     }
 
     @Override
-    public List<ChoiceList> getList(int companyId) throws DataAccessException {
-        List<ChoiceList> choiceList = jdbcTemplate.query(SELECT_LIST_LIST,
-                new Object[]{companyId},
-                new ChoiceListMapper()
-        );
+    public List<ChoiceList> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_CHOICE_LIST_LIST, params);
+    }
 
-        return choiceList;
+    @Override
+    public List<ChoiceList> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_CHOICE_LIST_LIST, params);
+    }
+
+    private List<ChoiceList> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<ChoiceList> choiceLists = new ArrayList<>();
+                    while(rs.next()){
+                        ChoiceList choiceList = new ChoiceList();
+                        choiceList.setId(rs.getInt("ID"));
+                        choiceList.setName(rs.getString("NAME"));
+                        choiceList.setCompanyId(rs.getInt("COMPANY"));
+                        choiceList.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        choiceLists.add(choiceList);
+                    }
+                    return choiceLists;
+                }
+        );
     }
 
     @Override
@@ -202,20 +215,5 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         }
 
         jdbcTemplate.update(DELETE_LIST_FIELD, choiceListId);
-    }
-
-    private static final class ChoiceListMapper implements RowMapper<ChoiceList> {
-        public ChoiceList mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ChoiceList choiceList = new ChoiceList();
-            choiceList.setId(rs.getInt("ID"));
-            choiceList.setName(rs.getString("NAME"));
-            return choiceList;
-        }
-    }
-
-    private static final class ChoiceListValuesMapper implements RowMapper<String> {
-        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getString("VALUE");
-        }
     }
 }

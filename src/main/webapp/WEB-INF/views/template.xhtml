@@ -9,39 +9,44 @@
 	<h2 align="center"><h:outputLabel value="#{text['template.title']}"/></h2>
 
 	<p:panel>
-		<p:dataTable id="templateTable" value="#{templateView.templateList}" var="templateList" rows="20"
-					 selectionMode="single" selection="#{templateView.selectedTemplate}" rowKey="#{templateList.id}"
+		<p:dataTable id="templateTable" value="#{templateView.templateList}" var="template" rows="20"
+					 selectionMode="single" selection="#{templateView.selectedTemplate}" rowKey="#{template.id}"
 					 filteredValue="#{templateView.filteredTemplate}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
                      {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-					 rowStyleClass="#{templateList.state == 2 ? 'lightGrey' : 'default'}">
+					 rowStyleClass="#{template.state == 2 ? 'lightGrey' : 'default'}">
 
 			<p:ajax event="rowDblselect" listener="#{templateView.editDialog}" update=":editDialog"
 					oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 
-			<p:column headerText="#{text['template.col.name']}" filterBy="#{templateList.name}" filterMatchMode="contains">
-                <h:outputText value="#{templateList.name}"/>
+			<p:column headerText="#{text['template.col.name']}" filterBy="#{template.name}" filterMatchMode="contains">
+                <h:outputText value="#{template.name}"/>
 	        </p:column>
 
-			<p:column headerText="#{text['template.col.part']}" filterBy="#{templateList.partName}" filterMatchMode="contains">
-				<h:outputText value="#{templateList.partName}"/>
+			<p:column headerText="#{text['template.col.part']}" filterBy="#{template.partName}" filterMatchMode="contains">
+				<h:outputText value="#{template.partName}"/>
 			</p:column>
 
-			<p:column headerText="#{text['template.col.route']}" filterBy="#{templateList.routeName}" filterMatchMode="contains">
-				<h:outputText value="#{templateList.routeName}"/>
+			<p:column headerText="#{text['template.col.route']}" filterBy="#{template.routeName}" filterMatchMode="contains">
+				<h:outputText value="#{template.routeName}"/>
+			</p:column>
+
+			<p:column headerText="#{text['template.col.company']}" filterBy="#{template.companyName}" filterMatchMode="contains"
+					  rendered="#{currentUser.superRole}">
+				<h:outputText value="#{template.companyName}"/>
 			</p:column>
 		</p:dataTable>
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{templateView.newDialog}"
+                             actionListener="#{templateView.newDialog}" disabled="#{currentUser.superRole}"
 							 oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
                              actionListener="#{templateView.editDialog}"
 							 oncomplete="$('.ui-state-error').removeClass('ui-state-error'); PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-                             actionListener="#{templateView.deleteDialog}"/>
+                             actionListener="#{templateView.deleteDialog}" disabled="#{currentUser.superRole}"/>
 		</f:facet>
 	</p:panel>
 </ui:composition>

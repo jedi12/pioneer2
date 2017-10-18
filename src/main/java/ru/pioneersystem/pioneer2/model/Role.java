@@ -5,6 +5,8 @@ public class Role {
     private String name;
     private int state;
     private int type;
+    private int companyId;
+    private String companyName;
     private String acceptButton;
     private String rejectButton;
     private boolean canRouteChange;
@@ -78,6 +80,22 @@ public class Role {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getAcceptButton() {

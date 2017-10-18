@@ -19,9 +19,9 @@ public interface ChoiceListService {
 
     ChoiceList getNewChoiceList();
 
-    ChoiceList getChoiceList(int choiceListId) throws ServiceException;
+    ChoiceList getChoiceList(ChoiceList selectedChoiceList) throws ServiceException;
 
     void saveChoiceList(ChoiceList choiceList) throws ServiceException;
 
-    void deleteChoiceList(int choiceListId) throws ServiceException;
+    void deleteChoiceList(ChoiceList choiceList) throws ServiceException;
 }

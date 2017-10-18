@@ -24,13 +24,13 @@ public interface PartService {
 
     Part getNewPart();
 
-    Part getPart(int partId) throws ServiceException;
+    Part getPart(Part selectedPart) throws ServiceException;
 
     void savePart(Part part, int type) throws ServiceException;
 
     void updateParts(List<Part> parts, int type) throws ServiceException;
 
-    void deletePart(int partId) throws ServiceException;
+    void deletePart(Part part) throws ServiceException;
 
     void deleteParts(List<Part> parts, int partType) throws ServiceException;
 }

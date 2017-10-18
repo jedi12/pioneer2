@@ -5,6 +5,8 @@ import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.DocumentService;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RoleService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -50,8 +52,7 @@ public class RoleView implements Serializable {
     public void refreshList() {
         try {
             roleList = roleService.getRoleList();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -64,23 +65,13 @@ public class RoleView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedRole == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.role.NotSelected")));
-            return;
-        }
-
-        if (selectedRole.getState() == Role.State.SYSTEM) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("warn.system.edit.restriction")));
-            return;
-        }
-
         try {
-            currRole = roleService.getRole(selectedRole.getId());
+            currRole = roleService.getRole(selectedRole);
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -92,8 +83,7 @@ public class RoleView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -117,8 +107,7 @@ public class RoleView implements Serializable {
             docToCansel = documentService.getDocToCancelByRole(selectedRole.getId());
 
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -126,10 +115,9 @@ public class RoleView implements Serializable {
 
     public void deleteAction() {
         try {
-            roleService.deleteRole(selectedRole.getId());
+            roleService.deleteRole(selectedRole);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (ServiceException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
