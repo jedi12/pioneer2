@@ -173,10 +173,6 @@ public class DictionaryService {
 				return messageSource.getMessage("event.name.channelMC", null, locale);
 			case Event.Type.CHANNEL_CD:
 				return messageSource.getMessage("event.name.channelCD", null, locale);
-			case Event.Type.NOTICE_DOC_RECEIVED:
-				return messageSource.getMessage("event.name.noticeDocReceived", null, locale);
-			case Event.Type.NOTICE_DOC_STATUS_CHANGED:
-				return messageSource.getMessage("event.name.noticeDocStatusChanged", null, locale);
 			case Event.Type.PROC_SYNC_COMPLETED:
 				return messageSource.getMessage("event.name.procSyncCompleted", null, locale);
 
@@ -359,6 +355,26 @@ public class DictionaryService {
 				return messageSource.getMessage("event.name.searchError", null, locale);
 			case Event.Type.SEARCH_FIND:
 				return messageSource.getMessage("event.name.searchFind", null, locale);
+			case Event.Type.SEARCH_FIND_RESTRICTION:
+				return messageSource.getMessage("event.name.searchFindRestriction", null, locale);
+
+			case Event.Type.EVENT_ERROR:
+				return messageSource.getMessage("event.name.eventError", null, locale);
+			case Event.Type.EVENT_FIND:
+				return messageSource.getMessage("event.name.eventFind", null, locale);
+			case Event.Type.EVENT_FIND_RESTRICTION:
+				return messageSource.getMessage("event.name.eventFindRestriction", null, locale);
+
+			case Event.Type.NOTICE_ERROR:
+				return messageSource.getMessage("event.name.noticeError", null, locale);
+			case Event.Type.NOTICE_FIND:
+				return messageSource.getMessage("event.name.noticeFind", null, locale);
+			case Event.Type.NOTICE_FIND_RESTRICTION:
+				return messageSource.getMessage("event.name.noticeFindRestriction", null, locale);
+			case Event.Type.NOTICE_DOC_RECEIVED:
+				return messageSource.getMessage("event.name.noticeDocReceived", null, locale);
+			case Event.Type.NOTICE_DOC_STATUS_CHANGED:
+				return messageSource.getMessage("event.name.noticeDocStatusChanged", null, locale);
 
 			default:
 				return null;

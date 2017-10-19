@@ -56,10 +56,7 @@ public class SearchView implements Serializable {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-        initDefault();
-    }
 
-    private void initDefault() {
         searchDoc = new SearchDoc();
         ZonedDateTime currDate = LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId());
         searchDoc.setFromDate(Date.from(currDate.toInstant()));

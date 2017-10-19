@@ -45,10 +45,7 @@ public class NoticeView implements Serializable {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-        initDefault();
-    }
 
-    private void initDefault() {
         ZonedDateTime currDate = LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId());
         fromDate = Date.from(currDate.toInstant());
         toDate = Date.from(currDate.toInstant());

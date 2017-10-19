@@ -29,7 +29,8 @@
 						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
 						 rowStyleClass="#{event.typeId == 0 || event.typeId == 1 ? 'lightPink' :
-						 (event.typeId == 113 || event.typeId == 107 ? 'lightYellow' : 'default')}">
+						 (event.typeId == 107 || event.typeId == 113 || event.typeId == 162 || event.typeId == 172
+						 || event.typeId == 182 ? 'lightYellow' : 'default')}">
 
 				<p:ajax event="filter" ignoreAutoUpdate="true"/>
 				<p:ajax event="rowDblselect" listener="#{eventView.detailDialog}" disabled="#{!currentUser.superRole}"

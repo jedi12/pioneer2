@@ -64,6 +64,8 @@ public class UserDaoImpl implements UserDao {
                     "AND GU.ID = ? AND ACTOR_TYPE = 1 AND STATE = 1 AND COMPANY = ? ORDER BY NAME";
     private static final String SELECT_ID_AND_PASS = "SELECT ID, PASS FROM DOC.USERS WHERE LOGIN = ?";
     private static final String SELECT_COUNT = "SELECT COUNT(*) FROM DOC.USERS WHERE COMPANY = ? AND STATE = ?";
+    private static final String SELECT_COUNT_BY_LOGIN = "SELECT COUNT(*) FROM DOC.USERS WHERE LOGIN = ?";
+    private static final String SELECT_COUNT_BY_EMAIL = "SELECT COUNT(*) FROM DOC.USERS WHERE EMAIL = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -207,7 +209,6 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional
     public int create(User user, int companyId) throws DataAccessException {
-        // TODO: 01.04.2017 Сделать обработку ошибки, связанной с неуникальным логином или емайлом
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -245,7 +246,6 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional
     public void update(User user, int companyId) throws DataAccessException {
-        // TODO: 01.04.2017 Сделать обработку ошибки, связанной с неуникальным логином или емайлом
         int updatedRows = jdbcTemplate.update(UPDATE_USER,
                 user.getLogin(),
                 user.getName(),
@@ -328,6 +328,22 @@ public class UserDaoImpl implements UserDao {
     public int getCount(int companyId, int state) throws DataAccessException {
         return jdbcTemplate.queryForObject(SELECT_COUNT,
                 new Object[]{companyId, state},
+                (rs, rowNum) -> rs.getInt(1)
+        );
+    }
+
+    @Override
+    public int getCountByLogin(String login) throws DataAccessException {
+        return jdbcTemplate.queryForObject(SELECT_COUNT_BY_LOGIN,
+                new Object[]{login},
+                (rs, rowNum) -> rs.getInt(1)
+        );
+    }
+
+    @Override
+    public int getCountByEmail(String email) throws DataAccessException {
+        return jdbcTemplate.queryForObject(SELECT_COUNT_BY_EMAIL,
+                new Object[]{email},
                 (rs, rowNum) -> rs.getInt(1)
         );
     }

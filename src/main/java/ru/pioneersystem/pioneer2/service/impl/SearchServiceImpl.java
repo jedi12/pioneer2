@@ -68,7 +68,7 @@ public class SearchServiceImpl implements SearchService {
             documents = e.getObject();
             offsetDateAndFormat(documents);
             String mess = messageSource.getMessage("error.search.TooManyDocsFound", null, localeBean.getLocale());
-            eventService.logEvent(Event.Type.SEARCH_FIND, 0, mess);
+            eventService.logEvent(Event.Type.SEARCH_FIND_RESTRICTION, 0, mess);
             throw new TooManyObjectsException(mess, documents);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.search.NotFound", null, localeBean.getLocale());

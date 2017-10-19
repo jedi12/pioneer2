@@ -79,7 +79,6 @@ public class TemplateView implements Serializable {
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         currTemplate = templateService.getNewTemplate();
-        refreshList();
     }
 
     public void refreshList() {

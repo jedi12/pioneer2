@@ -35,7 +35,6 @@ public class CompanyView implements Serializable {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-        refreshList();
     }
 
     public void refreshList() {

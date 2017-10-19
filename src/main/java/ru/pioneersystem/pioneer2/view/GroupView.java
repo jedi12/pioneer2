@@ -60,7 +60,6 @@ public class GroupView implements Serializable {
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         currGroup = groupService.getNewGroup();
-        refreshList();
     }
 
     public void refreshList() {

@@ -61,7 +61,6 @@ public class PartView implements Serializable {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         partType = Part.Type.FOR_TEMPLATES;
         currPart = partService.getNewPart();
-        refreshList();
     }
 
     public void refreshList() {

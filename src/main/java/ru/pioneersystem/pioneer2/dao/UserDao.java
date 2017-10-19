@@ -29,4 +29,8 @@ public interface UserDao {
     Map<String, Object> getUserIdAndPass(String login) throws DataAccessException;
 
     int getCount(int companyId, int state) throws DataAccessException;
+
+    int getCountByLogin(String login) throws DataAccessException;
+
+    int getCountByEmail(String email) throws DataAccessException;
 }

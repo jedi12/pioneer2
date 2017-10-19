@@ -6,6 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import ru.pioneersystem.pioneer2.dao.MailProcessDao;
 import ru.pioneersystem.pioneer2.dao.exception.TooManyRowsDaoException;
+import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Notice;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
@@ -49,12 +50,13 @@ public class NoticeServiceImpl implements NoticeService {
                 notices = mailProcessDao.getAdminList(fromDate, toDate, currentUser.getUser().getCompanyId());
             }
             processNotice(notices);
+            eventService.logEvent(Event.Type.NOTICE_FIND, 0);
             return notices;
         } catch (TooManyRowsDaoException e) {
             notices = e.getObject();
             processNotice(notices);
             String mess = messageSource.getMessage("error.notices.TooManyNoticesFound", null, localeBean.getLocale());
-            eventService.logError(mess, null);
+            eventService.logEvent(Event.Type.NOTICE_FIND_RESTRICTION, 0, mess);
             throw new TooManyObjectsException(mess, notices);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.notices.NotLoadedList", null, localeBean.getLocale());

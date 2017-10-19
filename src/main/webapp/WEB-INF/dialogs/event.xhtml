@@ -19,14 +19,14 @@
 				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 					<h:outputLabel value="#{text['event.detail.name']}" style="font-weight:bold"/>
 					<p:inputTextarea value="#{eventView.eventDetail}" readonly="true" style="width:99%"/>
-
-					<f:facet name="footer">
-						<h:panelGrid columns="2" columnClasses="columnRight" style="width: 100%">
-							<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-											 onclick="PF('detailDialog').hide();"/>
-						</h:panelGrid>
-					</f:facet>
 				</p:panel>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses="columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('detailDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
 			</p:panel>
 		</p:dialog>
 	</h:form>

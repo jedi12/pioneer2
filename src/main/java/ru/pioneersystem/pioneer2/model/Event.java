@@ -21,8 +21,6 @@ public class Event {
         public static final int CHANNEL_SN = 1;
         public static final int CHANNEL_MC = 2;
         public static final int CHANNEL_CD = 3;
-        public static final int NOTICE_DOC_RECEIVED = 8;
-        public static final int NOTICE_DOC_STATUS_CHANGED = 9;
         public static final int PROC_SYNC_COMPLETED = 16;
 
         public static final int DOC_ERROR = 20;
@@ -120,6 +118,17 @@ public class Event {
 
         public static final int SEARCH_ERROR = 160;
         public static final int SEARCH_FIND = 161;
+        public static final int SEARCH_FIND_RESTRICTION = 162;
+
+        public static final int EVENT_ERROR = 170;
+        public static final int EVENT_FIND = 171;
+        public static final int EVENT_FIND_RESTRICTION = 172;
+
+        public static final int NOTICE_ERROR = 180;
+        public static final int NOTICE_FIND = 181;
+        public static final int NOTICE_FIND_RESTRICTION = 182;
+        public static final int NOTICE_DOC_RECEIVED = 8;
+        public static final int NOTICE_DOC_STATUS_CHANGED = 9;
     }
 
     public Event() {

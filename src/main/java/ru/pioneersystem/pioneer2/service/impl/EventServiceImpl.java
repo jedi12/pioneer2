@@ -126,12 +126,13 @@ public class EventServiceImpl implements EventService {
                 events = eventDao.getAdminList(fromDate, toDate, currentUser.getUser().getCompanyId());
             }
             processEvents(events);
+            logEvent(Event.Type.EVENT_FIND, 0);
             return events;
         } catch (TooManyRowsDaoException e) {
             events = e.getObject();
             processEvents(events);
             String mess = messageSource.getMessage("error.event.TooManyDocsFound", null, localeBean.getLocale());
-            logError(mess, null);
+            logEvent(Event.Type.EVENT_FIND_RESTRICTION, 0, mess);
             throw new TooManyObjectsException(mess, events);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.event.NotLoadedList", null, localeBean.getLocale());
