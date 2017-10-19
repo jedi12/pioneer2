@@ -17,8 +17,7 @@
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
 					 rowStyleClass="#{route.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{routeView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:ajax event="rowDblselect" listener="#{routeView.editDialog}" update=":editDialog" resetValues="true"/>
 
 			<p:column headerText="#{text['route.col.name']}" filterBy="#{route.name}" filterMatchMode="contains">
                 <h:outputText value="#{route.name}"/>
@@ -32,11 +31,9 @@
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{routeView.newDialog}" disabled="#{currentUser.superRole}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{routeView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{routeView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{routeView.editDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
                              actionListener="#{routeView.deleteDialog}" disabled="#{currentUser.superRole}"/>
 		</f:facet>

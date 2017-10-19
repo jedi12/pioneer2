@@ -34,7 +34,7 @@
 
 				<p:ajax event="filter" ignoreAutoUpdate="true"/>
 				<p:ajax event="rowDblselect" listener="#{eventView.detailDialog}" disabled="#{!currentUser.superRole}"
-						update=":detailDialog" oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+						update=":detailDialog"/>
 
 				<p:column headerText="#{text['event.col.date']}" filterBy="#{event.dateFormatted}" filterMatchMode="contains">
 					<h:outputText value="#{event.dateFormatted}"/>

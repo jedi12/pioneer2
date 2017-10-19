@@ -90,8 +90,7 @@
 						 (doc.statusId == 8 ? 'lightBlue' : 'default'))}">
 
 				<p:ajax event="filter" ignoreAutoUpdate="true"/>
-				<p:ajax event="rowDblselect" listener="#{searchView.openDocDialog}" update=":docDialog"
-						oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+				<p:ajax event="rowDblselect" listener="#{searchView.openDocDialog}" update=":docDialog"/>
 
 				<p:column headerText="#{text['document.col.id']}" filterBy="#{doc.id}" filterMatchMode="contains">
 					<h:outputText value="#{doc.id}"/>
@@ -116,8 +115,7 @@
 
 			<f:facet name="footer">
 				<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o"
-								 actionListener="#{searchView.openDocDialog}" update=":docDialog"
-								 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+								 actionListener="#{searchView.openDocDialog}" update=":docDialog"/>
 				<p:commandButton value="#{text['document.btn.openDocRoute']}" icon="fa fa-fw fa-share-alt"
 								 actionListener="#{searchView.openDocRouteDialog}" update=":docRouteDialog"/>
 			</f:facet>

@@ -17,8 +17,7 @@
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
 					 rowStyleClass="#{company.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{companyView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:ajax event="rowDblselect" listener="#{companyView.editDialog}" update=":editDialog" resetValues="true"/>
 
 			<p:column headerText="#{text['company.col.name']}" filterBy="#{company.name}" filterMatchMode="contains">
                 <h:outputText value="#{company.name}"/>
@@ -31,11 +30,9 @@
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{companyView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{companyView.newDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{companyView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{companyView.editDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="companiesTable"
 							 actionListener="#{companyView.lockAction}"/>
 			<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="companiesTable"

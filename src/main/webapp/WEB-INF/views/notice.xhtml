@@ -34,7 +34,7 @@
 
 				<p:ajax event="filter" ignoreAutoUpdate="true"/>
 				<p:ajax event="rowDblselect" listener="#{noticeView.infoDialog}" disabled="#{!currentUser.superRole}"
-						update=":infoDialog" oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+						update=":infoDialog" resetValues="true"/>
 
 				<p:column headerText="#{text['notice.col.changeDate']}" filterBy="#{notice.changeDateFormatted}" filterMatchMode="contains">
 					<h:outputText value="#{notice.changeDateFormatted}"/>

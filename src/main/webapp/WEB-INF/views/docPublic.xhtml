@@ -31,8 +31,7 @@
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o"
-							 actionListener="#{documentView.openDocFromNodeDialog}" update=":docDialog"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+							 actionListener="#{documentView.openDocFromNodeDialog}" update=":docDialog"/>
 			<p:commandButton value="#{text['document.btn.openDocRoute']}" icon="fa fa-fw fa-share-alt"
 							 actionListener="#{documentView.openDocRouteFromNodeDialog}" update=":docRouteDialog"/>
 		</f:facet>
