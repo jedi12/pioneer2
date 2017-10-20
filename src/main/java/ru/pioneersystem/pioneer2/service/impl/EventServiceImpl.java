@@ -126,7 +126,7 @@ public class EventServiceImpl implements EventService {
                 events = eventDao.getAdminList(fromDate, toDate, currentUser.getUser().getCompanyId());
             }
             processEvents(events);
-            logEvent(Event.Type.EVENT_FIND, 0);
+//            logEvent(Event.Type.EVENT_FIND, 0);
             return events;
         } catch (TooManyRowsDaoException e) {
             events = e.getObject();

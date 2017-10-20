@@ -11,7 +11,13 @@ public class Company {
     private String comment;
     private int maxUsers;
     private int state;
+
     private String stateName;
+    private String adminGroupName;
+    private String adminName;
+    private String adminLogin;
+    private String adminEmail;
+    private String adminPhone;
 
     private boolean createFlag;
 
@@ -115,5 +121,45 @@ public class Company {
 
     public void setCreateFlag(boolean createFlag) {
         this.createFlag = createFlag;
+    }
+
+    public String getAdminGroupName() {
+        return adminGroupName;
+    }
+
+    public void setAdminGroupName(String adminGroupName) {
+        this.adminGroupName = adminGroupName;
+    }
+
+    public String getAdminName() {
+        return adminName;
+    }
+
+    public void setAdminName(String adminName) {
+        this.adminName = adminName;
+    }
+
+    public String getAdminLogin() {
+        return adminLogin;
+    }
+
+    public void setAdminLogin(String adminLogin) {
+        this.adminLogin = adminLogin;
+    }
+
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public void setAdminEmail(String adminEmail) {
+        this.adminEmail = adminEmail;
+    }
+
+    public String getAdminPhone() {
+        return adminPhone;
+    }
+
+    public void setAdminPhone(String adminPhone) {
+        this.adminPhone = adminPhone;
     }
 }

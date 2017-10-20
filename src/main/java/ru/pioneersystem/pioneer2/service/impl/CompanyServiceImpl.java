@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.CompanyDao;
-import ru.pioneersystem.pioneer2.model.Company;
-import ru.pioneersystem.pioneer2.model.Event;
+import ru.pioneersystem.pioneer2.dao.GroupDao;
+import ru.pioneersystem.pioneer2.dao.UserDao;
+import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.CompanyService;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
@@ -15,22 +17,28 @@ import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("companyService")
 public class CompanyServiceImpl implements CompanyService {
     private EventService eventService;
     private CompanyDao companyDao;
+    private UserDao userDao;
+    private GroupDao groupDao;
     private DictionaryService dictionaryService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
     @Autowired
-    public CompanyServiceImpl(EventService eventService, CompanyDao companyDao, DictionaryService dictionaryService,
-                              LocaleBean localeBean, MessageSource messageSource, SessionListener sessionListener) {
+    public CompanyServiceImpl(EventService eventService, CompanyDao companyDao, UserDao userDao, GroupDao groupDao,
+                              DictionaryService dictionaryService, LocaleBean localeBean, MessageSource messageSource,
+                              SessionListener sessionListener) {
         this.eventService = eventService;
         this.companyDao = companyDao;
+        this.userDao = userDao;
+        this.groupDao = groupDao;
         this.dictionaryService = dictionaryService;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -86,11 +94,36 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveCompany(Company company) throws ServiceException {
         try {
             if (company.isCreateFlag()) {
                 int companyId = companyDao.create(company);
+
+                User adminUser = new User();
+                adminUser.setName(company.getAdminName());
+                adminUser.setLogin(company.getAdminLogin().trim());
+                adminUser.setEmail(company.getAdminEmail().trim());
+                adminUser.setPhone(company.getAdminPhone());
+                adminUser.setLinkGroups(new ArrayList<>());
+                int userId = userDao.create(adminUser, companyId);
+
+                Group.LinkUser linkUser = new Group.LinkUser();
+                linkUser.setUserId(userId);
+                linkUser.setParticipant(true);
+
+                List<Group.LinkUser> linkUsers = new ArrayList<>();
+                linkUsers.add(linkUser);
+
+                Group adminGroup = new Group();
+                adminGroup.setName(company.getAdminGroupName());
+                adminGroup.setRoleId(Role.Id.ADMIN);
+                adminGroup.setLinkUsers(linkUsers);
+                int groupId = groupDao.create(adminGroup, companyId);
+
                 eventService.logEvent(Event.Type.COMPANY_CREATED, companyId);
+                eventService.logEvent(Event.Type.USER_CREATED, userId);
+                eventService.logEvent(Event.Type.GROUP_CREATED, groupId);
             } else {
                 companyDao.update(company);
                 eventService.logEvent(Event.Type.COMPANY_CHANGED, company.getId());

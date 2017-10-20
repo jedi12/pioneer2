@@ -16,7 +16,7 @@
 			</h2>
 
 			<p:panel>
-				<p:tabView id="tabView">
+				<p:tabView id="tabView" widgetVar="tabView">
 					<p:tab title="#{text['company.tab1.name']}">
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<h:panelGrid id="companyGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
@@ -58,12 +58,43 @@
 							</h:panelGrid>
 						</p:panel>
 					</p:tab>
+
+					<p:tab title="#{text['company.tab2.name']}" rendered="#{companyView.currCompany.createFlag}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+							<h:panelGrid id="adminGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<p:outputLabel value="#{text['group.edit.name.label']}" for="adminGroupName"/>
+								<p:inputText id="adminGroupName" value="#{companyView.currCompany.adminGroupName}"
+											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminGroupName" display="icon" styleClass="width38px"/>
+
+								<p:outputLabel value="#{text['user.edit.name']}" for="adminName"/>
+								<p:inputText id="adminName" value="#{companyView.currCompany.adminName}"
+											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminName" display="icon" styleClass="width38px"/>
+
+								<p:outputLabel value="#{text['user.edit.login']}" for="adminLogin"/>
+								<p:inputText id="adminLogin" value="#{companyView.currCompany.adminLogin}"
+											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminLogin" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.email']}" for="adminEmail"/>
+								<p:inputText id="adminEmail" value="#{companyView.currCompany.adminEmail}"
+											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminEmail" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.phone']}" for="adminPhone"/>
+								<p:inputText id="adminPhone" value="#{companyView.currCompany.adminPhone}"
+											 style="width: 100%" maxlength="64"/>
+								<p:message for="adminPhone" display="icon"/>
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
 				</p:tabView>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:companiesTable :editDialog:tabView:companyGrid"
+										 update=":centerPanel:companiesTable tabView:companyGrid tabView:adminGrid"
 										 actionListener="#{companyView.saveAction}"
 										 disabled="#{companyView.currCompany.state == 2}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
