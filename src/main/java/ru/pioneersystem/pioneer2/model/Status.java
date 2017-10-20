@@ -24,8 +24,6 @@ public class Status {
         public static final int COMPLETED = 7;
         public static final int PUBLISHED = 8;
         public static final int CREATED = 9;
-        public static final int ON_COORDINATION = 10;
-        public static final int ON_EXECUTION = 11;
     }
 
     public int getId() {

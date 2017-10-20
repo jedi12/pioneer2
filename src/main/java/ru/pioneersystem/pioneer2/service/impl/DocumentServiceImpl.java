@@ -457,7 +457,7 @@ public class DocumentServiceImpl implements DocumentService {
                         break;
                 }
 
-                if (document.getStatusId() >= Status.Id.ON_COORDINATION) {
+                if (document.getStatusId() > Status.Id.CREATED) {
                     viewElements.setBtnRecall(true);
                 }
 

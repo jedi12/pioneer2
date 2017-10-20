@@ -46,8 +46,6 @@ public class Role {
         public static final int REZ3 = 7;
         public static final int REZ4 = 8;
         public static final int CREATE = 9;
-        public static final int ON_COORDINATION = 10;
-        public static final int ON_EXECUTION = 11;
     }
 
     public int getId() {

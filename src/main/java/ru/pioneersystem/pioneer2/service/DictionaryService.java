@@ -39,10 +39,6 @@ public class DictionaryService {
 				return messageSource.getMessage("role.name.rez4", null, locale);
 			case Role.Id.CREATE:
 				return messageSource.getMessage("role.name.create", null, locale);
-			case Role.Id.ON_COORDINATION:
-				return messageSource.getMessage("role.name.coordinate", null, locale);
-			case Role.Id.ON_EXECUTION:
-				return messageSource.getMessage("role.name.execute", null, locale);
 			default:
 				return null;
 		}
@@ -82,10 +78,6 @@ public class DictionaryService {
 				return messageSource.getMessage("menu.name.notices", null, locale);
 			case Menu.Id.MENUS:
 				return messageSource.getMessage("menu.name.menus", null, locale);
-			case Menu.Id.ON_ROUTE_CONFIRM:
-				return messageSource.getMessage("menu.name.onRouteConfirm", null, locale);
-			case Menu.Id.ON_ROUTE_EXEC:
-				return messageSource.getMessage("menu.name.onRouteExec", null, locale);
 			case Menu.Id.COMPANY:
 				return messageSource.getMessage("menu.name.company", null, locale);
 			default:
@@ -105,10 +97,6 @@ public class DictionaryService {
 				return messageSource.getMessage("status.name.published", null, locale);
 			case Status.Id.CREATED:
 				return messageSource.getMessage("status.name.created", null, locale);
-			case Status.Id.ON_COORDINATION:
-				return messageSource.getMessage("status.name.onCoordination", null, locale);
-			case Status.Id.ON_EXECUTION:
-				return messageSource.getMessage("status.name.onExecution", null, locale);
 			default:
 				return null;
 		}

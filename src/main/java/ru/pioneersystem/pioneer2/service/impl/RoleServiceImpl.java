@@ -127,6 +127,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void saveRole(Role role) throws ServiceException {
+        if (role.getState() == Role.State.SYSTEM) {
+            String mess = messageSource.getMessage("warn.system.edit.restriction", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
             if (role.isCreateFlag()) {
                 int roleId = roleDao.create(role, currentUser.getUser().getCompanyId());
@@ -144,7 +149,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(Role role) throws ServiceException {
-        // TODO: 28.02.2017 Проверка на удаление системной роли плюс еще какая-нибудь проверка
+        if (role.getState() == Role.State.SYSTEM) {
+            String mess = messageSource.getMessage("warn.system.edit.restriction", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
             roleDao.delete(role.getId(), currentUser.getUser().getCompanyId());
             eventService.logEvent(Event.Type.ROLE_DELETED, role.getId());

@@ -52,8 +52,6 @@ public class Menu {
         public static final int EVENTS = 14;
         public static final int NOTICES = 15;
         public static final int MENUS = 16;
-        public static final int ON_ROUTE_CONFIRM = 17;
-        public static final int ON_ROUTE_EXEC = 18;
         public static final int COMPANY = 19;
     }
 
