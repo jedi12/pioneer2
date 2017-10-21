@@ -21,4 +21,6 @@ public interface RoleService {
     void saveRole(Role role) throws ServiceException;
 
     void deleteRole(Role role) throws ServiceException;
+
+    int createExampleRole(int roleExample, int companyId) throws ServiceException;
 }

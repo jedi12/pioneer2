@@ -220,4 +220,34 @@ public class PartServiceImpl implements PartService {
             throw new ServiceException(mess, e);
         }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createExamplePart(int partType, int adminGroupId, int companyId) throws ServiceException {
+        try {
+            Part part = getNewPart();
+            part.setParent(0);
+            part.setTreeLevel(1);
+            part.setOwnerGroup(adminGroupId);
+
+            switch (partType) {
+                case Part.Type.FOR_TEMPLATES:
+                    part.setName(messageSource.getMessage("part.templates.name", null, localeBean.getLocale()));
+                    break;
+                case Part.Type.FOR_DOCUMENTS:
+                    part.setName(messageSource.getMessage("part.documents.name", null, localeBean.getLocale()));
+                    break;
+                default:
+                    String mess = messageSource.getMessage("error.part.exampleUnknown", null, localeBean.getLocale());
+                    eventService.logError(mess, null);
+                    throw new ServiceException(mess, null);
+            }
+
+            return partDao.create(part, partType, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.part.exampleNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
+        }
+    }
 }

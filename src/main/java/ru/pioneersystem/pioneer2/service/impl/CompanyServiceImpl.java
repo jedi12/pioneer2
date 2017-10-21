@@ -6,39 +6,45 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.CompanyDao;
-import ru.pioneersystem.pioneer2.dao.GroupDao;
-import ru.pioneersystem.pioneer2.dao.UserDao;
 import ru.pioneersystem.pioneer2.model.*;
-import ru.pioneersystem.pioneer2.service.CompanyService;
-import ru.pioneersystem.pioneer2.service.DictionaryService;
-import ru.pioneersystem.pioneer2.service.EventService;
-import ru.pioneersystem.pioneer2.service.SessionListener;
+import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service("companyService")
 public class CompanyServiceImpl implements CompanyService {
     private EventService eventService;
     private CompanyDao companyDao;
-    private UserDao userDao;
-    private GroupDao groupDao;
+    private UserService userService;
+    private GroupService groupService;
+    private RoleService roleService;
+    private RouteService routeService;
+    private ChoiceListService choiceListService;
+    private PartService partService;
+    private TemplateService templateService;
     private DictionaryService dictionaryService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
     @Autowired
-    public CompanyServiceImpl(EventService eventService, CompanyDao companyDao, UserDao userDao, GroupDao groupDao,
-                              DictionaryService dictionaryService, LocaleBean localeBean, MessageSource messageSource,
-                              SessionListener sessionListener) {
+    public CompanyServiceImpl(EventService eventService, CompanyDao companyDao, UserService userService,
+                              GroupService groupService, RoleService roleService, RouteService routeService,
+                              ChoiceListService choiceListService, PartService partService,
+                              TemplateService templateService,DictionaryService dictionaryService,
+                              LocaleBean localeBean, MessageSource messageSource, SessionListener sessionListener) {
         this.eventService = eventService;
         this.companyDao = companyDao;
-        this.userDao = userDao;
-        this.groupDao = groupDao;
+        this.userService = userService;
+        this.groupService = groupService;
+        this.roleService = roleService;
+        this.routeService = routeService;
+        this.choiceListService = choiceListService;
+        this.partService = partService;
+        this.templateService = templateService;
         this.dictionaryService = dictionaryService;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -66,6 +72,8 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Company getNewCompany() {
         Company company = new Company();
+        company.setUser(userService.getNewUser());
+        company.setGroup(groupService.getNewGroup());
         company.setCreateFlag(true);
         return company;
     }
@@ -99,31 +107,19 @@ public class CompanyServiceImpl implements CompanyService {
         try {
             if (company.isCreateFlag()) {
                 int companyId = companyDao.create(company);
-
-                User adminUser = new User();
-                adminUser.setName(company.getAdminName());
-                adminUser.setLogin(company.getAdminLogin().trim());
-                adminUser.setEmail(company.getAdminEmail().trim());
-                adminUser.setPhone(company.getAdminPhone());
-                adminUser.setLinkGroups(new ArrayList<>());
-                int userId = userDao.create(adminUser, companyId);
-
-                Group.LinkUser linkUser = new Group.LinkUser();
-                linkUser.setUserId(userId);
-                linkUser.setParticipant(true);
-
-                List<Group.LinkUser> linkUsers = new ArrayList<>();
-                linkUsers.add(linkUser);
-
-                Group adminGroup = new Group();
-                adminGroup.setName(company.getAdminGroupName());
-                adminGroup.setRoleId(Role.Id.ADMIN);
-                adminGroup.setLinkUsers(linkUsers);
-                int groupId = groupDao.create(adminGroup, companyId);
+                int adminUserId = userService.createAdminUser(company.getUser(), companyId);
+                int adminGroupId = groupService.createAdminGroup(company.getGroup(), adminUserId, companyId);
+                int exampleCoordinatorRoleId = roleService.createExampleRole(Role.Example.COORDINATOR, companyId);
+                int exampleExecutorRoleId = roleService.createExampleRole(Role.Example.EXECUTOR, companyId);
+                int exampleCoordinatorGroupId = groupService.createExampleGroup(Group.Example.COORDINATOR, exampleCoordinatorRoleId, companyId);
+                int exampleExecutorGroupId = groupService.createExampleGroup(Group.Example.EXECUTOR, exampleExecutorRoleId, companyId);
+                int exampleRouteId = routeService.createExampleRoute(exampleCoordinatorGroupId, exampleExecutorGroupId, companyId);
+                int exampleChoiceListId = choiceListService.createExampleChoiceList(companyId);
+                int exampleTemplatePartId = partService.createExamplePart(Part.Type.FOR_TEMPLATES, adminGroupId, companyId);
+                int exampleDocumentPartId = partService.createExamplePart(Part.Type.FOR_DOCUMENTS, adminGroupId, companyId);
+                int exampleTemplateId = templateService.createExampleTemplate(exampleRouteId, exampleTemplatePartId, exampleChoiceListId, companyId);
 
                 eventService.logEvent(Event.Type.COMPANY_CREATED, companyId);
-                eventService.logEvent(Event.Type.USER_CREATED, userId);
-                eventService.logEvent(Event.Type.GROUP_CREATED, groupId);
             } else {
                 companyDao.update(company);
                 eventService.logEvent(Event.Type.COMPANY_CHANGED, company.getId());

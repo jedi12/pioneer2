@@ -25,4 +25,6 @@ public interface TemplateService {
     void saveTemplate(Template template) throws ServiceException;
 
     void deleteTemplate(Template template) throws ServiceException;
+
+    int createExampleTemplate(int routeId, int partId, int choiceListId, int companyId) throws ServiceException;
 }

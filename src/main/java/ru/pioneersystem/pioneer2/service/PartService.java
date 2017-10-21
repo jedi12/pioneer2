@@ -33,4 +33,6 @@ public interface PartService {
     void deletePart(Part part) throws ServiceException;
 
     void deleteParts(List<Part> parts, int partType) throws ServiceException;
+
+    int createExamplePart(int partType, int adminGroupId, int companyId) throws ServiceException;
 }

@@ -141,6 +141,7 @@ public class DocumentServiceImpl implements DocumentService {
         try {
             Document document = documentDao.getTemplateBased(templateId, currentUser.getUser().getCompanyId());
             choiceListService.setChoiceListForTemplate(document);
+            document.setDocumentGroupId(currentUser.getUserCreateGroups().entrySet().iterator().next().getValue());
             document.setCreateFlag(true);
             document.setEditMode(true);
             setupViewElements(document, null);

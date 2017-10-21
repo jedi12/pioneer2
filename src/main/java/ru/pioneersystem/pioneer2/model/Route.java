@@ -16,7 +16,6 @@ public class Route {
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
-        public static final int SYSTEM = 2;
     }
 
     public static class LinkGroup {

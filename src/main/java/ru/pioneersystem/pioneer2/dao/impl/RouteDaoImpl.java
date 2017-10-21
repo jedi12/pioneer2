@@ -43,11 +43,10 @@ public class RouteDaoImpl implements RouteDao {
                     "LEFT JOIN DOC.GROUPS G ON RG.GROUP_ID = G.ID WHERE RG.ID = ? ORDER BY NAME ASC";
     private static final String SELECT_SUPER_ROUTE_LIST =
             "SELECT R.ID AS ID, R.NAME AS NAME, R.STATE AS STATE, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.ROUTES R " +
-                    "LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY WHERE R.STATE > 0 OR R.STATE = ? " +
-                    "ORDER BY R.COMPANY ASC, R.NAME ASC";
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY WHERE R.STATE > 0 ORDER BY R.COMPANY ASC, R.NAME ASC";
     private static final String SELECT_ADMIN_ROUTE_LIST =
             "SELECT ID, NAME, STATE, COMPANY, NULL AS COMPANY_NAME FROM DOC.ROUTES WHERE STATE > 0 " +
-                    "AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
+                    "AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROUTE_MAP =
             "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
                     "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID " +
@@ -125,13 +124,13 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     public List<Route> getSuperList() throws DataAccessException {
-        Object[] params = new Object[]{Route.State.SYSTEM};
+        Object[] params = new Object[]{};
         return getList(SELECT_SUPER_ROUTE_LIST, params);
     }
 
     @Override
     public List<Route> getAdminList(int companyId) throws DataAccessException {
-        Object[] params = new Object[]{companyId, Route.State.SYSTEM};
+        Object[] params = new Object[]{companyId};
         return getList(SELECT_ADMIN_ROUTE_LIST, params);
     }
 

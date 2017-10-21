@@ -24,4 +24,6 @@ public interface ChoiceListService {
     void saveChoiceList(ChoiceList choiceList) throws ServiceException;
 
     void deleteChoiceList(ChoiceList choiceList) throws ServiceException;
+
+    int createExampleChoiceList(int companyId) throws ServiceException;
 }

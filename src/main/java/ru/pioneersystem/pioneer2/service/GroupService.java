@@ -1,5 +1,6 @@
 package ru.pioneersystem.pioneer2.service;
 
+import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -31,4 +32,8 @@ public interface GroupService {
     void saveGroup(Group group) throws ServiceException;
 
     void deleteGroup(Group group) throws ServiceException;
+
+    int createAdminGroup(Group group, int userId, int companyId) throws ServiceException;
+
+    int createExampleGroup(int groupExample, int roleId, int companyId) throws ServiceException;
 }

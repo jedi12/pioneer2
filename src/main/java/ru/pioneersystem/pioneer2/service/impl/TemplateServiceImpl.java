@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Event;
@@ -189,6 +190,54 @@ public class TemplateServiceImpl implements TemplateService {
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.template.NotDeleted", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), template.getId());
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createExampleTemplate(int routeId, int partId, int choiceListId, int companyId) throws ServiceException {
+        try {
+            Template template = getNewTemplate();
+            template.setName(messageSource.getMessage("template.example.name", null, localeBean.getLocale()));
+            template.setRouteId(routeId);
+            template.setPartId(partId);
+
+            Document.Field choiceListField = new Document.Field();
+            choiceListField.setNum(1);
+            choiceListField.setTypeId(FieldType.Id.LIST);
+            choiceListField.setChoiceListId(choiceListId);
+            choiceListField.setName(messageSource.getMessage("template.example.choiceList", null, localeBean.getLocale()));
+            template.getFields().add(choiceListField);
+
+            Document.Field checkboxField = new Document.Field();
+            checkboxField.setNum(2);
+            checkboxField.setTypeId(FieldType.Id.CHECKBOX);
+            checkboxField.setName(messageSource.getMessage("template.example.checkbox", null, localeBean.getLocale()));
+            template.getFields().add(checkboxField);
+
+            Document.Field calendarField = new Document.Field();
+            calendarField.setNum(3);
+            calendarField.setTypeId(FieldType.Id.CALENDAR);
+            calendarField.setName(messageSource.getMessage("template.example.calendar", null, localeBean.getLocale()));
+            template.getFields().add(calendarField);
+
+            Document.Field textStringField = new Document.Field();
+            textStringField.setNum(4);
+            textStringField.setTypeId(FieldType.Id.TEXT_STRING);
+            textStringField.setName(messageSource.getMessage("template.example.textstring", null, localeBean.getLocale()));
+            template.getFields().add(textStringField);
+
+            Document.Field textAreaField = new Document.Field();
+            textAreaField.setNum(5);
+            textAreaField.setTypeId(FieldType.Id.TEXT_AREA);
+            textAreaField.setName(messageSource.getMessage("template.example.textarea", null, localeBean.getLocale()));
+            template.getFields().add(textAreaField);
+
+            return templateDao.create(template, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.template.exampleNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }

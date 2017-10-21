@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.CompanyDao;
 import ru.pioneersystem.pioneer2.dao.UserDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.dao.impl.UserDaoImpl;
+import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
@@ -343,5 +345,17 @@ public class UserServiceImpl implements UserService {
 
     private String toHash(int userId, String pass) {
         return DigestUtils.sha256Hex(userId + "Вся#соль" + pass + "И%сахара$чуть-чуть");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createAdminUser(User user, int companyId) throws ServiceException {
+        try {
+            return userDao.create(user, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.user.adminNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
+        }
     }
 }

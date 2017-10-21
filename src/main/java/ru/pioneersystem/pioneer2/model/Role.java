@@ -48,6 +48,11 @@ public class Role {
         public static final int CREATE = 9;
     }
 
+    public static class Example {
+        public static final int COORDINATOR = 1;
+        public static final int EXECUTOR = 2;
+    }
+
     public int getId() {
         return id;
     }

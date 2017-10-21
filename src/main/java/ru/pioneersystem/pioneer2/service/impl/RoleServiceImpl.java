@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RoleDao;
 import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Role;
@@ -160,6 +161,43 @@ public class RoleServiceImpl implements RoleService {
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotDeleted", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), role.getId());
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createExampleRole(int roleExample, int companyId) throws ServiceException {
+        try {
+            Role role = getNewRole();
+
+            switch (roleExample) {
+                case Role.Example.COORDINATOR:
+                    role.setName(messageSource.getMessage("role.coord.name", null, localeBean.getLocale()));
+                    role.setAcceptButton(messageSource.getMessage("role.coord.accept", null, localeBean.getLocale()));
+                    role.setRejectButton(messageSource.getMessage("role.coord.reject", null, localeBean.getLocale()));
+                    role.setStatusName(messageSource.getMessage("role.coord.status", null, localeBean.getLocale()));
+                    role.setMenuName(messageSource.getMessage("role.coord.menu", null, localeBean.getLocale()));
+                    role.setCanComment(true);
+                    break;
+                case Role.Example.EXECUTOR:
+                    role.setName(messageSource.getMessage("role.exec.name", null, localeBean.getLocale()));
+                    role.setAcceptButton(messageSource.getMessage("role.exec.accept", null, localeBean.getLocale()));
+                    role.setRejectButton(messageSource.getMessage("role.exec.reject", null, localeBean.getLocale()));
+                    role.setStatusName(messageSource.getMessage("role.exec.status", null, localeBean.getLocale()));
+                    role.setMenuName(messageSource.getMessage("role.exec.menu", null, localeBean.getLocale()));
+                    role.setCanComment(true);
+                    break;
+                default:
+                    String mess = messageSource.getMessage("error.role.exampleUnknown", null, localeBean.getLocale());
+                    eventService.logError(mess, null);
+                    throw new ServiceException(mess, null);
+            }
+
+            return roleDao.create(role, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.role.exampleNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }

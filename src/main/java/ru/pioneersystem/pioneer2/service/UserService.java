@@ -1,5 +1,6 @@
 package ru.pioneersystem.pioneer2.service;
 
+import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -33,4 +34,6 @@ public interface UserService {
     void changeUserPass(String login, String oldPass, String newPass) throws ServiceException;
 
     int checkLoginAndPass(String login, String pass) throws ServiceException;
+
+    int createAdminUser(User user, int companyId) throws ServiceException;
 }

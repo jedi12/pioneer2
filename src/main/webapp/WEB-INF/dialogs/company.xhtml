@@ -63,27 +63,27 @@
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
 							<h:panelGrid id="adminGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['group.edit.name.label']}" for="adminGroupName"/>
-								<p:inputText id="adminGroupName" value="#{companyView.currCompany.adminGroupName}"
+								<p:inputText id="adminGroupName" value="#{companyView.currCompany.group.name}"
 											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminGroupName" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['user.edit.name']}" for="adminName"/>
-								<p:inputText id="adminName" value="#{companyView.currCompany.adminName}"
+								<p:inputText id="adminName" value="#{companyView.currCompany.user.name}"
 											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminName" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['user.edit.login']}" for="adminLogin"/>
-								<p:inputText id="adminLogin" value="#{companyView.currCompany.adminLogin}"
+								<p:inputText id="adminLogin" value="#{companyView.currCompany.user.login}"
 											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminLogin" display="icon"/>
 
 								<p:outputLabel value="#{text['user.edit.email']}" for="adminEmail"/>
-								<p:inputText id="adminEmail" value="#{companyView.currCompany.adminEmail}"
+								<p:inputText id="adminEmail" value="#{companyView.currCompany.user.email}"
 											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminEmail" display="icon"/>
 
 								<p:outputLabel value="#{text['user.edit.phone']}" for="adminPhone"/>
-								<p:inputText id="adminPhone" value="#{companyView.currCompany.adminPhone}"
+								<p:inputText id="adminPhone" value="#{companyView.currCompany.user.phone}"
 											 style="width: 100%" maxlength="64"/>
 								<p:message for="adminPhone" display="icon"/>
 							</h:panelGrid>

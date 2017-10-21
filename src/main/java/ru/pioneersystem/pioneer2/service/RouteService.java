@@ -25,4 +25,6 @@ public interface RouteService {
     void saveRoute(Route route) throws ServiceException;
 
     void deleteRoute(Route route) throws ServiceException;
+
+    int createExampleRoute(int coordGroupId, int execGroupId, int companyId) throws ServiceException;
 }

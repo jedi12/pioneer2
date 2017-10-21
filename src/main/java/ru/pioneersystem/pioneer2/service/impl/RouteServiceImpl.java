@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
 import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Route;
@@ -165,6 +166,31 @@ public class RouteServiceImpl implements RouteService {
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.route.NotDeleted", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), route.getId());
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createExampleRoute(int coordGroupId, int execGroupId, int companyId) throws ServiceException {
+        try {
+            Route.Point coordPoint = new Route.Point();
+            coordPoint.setStage(1);
+            coordPoint.setGroupId(coordGroupId);
+
+            Route.Point execPoint = new Route.Point();
+            execPoint.setStage(2);
+            execPoint.setGroupId(execGroupId);
+
+            Route route = getNewRoute();
+            route.setName(messageSource.getMessage("route.example.name", null, localeBean.getLocale()));
+            route.getPoints().add(coordPoint);
+            route.getPoints().add(execPoint);
+
+            return routeDao.create(route, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.route.exampleNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.ChoiceListDao;
 import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.model.Document;
@@ -162,6 +163,26 @@ public class ChoiceListServiceImpl implements ChoiceListService {
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.choiceList.NotDeleted", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), choiceList.getId());
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createExampleChoiceList(int companyId) throws ServiceException {
+        try {
+            ChoiceList choiceList = getNewChoiceList();
+            choiceList.setName(messageSource.getMessage("choiceList.example.name", null, localeBean.getLocale()));
+            choiceList.getValues().add(messageSource.getMessage("choiceList.example.value1", null, localeBean.getLocale()));
+            choiceList.getValues().add(messageSource.getMessage("choiceList.example.value2", null, localeBean.getLocale()));
+            choiceList.getValues().add(messageSource.getMessage("choiceList.example.value3", null, localeBean.getLocale()));
+            choiceList.getValues().add(messageSource.getMessage("choiceList.example.value4", null, localeBean.getLocale()));
+            choiceList.getValues().add(messageSource.getMessage("choiceList.example.value5", null, localeBean.getLocale()));
+
+            return choiceListDao.create(choiceList, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.choiceList.exampleNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }

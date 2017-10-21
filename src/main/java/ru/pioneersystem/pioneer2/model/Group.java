@@ -25,6 +25,11 @@ public class Group {
         public static final int PARTICIPANT = 1;
     }
 
+    public static class Example {
+        public static final int COORDINATOR = 1;
+        public static final int EXECUTOR = 2;
+    }
+
     public static class LinkUser {
         private int userId;
         private String userName;
