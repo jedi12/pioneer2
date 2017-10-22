@@ -20,6 +20,7 @@ public class User {
     private List<LinkGroup> linkGroups;
 
     private boolean createFlag;
+    private boolean createUserGroup;
 
     public static class State {
         public static final int LOCKED = 0;
@@ -159,6 +160,14 @@ public class User {
 
     public void setCreateFlag(boolean createFlag) {
         this.createFlag = createFlag;
+    }
+
+    public boolean isCreateUserGroup() {
+        return createUserGroup;
+    }
+
+    public void setCreateUserGroup(boolean createUserGroup) {
+        this.createUserGroup = createUserGroup;
     }
 
     public boolean isNoticeDocIncoming() {

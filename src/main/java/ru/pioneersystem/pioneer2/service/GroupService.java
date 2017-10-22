@@ -33,7 +33,5 @@ public interface GroupService {
 
     void deleteGroup(Group group) throws ServiceException;
 
-    int createAdminGroup(Group group, int userId, int companyId) throws ServiceException;
-
-    int createExampleGroup(int groupExample, int roleId, int companyId) throws ServiceException;
+    int createGroupWithUser(String groupName, int roleId, int userId, int companyId) throws ServiceException;
 }

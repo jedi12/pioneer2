@@ -53,6 +53,13 @@
 												 maxlength="256" style="width: 100%;max-height: 64px"/>
 								<p:message for="comment" display="icon"/>
 							</h:panelGrid>
+
+							<h:panelGroup rendered="#{userView.currUser.createFlag}">
+								<hr/>
+								<p:outputLabel value="#{text['user.edit.createGroup']}" for="createGroup"/>
+								<p:selectBooleanCheckbox id="createGroup" value="#{userView.currUser.createUserGroup}"
+														 style="margin-left:10px"/>
+							</h:panelGroup>
 						</p:panel>
 					</p:tab>
 

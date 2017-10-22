@@ -10,17 +10,13 @@ import ru.pioneersystem.pioneer2.dao.CompanyDao;
 import ru.pioneersystem.pioneer2.dao.UserDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.dao.impl.UserDaoImpl;
-import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.Event;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.User;
-import ru.pioneersystem.pioneer2.service.DictionaryService;
-import ru.pioneersystem.pioneer2.service.EventService;
-import ru.pioneersystem.pioneer2.service.SessionListener;
-import ru.pioneersystem.pioneer2.service.UserService;
+import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.ArrayList;
@@ -33,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private EventService eventService;
     private UserDao userDao;
     private CompanyDao companyDao;
+    private GroupService groupService;
     private DictionaryService dictionaryService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
@@ -40,12 +37,13 @@ public class UserServiceImpl implements UserService {
     private SessionListener sessionListener;
 
     @Autowired
-    public UserServiceImpl(EventService eventService, UserDao userDao, CompanyDao companyDao,
+    public UserServiceImpl(EventService eventService, UserDao userDao, CompanyDao companyDao, GroupService groupService,
                            DictionaryService dictionaryService, CurrentUser currentUser, LocaleBean localeBean,
                            MessageSource messageSource, SessionListener sessionListener) {
         this.eventService = eventService;
         this.userDao = userDao;
         this.companyDao = companyDao;
+        this.groupService = groupService;
         this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
@@ -117,6 +115,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getNewUser() {
         User user = new User();
+        user.setCreateUserGroup(true);
         user.setLinkGroups(new ArrayList<>());
         user.setCreateFlag(true);
         return user;
@@ -160,6 +159,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveUser(User user) throws ServiceException {
         try {
             user.setLogin(user.getLogin().trim());
@@ -187,7 +187,12 @@ public class UserServiceImpl implements UserService {
                 }
 
                 int userId = userDao.create(user, currentUser.getUser().getCompanyId());
+                // TODO: 22.10.2017 Сделать логирование событий в той же транзакции, а логирование ошибок - в отдельной транзакции
                 eventService.logEvent(Event.Type.USER_CREATED, userId);
+
+                if (user.isCreateUserGroup()) {
+                    groupService.createGroupWithUser(user.getName(), Role.Id.CREATE, userId, currentUser.getUser().getCompanyId());
+                }
             } else {
                 userDao.update(user, currentUser.getUser().getCompanyId());
                 eventService.logEvent(Event.Type.USER_CHANGED, user.getId());
@@ -195,6 +200,10 @@ public class UserServiceImpl implements UserService {
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), user.getId());
+            throw new ServiceException(mess, e);
+        } catch (ServiceException e) {
+            String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
+            eventService.logError(mess + ": " + e.getMessage(), null);
             throw new ServiceException(mess, e);
         }
     }

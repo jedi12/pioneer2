@@ -9,10 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.GroupDao;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.RouteDao;
-import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Group;
-import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.GroupService;
@@ -224,46 +222,24 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int createAdminGroup(Group group, int userId, int companyId) throws ServiceException {
-        try {
-            Group.LinkUser linkUser = new Group.LinkUser();
-            linkUser.setUserId(userId);
-            linkUser.setParticipant(true);
-
-            group.setRoleId(Role.Id.ADMIN);
-            group.getLinkUsers().add(linkUser);
-
-            return groupDao.create(group, companyId);
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.group.adminGroupNotCreated", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage());
-            throw new ServiceException(mess, e);
-        }
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public int createExampleGroup(int groupExample, int roleId, int companyId) throws ServiceException {
+    public int createGroupWithUser(String groupName, int roleId, int userId, int companyId) throws ServiceException {
         try {
             Group group = getNewGroup();
+            group.setName(groupName);
             group.setRoleId(roleId);
 
-            switch (groupExample) {
-                case Group.Example.COORDINATOR:
-                    group.setName(messageSource.getMessage("group.coord.name", null, localeBean.getLocale()));
-                    break;
-                case Group.Example.EXECUTOR:
-                    group.setName(messageSource.getMessage("group.exec.name", null, localeBean.getLocale()));
-                    break;
-                default:
-                    String mess = messageSource.getMessage("error.group.exampleUnknown", null, localeBean.getLocale());
-                    eventService.logError(mess, null);
-                    throw new ServiceException(mess, null);
+            if (userId > 0) {
+                Group.LinkUser linkUser = new Group.LinkUser();
+                linkUser.setUserId(userId);
+                linkUser.setParticipant(true);
+                group.getLinkUsers().add(linkUser);
             }
 
-            return groupDao.create(group, companyId);
+            int groupId = groupDao.create(group, companyId);
+            eventService.logEvent(Event.Type.GROUP_CREATED, groupId);
+            return groupId;
         } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.group.exampleNotCreated", null, localeBean.getLocale());
+            String mess = messageSource.getMessage("error.group.groupWithUserNotCreated", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }

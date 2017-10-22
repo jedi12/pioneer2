@@ -73,7 +73,6 @@ public class CompanyServiceImpl implements CompanyService {
     public Company getNewCompany() {
         Company company = new Company();
         company.setUser(userService.getNewUser());
-        company.setGroup(groupService.getNewGroup());
         company.setCreateFlag(true);
         return company;
     }
@@ -108,11 +107,13 @@ public class CompanyServiceImpl implements CompanyService {
             if (company.isCreateFlag()) {
                 int companyId = companyDao.create(company);
                 int adminUserId = userService.createAdminUser(company.getUser(), companyId);
-                int adminGroupId = groupService.createAdminGroup(company.getGroup(), adminUserId, companyId);
+                int adminGroupId = groupService.createGroupWithUser(company.getGroupName(), Role.Id.ADMIN, adminUserId, companyId);
                 int exampleCoordinatorRoleId = roleService.createExampleRole(Role.Example.COORDINATOR, companyId);
                 int exampleExecutorRoleId = roleService.createExampleRole(Role.Example.EXECUTOR, companyId);
-                int exampleCoordinatorGroupId = groupService.createExampleGroup(Group.Example.COORDINATOR, exampleCoordinatorRoleId, companyId);
-                int exampleExecutorGroupId = groupService.createExampleGroup(Group.Example.EXECUTOR, exampleExecutorRoleId, companyId);
+                int exampleCoordinatorGroupId = groupService.createGroupWithUser(
+                        messageSource.getMessage("group.coord.name", null, localeBean.getLocale()), exampleCoordinatorRoleId, 0, companyId);
+                int exampleExecutorGroupId = groupService.createGroupWithUser(
+                        messageSource.getMessage("group.exec.name", null, localeBean.getLocale()), exampleExecutorRoleId, 0, companyId);
                 int exampleRouteId = routeService.createExampleRoute(exampleCoordinatorGroupId, exampleExecutorGroupId, companyId);
                 int exampleChoiceListId = choiceListService.createExampleChoiceList(companyId);
                 int exampleTemplatePartId = partService.createExamplePart(Part.Type.FOR_TEMPLATES, adminGroupId, companyId);
@@ -127,6 +128,10 @@ public class CompanyServiceImpl implements CompanyService {
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.company.NotSaved", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), company.getId());
+            throw new ServiceException(mess, e);
+        } catch (ServiceException e) {
+            String mess = messageSource.getMessage("error.company.NotSaved", null, localeBean.getLocale());
+            eventService.logError(mess + ": " + e.getMessage(), null);
             throw new ServiceException(mess, e);
         }
     }

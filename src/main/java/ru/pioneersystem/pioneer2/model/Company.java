@@ -14,7 +14,7 @@ public class Company {
     private String stateName;
 
     private User user;
-    private Group group;
+    private String groupName;
 
     private boolean createFlag;
 
@@ -128,11 +128,11 @@ public class Company {
         this.user = user;
     }
 
-    public Group getGroup() {
-        return group;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 }

@@ -63,7 +63,7 @@
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<h:panelGrid id="adminGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['group.edit.name.label']}" for="adminGroupName"/>
-								<p:inputText id="adminGroupName" value="#{companyView.currCompany.group.name}"
+								<p:inputText id="adminGroupName" value="#{companyView.currCompany.groupName}"
 											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminGroupName" display="icon" styleClass="width38px"/>
 
