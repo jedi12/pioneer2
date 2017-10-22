@@ -87,7 +87,7 @@ public class SessionListener extends RequestContextListener implements HttpSessi
 		int companyId = session.getAttribute(COMPANY_ID) != null ? (int) session.getAttribute(COMPANY_ID) : 0;
 		String ipAddress = session.getAttribute(IP_ADDRESS) != null ? (String) session.getAttribute(IP_ADDRESS) : "";
 
-		Event signOutEvent = new Event(new Date(), userId, Event.Type.USER_SIGNED_OUT, 0, "IP: " + ipAddress, null);
+		Event signOutEvent = new Event(new Date(), userId, Event.Type.USER_SIGNED_OUT, userId, "IP: " + ipAddress, null);
 		eventDao.create(signOutEvent, companyId);
 	}
 

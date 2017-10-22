@@ -207,7 +207,7 @@ public class GroupDaoImpl implements GroupDao {
     public Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivity(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_GROUP_ACTIVITY_MAP,
                 new Object[]{userId, companyId},
-                rs -> {
+                (rs) -> {
                     Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = new LinkedHashMap<>();
                     Map<Integer, Integer> groupsActivity = new LinkedHashMap<>();
                     int oldRoleId = 0;

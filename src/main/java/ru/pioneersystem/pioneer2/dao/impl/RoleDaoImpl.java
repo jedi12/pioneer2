@@ -129,7 +129,7 @@ public class RoleDaoImpl implements RoleDao {
     public Map<Integer, Role> getUserRole(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_ROLE,
                 new Object[]{userId, companyId},
-                rs -> {
+                (rs) -> {
                     Map<Integer, Role> roleMap = new LinkedHashMap<>();
                     while(rs.next()){
                         Role role = new Role();

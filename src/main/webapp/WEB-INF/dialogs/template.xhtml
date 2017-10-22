@@ -39,7 +39,7 @@
 					<p:ajax event="tabChange" listener="#{templateView.tabChanged}" update="addConditionGrid"
 							oncomplete="formatChoiceList()"/>
 					<p:tab title="#{text['template.edit.fields.tab']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="fieldsTable" value="#{templateView.currTemplate.fields}" var="collectedField" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedField.num}"
 										 paginator="true" paginatorPosition="bottom"
@@ -111,7 +111,7 @@
 					</p:tab>
 
 					<p:tab title="#{text['template.edit.conditions.tab']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="conditionsTable" value="#{templateView.currTemplate.conditions}" var="collectedCond" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedCond.condNum}"
 										 paginator="true" paginatorPosition="bottom"

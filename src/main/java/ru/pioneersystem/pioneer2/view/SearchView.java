@@ -27,7 +27,7 @@ public class SearchView implements Serializable {
     private List<Document> filteredDocumentList;
     private Document selectedDocument;
 
-    private SearchDoc searchDoc;
+    private SearchFilter searchFilter;
 
     private Map<String, Integer> forSearchTemplates;
     private Map<String, Integer> forSearchStatuses;
@@ -57,10 +57,10 @@ public class SearchView implements Serializable {
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
 
-        searchDoc = new SearchDoc();
+        searchFilter = new SearchFilter();
         ZonedDateTime currDate = LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId());
-        searchDoc.setFromDate(Date.from(currDate.toInstant()));
-        searchDoc.setToDate(Date.from(currDate.toInstant()));
+        searchFilter.setFromDate(Date.from(currDate.toInstant()));
+        searchFilter.setToDate(Date.from(currDate.toInstant()));
 
         try {
             forSearchTemplates = templateService.getForSearchTemplateMap();
@@ -74,7 +74,7 @@ public class SearchView implements Serializable {
 
     public void findAction() {
         try {
-            documentList = searchService.findList(searchDoc);
+            documentList = searchService.findList(searchFilter);
 
             selectedDocument = null;
             RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
@@ -151,12 +151,12 @@ public class SearchView implements Serializable {
         this.selectedDocument = selectedDocument;
     }
 
-    public SearchDoc getSearchDoc() {
-        return searchDoc;
+    public SearchFilter getSearchFilter() {
+        return searchFilter;
     }
 
-    public void setSearchDoc(SearchDoc searchDoc) {
-        this.searchDoc = searchDoc;
+    public void setSearchFilter(SearchFilter searchFilter) {
+        this.searchFilter = searchFilter;
     }
 
     public Map<String, Integer> getForSearchTemplates() {

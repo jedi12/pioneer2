@@ -8,7 +8,7 @@ import ru.pioneersystem.pioneer2.dao.SearchDao;
 import ru.pioneersystem.pioneer2.dao.exception.TooManyRowsDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Event;
-import ru.pioneersystem.pioneer2.model.SearchDoc;
+import ru.pioneersystem.pioneer2.model.SearchFilter;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
 import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.SearchService;
@@ -42,15 +42,15 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<Document> findList(SearchDoc searchDoc) throws ServiceException {
+    public List<Document> findList(SearchFilter searchFilter) throws ServiceException {
         List<Document> documents;
         try {
             if (currentUser.isSuperRole()) {
-                documents = searchDao.findForSuperList(searchDoc);
+                documents = searchDao.findForSuperList(searchFilter);
             } else if (currentUser.isAdminRole()) {
-                documents = searchDao.findForAdminList(searchDoc, currentUser.getUser().getCompanyId());
+                documents = searchDao.findForAdminList(searchFilter, currentUser.getUser().getCompanyId());
             } else {
-                documents = searchDao.findForUserList(searchDoc, currentUser.getUser().getId(),
+                documents = searchDao.findForUserList(searchFilter, currentUser.getUser().getId(),
                         currentUser.getUser().getCompanyId());
             }
 

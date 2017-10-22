@@ -18,7 +18,7 @@
 			<p:panel>
 				<p:tabView id="tabView" widgetVar="tabView">
 					<p:tab title="#{text['company.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<h:panelGrid id="companyGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['company.edit.name']}" for="name"/>
 								<p:inputText id="name" value="#{companyView.currCompany.name}" styleClass="width100" maxlength="64"
@@ -60,7 +60,7 @@
 					</p:tab>
 
 					<p:tab title="#{text['company.tab2.name']}" rendered="#{companyView.currCompany.createFlag}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<h:panelGrid id="adminGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['group.edit.name.label']}" for="adminGroupName"/>
 								<p:inputText id="adminGroupName" value="#{companyView.currCompany.group.name}"

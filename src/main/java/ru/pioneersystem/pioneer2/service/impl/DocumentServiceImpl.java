@@ -167,7 +167,8 @@ public class DocumentServiceImpl implements DocumentService {
             Document document = documentDao.get(documentId, currentUser.getUser().getCompanyId());
             offsetDateAndFormat(document);
             document.setCreateFlag(false);
-            if (currentUser.getCurrRole().isCanEdit() || document.getStatusId() == Status.Id.CREATED) {
+            if ((currentUser.getCurrRole() != null && currentUser.getCurrRole().isCanEdit())
+                    || document.getStatusId() == Status.Id.CREATED) {
                 choiceListService.setChoiceListsForDocument(document);
             }
 
@@ -385,7 +386,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     private void setupViewElements(Document document, List<Integer> currNotSignedRoutePointGroups) {
         Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = currentUser.getUserRolesGroupActivity();
-        Map<Integer, Integer> userGroupsActivity = userRolesGroupActivity.get(currentUser.getCurrRole().getId());
+        Map<Integer, Integer> userGroupsActivity = userRolesGroupActivity.get(
+                currentUser.getCurrRole() != null ? currentUser.getCurrRole().getId() : 0);
         Document.ViewElements viewElements = new Document.ViewElements();
 
         switch (currentUser.getCurrPage()) {

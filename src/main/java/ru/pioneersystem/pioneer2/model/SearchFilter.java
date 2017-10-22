@@ -2,7 +2,7 @@ package ru.pioneersystem.pioneer2.model;
 
 import java.util.Date;
 
-public class SearchDoc {
+public class SearchFilter {
     private boolean byId;
     private boolean byName;
     private boolean byContent;

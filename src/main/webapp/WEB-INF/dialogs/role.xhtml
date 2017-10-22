@@ -25,7 +25,7 @@
 
 				<p:tabView id="tabView">
 					<p:tab title="#{text['role.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<h:panelGrid id="valueGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
 								<p:outputLabel value="#{text['role.edit.accept']}" for="accept"/>
 								<p:inputText id="accept" value="#{roleView.currRole.acceptButton}" styleClass="width100" maxlength="32"
@@ -86,7 +86,7 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['role.del.delete']}"/></h2>
 			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 					<h:panelGrid columns="2" cellpadding="5">
 						<p:outputLabel value="#{text['role.del.title']}"/>
 						<p:outputLabel value="#{roleView.selectedRole.name}" style="font-weight: bold"/>

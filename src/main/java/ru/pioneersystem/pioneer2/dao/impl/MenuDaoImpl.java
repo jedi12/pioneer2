@@ -34,7 +34,7 @@ public class MenuDaoImpl implements MenuDao {
     private static final String SELECT_USER_MENU_LIST =
             "SELECT ID, NAME, PAGE, NUM, PARENT, ROLE_ID, STATE FROM DOC.MENU WHERE ROLE_ID IN(" +
                     "SELECT ROLE_ID FROM DOC.GROUPS WHERE ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) " +
-                    "AND STATE > 0 ORDER BY PARENT DESC, NUM ASC";
+                    "OR ROLE_ID = 0 AND STATE > 0 ORDER BY PARENT DESC, NUM ASC";
 
     private JdbcTemplate jdbcTemplate;
 

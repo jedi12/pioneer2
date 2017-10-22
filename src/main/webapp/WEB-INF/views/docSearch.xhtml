@@ -8,7 +8,7 @@
 
 	<p:panel>
 		<p:panel id="searchCond" style="height:240px" width="100%">
-			<p:selectOneRadio id="customRadio" value="#{searchView.searchDoc.byId}" layout="custom">
+			<p:selectOneRadio id="customRadio" value="#{searchView.searchFilter.byId}" layout="custom">
 				<p:ajax update="searchCond"/>
 				<f:selectItem itemValue="true"/>
 				<f:selectItem itemValue="false"/>
@@ -17,62 +17,62 @@
 			<h:panelGrid columns="3">
 				<p:radioButton itemIndex="0" for="customRadio"/>
 				<p:outputLabel value="#{text['search.filter.byId']}" style="margin: 5px"/>
-				<p:inputNumber value="#{searchView.searchDoc.id}" minValue="0" maxValue="2147483647"
-							   emptyValue="empty" thousandSeparator="" rendered="#{searchView.searchDoc.byId}"/>
-				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchDoc.byId}"/>
+				<p:inputNumber value="#{searchView.searchFilter.id}" minValue="0" maxValue="2147483647"
+                               emptyValue="empty" thousandSeparator="" rendered="#{searchView.searchFilter.byId}"/>
+				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchFilter.byId}"/>
 			</h:panelGrid>
 
 			<h:panelGrid columns="3">
 				<p:radioButton itemIndex="1" for="customRadio"/>
 				<p:outputLabel value="#{text['search.filter.byDate']}" style="margin: 5px"/>
-				<h:panelGroup rendered="#{!searchView.searchDoc.byId}">
-					<p:calendar value="#{searchView.searchDoc.fromDate}" size="10" pattern="#{localeBean.datePattern}"
-								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+				<h:panelGroup rendered="#{!searchView.searchFilter.byId}">
+					<p:calendar value="#{searchView.searchFilter.fromDate}" size="10" pattern="#{localeBean.datePattern}"
+                                locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
 					<p:outputLabel value="-" style="margin: 5px"/>
-					<p:calendar value="#{searchView.searchDoc.toDate}" size="10" pattern="#{localeBean.datePattern}"
-								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+					<p:calendar value="#{searchView.searchFilter.toDate}" size="10" pattern="#{localeBean.datePattern}"
+                                locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
 				</h:panelGroup>
-				<p:calendar style="visibility: hidden;" rendered="#{searchView.searchDoc.byId}"/>
+				<p:calendar style="visibility: hidden;" rendered="#{searchView.searchFilter.byId}"/>
 			</h:panelGrid>
 
-			<h:panelGrid id="grid" columns="2" cellpadding="0" style="margin-left: 25px;" rendered="#{!searchView.searchDoc.byId}">
-				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byName}" itemLabel="#{text['search.filter.byName']}">
+			<h:panelGrid id="grid" columns="2" cellpadding="0" style="margin-left: 25px;" rendered="#{!searchView.searchFilter.byId}">
+				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byName}" itemLabel="#{text['search.filter.byName']}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
-				<p:inputText value="#{searchView.searchDoc.name}" size="80" maxlength="80" rendered="#{searchView.searchDoc.byName}"/>
-				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchDoc.byName}"/>
+				<p:inputText value="#{searchView.searchFilter.name}" size="80" maxlength="80" rendered="#{searchView.searchFilter.byName}"/>
+				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchFilter.byName}"/>
 
-				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byContent}" itemLabel="#{text['search.filter.byContent']}">
+				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byContent}" itemLabel="#{text['search.filter.byContent']}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
-				<p:inputText value="#{searchView.searchDoc.content}" size="80" maxlength="80" rendered="#{searchView.searchDoc.byContent}"/>
-				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchDoc.byContent}"/>
+				<p:inputText value="#{searchView.searchFilter.content}" size="80" maxlength="80" rendered="#{searchView.searchFilter.byContent}"/>
+				<p:inputText style="visibility: hidden;" rendered="#{!searchView.searchFilter.byContent}"/>
 
-				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byTemplate}" itemLabel="#{text['search.filter.byTemplate']}">
+				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byTemplate}" itemLabel="#{text['search.filter.byTemplate']}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
-				<p:selectOneMenu value="#{searchView.searchDoc.templateId}" filter="true"
-								 filterMatchMode="contains" height="200" rendered="#{searchView.searchDoc.byTemplate}">
+				<p:selectOneMenu value="#{searchView.searchFilter.templateId}" filter="true"
+                                 filterMatchMode="contains" height="200" rendered="#{searchView.searchFilter.byTemplate}">
 					<f:selectItems value="#{searchView.forSearchTemplates}"/>
 				</p:selectOneMenu>
-				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byTemplate}"/>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byTemplate}"/>
 
-				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byStatus}" itemLabel="#{text['search.filter.byStatus']}">
+				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byStatus}" itemLabel="#{text['search.filter.byStatus']}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
-				<p:selectOneMenu value="#{searchView.searchDoc.statusId}" rendered="#{searchView.searchDoc.byStatus}">
+				<p:selectOneMenu value="#{searchView.searchFilter.statusId}" rendered="#{searchView.searchFilter.byStatus}">
 					<f:selectItems value="#{searchView.forSearchStatuses}"/>
 				</p:selectOneMenu>
-				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byStatus}"/>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byStatus}"/>
 
-				<p:selectBooleanCheckbox value="#{searchView.searchDoc.byOwner}" itemLabel="#{text['search.filter.byOwner']}">
+				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byOwner}" itemLabel="#{text['search.filter.byOwner']}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
-				<p:selectOneMenu value="#{searchView.searchDoc.ownerId}" filter="true"
-								 filterMatchMode="contains" height="200" rendered="#{searchView.searchDoc.byOwner}">
+				<p:selectOneMenu value="#{searchView.searchFilter.ownerId}" filter="true"
+                                 filterMatchMode="contains" height="200" rendered="#{searchView.searchFilter.byOwner}">
 					<f:selectItems value="#{searchView.forSearchCreateGroups}"/>
 				</p:selectOneMenu>
-				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchDoc.byOwner}"/>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byOwner}"/>
 			</h:panelGrid>
 			<p:commandButton value="#{text['search.btn.search']}" icon="fa fa-fw fa-search" actionListener="#{searchView.findAction}"/>
 		</p:panel>

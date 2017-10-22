@@ -144,7 +144,7 @@ public class CurrentUser implements Serializable {
 
             logged = true;
 
-            eventService.logEvent(Event.Type.USER_SIGNED_IN, 0, "IP: " + getIpAddress());
+            eventService.logEvent(Event.Type.USER_SIGNED_IN, userId, "IP: " + getIpAddress());
 
         } catch (PasswordException e) {
             String mess = "IP: " + getIpAddress() + ", " + messageSource.getMessage("login.login.label", null, localeBean.getLocale()) +

@@ -31,7 +31,7 @@
 
 				<p:tabView id="tabView">
 					<p:tab title="#{text['group.tab1.name']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="listsTable" value="#{groupView.currGroup.linkUsers}" var="collectedList" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.userName}"
 										 paginator="true" paginatorPosition="bottom"
@@ -113,7 +113,7 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['group.del.delete']}"/></h2>
 			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 					<h:panelGrid columns="2" cellpadding="5">
 						<p:outputLabel value="#{text['group.del.title']}"/>
 						<p:outputLabel value="#{groupView.selectedGroup.name}" style="font-weight: bold"/>

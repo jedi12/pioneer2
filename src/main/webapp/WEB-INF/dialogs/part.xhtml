@@ -39,7 +39,7 @@
 
 				<p:tabView id="tabView">
 					<p:tab title="#{text['part.edit.tab.restriction']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="resTable" value="#{partView.currPart.linkGroups}" var="collectedGroup" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.groupName}"
 										 paginator="true" paginatorPosition="bottom"
@@ -106,7 +106,7 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['part.del.delete']}"/></h2>
 			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 					<h:panelGrid columns="2" cellpadding="5">
 						<p:outputLabel value="#{text['part.del.title']}"/>
 						<p:outputLabel value="#{partView.selectedNode.data.name}" style="font-weight: bold"/>

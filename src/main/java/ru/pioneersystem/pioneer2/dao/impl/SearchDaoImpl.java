@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.pioneersystem.pioneer2.dao.SearchDao;
 import ru.pioneersystem.pioneer2.dao.exception.TooManyRowsDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
-import ru.pioneersystem.pioneer2.model.SearchDoc;
+import ru.pioneersystem.pioneer2.model.SearchFilter;
 
 import java.sql.Timestamp;
 import java.time.temporal.ChronoUnit;
@@ -22,7 +22,7 @@ public class SearchDaoImpl implements SearchDao {
                     "LEFT JOIN DOC.PARTS_GROUP PG ON PG.ID = D.PUB_PART " +
                     "LEFT JOIN DOC.GROUPS G ON G.ID = GROUP_ID " +
                     "LEFT JOIN DOC.GROUPS_USER GU ON GU.ID = GROUP_ID " +
-                    "WHERE STATUS = 5 AND P.STATE > 0 AND TYPE = 2 AND (USER_ID = ? OR GROUP_ID IS NULL) AND D.COMPANY = ?";
+                    "WHERE STATUS = 8 AND P.STATE > 0 AND TYPE = 2 AND (USER_ID = ? OR GROUP_ID IS NULL) AND D.COMPANY = ?";
     private static final String SELECT_MY_DOC_LIST =
             "SELECT DISTINCT D.ID AS ID, D.NAME AS NAME, D.STATUS AS STATUS, " +
                         "D.DOC_GROUP AS DOC_GROUP, D.U_DATE AS U_DATE, D.TEMPLATE AS TEMPLATE FROM DOC.DOCUMENTS D " +
@@ -69,23 +69,23 @@ public class SearchDaoImpl implements SearchDao {
     }
 
     @Override
-    public List<Document> findForSuperList(SearchDoc searchDoc) throws DataAccessException {
+    public List<Document> findForSuperList(SearchFilter searchFilter) throws DataAccessException {
         List<Object> params = new ArrayList<>();
-        String query = createQuery(searchDoc, SELECT_ALL_SUPER_ALLOWED_DOC_LIST, params);
+        String query = createQuery(searchFilter, SELECT_ALL_SUPER_ALLOWED_DOC_LIST, params);
         return findList(query, params);
     }
 
     @Override
-    public List<Document> findForAdminList(SearchDoc searchDoc, int companyId) throws DataAccessException {
+    public List<Document> findForAdminList(SearchFilter searchFilter, int companyId) throws DataAccessException {
         List<Object> params = new ArrayList<>(Arrays.asList(companyId));
-        String query = createQuery(searchDoc, SELECT_ALL_ADMIN_ALLOWED_DOC_LIST, params);
+        String query = createQuery(searchFilter, SELECT_ALL_ADMIN_ALLOWED_DOC_LIST, params);
         return findList(query, params);
     }
 
     @Override
-    public List<Document> findForUserList(SearchDoc searchDoc, int userId, int companyId) throws DataAccessException {
+    public List<Document> findForUserList(SearchFilter searchFilter, int userId, int companyId) throws DataAccessException {
         List<Object> params = new ArrayList<>(Arrays.asList(userId, companyId, userId, companyId, userId, companyId));
-        String query = createQuery(searchDoc, SELECT_ALL_USER_ALLOWED_DOC_LIST, params);
+        String query = createQuery(searchFilter, SELECT_ALL_USER_ALLOWED_DOC_LIST, params);
         return findList(query, params);
     }
 
@@ -116,46 +116,46 @@ public class SearchDaoImpl implements SearchDao {
         );
     }
 
-    private String createQuery(SearchDoc searchDoc, String baseQuery, List<Object> params) {
+    private String createQuery(SearchFilter searchFilter, String baseQuery, List<Object> params) {
         String query;
 
-        if (searchDoc.isById()) {
+        if (searchFilter.isById()) {
             query = baseQuery + " WHERE DOCS.ID = ?";
-            params.add(searchDoc.getId());
+            params.add(searchFilter.getId());
         } else {
             query = baseQuery + " WHERE DOCS.U_DATE >= ? AND DOCS.U_DATE < ?";
-            Timestamp fromDate = Timestamp.from(searchDoc.getFromDate().toInstant());
-            Timestamp toDate = Timestamp.from(searchDoc.getToDate().toInstant().plus(1, ChronoUnit.DAYS));
+            Timestamp fromDate = Timestamp.from(searchFilter.getFromDate().toInstant());
+            Timestamp toDate = Timestamp.from(searchFilter.getToDate().toInstant().plus(1, ChronoUnit.DAYS));
             params.add(fromDate);
             params.add(toDate);
 
-            if (searchDoc.isByName()) {
+            if (searchFilter.isByName()) {
                 query = query + " AND DOCS.NAME LIKE ?";
-                params.add("%" + searchDoc.getName().trim() + "%");
+                params.add("%" + searchFilter.getName().trim() + "%");
             }
 
-            if (searchDoc.isByContent()) {
+            if (searchFilter.isByContent()) {
                 query = query + " AND DOCS.ID IN (SELECT DISTINCT ID FROM DOC.DOCUMENTS_FIELD WHERE FIELD_NAME LIKE ? " +
                         "OR VALUE_TEXTFIELD LIKE ? OR VALUE_LIST_SELECTED LIKE ? OR VALUE_TEXTAREA LIKE ?)";
-                params.add("%" + searchDoc.getContent().trim() + "%");
-                params.add("%" + searchDoc.getContent().trim() + "%");
-                params.add("%" + searchDoc.getContent().trim() + "%");
-                params.add("%" + searchDoc.getContent().trim() + "%");
+                params.add("%" + searchFilter.getContent().trim() + "%");
+                params.add("%" + searchFilter.getContent().trim() + "%");
+                params.add("%" + searchFilter.getContent().trim() + "%");
+                params.add("%" + searchFilter.getContent().trim() + "%");
             }
 
-            if (searchDoc.isByTemplate()) {
+            if (searchFilter.isByTemplate()) {
                 query = query + " AND DOCS.TEMPLATE = ?";
-                params.add(searchDoc.getTemplateId());
+                params.add(searchFilter.getTemplateId());
             }
 
-            if (searchDoc.isByStatus()) {
+            if (searchFilter.isByStatus()) {
                 query = query + " AND DOCS.STATUS = ?";
-                params.add(searchDoc.getStatusId());
+                params.add(searchFilter.getStatusId());
             }
 
-            if (searchDoc.isByOwner()) {
+            if (searchFilter.isByOwner()) {
                 query = query + " AND DOCS.DOC_GROUP = ?";
-                params.add(searchDoc.getOwnerId());
+                params.add(searchFilter.getOwnerId());
             }
         }
         return query;

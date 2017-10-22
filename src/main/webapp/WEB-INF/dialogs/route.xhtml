@@ -25,7 +25,7 @@
 
 				<p:tabView id="tabView" onTabShow="formatChoiceList()">
 					<p:tab title="#{text['route.edit.tab.point']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="listsTable" value="#{routeView.currRoute.points}" var="collectedList" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.stage}"
 										 paginator="true" paginatorPosition="bottom"
@@ -88,7 +88,7 @@
 					</p:tab>
 
 					<p:tab title="#{text['route.edit.tab.restriction']}">
-						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="resTable" value="#{routeView.currRoute.groups}" var="collectedGroup" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedGroup.groupName}"
 										 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
@@ -155,7 +155,7 @@
 
 			<h2 align="center"><h:outputLabel value="#{text['route.del.delete']}"/></h2>
 			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow-y: auto;overflow-x: hidden;height: inherit">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 					<h:panelGrid columns="2" cellpadding="5">
 						<p:outputLabel value="#{text['route.del.title']}"/>
 						<p:outputLabel value="#{routeView.selectedRoute.name}" style="font-weight: bold"/>
