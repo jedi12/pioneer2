@@ -66,7 +66,7 @@ public class SearchView implements Serializable {
             forSearchTemplates = templateService.getForSearchTemplateMap();
             forSearchStatuses = statusService.getStatusMap();
             forSearchCreateGroups = groupService.getForSearchGroupMap();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }

@@ -71,7 +71,7 @@ public class PartView implements Serializable {
             selectParentPart = toPartMapAndSort(partList);
             selectPublishGroup = groupService.getUserPublishMap();
             selectGroupDefault = groupService.getGroupMap();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -107,7 +107,7 @@ public class PartView implements Serializable {
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -119,7 +119,7 @@ public class PartView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -140,7 +140,7 @@ public class PartView implements Serializable {
                 docCountInPubPart = partService.getCountPubDocContainingInParts(partsForDelete);
             }
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -151,7 +151,7 @@ public class PartView implements Serializable {
             List<Part> parts = TreeNodeUtil.toList(selectedNode, new ArrayList<>(), 0);
             partService.deleteParts(parts, partType);
             refreshList();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -210,13 +210,6 @@ public class PartView implements Serializable {
     }
 
     private Map<String, Integer> toPartMapAndSort(List<Part> parts) {
-//        parts.sort(new Comparator<Part>() {
-//            @Override
-//            public int compare(Part part1, Part part2) {
-//                return part1.getName().compareTo(part2.getName());
-//            }
-//        });
-
         Map<String, Integer> map = new LinkedHashMap<>();
         map.put(bundle.getString("part.root.name"), 0);
         for (Part part : parts) {

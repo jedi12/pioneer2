@@ -87,7 +87,7 @@ public class DocumentView implements Serializable {
     public void refreshTemplateList() {
         try {
             partTempTree = TreeNodeUtil.toTree(partService.getUserPartList(Part.Type.FOR_TEMPLATES), true);
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -96,7 +96,7 @@ public class DocumentView implements Serializable {
     public void refreshPubDocList() {
         try {
             partDocTree = TreeNodeUtil.toTree(partService.getUserPartList(Part.Type.FOR_DOCUMENTS), true);
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -109,7 +109,7 @@ public class DocumentView implements Serializable {
 
             selectedDocument = null;
             RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -125,7 +125,7 @@ public class DocumentView implements Serializable {
 
             selectedDocument = null;
             RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -137,7 +137,7 @@ public class DocumentView implements Serializable {
 
             selectedDocument = null;
             RequestContext.getCurrentInstance().execute("PF('docTable').clearFilters()");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -153,7 +153,7 @@ public class DocumentView implements Serializable {
             Part part = (Part) event.getTreeNode().getData();
             List<TreeNode> treeNodes = TreeNodeUtil.toTemplateTreeNodeList(templateService.getTemplateList(part.getId()));
             event.getTreeNode().getChildren().addAll(treeNodes);
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -164,7 +164,7 @@ public class DocumentView implements Serializable {
             Part part = (Part) event.getTreeNode().getData();
             List<TreeNode> treeNodes = TreeNodeUtil.toDocumentTreeNodeList(documentService.getDocumentListByPatrId(part.getId()));
             event.getTreeNode().getChildren().addAll(treeNodes);
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -324,7 +324,7 @@ public class DocumentView implements Serializable {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
         }
-        catch (ServiceException e) {
+        catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -349,7 +349,7 @@ public class DocumentView implements Serializable {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
         }
-        catch (ServiceException e) {
+        catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -392,7 +392,7 @@ public class DocumentView implements Serializable {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
         }
-        catch (ServiceException e) {
+        catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }

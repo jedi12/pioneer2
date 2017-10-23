@@ -67,7 +67,7 @@ public class GroupView implements Serializable {
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -89,7 +89,7 @@ public class GroupView implements Serializable {
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -102,7 +102,7 @@ public class GroupView implements Serializable {
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
         }
-        catch (ServiceException e) {
+        catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -125,7 +125,7 @@ public class GroupView implements Serializable {
 
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
         }
-        catch (ServiceException e) {
+        catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -136,7 +136,7 @@ public class GroupView implements Serializable {
             groupService.deleteGroup(selectedGroup);
             refreshList();
         }
-        catch (ServiceException e) {
+        catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }

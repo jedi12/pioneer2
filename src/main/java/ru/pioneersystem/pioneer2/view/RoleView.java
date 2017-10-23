@@ -51,7 +51,7 @@ public class RoleView implements Serializable {
     public void refreshList() {
         try {
             roleList = roleService.getRoleList();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -70,7 +70,7 @@ public class RoleView implements Serializable {
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -82,7 +82,7 @@ public class RoleView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -106,7 +106,7 @@ public class RoleView implements Serializable {
             docToCansel = documentService.getDocToCancelByRole(selectedRole.getId());
 
             RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -116,7 +116,7 @@ public class RoleView implements Serializable {
         try {
             roleService.deleteRole(selectedRole);
             refreshList();
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
