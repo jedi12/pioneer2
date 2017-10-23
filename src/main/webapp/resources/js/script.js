@@ -53,8 +53,8 @@ function formatTabs(dialog) {
     var diff = dialogHeight - winHeight;
 
     if (diff > 0) {
-        tabs.css('overflow-y', 'auto');
         tabs.height(maxTabsHeight - diff);
+        tabs.find('.scrollPanel').css('overflow-y', 'auto');
     }
 }
 
@@ -66,8 +66,9 @@ function formatPanel(dialog) {
     var diff = dialogHeight - winHeight;
 
     if (diff > 0) {
-        scrollPanel.css('overflow-y', 'auto');
         scrollPanel.height(scrollPanel.height() - diff);
+        scrollPanel.css('overflow-y', 'auto');
+
     }
 }
 

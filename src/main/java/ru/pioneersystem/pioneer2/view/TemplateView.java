@@ -54,7 +54,6 @@ public class TemplateView implements Serializable {
     private List<String> selectCond;
     private String selectedCond;
     private String selectedCondRoute;
-    private boolean condValueRendered;
     private boolean condCheckBoxValueRendered;
     private boolean condCalendarValueRendered;
 
@@ -264,16 +263,21 @@ public class TemplateView implements Serializable {
         selectFieldName = new ArrayList<>();
         selectedFieldName = null;
 
+        int index = 0;
         for (Document.Field field : currTemplate.getFields()) {
+            index = index + 1;
             if (field.getTypeId() == FieldType.Id.TEXT_STRING
                     || field.getTypeId() == FieldType.Id.LIST
                     || field.getTypeId() == FieldType.Id.CALENDAR
                     || field.getTypeId() == FieldType.Id.CHECKBOX
                     || field.getTypeId() == FieldType.Id.TEXT_AREA) {
-                selectFieldNameDefault.put(field.getName(), field);
-                if (!field.getName().trim().equals("")) {
-                    selectFieldName.add(field.getName());
+
+                String fieldName = field.getName();
+                if (field.getName().trim().equals("")) {
+                    fieldName = "<" + bundle.getString("doc.field") + " " + index + ">";
                 }
+                selectFieldName.add(fieldName);
+                selectFieldNameDefault.put(fieldName, field);
             }
         }
 
@@ -299,7 +303,6 @@ public class TemplateView implements Serializable {
     public void fieldNameListChanged() {
         condCheckBoxValueRendered = false;
         condCalendarValueRendered = false;
-        condValueRendered = true;
 
         if (selectFieldNameDefault.get(selectedFieldName) == null) {
             return;
@@ -309,12 +312,10 @@ public class TemplateView implements Serializable {
             case FieldType.Id.CALENDAR:
                 condCheckBoxValueRendered = false;
                 condCalendarValueRendered = true;
-                condValueRendered = false;
                 break;
             case FieldType.Id.CHECKBOX:
                 condCheckBoxValueRendered = true;
                 condCalendarValueRendered = false;
-                condValueRendered = false;
                 break;
             default:
         }
@@ -482,10 +483,6 @@ public class TemplateView implements Serializable {
 
     public void setSelectedCondRoute(String selectedCondRoute) {
         this.selectedCondRoute = selectedCondRoute;
-    }
-
-    public boolean isCondValueRendered() {
-        return condValueRendered;
     }
 
     public boolean isCondCheckBoxValueRendered() {

@@ -187,7 +187,8 @@
 
 									<p:outputLabel value="#{text['template.edit.conditions.add.value.label']}" for="addCondValue"/>
 									<p:inputText id="addCondValue" value="#{templateView.condValue}" styleClass="width100"
-												 maxlength="96" rendered="#{templateView.condValueRendered}"/>
+												 maxlength="96" rendered="#{!templateView.condCheckBoxValueRendered
+												 &amp;&amp; !templateView.condCalendarValueRendered}"/>
 									<p:selectBooleanCheckbox value="#{templateView.condCheckBoxValue}" style="padding:2px 0px;"
 															 rendered="#{templateView.condCheckBoxValueRendered}"/>
 									<p:calendar value="#{templateView.condCalendarValue}" size="10" pattern="#{localeBean.datePattern}"
