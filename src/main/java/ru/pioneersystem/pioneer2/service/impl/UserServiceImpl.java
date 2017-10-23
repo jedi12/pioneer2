@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getNewUser() {
         User user = new User();
-        user.setCreateUserGroup(true);
+        user.setCreateOwnGroup(true);
         user.setLinkGroups(new ArrayList<>());
         user.setCreateFlag(true);
         return user;
@@ -190,7 +190,7 @@ public class UserServiceImpl implements UserService {
                 // TODO: 22.10.2017 Сделать логирование событий в той же транзакции, а логирование ошибок - в отдельной транзакции
                 eventService.logEvent(Event.Type.USER_CREATED, userId);
 
-                if (user.isCreateUserGroup()) {
+                if (user.isCreateOwnGroup()) {
                     groupService.createGroupWithUser(user.getName(), Role.Id.CREATE, userId, currentUser.getUser().getCompanyId());
                 }
             } else {
