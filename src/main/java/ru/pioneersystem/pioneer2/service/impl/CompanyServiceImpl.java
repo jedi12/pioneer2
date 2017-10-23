@@ -72,7 +72,6 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public Company getNewCompany() {
         Company company = new Company();
-        company.setUser(userService.getNewUser());
         company.setCreateFlag(true);
         return company;
     }
@@ -106,7 +105,7 @@ public class CompanyServiceImpl implements CompanyService {
         try {
             if (company.isCreateFlag()) {
                 int companyId = companyDao.create(company);
-                int adminUserId = userService.createAdminUser(company.getUser(), companyId);
+                int adminUserId = userService.createAdminUser(company.getUserName(), company.getUserLogin(), company.getUserEmail(), companyId);
                 int adminGroupId = groupService.createGroupWithUser(company.getGroupName(), Role.Id.ADMIN, adminUserId, companyId);
                 int exampleCoordinatorRoleId = roleService.createExampleRole(Role.Example.COORDINATOR, companyId);
                 int exampleExecutorRoleId = roleService.createExampleRole(Role.Example.EXECUTOR, companyId);

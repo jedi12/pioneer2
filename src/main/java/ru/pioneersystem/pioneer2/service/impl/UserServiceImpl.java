@@ -358,8 +358,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int createAdminUser(User user, int companyId) throws ServiceException {
+    public int createAdminUser(String userName, String userLogin, String userEmail, int companyId) throws ServiceException {
         try {
+            User user = getNewUser();
+            user.setName(userName);
+            user.setLogin(userLogin);
+            user.setEmail(userEmail);
             return userDao.create(user, companyId);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.adminNotCreated", null, localeBean.getLocale());

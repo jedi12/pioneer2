@@ -68,24 +68,19 @@
 								<p:message for="adminGroupName" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['user.edit.name']}" for="adminName"/>
-								<p:inputText id="adminName" value="#{companyView.currCompany.user.name}"
+								<p:inputText id="adminName" value="#{companyView.currCompany.userName}"
 											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminName" display="icon" styleClass="width38px"/>
 
 								<p:outputLabel value="#{text['user.edit.login']}" for="adminLogin"/>
-								<p:inputText id="adminLogin" value="#{companyView.currCompany.user.login}"
+								<p:inputText id="adminLogin" value="#{companyView.currCompany.userLogin}"
 											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminLogin" display="icon"/>
 
 								<p:outputLabel value="#{text['user.edit.email']}" for="adminEmail"/>
-								<p:inputText id="adminEmail" value="#{companyView.currCompany.user.email}"
+								<p:inputText id="adminEmail" value="#{companyView.currCompany.userEmail}"
 											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminEmail" display="icon"/>
-
-								<p:outputLabel value="#{text['user.edit.phone']}" for="adminPhone"/>
-								<p:inputText id="adminPhone" value="#{companyView.currCompany.user.phone}"
-											 style="width: 100%" maxlength="64"/>
-								<p:message for="adminPhone" display="icon"/>
 							</h:panelGrid>
 						</p:panel>
 					</p:tab>
