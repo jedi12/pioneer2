@@ -6,7 +6,15 @@
 
 	#{groupView.refreshList()}
 
-	<h2 align="center"><h:outputLabel value="#{text['group.title']}"/></h2>
+	<h2 align="center">
+		<h:outputLabel value="#{text['group.title']}"/>
+		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+						 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+						showEffect="clip" hideEffect="clip">
+			<ui:include src="/WEB-INF/helps/group_list.xhtml"/>
+		</p:overlayPanel>
+	</h2>
 
 	<p:panel>
 		<p:dataTable id="groupTable" value="#{groupView.groupList}" var="group" rows="20"
