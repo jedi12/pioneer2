@@ -25,6 +25,8 @@ table {border-collapse: collapse;}
 .emptyTreeNode {display: none}
 .northPanel .ui-panel-title {margin:0px !important;}
 .scrollPanel .ui-panel-content {padding: 0 !important;}
+.helpButton .ui-button-text {padding: 0em .3em !important}
+
 
 .lightGrey {background-color:#E8E8E8}
 .lightPink {background-color:#FFC0C0}

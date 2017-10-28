@@ -33,14 +33,14 @@
 										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
 								<p:column>
 									<f:facet name="header">
-										<h:outputText value="#{text['choiceList.edit.col.name']}" />
+										<h:outputText value="#{text['choiceList.edit.col.name']}"/>
 									</f:facet>
-									<h:outputText value="#{collectedList}" />
+									<h:outputText value="#{collectedList}"/>
 								</p:column>
 
 								<p:column width="15%" styleClass="columnCenter">
 									<f:facet name="header">
-										<h:outputText value="#{text['operation.name']}" />
+										<h:outputText value="#{text['operation.name']}"/>
 									</f:facet>
 									<p:commandLink value="#{text['operation.delete']}" update="listsTable" process="@this">
 										<p:collector value="#{collectedList}" removeFrom="#{choiceListView.currChoiceList.values}" unique="true"/>
