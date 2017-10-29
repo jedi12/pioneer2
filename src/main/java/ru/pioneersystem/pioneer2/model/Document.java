@@ -17,6 +17,7 @@ public class Document {
     private String documentGroupName;
     private int partId;
     private int routeId;
+    private int companyId;
     private Date createDate;
     private String createDateFormatted;
     private int createUserId;
@@ -489,6 +490,14 @@ public class Document {
 
     public void setRouteId(int routeId) {
         this.routeId = routeId;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
     }
 
     public Date getCreateDate() {

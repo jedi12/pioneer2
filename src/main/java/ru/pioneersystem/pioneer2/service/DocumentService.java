@@ -24,7 +24,7 @@ public interface DocumentService {
 
     Document getNewDocument(int templateId) throws ServiceException;
 
-    Document getDocument(int documentId) throws ServiceException;
+    Document getDocument(Document selectedDocument) throws ServiceException;
 
     void saveDocument(Document document) throws ServiceException, LockException;
 

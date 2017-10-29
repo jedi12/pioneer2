@@ -201,8 +201,7 @@ public class DocumentView implements Serializable {
         }
 
         try {
-            int documentId = ((Document) selectedNode.getData()).getId();
-            currDoc = documentService.getDocument(documentId);
+            currDoc = documentService.getDocument((Document) selectedNode.getData());
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }
@@ -224,7 +223,7 @@ public class DocumentView implements Serializable {
         }
 
         try {
-            currDoc = documentService.getDocument(selectedDocument.getId());
+            currDoc = documentService.getDocument(selectedDocument);
 
             RequestContext.getCurrentInstance().execute("PF('docDialog').show()");
         }

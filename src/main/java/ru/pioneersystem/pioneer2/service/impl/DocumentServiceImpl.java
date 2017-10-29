@@ -162,9 +162,15 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public Document getDocument(int documentId) throws ServiceException {
+    public Document getDocument(Document selectedDocument) throws ServiceException {
         try {
-            Document document = documentDao.get(documentId, currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedDocument.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+            Document document = documentDao.get(selectedDocument.getId(), companyId);
             offsetDateAndFormat(document);
             document.setCreateFlag(false);
             if ((currentUser.getCurrRole() != null && currentUser.getCurrRole().isCanEdit())
@@ -176,20 +182,20 @@ public class DocumentServiceImpl implements DocumentService {
                 document.setEditMode(true);
             }
 
-            setupViewElements(document, routeProcessService.getCurrNotSignedRoutePointGroups(documentId));
-            eventService.logEvent(Event.Type.DOC_GETED, documentId);
+            setupViewElements(document, routeProcessService.getCurrNotSignedRoutePointGroups(selectedDocument.getId()));
+            eventService.logEvent(Event.Type.DOC_GETED, selectedDocument.getId());
             return document;
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.document.NotFound", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), documentId);
+            eventService.logError(mess, e.getMessage(), selectedDocument.getId());
             throw new RestrictionException(mess);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.document.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess, e.getMessage(), documentId);
+            eventService.logError(mess, e.getMessage(), selectedDocument.getId());
             throw new ServiceException(mess, e);
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("error.document.NotLoaded", null, localeBean.getLocale());
-            eventService.logError(mess + ": " + e.getMessage(), null, documentId);
+            eventService.logError(mess + ": " + e.getMessage(), null, selectedDocument.getId());
             throw new ServiceException(mess, e);
         }
     }
