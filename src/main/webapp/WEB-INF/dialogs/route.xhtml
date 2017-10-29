@@ -13,6 +13,12 @@
 
 			<h2 align="center">
 				<h:outputLabel value="#{routeView.currRoute.createFlag ? text['route.edit.create'] : text['route.edit.change']}"/>
+				<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
+				<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+								showEffect="clip" hideEffect="clip">
+					<ui:include src="/WEB-INF/helps/route_edit_dialog.xhtml"/>
+				</p:overlayPanel>
 			</h2>
 
 			<p:panel>
@@ -153,7 +159,15 @@
 				<p:outputLabel value=" #{text['route.del.header']} (ID: #{routeView.selectedRoute.id})"/>
 			</f:facet>
 
-			<h2 align="center"><h:outputLabel value="#{text['route.del.delete']}"/></h2>
+			<h2 align="center">
+				<h:outputLabel value="#{text['route.del.delete']}"/>
+				<p:commandButton id="helpDelete" type="button" value="?" styleClass="helpButton"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
+				<p:overlayPanel for="helpDelete" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+								showEffect="clip" hideEffect="clip">
+					<ui:include src="/WEB-INF/helps/route_delete_dialog.xhtml"/>
+				</p:overlayPanel>
+			</h2>
 			<p:panel>
 				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 					<h:panelGrid columns="2" cellpadding="5">
