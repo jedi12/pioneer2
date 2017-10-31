@@ -13,6 +13,12 @@
 
 			<h2 align="center">
 				<h:outputLabel value="#{templateView.currTemplate.createFlag ? text['template.edit.create'] : text['template.edit.change']}"/>
+				<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
+				<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+								showEffect="clip" hideEffect="clip">
+					<ui:include src="/WEB-INF/helps/template_edit_dialog.xhtml"/>
+				</p:overlayPanel>
 			</h2>
 
 			<p:panel>
@@ -222,13 +228,22 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="800">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-files-o"/>
 				<p:outputLabel value=" #{text['template.del.header']} (ID: #{templateView.selectedTemplate.id})"/>
 			</f:facet>
 
-			<h2 align="center"><h:outputLabel value="#{text['template.del.delete']}"/></h2>
+			<h2 align="center">
+				<h:outputLabel value="#{text['template.del.delete']}"/>
+				<p:commandButton id="helpDelete" type="button" value="?" styleClass="helpButton"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
+				<p:overlayPanel for="helpDelete" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+								showEffect="clip" hideEffect="clip">
+					<ui:include src="/WEB-INF/helps/template_delete_dialog.xhtml"/>
+				</p:overlayPanel>
+			</h2>
+
 			<p:panel>
 				<h:panelGrid columns="2" cellpadding="5">
 					<p:outputLabel value="#{text['template.del.title']}"/>

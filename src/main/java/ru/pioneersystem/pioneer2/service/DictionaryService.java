@@ -119,8 +119,8 @@ public class DictionaryService {
 		switch (fieldTypeId) {
 			case FieldType.Id.TEXT_STRING:
 				return messageSource.getMessage("fieldType.name.textString", null, locale);
-			case FieldType.Id.LIST:
-				return messageSource.getMessage("fieldType.name.list", null, locale);
+			case FieldType.Id.CHOICE_LIST:
+				return messageSource.getMessage("fieldType.name.choiceList", null, locale);
 			case FieldType.Id.CALENDAR:
 				return messageSource.getMessage("fieldType.name.calendar", null, locale);
 			case FieldType.Id.CHECKBOX:

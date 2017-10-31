@@ -22,6 +22,7 @@ import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -208,38 +209,40 @@ public class RouteProcessServiceImpl implements RouteProcessService {
         if (document.isNewRoute()) {
             docRoute = document.getNewRouteId();
         } else {
-            int oldRoute = docRoute;
-            int oldCondNum = 0;
-            boolean summConditionResult = true;
-            boolean conditionResult;
-
-            for (Document.Condition condition: document.getConditions()) {
-                //fieldValue = getFieldValue(curDocFields.get(fieldNum -1));
-                String fieldValue = getFieldValue(document, condition.getFieldNum());
-
-                conditionResult = conditionResult(fieldValue, condition.getCond(), condition.getValue());
-
-                if (oldCondNum == condition.getCondNum()) {
-                    summConditionResult = summConditionResult & conditionResult;
-                    if (summConditionResult) {
-                        docRoute = condition.getRouteId();
-                    }
-                    else {
-                        docRoute = oldRoute;
-                    }
-                }
-                else {
-                    summConditionResult = conditionResult;
-                    if (summConditionResult) {
-                        docRoute = condition.getRouteId();
-                    }
+            for (List<Document.Condition> conditions : getGroupedCondition(document.getConditions())) {
+                boolean conditionResult = true;
+                for (Document.Condition condition : conditions) {
+                    String fieldValue = getFieldValue(document, condition.getFieldNum());
+                    conditionResult = conditionResult & conditionResult(fieldValue, condition.getCond(), condition.getValue());
                 }
 
-                oldCondNum = condition.getCondNum();
+                if (conditionResult) {
+                    docRoute = conditions.get(0).getRouteId();
+                    break;
+                }
             }
         }
 
         return docRoute;
+    }
+
+    private List<List<Document.Condition>> getGroupedCondition(List<Document.Condition> conditions) {
+        List<List<Document.Condition>> groupedCondition = new ArrayList<>();
+        int oldCondNum = 0;
+
+        for (Document.Condition condition : conditions) {
+            if (condition.getCondNum() != oldCondNum) {
+                conditions = new ArrayList<>();
+                conditions.add(condition);
+                groupedCondition.add(conditions);
+
+                oldCondNum = condition.getCondNum();
+            } else {
+                conditions.add(condition);
+            }
+        }
+
+        return groupedCondition;
     }
 
     private String getFieldValue(Document document, int fieldNum) {
@@ -251,12 +254,14 @@ public class RouteProcessServiceImpl implements RouteProcessService {
                     case FieldType.Id.TEXT_STRING:
                         fieldValue = fields.getValueTextField();
                         break;
-                    case FieldType.Id.LIST:
+                    case FieldType.Id.CHOICE_LIST:
                         fieldValue = fields.getValueChoiceList();
                         break;
                     case FieldType.Id.CALENDAR:
-                        fieldValue = LocalDateTime.ofInstant(fields.getValueCalendar().toInstant(),
-                                ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+                        if (fields.getValueCalendar() != null) {
+                            fieldValue = LocalDateTime.ofInstant(fields.getValueCalendar().toInstant(),
+                                    ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+                        }
                         break;
                     case FieldType.Id.CHECKBOX:
                         fieldValue = fields.getValueCheckBox() ? "1" : "0";
@@ -273,6 +278,10 @@ public class RouteProcessServiceImpl implements RouteProcessService {
 
     private boolean conditionResult(String fieldValue, String condition, String conditionValue) {
         boolean result = false;
+
+        if (fieldValue == null) {
+            return false;
+        }
 
         if (Document.Condition.Operation.EQ.equals(condition)) {
             result = fieldValue.equals(conditionValue);

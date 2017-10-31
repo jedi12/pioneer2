@@ -4,7 +4,6 @@ import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -161,7 +160,7 @@ public class TemplateView implements Serializable {
         }
         field.setName(fieldName);
         field.setTypeId(selectedFieldType);
-        if (selectedFieldType == FieldType.Id.LIST) {
+        if (selectedFieldType == FieldType.Id.CHOICE_LIST) {
             field.setTypeName(selectFieldTypeDefault.get(selectedFieldType).getName() + " (" + selectedChoiceList + ")");
             field.setChoiceListId(selectChoiceListDefault.get(selectedChoiceList).getId());
             field.setChoiceListName(selectedChoiceList);
@@ -174,6 +173,15 @@ public class TemplateView implements Serializable {
     }
 
     public void addCond() {
+        for (Document.Condition condition : currTemplate.getConditions()) {
+            if (condition.getCondNum() == condNum && condition.getRouteId() !=
+                    (selectRouteDefault.get(selectedCondRoute) != null ? selectRouteDefault.get(selectedCondRoute).getId() : 0)) {
+                FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        bundle.getString("warn"), bundle.getString("error.template.WrongRoute")));
+                return;
+            }
+        }
+
         String stringCondValue;
         switch (selectFieldNameDefault.get(selectedFieldName).getTypeId()) {
             case FieldType.Id.CALENDAR:
@@ -207,7 +215,7 @@ public class TemplateView implements Serializable {
         addFieldNameRendered = false;
 
         switch (selectedFieldType) {
-            case FieldType.Id.LIST:
+            case FieldType.Id.CHOICE_LIST:
                 addChoiceListRendered = true;
                 selectedChoiceList = null;
                 break;
@@ -267,7 +275,7 @@ public class TemplateView implements Serializable {
         for (Document.Field field : currTemplate.getFields()) {
             index = index + 1;
             if (field.getTypeId() == FieldType.Id.TEXT_STRING
-                    || field.getTypeId() == FieldType.Id.LIST
+                    || field.getTypeId() == FieldType.Id.CHOICE_LIST
                     || field.getTypeId() == FieldType.Id.CALENDAR
                     || field.getTypeId() == FieldType.Id.CHECKBOX
                     || field.getTypeId() == FieldType.Id.TEXT_AREA) {

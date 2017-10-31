@@ -149,7 +149,7 @@ public class TemplateServiceImpl implements TemplateService {
                 if (fieldTypeName != null) {
                     field.setTypeName(fieldTypeName);
                 }
-                if (field.getTypeId() == FieldType.Id.LIST) {
+                if (field.getTypeId() == FieldType.Id.CHOICE_LIST) {
                     field.setTypeName(field.getTypeName() + " (" + field.getChoiceListName() + ")");
                 }
             }
@@ -205,7 +205,7 @@ public class TemplateServiceImpl implements TemplateService {
 
             Document.Field choiceListField = new Document.Field();
             choiceListField.setNum(1);
-            choiceListField.setTypeId(FieldType.Id.LIST);
+            choiceListField.setTypeId(FieldType.Id.CHOICE_LIST);
             choiceListField.setChoiceListId(choiceListId);
             choiceListField.setName(messageSource.getMessage("template.example.choiceList", null, localeBean.getLocale()));
             template.getFields().add(choiceListField);

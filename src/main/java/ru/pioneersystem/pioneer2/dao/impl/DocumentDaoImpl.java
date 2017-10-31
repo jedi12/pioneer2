@@ -51,7 +51,7 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String SELECT_TEMPLATE_FIELD = "SELECT FIELD_NAME, FIELD_NUM, FIELD_TYPE, FIELD_LIST " +
             "FROM DOC.TEMPLATES_FIELD WHERE ID = ? ORDER BY FIELD_NUM ASC";
     private static final String SELECT_TEMPLATE_CONDITION = "SELECT COND_NUM, FIELD_NUM, COND, VALUE, ROUTE " +
-            "FROM DOC.TEMPLATES_COND WHERE ID = ?";
+            "FROM DOC.TEMPLATES_COND WHERE ID = ? ORDER BY COND_NUM ASC";
     private static final String SELECT_DOCUMENT = "SELECT ID, NAME, STATUS, U_DATE, TEMPLATE, U_USER, DOC_GROUP, " +
             "PUB_PART, ROUTE, I_DATE, I_USER FROM DOC.DOCUMENTS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_DOCUMENT_FIELD = "SELECT FIELD_NAME, FIELD_NUM, FIELD_TYPE, VALUE_TEXTFIELD, " +
@@ -59,7 +59,7 @@ public class DocumentDaoImpl implements DocumentDao {
             "NAME AS FILE_NAME FROM DOC.DOCUMENTS_FIELD DF LEFT JOIN DOC.FILES F ON DF.VALUE_FILE = F.ID " +
             "WHERE DF.ID = ? ORDER BY FIELD_NUM ASC";
     private static final String SELECT_DOCUMENT_CONDITION = "SELECT COND_NUM, FIELD_NUM, COND, VALUE, ROUTE " +
-            "FROM DOC.DOCUMENTS_COND WHERE ID = ?";
+            "FROM DOC.DOCUMENTS_COND WHERE ID = ? ORDER BY COND_NUM ASC";
     private static final String SELECT_ON_ROUTE_DOCUMENT_LIST =
             "SELECT D.ID AS ID, D.NAME AS NAME, U_DATE FROM DOC.DOCUMENTS D, DOC.GROUPS G " +
                     "WHERE D.DOC_GROUP = G.ID AND D.ID IN (SELECT ID FROM DOC.DOCUMENTS_SIGN  WHERE ACTIVE = 1 " +
@@ -196,7 +196,7 @@ public class DocumentDaoImpl implements DocumentDao {
                             case FieldType.Id.TEXT_STRING:
                                 field.setValueTextField(rs.getString("VALUE_TEXTFIELD"));
                                 break;
-                            case FieldType.Id.LIST:
+                            case FieldType.Id.CHOICE_LIST:
                                 field.setValueChoiceList(rs.getString("VALUE_LIST_SELECTED"));
                                 field.setChoiceListId(rs.getObject("VALUE_LIST", Integer.class));
                                 List<String> choiceListValues = new ArrayList<>();
@@ -265,7 +265,7 @@ public class DocumentDaoImpl implements DocumentDao {
                             case FieldType.Id.TEXT_STRING:
                                 field.setValueTextField(rs.getString("VALUE_TEXTFIELD"));
                                 break;
-                            case FieldType.Id.LIST:
+                            case FieldType.Id.CHOICE_LIST:
                                 field.setValueChoiceList(rs.getString("VALUE_LIST_SELECTED"));
                                 field.setChoiceListId(rs.getObject("VALUE_LIST", Integer.class));
                                 List<String> choiceListValues = new ArrayList<>();
