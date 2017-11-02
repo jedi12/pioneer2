@@ -43,7 +43,7 @@
 
 				<p:tabView id="tabView" widgetVar="tabView">
 					<p:ajax event="tabChange" listener="#{templateView.tabChanged}" update="addConditionGrid"
-							oncomplete="formatChoiceList()"/>
+							oncomplete="formatChoiceList()" ignoreAutoUpdate="true"/>
 					<p:tab title="#{text['template.edit.fields.tab']}">
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<p:dataTable id="fieldsTable" value="#{templateView.currTemplate.fields}" var="collectedField" rows="10"
