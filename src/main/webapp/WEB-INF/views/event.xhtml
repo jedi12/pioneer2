@@ -57,12 +57,10 @@
 				</p:column>
 			</p:dataTable>
 
-			<h:panelGroup rendered="#{currentUser.superRole}">
-				<f:facet name="footer">
-					<p:commandButton value="#{text['event.btn.detail']}" icon="fa fa-fw fa-info" update=":detailDialog"
-									 actionListener="#{eventView.detailDialog}"/>
-				</f:facet>
-			</h:panelGroup>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['event.btn.detail']}" icon="fa fa-fw fa-info" update=":detailDialog"
+								 actionListener="#{eventView.detailDialog}" rendered="#{currentUser.superRole}"/>
+			</f:facet>
 		</p:panel>
 	</p:panel>
 </ui:composition>

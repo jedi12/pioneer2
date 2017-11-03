@@ -65,12 +65,10 @@
 				</p:column>
 			</p:dataTable>
 
-			<h:panelGroup rendered="#{currentUser.superRole}">
-				<f:facet name="footer">
-					<p:commandButton value="#{text['notice.btn.info']}" icon="fa fa-fw fa-info" update=":infoDialog"
-									 actionListener="#{noticeView.infoDialog}"/>
-				</f:facet>
-			</h:panelGroup>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['notice.btn.info']}" icon="fa fa-fw fa-info" update=":infoDialog"
+								 actionListener="#{noticeView.infoDialog}" rendered="#{currentUser.superRole}"/>
+			</f:facet>
 		</p:panel>
 	</p:panel>
 </ui:composition>
