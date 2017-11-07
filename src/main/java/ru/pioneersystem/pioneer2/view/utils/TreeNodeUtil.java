@@ -6,7 +6,7 @@ import ru.pioneersystem.pioneer2.model.Document;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.model.Template;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNodeUtil {
@@ -15,14 +15,14 @@ public class TreeNodeUtil {
 
     public static TreeNode toTree(List<Part> parts, boolean setExpandable) {
         int level = 0;
-        List<DefaultTreeNode> nodes = new LinkedList<>();
-        List<DefaultTreeNode> rootNodes = new LinkedList<>();
+        List<DefaultTreeNode> nodes = new ArrayList<>();
+        List<DefaultTreeNode> rootNodes = new ArrayList<>();
 
         for (Part part : parts) {
             if (level != part.getTreeLevel()) {
                 level = part.getTreeLevel();
                 rootNodes = nodes;
-                nodes = new LinkedList<>();
+                nodes = new ArrayList<>();
             }
 
             DefaultTreeNode node = new DefaultTreeNode(FOLDER_TYPE, part, null);
@@ -72,7 +72,7 @@ public class TreeNodeUtil {
     }
 
     public static List<TreeNode> toTemplateTreeNodeList(List<Template> templates) {
-        List<TreeNode> nodes = new LinkedList<>();
+        List<TreeNode> nodes = new ArrayList<>();
         for (Template template : templates) {
             DefaultTreeNode node = new DefaultTreeNode(DOCUMENT_TYPE, template, null);
             nodes.add(node);
@@ -81,7 +81,7 @@ public class TreeNodeUtil {
     }
 
     public static List<TreeNode> toDocumentTreeNodeList(List<Document> documents) {
-        List<TreeNode> nodes = new LinkedList<>();
+        List<TreeNode> nodes = new ArrayList<>();
         for (Document document : documents) {
             DefaultTreeNode node = new DefaultTreeNode(DOCUMENT_TYPE, document, null);
             nodes.add(node);

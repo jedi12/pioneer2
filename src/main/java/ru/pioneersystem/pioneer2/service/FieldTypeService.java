@@ -14,6 +14,4 @@ public interface FieldTypeService {
     List<FieldType> getFieldTypeList() throws ServiceException;
 
     Map<Integer, FieldType> getFieldTypeMap() throws ServiceException;
-
-    Template setLocalizedFieldTypeName(Template template);
 }

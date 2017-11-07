@@ -10,12 +10,17 @@ public class Document {
     private int statusId;
     private String statusName;
     private Date changeDate;
+    private String changeDateFormatted;
     private int templateId;
     private int changeUserId;
     private int documentGroupId;
     private String documentGroupName;
     private int partId;
     private int routeId;
+    private int companyId;
+    private Date createDate;
+    private String createDateFormatted;
+    private int createUserId;
 
     private boolean createFlag;
     private boolean newPart;
@@ -24,98 +29,155 @@ public class Document {
     private boolean editMode;
     private String signerComment;
 
+    private ViewElements elems;
+
     private List<Field> fields;
     private List<Condition> conditions;
-    private List<RoutePoint> routePoints;
 
-    public static class RoutePoint {
-        private int stage;
-        private int groupId;
-        private int roleId;
-        private int signed;
-        private Date signDate;
-        private int signUserId;
-        private String signMessage;
-        private boolean active;
-        private Date receiptDate;
+    public static class ViewElements {
+        private boolean elEditHeader;
+        private boolean elEditDoc;
+        private boolean elPublish;
+        private boolean elChangeRoute;
+        private boolean elDocOwner;
+        private boolean elSignerComment;
+        private boolean disableBtn;
+        private boolean btnSave;
+        private boolean btnSaveAndSend;
+        private boolean btnRecall;
+        private boolean btnCopy;
+        private boolean btnPublish;
+        private boolean btnPublishCancel;
+        private boolean btnDelete;
+        private boolean btnAccept;
+        private boolean btnReject;
 
-        public static class Signed {
-            public static final int NOT_SIGNED = 0;
-            public static final int ACCEPTED = 1;
-            public static final int REJECTED = 2;
-            public static final int CANCELED = 3;
+        public boolean isElEditHeader() {
+            return elEditHeader;
         }
 
-        public int getStage() {
-            return stage;
+        public void setElEditHeader(boolean elEditHeader) {
+            this.elEditHeader = elEditHeader;
         }
 
-        public void setStage(int stage) {
-            this.stage = stage;
+        public boolean isElEditDoc() {
+            return elEditDoc;
         }
 
-        public int getGroupId() {
-            return groupId;
+        public void setElEditDoc(boolean elEditDoc) {
+            this.elEditDoc = elEditDoc;
         }
 
-        public void setGroupId(int groupId) {
-            this.groupId = groupId;
+        public boolean isElPublish() {
+            return elPublish;
         }
 
-        public int getRoleId() {
-            return roleId;
+        public void setElPublish(boolean elPublish) {
+            this.elPublish = elPublish;
         }
 
-        public void setRoleId(int roleId) {
-            this.roleId = roleId;
+        public boolean isElChangeRoute() {
+            return elChangeRoute;
         }
 
-        public int getSigned() {
-            return signed;
+        public void setElChangeRoute(boolean elChangeRoute) {
+            this.elChangeRoute = elChangeRoute;
         }
 
-        public void setSigned(int signed) {
-            this.signed = signed;
+        public boolean isElDocOwner() {
+            return elDocOwner;
         }
 
-        public Date getSignDate() {
-            return signDate;
+        public void setElDocOwner(boolean elDocOwner) {
+            this.elDocOwner = elDocOwner;
         }
 
-        public void setSignDate(Date signDate) {
-            this.signDate = signDate;
+        public boolean isElSignerComment() {
+            return elSignerComment;
         }
 
-        public int getSignUserId() {
-            return signUserId;
+        public void setElSignerComment(boolean elSignerComment) {
+            this.elSignerComment = elSignerComment;
         }
 
-        public void setSignUserId(int signUserId) {
-            this.signUserId = signUserId;
+        public boolean isDisableBtn() {
+            return disableBtn;
         }
 
-        public String getSignMessage() {
-            return signMessage;
+        public void setDisableBtn(boolean disableBtn) {
+            this.disableBtn = disableBtn;
         }
 
-        public void setSignMessage(String signMessage) {
-            this.signMessage = signMessage;
+        public boolean isBtnSave() {
+            return btnSave;
         }
 
-        public boolean isActive() {
-            return active;
+        public void setBtnSave(boolean btnSave) {
+            this.btnSave = btnSave;
         }
 
-        public void setActive(boolean active) {
-            this.active = active;
+        public boolean isBtnSaveAndSend() {
+            return btnSaveAndSend;
         }
 
-        public Date getReceiptDate() {
-            return receiptDate;
+        public void setBtnSaveAndSend(boolean btnSaveAndSend) {
+            this.btnSaveAndSend = btnSaveAndSend;
         }
 
-        public void setReceiptDate(Date receiptDate) {
-            this.receiptDate = receiptDate;
+        public boolean isBtnRecall() {
+            return btnRecall;
+        }
+
+        public void setBtnRecall(boolean btnRecall) {
+            this.btnRecall = btnRecall;
+        }
+
+        public boolean isBtnCopy() {
+            return btnCopy;
+        }
+
+        public void setBtnCopy(boolean btnCopy) {
+            this.btnCopy = btnCopy;
+        }
+
+        public boolean isBtnPublish() {
+            return btnPublish;
+        }
+
+        public void setBtnPublish(boolean btnPublish) {
+            this.btnPublish = btnPublish;
+        }
+
+        public boolean isBtnPublishCancel() {
+            return btnPublishCancel;
+        }
+
+        public void setBtnPublishCancel(boolean btnPublishCancel) {
+            this.btnPublishCancel = btnPublishCancel;
+        }
+
+        public boolean isBtnDelete() {
+            return btnDelete;
+        }
+
+        public void setBtnDelete(boolean btnDelete) {
+            this.btnDelete = btnDelete;
+        }
+
+        public boolean isBtnAccept() {
+            return btnAccept;
+        }
+
+        public void setBtnAccept(boolean btnAccept) {
+            this.btnAccept = btnAccept;
+        }
+
+        public boolean isBtnReject() {
+            return btnReject;
+        }
+
+        public void setBtnReject(boolean btnReject) {
+            this.btnReject = btnReject;
         }
     }
 
@@ -374,6 +436,14 @@ public class Document {
         this.changeDate = changeDate;
     }
 
+    public String getChangeDateFormatted() {
+        return changeDateFormatted;
+    }
+
+    public void setChangeDateFormatted(String changeDateFormatted) {
+        this.changeDateFormatted = changeDateFormatted;
+    }
+
     public int getTemplateId() {
         return templateId;
     }
@@ -420,6 +490,38 @@ public class Document {
 
     public void setRouteId(int routeId) {
         this.routeId = routeId;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getCreateDateFormatted() {
+        return createDateFormatted;
+    }
+
+    public void setCreateDateFormatted(String createDateFormatted) {
+        this.createDateFormatted = createDateFormatted;
+    }
+
+    public int getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(int createUserId) {
+        this.createUserId = createUserId;
     }
 
     public boolean isCreateFlag() {
@@ -470,6 +572,14 @@ public class Document {
         this.signerComment = signerComment;
     }
 
+    public ViewElements getElems() {
+        return elems;
+    }
+
+    public void setElems(ViewElements elems) {
+        this.elems = elems;
+    }
+
     public List<Field> getFields() {
         return fields;
     }
@@ -484,13 +594,5 @@ public class Document {
 
     public void setConditions(List<Condition> conditions) {
         this.conditions = conditions;
-    }
-
-    public List<RoutePoint> getRoutePoints() {
-        return routePoints;
-    }
-
-    public void setRoutePoints(List<RoutePoint> routePoints) {
-        this.routePoints = routePoints;
     }
 }

@@ -3,8 +3,18 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
-	
-	<h2 align="center"><h:outputLabel value="#{text['user.title']}"/></h2>
+
+	#{userView.refreshList()}
+
+	<h2 align="center">
+		<h:outputLabel value="#{text['user.title']}"/>
+		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+						 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+						showEffect="clip" hideEffect="clip">
+			<ui:include src="/WEB-INF/helps/user_list.xhtml"/>
+		</p:overlayPanel>
+	</h2>
 
 	<p:panel>
 		<p:dataTable id="usersTable" value="#{userView.userList}" var="user" rows="20"
@@ -12,10 +22,11 @@
 					 filteredValue="#{userView.filteredUserList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
                      {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{user.name}">
+					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+					 rowStyleClass="#{user.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{userView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:ajax event="rowDblselect" listener="#{userView.editDialog}" update=":editDialog" resetValues="true"
+					oncomplete="PF('tabView').select(0);"/>
 
 			<p:column headerText="#{text['user.col.name']}" filterBy="#{user.name}" filterMatchMode="contains">
                 <h:outputText value="#{user.name}"/>
@@ -32,22 +43,26 @@
 			<p:column headerText="#{text['user.col.activity']}" filterBy="#{user.stateName}" filterMatchMode="contains">
 				<h:outputText value="#{user.stateName}"/>
 			</p:column>
+
+			<p:column headerText="#{text['user.col.company']}" filterBy="#{user.companyName}" filterMatchMode="contains"
+					  rendered="#{currentUser.superRole}">
+				<h:outputText value="#{user.companyName}"/>
+			</p:column>
 		</p:dataTable>
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{userView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{userView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"
+							 oncomplete="PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{userView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{userView.editDialog}" resetValues="true"
+							 oncomplete="PF('tabView').select(0);"/>
 			<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="usersTable"
 							 actionListener="#{userView.lockAction}"/>
 			<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="usersTable"
 							 actionListener="#{userView.unlockAction}"/>
 			<p:commandButton value="#{text['button.set.pass']}" icon="fa fa-fw fa-key" update=":setPassDialog"
-							 actionListener="#{userView.setPassDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+							 actionListener="#{userView.setPassDialog}" resetValues="true"/>
 		</f:facet>
 	</p:panel>
 </ui:composition>

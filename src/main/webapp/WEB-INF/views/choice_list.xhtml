@@ -3,8 +3,18 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
-	
-	<h2 align="center"><h:outputLabel value="#{text['choiceList.title']}"/></h2>
+
+	#{choiceListView.refreshList()}
+
+	<h2 align="center">
+		<h:outputLabel value="#{text['choiceList.title']}"/>
+		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+						 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+						showEffect="clip" hideEffect="clip">
+			<ui:include src="/WEB-INF/helps/choice_list_list.xhtml"/>
+		</p:overlayPanel>
+	</h2>
 
 	<p:panel>
 		<p:dataTable id="listsTable" value="#{choiceListView.choiceListList}" var="choiceList" rows="20"
@@ -12,25 +22,28 @@
 					 filteredValue="#{choiceListView.filteredChoiceList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
                      {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{choiceList.name}">
+					 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
 
-			<p:ajax event="rowDblselect" listener="#{choiceListView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:ajax event="rowDblselect" listener="#{choiceListView.editDialog}" update=":editDialog" resetValues="true"/>
 
 			<p:column headerText="#{text['choiceList.col.name']}" filterBy="#{choiceList.name}" filterMatchMode="contains">
                 <h:outputText value="#{choiceList.name}"/>
 	        </p:column>
+
+			<p:column headerText="#{text['choiceList.col.company']}" filterBy="#{choiceList.companyName}" filterMatchMode="contains"
+					  rendered="#{currentUser.superRole}">
+				<h:outputText value="#{choiceList.companyName}"/>
+			</p:column>
 		</p:dataTable>
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{choiceListView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{choiceListView.newDialog}" disabled="#{currentUser.superRole}"
+							 resetValues="true"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{choiceListView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{choiceListView.editDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-                             actionListener="#{choiceListView.deleteDialog}"/>
+                             actionListener="#{choiceListView.deleteDialog}" disabled="#{currentUser.superRole}"/>
 		</f:facet>
 	</p:panel>
 </ui:composition>

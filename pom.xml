@@ -19,6 +19,8 @@
         <jsf.version>2.2.8</jsf.version>
         <primefaces.version>6.1</primefaces.version>
         <h2.version>1.4.193</h2.version>
+        <java.mail.version>1.6.0</java.mail.version>
+        <freemarker.version>2.3.26-incubating</freemarker.version>
     </properties>
 
     <dependencies>
@@ -98,6 +100,23 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>${java.mail.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>dsn</artifactId>
+            <version>${java.mail.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>${freemarker.version}</version>
         </dependency>
 
         <dependency>

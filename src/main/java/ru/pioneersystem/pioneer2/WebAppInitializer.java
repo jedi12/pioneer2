@@ -5,6 +5,7 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import ru.pioneersystem.pioneer2.service.SessionListener;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -17,6 +18,8 @@ public class WebAppInitializer extends FacesInitializer implements WebApplicatio
 //        ctx.setServletContext(servletContext);
         servletContext.addListener(new ContextLoaderListener(ctx));
         servletContext.addListener(new RequestContextListener());
+
+        servletContext.addListener(new SessionListener());
 
 //        ServletRegistration.Dynamic dispatcherServlet = servletContext.addServlet("dispatcher", new DispatcherServlet(ctx));
 //        dispatcherServlet.setLoadOnStartup(1);

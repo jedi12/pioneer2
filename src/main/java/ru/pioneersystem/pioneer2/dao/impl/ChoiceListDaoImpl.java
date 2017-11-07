@@ -16,10 +16,7 @@ import ru.pioneersystem.pioneer2.model.ChoiceList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository(value = "choiceListDao")
 public class ChoiceListDaoImpl implements ChoiceListDao {
@@ -28,9 +25,14 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     private static final String UPDATE_LIST = "UPDATE DOC.LISTS SET NAME = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_LIST = "UPDATE DOC.LISTS SET STATE = ? WHERE ID = ? AND COMPANY = ?";
     private static final String DELETE_LIST_FIELD = "DELETE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE ID = ? AND COMPANY = ?";
+    private static final String SELECT_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE > 0 AND ID = ? AND COMPANY = ?";
     private static final String SELECT_LIST_FIELD = "SELECT VALUE FROM DOC.LISTS_FIELD WHERE ID = ?";
-    private static final String SELECT_LIST_LIST = "SELECT ID, NAME FROM DOC.LISTS WHERE STATE = ? AND COMPANY = ?";
+    private static final String SELECT_SUPER_CHOICE_LIST_LIST =
+            "SELECT L.ID AS ID, L.NAME AS NAME, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.LISTS L " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = L.COMPANY WHERE L.STATE > 0 ORDER BY L.COMPANY ASC, L.NAME ASC";
+    private static final String SELECT_ADMIN_CHOICE_LIST_LIST =
+            "SELECT ID, NAME, COMPANY, NULL AS COMPANY_NAME FROM DOC.LISTS WHERE STATE > 0 AND COMPANY = ? " +
+                    "ORDER BY NAME ASC";
     private static final String MAP_FIELD_FOR_DOC = "SELECT ID, VALUE FROM DOC.LISTS_FIELD WHERE ID IN (" +
             "SELECT VALUE_LIST FROM DOC.DOCUMENTS_FIELD WHERE ID = ? AND VALUE_LIST IS NOT NULL) " +
             "ORDER BY ID ASC, VALUE ASC";
@@ -65,7 +67,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         List<String> resultValues = jdbcTemplate.query(SELECT_LIST_FIELD,
                 new Object[]{choiceListId},
                 rs -> {
-                    List<String> values = new LinkedList<>();
+                    List<String> values = new ArrayList<>();
                     while(rs.next()){
                         values.add(rs.getString("VALUE"));
                     }
@@ -79,9 +81,19 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
 
     @Override
     public Map<Integer, List<String>> getForTemplate(int templateId) throws DataAccessException {
-        return jdbcTemplate.query(MAP_FIELD_FOR_TEMP,
-                new Object[]{templateId},
-                rs -> {
+        Object[] params = new Object[]{templateId};
+        return getMap(MAP_FIELD_FOR_TEMP, params);
+    }
+
+    @Override
+    public Map<Integer, List<String>> getForDocument(int documentId) throws DataAccessException {
+        Object[] params = new Object[]{documentId};
+        return getMap(MAP_FIELD_FOR_DOC, params);
+    }
+
+    private Map<Integer, List<String>> getMap(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
                     Map<Integer, List<String>> result = new HashMap<>();
                     int oldlistId = 0;
                     while(rs.next()){
@@ -89,7 +101,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                         String value = rs.getString("VALUE");
 
                         if (id != oldlistId) {
-                            result.put(id, new LinkedList<>());
+                            result.put(id, new ArrayList<>());
                             oldlistId = id;
                         }
                         result.get(id).add(value);
@@ -100,31 +112,38 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     }
 
     @Override
-    public Map<Integer, List<String>> getForDocument(int documentId) throws DataAccessException {
-        List<String> choiceListValues = jdbcTemplate.query(MAP_FIELD_FOR_DOC,
-                new Object[]{documentId},
-                new ChoiceListValuesMapper()
-        );
-
-        Map<Integer, List<String>> listMap = new HashMap<>();
-        listMap.put(documentId, choiceListValues);
-
-        return listMap;
+    public List<ChoiceList> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_CHOICE_LIST_LIST, params);
     }
 
     @Override
-    public List<ChoiceList> getList(int companyId) throws DataAccessException {
-        List<ChoiceList> choiceList = jdbcTemplate.query(SELECT_LIST_LIST,
-                new Object[]{ChoiceList.State.EXISTS, companyId},
-                new ChoiceListMapper()
-        );
+    public List<ChoiceList> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_CHOICE_LIST_LIST, params);
+    }
 
-        return choiceList;
+    private List<ChoiceList> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<ChoiceList> choiceLists = new ArrayList<>();
+                    while(rs.next()){
+                        ChoiceList choiceList = new ChoiceList();
+                        choiceList.setId(rs.getInt("ID"));
+                        choiceList.setName(rs.getString("NAME"));
+                        choiceList.setCompanyId(rs.getInt("COMPANY"));
+                        choiceList.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        choiceLists.add(choiceList);
+                    }
+                    return choiceLists;
+                }
+        );
     }
 
     @Override
     @Transactional
-    public void create(ChoiceList choiceList, int companyId) throws DataAccessException {
+    public int create(ChoiceList choiceList, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -147,6 +166,7 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override
@@ -195,20 +215,5 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
         }
 
         jdbcTemplate.update(DELETE_LIST_FIELD, choiceListId);
-    }
-
-    private static final class ChoiceListMapper implements RowMapper<ChoiceList> {
-        public ChoiceList mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ChoiceList choiceList = new ChoiceList();
-            choiceList.setId(rs.getInt("ID"));
-            choiceList.setName(rs.getString("NAME"));
-            return choiceList;
-        }
-    }
-
-    private static final class ChoiceListValuesMapper implements RowMapper<String> {
-        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getString("VALUE");
-        }
     }
 }

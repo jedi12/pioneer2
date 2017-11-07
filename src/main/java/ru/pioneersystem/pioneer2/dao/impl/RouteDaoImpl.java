@@ -14,10 +14,7 @@ import ru.pioneersystem.pioneer2.model.Route;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository(value = "routeDao")
 public class RouteDaoImpl implements RouteDao {
@@ -44,12 +41,24 @@ public class RouteDaoImpl implements RouteDao {
     private static final String SELECT_ROUTE_GROUP =
             "SELECT GROUP_ID, NAME FROM DOC.ROUTES_GROUP RG " +
                     "LEFT JOIN DOC.GROUPS G ON RG.GROUP_ID = G.ID WHERE RG.ID = ? ORDER BY NAME ASC";
-    private static final String SELECT_ROUTE_LIST =
-            "SELECT ID, NAME, STATE FROM DOC.ROUTES WHERE STATE > 0 AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_SUPER_ROUTE_LIST =
+            "SELECT R.ID AS ID, R.NAME AS NAME, R.STATE AS STATE, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.ROUTES R " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY WHERE R.STATE > 0 ORDER BY R.COMPANY ASC, R.NAME ASC";
+    private static final String SELECT_ADMIN_ROUTE_LIST =
+            "SELECT ID, NAME, STATE, COMPANY, NULL AS COMPANY_NAME FROM DOC.ROUTES WHERE STATE > 0 " +
+                    "AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_USER_ROUTE_MAP =
             "SELECT DISTINCT R.ID AS ID, NAME FROM DOC.ROUTES R LEFT JOIN DOC.ROUTES_GROUP RG ON R.ID = RG.ID " +
-                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID WHERE COMPANY = ? AND USER_ID = ? " +
-                    "AND STATE > 0 ORDER BY NAME ASC\n";
+                    "LEFT JOIN DOC.GROUPS_USER GU ON RG.GROUP_ID = GU.ID " +
+                    "WHERE (GROUP_ID IS NULL OR USER_ID = ?) AND (COMPANY = 0 OR COMPANY = ?) AND STATE > 0 ORDER BY NAME ASC";
+    private static final String SELECT_ROUTE_LIST_CONTAIN_GROUP =
+            "SELECT DISTINCT NAME FROM DOC.ROUTES R, DOC.ROUTES_POINT RP WHERE R.ID = RP.ID AND STATE > 0 " +
+                    "AND GROUP_ID = ? AND COMPANY = ?  ORDER BY NAME ASC";
+    private static final String SELECT_ROUTES_WITH_GROUP_COUNT =
+            "SELECT DISTINCT COUNT(R.ID) FROM DOC.ROUTES R, DOC.ROUTES_GROUP RG WHERE R.ID = RG.ID AND STATE > 0 " +
+                    "AND RG.GROUP_ID = ? AND COMPANY = ?";
+    private static final String DELETE_GROUP_RESTRICTION =
+            "DELETE FROM DOC.ROUTES_GROUP WHERE GROUP_ID = ? AND ID IN (SELECT ID FROM DOC.ROUTES WHERE COMPANY = ?)";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -79,7 +88,7 @@ public class RouteDaoImpl implements RouteDao {
         List<Route.Point> resultPoints = jdbcTemplate.query(SELECT_ROUTE_POINT,
                 new Object[]{routeId},
                 rs -> {
-                    List<Route.Point> points = new LinkedList<>();
+                    List<Route.Point> points = new ArrayList<>();
                     while(rs.next()){
                         Route.Point point = new Route.Point();
                         point.setStage(rs.getInt("STAGE"));
@@ -97,7 +106,7 @@ public class RouteDaoImpl implements RouteDao {
         List<Route.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_ROUTE_GROUP,
                 new Object[]{routeId},
                 rs -> {
-                    List<Route.LinkGroup> linkGroups = new LinkedList<>();
+                    List<Route.LinkGroup> linkGroups = new ArrayList<>();
                     while(rs.next()){
                         Route.LinkGroup linkGroup = new Route.LinkGroup();
                         linkGroup.setGroupId(rs.getInt("GROUP_ID"));
@@ -114,24 +123,40 @@ public class RouteDaoImpl implements RouteDao {
         return resultRoute;
     }
 
+    public List<Route> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_ROUTE_LIST, params);
+    }
+
     @Override
-    public List<Route> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_ROUTE_LIST,
-                new Object[]{companyId, Route.State.SYSTEM},
-                (rs, rowNum) -> {
-                    Route route = new Route();
-                    route.setId(rs.getInt("ID"));
-                    route.setName(rs.getString("NAME"));
-                    route.setState(rs.getInt("STATE"));
-                    return route;
+    public List<Route> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_ROUTE_LIST, params);
+    }
+
+    private List<Route> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Route> routes = new ArrayList<>();
+                    while(rs.next()){
+                        Route route = new Route();
+                        route.setId(rs.getInt("ID"));
+                        route.setName(rs.getString("NAME"));
+                        route.setState(rs.getInt("STATE"));
+                        route.setCompanyId(rs.getInt("COMPANY"));
+                        route.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        routes.add(route);
+                    }
+                    return routes;
                 }
         );
     }
 
     @Override
-    public Map<String, Integer> getUserRouteMap(int companyId, int userId) throws DataAccessException {
+    public Map<String, Integer> getUserRouteMap(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_USER_ROUTE_MAP,
-                new Object[]{companyId, userId},
+                new Object[]{userId, companyId},
                 rs -> {
                     Map<String, Integer> routes = new LinkedHashMap<>();
                     while(rs.next()){
@@ -143,8 +168,38 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
+    public List<String> getRoutesWithGroup(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_ROUTE_LIST_CONTAIN_GROUP,
+                new Object[]{groupId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    public int getCountRoutesWithRestriction(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_ROUTES_WITH_GROUP_COUNT,
+                new Object[]{groupId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                    return 0;
+                }
+        );
+    }
+
+    @Override
     @Transactional
-    public void create(Route route, int companyId) throws DataAccessException {
+    public void removeGroupRestriction(int groupId, int companyId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_GROUP_RESTRICTION,
+                groupId,
+                companyId
+        );
+    }
+
+    @Override
+    @Transactional
+    public int create(Route route, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -180,6 +235,7 @@ public class RouteDaoImpl implements RouteDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

@@ -13,7 +13,7 @@ public class FieldType {
 
     public static class Id {
         public static final int TEXT_STRING = 5;
-        public static final int LIST = 6;
+        public static final int CHOICE_LIST = 6;
         public static final int CALENDAR = 7;
         public static final int CHECKBOX = 8;
         public static final int TEXT_AREA = 9;

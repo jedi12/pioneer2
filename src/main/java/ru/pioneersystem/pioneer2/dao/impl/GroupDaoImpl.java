@@ -15,8 +15,8 @@ import ru.pioneersystem.pioneer2.model.Role;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,19 +37,32 @@ public class GroupDaoImpl implements GroupDao {
     private static final String SELECT_GROUP_USER =
             "SELECT USER_ID, ACTOR_TYPE, NAME FROM DOC.GROUPS_USER GU " +
                     "LEFT JOIN DOC.USERS U ON GU.USER_ID = U.ID WHERE GU.ID = ? ORDER BY NAME ASC";
-    private static final String SELECT_GROUP_LIST =
-            "SELECT ID, NAME, STATE FROM DOC.GROUPS WHERE STATE > 0 AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
+    private static final String SELECT_SUPER_GROUP_LIST =
+            "SELECT G.ID AS ID, G.NAME AS NAME, G.STATE AS STATE, R.NAME AS ROLE_NAME, G.COMPANY AS COMPANY, " +
+                    "C.NAME AS COMPANY_NAME FROM DOC.GROUPS G LEFT JOIN DOC.ROLES R ON R.ID = G.ROLE_ID " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = G.COMPANY WHERE G.STATE > 0 ORDER BY G.COMPANY ASC, NAME ASC";
+    private static final String SELECT_ADMIN_GROUP_LIST =
+            "SELECT G.ID AS ID, G.NAME AS NAME, G.STATE AS STATE, R.NAME AS ROLE_NAME, G.COMPANY AS COMPANY, " +
+                    "NULL AS COMPANY_NAME FROM DOC.GROUPS G LEFT JOIN DOC.ROLES R ON R.ID = G.ROLE_ID " +
+                    "WHERE G.STATE > 0 AND G.COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_POINT_MAP =
             "SELECT G.ID AS GROUP_ID, G.NAME AS GROUP_NAME, R.ID AS ROLE_ID, R.NAME AS ROLE_NAME FROM DOC.GROUPS G " +
-                    "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID \nWHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
+                    "LEFT JOIN DOC.ROLES R ON G.ROLE_ID = R.ID WHERE TYPE = 10 AND G.STATE > 0 AND G.COMPANY = ? " +
                     "ORDER BY GROUP_NAME ASC";
     private static final String SELECT_PUB_GROUP_MAP =
             "SELECT G.ID AS G_ID, G.NAME AS G_NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU, DOC.ROLES R " +
                     "WHERE G.ID = GU.ID AND G.ROLE_ID = R.ID AND TYPE IN (?, ?) AND G.STATE > 0 AND G.COMPANY = ? " +
                     "AND USER_ID = ? ORDER BY G.NAME ASC";
     private static final String SELECT_CREATE_GROUP_MAP =
+            "SELECT ID, NAME FROM DOC.GROUPS G WHERE STATE > 0 AND ROLE_ID = ? AND COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_USER_CREATE_GROUP_MAP =
             "SELECT G.ID AS ID, NAME FROM DOC.GROUPS G, DOC.GROUPS_USER GU " +
-                    "WHERE G.ID = GU.ID AND ROLE_ID = ? AND COMPANY = ? AND STATE > 0 AND USER_ID = ? ORDER BY NAME ASC";
+                    "WHERE G.ID = GU.ID AND STATE > 0 AND ROLE_ID = ? AND USER_ID = ? AND COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_USER_GROUP_ACTIVITY_MAP =
+            "SELECT ROLE_ID, G.ID, ACTOR_TYPE FROM DOC.GROUPS G, DOC.GROUPS_USER GU WHERE G.ID = GU.ID " +
+                    "AND STATE > 0 AND USER_ID = ? AND COMPANY = ? ORDER BY ROLE_ID ASC";
+    private static final String SELECT_GROUP_LIST_CONTAIN_ROLE =
+            "SELECT NAME FROM DOC.GROUPS WHERE STATE = 1 AND ROLE_ID = ? AND COMPANY = ? ORDER BY NAME";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -80,7 +93,7 @@ public class GroupDaoImpl implements GroupDao {
         List<Group.LinkUser> resultLinkUsers = jdbcTemplate.query(SELECT_GROUP_USER,
                 new Object[]{groupId},
                 rs -> {
-                    List<Group.LinkUser> linkUsers = new LinkedList<>();
+                    List<Group.LinkUser> linkUsers = new ArrayList<>();
                     while(rs.next()){
                         Group.LinkUser linkUser = new Group.LinkUser();
                         linkUser.setUserId(rs.getInt("USER_ID"));
@@ -98,15 +111,33 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public List<Group> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_GROUP_LIST,
-                new Object[]{companyId},
-                (rs, rowNum) -> {
-                    Group group = new Group();
-                    group.setId(rs.getInt("ID"));
-                    group.setName(rs.getString("NAME"));
-                    group.setState(rs.getInt("STATE"));
-                    return group;
+    public List<Group> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_GROUP_LIST, params);
+    }
+
+    @Override
+    public List<Group> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_GROUP_LIST, params);
+    }
+
+    private List<Group> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Group> groups = new ArrayList<>();
+                    while(rs.next()){
+                        Group group = new Group();
+                        group.setId(rs.getInt("ID"));
+                        group.setName(rs.getString("NAME"));
+                        group.setState(rs.getInt("STATE"));
+                        group.setRoleName(rs.getString("ROLE_NAME"));
+                        group.setCompanyId(rs.getInt("COMPANY"));
+                        group.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        groups.add(group);
+                    }
+                    return groups;
                 }
         );
     }
@@ -131,7 +162,7 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public Map<String, Integer> getUserPublishGroup(int companyId, int userId) throws DataAccessException {
+    public Map<String, Integer> getUserPublishGroup(int userId, int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_PUB_GROUP_MAP,
                 new Object[]{Role.Type.ADMIN, Role.Type.PUBLIC, companyId, userId},
                 rs -> {
@@ -145,9 +176,9 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public Map<String, Integer> getUserCreateGroup(int companyId, int userId) throws DataAccessException {
+    public Map<String, Integer> getCreateGroup(int companyId) throws DataAccessException {
         return jdbcTemplate.query(SELECT_CREATE_GROUP_MAP,
-                new Object[]{Role.Type.CREATE, companyId, userId},
+                new Object[]{Role.Type.CREATE, companyId},
                 rs -> {
                     Map<String, Integer> groups = new LinkedHashMap<>();
                     while(rs.next()){
@@ -159,8 +190,56 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
+    public Map<String, Integer> getUserCreateGroup(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_CREATE_GROUP_MAP,
+                new Object[]{Role.Type.CREATE, userId, companyId},
+                rs -> {
+                    Map<String, Integer> groups = new LinkedHashMap<>();
+                    while(rs.next()){
+                        groups.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return groups;
+                }
+        );
+    }
+
+    @Override
+    public Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivity(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_GROUP_ACTIVITY_MAP,
+                new Object[]{userId, companyId},
+                (rs) -> {
+                    Map<Integer, Map<Integer, Integer>> userRolesGroupActivity = new LinkedHashMap<>();
+                    Map<Integer, Integer> groupsActivity = new LinkedHashMap<>();
+                    int oldRoleId = 0;
+                    while(rs.next()){
+                        int roleId = rs.getInt("ROLE_ID");
+                        int groupId = rs.getInt("ID");
+                        int activity = rs.getInt("ACTOR_TYPE");
+
+                        if (roleId != oldRoleId) {
+                            oldRoleId = roleId;
+                            groupsActivity = new LinkedHashMap<>();
+                            userRolesGroupActivity.put(roleId, groupsActivity);
+                        }
+
+                        groupsActivity.put(groupId, activity);
+                    }
+                    return userRolesGroupActivity;
+                }
+        );
+    }
+
+    @Override
+    public List<String> groupsWithRole(int roleId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_GROUP_LIST_CONTAIN_ROLE,
+                new Object[]{roleId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
     @Transactional
-    public void create(Group group, int companyId) throws DataAccessException {
+    public int create(Group group, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -186,6 +265,7 @@ public class GroupDaoImpl implements GroupDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

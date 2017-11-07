@@ -14,6 +14,20 @@ public class Menu {
 
     private boolean createFlag;
 
+    public static class Page {
+        public static final String WELCOME_SUPER = "welcome_super.xhtml";
+        public static final String WELCOME_ADMIN = "welcome_admin.xhtml";
+        public static final String WELCOME_USER = "welcome_user.xhtml";
+        public static final String WELCOME_GUEST = "welcome_guest.xhtml";
+        public static final String SIGNED_OUT = "signedOut.xhtml";
+
+        public static final String MY_DOC = "docMy.xhtml";
+        public static final String PUBLIC_DOC = "docPublic.xhtml";
+        public static final String CREATE_DOC = "docCreate.xhtml";
+        public static final String SEARCH_DOC = "docSearch.xhtml";
+        public static final String ON_ROUTE_DOC = "docOnRoute.xhtml";
+    }
+
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
@@ -38,8 +52,6 @@ public class Menu {
         public static final int EVENTS = 14;
         public static final int NOTICES = 15;
         public static final int MENUS = 16;
-        public static final int ON_ROUTE_CONFIRM = 17;
-        public static final int ON_ROUTE_EXEC = 18;
         public static final int COMPANY = 19;
     }
 

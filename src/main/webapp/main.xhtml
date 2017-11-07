@@ -9,8 +9,9 @@
 
 	<f:view contentType="text/html" locale="#{localeBean.locale}">
 		<f:metadata>
-			<!--<f:viewParam name="curDocID" value="#{login.curDocID}"/>-->
 			<f:viewParam name="currMenuId" value="#{currentUser.currMenuId}"/>
+			<f:viewParam name="currDocId" value="#{currentUserView.currDocId}"/>
+			<f:viewParam name="showRoute" value="#{currentUserView.showRoute}"/>
 		</f:metadata>
 
 		<h:head>
@@ -30,7 +31,8 @@
 				<h:inputHidden id="screenHeight" value="#{currentUser.screenHeight}"/>
 				<h:inputHidden id="screenWidth" value="#{currentUser.screenWidth}"/>
 				<h:inputHidden id="zoneOffset" value="#{localeBean.timezoneOffsetMinutes}"/>
-				<p:remoteCommand onstart="initClientProp();" autoRun="true"/>
+				<p:remoteCommand id="props" onstart="initClientProp()" autoRun="true" update="leftPanel centerPanel"
+								 actionListener="#{currentUser.selectMenu(currentUser.currMenuId)}"/>
 			</h:form>
 
 			<p:layout id="layout" fullPage="true">
@@ -44,20 +46,20 @@
 					<h:form id="leftPanel">
 						<p:accordionPanel widgetVar="menuAccordion" value="#{currentUser.userMenu}" var="menu"
 										  activeIndex="#{currentUser.currMenuIndex}">
-							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu.page)}"
+							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu)}"
 									update="centerPanel dialogsPanel"/>
 
-							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_BLANC')}">
+							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_')}">
 								<p:repeat value="#{menu.subMenu}" var="subMenu">
 									<p:commandLink value="#{subMenu.name}"
-												   actionListener="#{currentUser.setCurrPage(subMenu.page)}"
+												   actionListener="#{currentUser.setCurrPage(subMenu)}"
 												   update="centerPanel dialogsPanel"/>
 									<br/>
 									<br/>
 								</p:repeat>
 							</p:tab>
 						</p:accordionPanel>
-						<p:remoteCommand ignoreAutoUpdate="true" oncomplete="formatMenuTabs()" autoRun="true"/>
+						<p:remoteCommand id="formatMenu" ignoreAutoUpdate="true" oncomplete="formatMenuTabs()" autoRun="true"/>
 					</h:form>
 				</p:layoutUnit>
 
@@ -73,11 +75,26 @@
 			</h:panelGroup>
 
 			<ui:include src="WEB-INF/dialogs/login.xhtml"/>
-			<h:form>
-				<p:remoteCommand oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
+			<ui:include src="WEB-INF/dialogs/changePass.xhtml"/>
+
+			<h:form id="autoOpen">
+				<p:remoteCommand id="openLogin" oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
+				<p:remoteCommand id="openDoc" autoRun="true" rendered="#{currentUser.logged}" update="dialogsPanel"
+								 actionListener="#{documentView.autoOpenDocument(currentUserView.currDocId, currentUserView.showRoute)}"/>
 			</h:form>
 
-			<p:growl id="growl" showDetail="true" sticky="true" autoUpdate="true"/>
+			<p:idleMonitor timeout="600000">
+				<p:ajax event="idle" listener="#{currentUser.signOut}"/>
+			</p:idleMonitor>
+
+            <p:ajaxStatus onstart="openLoadingDialog()" onsuccess="closeLoadingDialog()"/>
+            <p:dialog widgetVar="loading" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <p:graphicImage value="#{resource['images/ajax-loader.gif']}"/>
+            </p:dialog>
+
+			<ui:include src="WEB-INF/dialogs/about.xhtml"/>
+
+			<p:growl id="growl" showDetail="true" life="10000" autoUpdate="true"/>
 		</h:body>
 	</f:view>
 </html>

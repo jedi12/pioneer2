@@ -5,6 +5,8 @@ import java.util.List;
 public class ChoiceList {
     private int id;
     private String name;
+    private int companyId;
+    private String companyName;
     private List<String> values;
 
     private boolean createFlag;
@@ -28,6 +30,22 @@ public class ChoiceList {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public List<String> getValues() {

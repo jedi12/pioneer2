@@ -7,6 +7,7 @@ import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.pioneersystem.pioneer2.dao.FileDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.File;
 
 import java.io.IOException;
@@ -25,21 +26,26 @@ public class FileDaoImpl implements FileDao {
 
     @Override
     public File get(int fileId) throws DataAccessException {
-        return jdbcTemplate.queryForObject(SELECT_FILE, new Object[]{fileId},
-                (rs, rowNum) -> {
-                    File file = new File();
-                    file.setId(rs.getInt("ID"));
-                    file.setName(rs.getString("NAME"));
-                    file.setMimeType(rs.getString("MIME_TYPE"));
-                    file.setLength(rs.getInt("LENGTH"));
+        return jdbcTemplate.query(SELECT_FILE,
+                new Object[]{fileId},
+                (rs) -> {
+                    if (rs.next()) {
+                        File file = new File();
+                        file.setId(rs.getInt("ID"));
+                        file.setName(rs.getString("NAME"));
+                        file.setMimeType(rs.getString("MIME_TYPE"));
+                        file.setLength(rs.getInt("LENGTH"));
 
-                    try (InputStream contentStream = rs.getBinaryStream("DATA")) {
-                        file.setContent(IOUtils.toByteArray(contentStream));
-                    } catch (IOException e) {
-                        throw new TransientDataAccessResourceException("Error while file content reading from database", e);
+                        try (InputStream contentStream = rs.getBinaryStream("DATA")) {
+                            file.setContent(IOUtils.toByteArray(contentStream));
+                        } catch (IOException e) {
+                            throw new TransientDataAccessResourceException("Error while file content reading from database", e);
+                        }
+
+                        return file;
+                    } else {
+                        throw new NotFoundDaoException("Not found File with fileId = " + fileId);
                     }
-
-                    return file;
                 }
         );
     }

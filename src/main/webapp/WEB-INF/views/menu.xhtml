@@ -3,7 +3,9 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
-	
+
+	#{menuView.refreshList()}
+
 	<h2 align="center"><h:outputLabel value="#{text['menu.title']}"/></h2>
 
 	<p:panel>
@@ -15,8 +17,7 @@
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
 					 rowStyleClass="#{menu.state >= 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{menuView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:ajax event="rowDblselect" listener="#{menuView.editDialog}" update=":editDialog" resetValues="true"/>
 
 			<p:column headerText="#{text['menu.col.name']}" filterBy="#{menu.name}" filterMatchMode="contains">
                 <h:outputText value="#{menu.name}"/>
@@ -25,11 +26,9 @@
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{menuView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{menuView.newDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{menuView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{menuView.editDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
 							 actionListener="#{menuView.deleteDialog}"/>
 		</f:facet>

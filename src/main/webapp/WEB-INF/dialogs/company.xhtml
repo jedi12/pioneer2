@@ -1,65 +1,97 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui">
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true">
+		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-building" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['company.edit.header']} (#{text['label.id']} #{companyView.currCompany.id})"/>
 			</f:facet>
 
 			<h2 align="center">
-				<h:outputLabel value="#{companyView.currCompany.createFlag
-					? text['company.edit.create'] : text['company.edit.change']}"/>
+				<h:outputLabel value="#{companyView.currCompany.createFlag ? text['company.edit.create'] : text['company.edit.change']}"/>
 			</h2>
 
 			<p:panel>
-				<h:panelGrid id="companyGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
-					<p:outputLabel value="#{text['company.edit.name']}" for="name"/>
-					<p:inputText id="name" value="#{companyView.currCompany.name}" styleClass="width100" maxlength="50"
-								 validator="notEmptyString"/>
-					<p:message for="name" display="icon" styleClass="width38px"/>
+				<p:tabView id="tabView" widgetVar="tabView">
+					<p:tab title="#{text['company.tab1.name']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<h:panelGrid id="companyGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<p:outputLabel value="#{text['company.edit.name']}" for="name"/>
+								<p:inputText id="name" value="#{companyView.currCompany.name}" styleClass="width100" maxlength="64"
+											 validator="notEmptyString"/>
+								<p:message for="name" display="icon" styleClass="width38px"/>
 
-					<p:outputLabel value="#{text['company.edit.fullName']}" for="fullName"/>
-					<p:inputText id="fullName" value="#{companyView.currCompany.fullName}" style="width: 100%" maxlength="100"/>
-					<p:message for="fullName" display="icon"/>
+								<p:outputLabel value="#{text['company.edit.fullName']}" for="fullName"/>
+								<p:inputText id="fullName" value="#{companyView.currCompany.fullName}" style="width: 100%" maxlength="128"/>
+								<p:message for="fullName" display="icon"/>
 
-					<p:outputLabel value="#{text['company.edit.address']}" for="address"/>
-					<p:inputTextarea id="address" value="#{companyView.currCompany.address}" rows="3" autoResize="true"
-									 maxlength="200" style="width: 100%;max-height: 48px"/>
-					<p:message for="address" display="icon"/>
+								<p:outputLabel value="#{text['company.edit.address']}" for="address"/>
+								<p:inputTextarea id="address" value="#{companyView.currCompany.address}" rows="3" autoResize="true"
+												 maxlength="256" style="width: 100%;max-height: 48px"/>
+								<p:message for="address" display="icon"/>
 
-					<p:outputLabel value="#{text['company.edit.phone']}" for="phone"/>
-					<p:inputText id="phone" value="#{companyView.currCompany.phone}" style="width: 100%" maxlength="50"/>
-					<p:message for="phone" display="icon"/>
+								<p:outputLabel value="#{text['company.edit.phone']}" for="phone"/>
+								<p:inputText id="phone" value="#{companyView.currCompany.phone}" style="width: 100%" maxlength="64"/>
+								<p:message for="phone" display="icon"/>
 
-					<p:outputLabel value="#{text['company.edit.email']}" for="email"/>
-					<p:inputText id="email" value="#{companyView.currCompany.email}" style="width: 100%" maxlength="50"/>
-					<p:message for="email" display="icon"/>
+								<p:outputLabel value="#{text['company.edit.email']}" for="email"/>
+								<p:inputText id="email" value="#{companyView.currCompany.email}" style="width: 100%" maxlength="64"/>
+								<p:message for="email" display="icon"/>
 
-					<p:outputLabel value="#{text['company.edit.site']}" for="site"/>
-					<p:inputText id="site" value="#{companyView.currCompany.site}" style="width: 100%" maxlength="50"/>
-					<p:message for="site" display="icon"/>
+								<p:outputLabel value="#{text['company.edit.site']}" for="site"/>
+								<p:inputText id="site" value="#{companyView.currCompany.site}" style="width: 100%" maxlength="128"/>
+								<p:message for="site" display="icon"/>
 
-					<p:outputLabel value="#{text['company.edit.maxUsers']}" for="maxUsers"/>
-					<p:inputNumber id="maxUsers" value="#{companyView.currCompany.maxUsers}"
-								   minValue="0" maxValue="10000" emptyValue="empty"/>
-					<p:message for="maxUsers" display="icon"/>
+								<p:outputLabel value="#{text['company.edit.maxUsers']}" for="maxUsers"/>
+								<p:inputNumber id="maxUsers" value="#{companyView.currCompany.maxUsers}"
+											   minValue="0" maxValue="10000" emptyValue="empty"/>
+								<p:message for="maxUsers" display="icon"/>
 
-					<p:outputLabel value="#{text['company.edit.comment']}" for="comment"/>
-					<p:inputTextarea id="comment" value="#{companyView.currCompany.comment}" rows="8" autoResize="true"
-									 maxlength="500" style="width: 100%;max-height: 128px"/>
-					<p:message for="comment" display="icon"/>
-				</h:panelGrid>
+								<p:outputLabel value="#{text['company.edit.comment']}" for="comment"/>
+								<p:inputTextarea id="comment" value="#{companyView.currCompany.comment}" rows="5" autoResize="true"
+												 maxlength="512" style="width: 100%;max-height: 80px"/>
+								<p:message for="comment" display="icon"/>
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+
+					<p:tab title="#{text['company.tab2.name']}" rendered="#{companyView.currCompany.createFlag}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<h:panelGrid id="adminGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<p:outputLabel value="#{text['group.edit.name.label']}" for="adminGroupName"/>
+								<p:inputText id="adminGroupName" value="#{companyView.currCompany.groupName}"
+											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminGroupName" display="icon" styleClass="width38px"/>
+
+								<p:outputLabel value="#{text['user.edit.name']}" for="adminName"/>
+								<p:inputText id="adminName" value="#{companyView.currCompany.userName}"
+											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminName" display="icon" styleClass="width38px"/>
+
+								<p:outputLabel value="#{text['user.edit.login']}" for="adminLogin"/>
+								<p:inputText id="adminLogin" value="#{companyView.currCompany.userLogin}"
+											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminLogin" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.email']}" for="adminEmail"/>
+								<p:inputText id="adminEmail" value="#{companyView.currCompany.userEmail}"
+											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
+								<p:message for="adminEmail" display="icon"/>
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+				</p:tabView>
 
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:companiesTable companyGrid"
-										 actionListener="#{companyView.saveAction}"/>
+										 update=":centerPanel:companiesTable tabView:companyGrid tabView:adminGrid"
+										 actionListener="#{companyView.saveAction}"
+										 disabled="#{companyView.currCompany.state == 2}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
 										 onclick="PF('editDialog').hide();"/>
 					</h:panelGrid>

@@ -1,5 +1,6 @@
 package ru.pioneersystem.pioneer2.service;
 
+import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -18,11 +19,19 @@ public interface GroupService {
 
     Map<String, Integer> getUserCreateGroupsMap() throws ServiceException;
 
+    Map<String, Integer> getForSearchGroupMap() throws ServiceException;
+
+    Map<Integer, Map<Integer, Integer>> getUserRolesGroupActivityMap() throws ServiceException;
+
+    List<String> groupsWithRole(int roleId) throws ServiceException;
+
     Group getNewGroup();
 
-    Group getGroup(int groupId) throws ServiceException;
+    Group getGroup(Group selectedGroup) throws ServiceException;
 
-    void saveGroup(Group role) throws ServiceException;
+    void saveGroup(Group group) throws ServiceException;
 
-    void deleteGroup(int groupId) throws ServiceException;
+    void deleteGroup(Group group) throws ServiceException;
+
+    int createGroupWithUser(String groupName, int roleId, int userId, int companyId) throws ServiceException;
 }

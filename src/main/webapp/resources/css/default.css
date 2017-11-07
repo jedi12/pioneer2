@@ -1,6 +1,7 @@
 .ui-widget {font-size: 90%}
 .ui-widget .ui-widget {font-size: 100%}
 
+.ui-datatable-tablewrapper {overflow: hidden !important;}
 .ui-datatable table, .ui-datatable-resizable table {table-layout: auto !important;}
 .ui-datatable-scrollable table {table-layout: fixed !important;}
 .ui-datatable .ui-editable-column {padding: 1px 10px;}
@@ -11,16 +12,27 @@ textarea {resize:none;}
 .ui-accordion-header.ui-state-disabled .ui-icon {width: 0px}
 table {border-collapse: collapse;}
 .ui-dialog .ui-dialog-content {background-color: aliceblue !important;}
+.ui-widget-header, .ui-menu {background: #E9E9E9 url("#{resource['images/bg_gradient.png']}"); background-size: contain;}
 
 .columnRight {text-align: right}
 .columnCenter {text-align: center}
 .columnLeft {text-align: left}
+.columnLang {vertical-align: top;padding: 4px;}
+.columnPadding {padding-right: 10px;}
 .width100 {width: 100%}
 .width38px {width: 38px}
 .labelNoWrap {white-space: nowrap}
 .emptyTreeNode {display: none}
-.outerPanel .ui-panel-content {padding:0px !important;}
+.northPanel .ui-panel-title {margin:0px !important;}
+.scrollPanel .ui-panel-content {padding: 0 !important;}
+.helpButton .ui-button-text {padding: 0em .3em !important}
+
 
 .lightGrey {background-color:#E8E8E8}
+.lightPink {background-color:#FFC0C0}
+.lightGreen {background-color:#C0FFC0}
+.lightBlue {background-color:#BFEFFF}
+.lightYellow {background-color:#FFFACD}
 
-.collectedTable {height: 305px; background-color: lightgray;}
+.collectedTable .ui-datatable-tablewrapper {background-color: lightgray; min-height: 276px}
+

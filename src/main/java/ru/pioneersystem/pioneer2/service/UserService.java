@@ -1,5 +1,6 @@
 package ru.pioneersystem.pioneer2.service;
 
+import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
@@ -12,21 +13,27 @@ public interface UserService {
 
     List<User> getUserList() throws ServiceException;
 
+    List<User> getUsersInGroup(int groupId) throws ServiceException;
+
     Map<String, Integer> getUserMap() throws ServiceException;
 
     User getNewUser();
 
-    User getUser(int userId) throws ServiceException;
+    User getUser(User selectedUser) throws ServiceException;
+
+    User getUserById(int userId) throws ServiceException;
 
     void saveUser(User user) throws ServiceException;
 
-    void lockUser(int userId) throws ServiceException;
+    void lockUser(User user) throws ServiceException;
 
-    void unlockUser(int userId) throws ServiceException;
+    void unlockUser(User user) throws ServiceException;
 
-    void setUserPass(int userId, String newPass) throws ServiceException;
+    void setUserPass(User user, String newPass) throws ServiceException;
 
     void changeUserPass(String login, String oldPass, String newPass) throws ServiceException;
 
     int checkLoginAndPass(String login, String pass) throws ServiceException;
+
+    int createAdminUser(String userName, String userLogin, String userEmail, int companyId) throws ServiceException;
 }

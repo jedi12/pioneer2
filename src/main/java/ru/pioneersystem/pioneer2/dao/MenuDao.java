@@ -13,7 +13,7 @@ public interface MenuDao {
 
     Menu get(int menuId, int companyId) throws DataAccessException;
 
-    void create(Menu menu, int companyId) throws DataAccessException;
+    int create(Menu menu, int companyId) throws DataAccessException;
 
     void update(Menu menu, int companyId) throws DataAccessException;
 

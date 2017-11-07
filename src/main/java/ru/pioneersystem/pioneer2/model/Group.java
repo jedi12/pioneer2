@@ -8,6 +8,8 @@ public class Group {
     private int state;
     private int roleId;
     private String roleName;
+    private int companyId;
+    private String companyName;
     private List<LinkUser> linkUsers;
 
     private boolean createFlag;
@@ -21,6 +23,11 @@ public class Group {
     public static class ActorType {
         public static final int SPECTATOR = 0;
         public static final int PARTICIPANT = 1;
+    }
+
+    public static class Example {
+        public static final int COORDINATOR = 1;
+        public static final int EXECUTOR = 2;
     }
 
     public static class LinkUser {
@@ -91,6 +98,22 @@ public class Group {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public List<LinkUser> getLinkUsers() {

@@ -6,6 +6,8 @@ public class Route {
     private int id;
     private String name;
     private int state;
+    private int companyId;
+    private String companyName;
     private List<LinkGroup> groups;
     private List<Point> points;
 
@@ -14,7 +16,6 @@ public class Route {
     public static class State {
         public static final int DELETED = 0;
         public static final int EXISTS = 1;
-        public static final int SYSTEM = 2;
     }
 
     public static class LinkGroup {
@@ -108,6 +109,22 @@ public class Route {
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public List<LinkGroup> getGroups() {

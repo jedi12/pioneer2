@@ -11,6 +11,8 @@ public class Template {
     private int partId;
     private String partName;
     private int state;
+    private int companyId;
+    private String companyName;
     private LinkedList<Document.Field> fields;
     private List<Document.Condition> conditions;
 
@@ -76,6 +78,22 @@ public class Template {
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public LinkedList<Document.Field> getFields() {

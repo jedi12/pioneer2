@@ -10,6 +10,8 @@ public class Part {
     private int treeLevel;
     private int ownerGroup;
     private int type;
+    private int companyId;
+    private String companyName;
     private List<LinkGroup> linkGroups;
 
     private boolean createFlag;
@@ -100,6 +102,22 @@ public class Part {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public List<LinkGroup> getLinkGroups() {

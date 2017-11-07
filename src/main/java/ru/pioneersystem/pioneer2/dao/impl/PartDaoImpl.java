@@ -11,10 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.PartDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Part;
+import ru.pioneersystem.pioneer2.model.Status;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository(value = "partDao")
@@ -34,13 +35,27 @@ public class PartDaoImpl implements PartDao {
             "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE ID = ? AND COMPANY = ?";
     private static final String SELECT_PART_GROUP =
             "SELECT GROUP_ID, NAME FROM DOC.PARTS_GROUP PG LEFT JOIN DOC.GROUPS G ON PG.GROUP_ID = G.ID WHERE PG.ID = ?";
-    private static final String SELECT_PART_LIST =
-            "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS WHERE STATE > 0 AND TYPE = ? " +
-                    "AND COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
+    private static final String SELECT_SUPER_PART_LIST =
+            "SELECT P.ID AS ID, P.NAME AS NAME, P.STATE AS STATE, PARENT, TREE_LEVEL, OWNER_G, COMPANY, " +
+                    "C.NAME AS COMPANY_NAME FROM DOC.PARTS P LEFT JOIN DOC.COMPANY C ON C.ID = P.COMPANY " +
+                    "WHERE P.STATE > 0 AND TYPE = ? ORDER BY COMPANY ASC, NAME ASC";
+    private static final String SELECT_ADMIN_PART_LIST =
+            "SELECT ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G, COMPANY, NULL AS COMPANY_NAME FROM DOC.PARTS " +
+                    "WHERE STATE > 0 AND TYPE = ? AND COMPANY = ? ORDER BY TREE_LEVEL DESC, NAME ASC";
     private static final String SELECT_USER_PART_LIST =
-            "SELECT P.ID AS ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS P LEFT JOIN DOC.PARTS_GROUP " +
-                    "PG ON P.ID = PG.ID WHERE STATE > 0 AND TYPE = ? AND (GROUP_ID IS NULL OR GROUP_ID " +
-                    "IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?)) ORDER BY TREE_LEVEL DESC, NAME ASC";
+            "SELECT DISTINCT P.ID AS ID, NAME, STATE, PARENT, TREE_LEVEL, OWNER_G FROM DOC.PARTS P " +
+                    "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID LEFT JOIN DOC.GROUPS_USER GU ON PG.GROUP_ID = GU.ID " +
+                    "WHERE STATE > 0 AND TYPE = ? AND (GROUP_ID IS NULL OR USER_ID = ?) AND P.COMPANY = ? " +
+                    "ORDER BY TREE_LEVEL DESC, NAME ASC";
+    private static final String SELECT_TEMPLATES_LIST =
+            "SELECT NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
+    private static final String SELECT_PUB_DOC_COUNT =
+            "SELECT COUNT(*) FROM DOC.DOCUMENTS WHERE STATUS = ? AND PUB_PART = ? AND COMPANY = ?";
+    private static final String SELECT_PARTS_WITH_GROUP_COUNT =
+            "SELECT DISTINCT COUNT(P.ID) FROM DOC.PARTS P, DOC.PARTS_GROUP PG WHERE P.ID = PG.ID AND STATE > 0 " +
+                    "AND PG.GROUP_ID = ? AND COMPANY = ?";
+    private static final String DELETE_GROUP_RESTRICTION =
+            "DELETE FROM DOC.PARTS_GROUP WHERE GROUP_ID = ? AND ID IN (SELECT ID FROM DOC.PARTS WHERE COMPANY = ?)";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -73,7 +88,7 @@ public class PartDaoImpl implements PartDao {
         List<Part.LinkGroup> resultGroups = jdbcTemplate.query(SELECT_PART_GROUP,
                 new Object[]{partId},
                 rs -> {
-                    List<Part.LinkGroup> linkGroups = new LinkedList<>();
+                    List<Part.LinkGroup> linkGroups = new ArrayList<>();
                     while(rs.next()){
                         Part.LinkGroup linkGroup = new Part.LinkGroup();
                         linkGroup.setGroupId(rs.getInt("GROUP_ID"));
@@ -90,9 +105,43 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public List<Part> getList(int type, int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_PART_LIST,
-                new Object[]{type, companyId},
+    public List<Part> getSuperList(int type) throws DataAccessException {
+        Object[] params = new Object[]{type};
+        return getList(SELECT_SUPER_PART_LIST, params);
+    }
+
+    @Override
+    public List<Part> getAdminList(int type, int companyId) throws DataAccessException {
+        Object[] params = new Object[]{type, companyId};
+        return getList(SELECT_ADMIN_PART_LIST, params);
+    }
+
+    private List<Part> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Part> parts = new ArrayList<>();
+                    while(rs.next()){
+                        Part part = new Part();
+                        part.setId(rs.getInt("ID"));
+                        part.setName(rs.getString("NAME"));
+                        part.setState(rs.getInt("STATE"));
+                        part.setParent(rs.getInt("PARENT"));
+                        part.setTreeLevel(rs.getInt("TREE_LEVEL"));
+                        part.setOwnerGroup(rs.getInt("OWNER_G"));
+                        part.setCompanyId(rs.getInt("COMPANY"));
+                        part.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        parts.add(part);
+                    }
+                    return parts;
+                }
+        );
+    }
+
+    @Override
+    public List<Part> getUserPart(int type, int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_PART_LIST,
+                new Object[]{type, userId, companyId},
                 (rs, rowNum) -> {
                     Part part = new Part();
                     part.setId(rs.getInt("ID"));
@@ -107,25 +156,64 @@ public class PartDaoImpl implements PartDao {
     }
 
     @Override
-    public List<Part> getUserPart(int type, int userId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_USER_PART_LIST,
-                new Object[]{type, userId},
-                (rs, rowNum) -> {
-                    Part part = new Part();
-                    part.setId(rs.getInt("ID"));
-                    part.setName(rs.getString("NAME"));
-                    part.setState(rs.getInt("STATE"));
-                    part.setParent(rs.getInt("PARENT"));
-                    part.setTreeLevel(rs.getInt("TREE_LEVEL"));
-                    part.setOwnerGroup(rs.getInt("OWNER_G"));
-                    return part;
+    public List<String> getTemplateListContainingInParts(List<Part> parts, int companyId) throws DataAccessException {
+        // TODO: 16.08.2017 Плохой вариант, переделать
+        List<String> templateList = new ArrayList<>();
+        for (Part part: parts) {
+            List<String> templates = jdbcTemplate.query(SELECT_TEMPLATES_LIST,
+                    new Object[]{part.getId(), companyId},
+                    (rs, rowNum) -> rs.getString("NAME")
+            );
+            templateList.addAll(templates);
+        }
+
+        return templateList;
+    }
+
+    @Override
+    public int getPubDocContainingInParts(List<Part> parts, int companyId) throws DataAccessException {
+        // TODO: 16.08.2017 Плохой вариант, переделать
+        int pubDocs = 0;
+        for (Part part: parts) {
+            pubDocs = pubDocs + jdbcTemplate.query(SELECT_PUB_DOC_COUNT,
+                    new Object[]{Status.Id.PUBLISHED, part.getId(), companyId},
+                    (rs) -> {
+                        if (rs.next()) {
+                            return rs.getInt(1);
+                        }
+                        return 0;
+                    }
+            );
+        }
+
+        return pubDocs;
+    }
+
+    @Override
+    public int getCountPartsWithRestriction(int groupId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_PARTS_WITH_GROUP_COUNT,
+                new Object[]{groupId, companyId},
+                (rs) -> {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                    return 0;
                 }
         );
     }
 
     @Override
     @Transactional
-    public void create(Part part, int type, int companyId) throws DataAccessException {
+    public void removeGroupRestriction(int groupId, int companyId) throws DataAccessException {
+        jdbcTemplate.update(DELETE_GROUP_RESTRICTION,
+                groupId,
+                companyId
+        );
+    }
+
+    @Override
+    @Transactional
+    public int create(Part part, int type, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -152,6 +240,7 @@ public class PartDaoImpl implements PartDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

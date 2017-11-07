@@ -6,6 +6,8 @@ import org.primefaces.model.TreeNode;
 import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.PartService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.TreeNodeUtil;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +20,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -31,6 +32,8 @@ public class PartView implements Serializable {
     private List<Part> partList;
     private TreeNode partTree;
     private TreeNode selectedNode;
+    private List<Part> filteredPart;
+    private Part selectedPart;
 
     private Part currPart;
     private int partType;
@@ -41,6 +44,9 @@ public class PartView implements Serializable {
     private List<String> selectGroup;
     private Map<String, Integer> selectGroupDefault;
     private String selectedGroup;
+
+    private List<String> notSelectableTemplateList;
+    private int docCountInPubPart;
 
     private ResourceBundle bundle;
 
@@ -55,7 +61,6 @@ public class PartView implements Serializable {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         partType = Part.Type.FOR_TEMPLATES;
         currPart = partService.getNewPart();
-        refreshList();
     }
 
     public void refreshList() {
@@ -66,8 +71,7 @@ public class PartView implements Serializable {
             selectParentPart = toPartMapAndSort(partList);
             selectPublishGroup = groupService.getUserPublishMap();
             selectGroupDefault = groupService.getGroupMap();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -86,22 +90,24 @@ public class PartView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedNode == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.part.NotSelected")));
-            return;
-        }
-
         // TODO: 06.05.2017 Необходима проверка на право изменить раздел для владельца или администратора (тут или в сервисе)
 
         try {
-            int partId = ((Part) selectedNode.getData()).getId();
-            currPart = partService.getPart(partId);
+            Part selectedPart;
+            if (selectedNode != null) {
+                selectedPart = (Part) selectedNode.getData();
+            } else {
+                selectedPart = this.selectedPart;
+            }
+
+            currPart = partService.getPart(selectedPart);
             selectGroup = getCurrSelectPart(currPart);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -113,8 +119,7 @@ public class PartView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -127,18 +132,26 @@ public class PartView implements Serializable {
             return;
         }
 
-        // TODO: 06.05.2017 Необходима проверка на право удалить раздел для владельца или администратора (тут или в сервисе)
-
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            List<Part> partsForDelete = TreeNodeUtil.toList(selectedNode, new ArrayList<>(), 0);
+            if (partType == Part.Type.FOR_TEMPLATES) {
+                notSelectableTemplateList = partService.getTemplateListContainingInParts(partsForDelete);
+            } else if (partType == Part.Type.FOR_DOCUMENTS) {
+                docCountInPubPart = partService.getCountPubDocContainingInParts(partsForDelete);
+            }
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
         try {
             List<Part> parts = TreeNodeUtil.toList(selectedNode, new ArrayList<>(), 0);
-            partService.deleteParts(parts);
+            partService.deleteParts(parts, partType);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -163,8 +176,7 @@ public class PartView implements Serializable {
 
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_INFO,
                     bundle.getString("info"), bundle.getString("info.tree.changed")));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
             refreshList();
@@ -189,7 +201,7 @@ public class PartView implements Serializable {
     }
 
     private List<String> getCurrSelectPart(Part currPart) {
-        List<String> currSelectGroup = new LinkedList<>();
+        List<String> currSelectGroup = new ArrayList<>();
         currSelectGroup.addAll(selectGroupDefault.keySet());
         for (Part.LinkGroup linkGroup: currPart.getLinkGroups()) {
             currSelectGroup.remove(linkGroup.getGroupName());
@@ -198,13 +210,6 @@ public class PartView implements Serializable {
     }
 
     private Map<String, Integer> toPartMapAndSort(List<Part> parts) {
-        parts.sort(new Comparator<Part>() {
-            @Override
-            public int compare(Part part1, Part part2) {
-                return part1.getName().compareTo(part2.getName());
-            }
-        });
-
         Map<String, Integer> map = new LinkedHashMap<>();
         map.put(bundle.getString("part.root.name"), 0);
         for (Part part : parts) {
@@ -221,6 +226,10 @@ public class PartView implements Serializable {
         this.groupService = groupService;
     }
 
+    public List<Part> getPartList() {
+        return partList;
+    }
+
     public TreeNode getPartTree() {
         return partTree;
     }
@@ -231,6 +240,22 @@ public class PartView implements Serializable {
 
     public void setSelectedNode(TreeNode selectedNode) {
         this.selectedNode = selectedNode;
+    }
+
+    public List<Part> getFilteredPart() {
+        return filteredPart;
+    }
+
+    public void setFilteredPart(List<Part> filteredPart) {
+        this.filteredPart = filteredPart;
+    }
+
+    public Part getSelectedPart() {
+        return selectedPart;
+    }
+
+    public void setSelectedPart(Part selectedPart) {
+        this.selectedPart = selectedPart;
     }
 
     public Part getCurrPart() {
@@ -271,5 +296,13 @@ public class PartView implements Serializable {
 
     public void setSelectedGroup(String selectedGroup) {
         this.selectedGroup = selectedGroup;
+    }
+
+    public List<String> getNotSelectableTemplateList() {
+        return notSelectableTemplateList;
+    }
+
+    public int getDocCountInPubPart() {
+        return docCountInPubPart;
     }
 }

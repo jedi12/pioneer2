@@ -1,44 +1,50 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.CompanyDao;
 import ru.pioneersystem.pioneer2.dao.UserDao;
+import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.dao.impl.UserDaoImpl;
+import ru.pioneersystem.pioneer2.model.Event;
+import ru.pioneersystem.pioneer2.model.Role;
 import ru.pioneersystem.pioneer2.model.User;
-import ru.pioneersystem.pioneer2.service.SessionListener;
-import ru.pioneersystem.pioneer2.service.UserService;
+import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
-    private Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
-
+    private EventService eventService;
     private UserDao userDao;
     private CompanyDao companyDao;
+    private GroupService groupService;
+    private DictionaryService dictionaryService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
     private SessionListener sessionListener;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, CompanyDao companyDao, CurrentUser currentUser, LocaleBean localeBean,
+    public UserServiceImpl(EventService eventService, UserDao userDao, CompanyDao companyDao, GroupService groupService,
+                           DictionaryService dictionaryService, CurrentUser currentUser, LocaleBean localeBean,
                            MessageSource messageSource, SessionListener sessionListener) {
+        this.eventService = eventService;
         this.userDao = userDao;
         this.companyDao = companyDao;
+        this.groupService = groupService;
+        this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -49,10 +55,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserWithCompany(int userId) throws ServiceException {
         try {
-            return setLocalizedStateName(userDao.getWithCompany(userId));
+            User user = userDao.getWithCompany(userId);
+            String stateName = dictionaryService.getLocalizedStateName(user.getState(), localeBean.getLocale());
+            if (stateName != null) {
+                user.setStateName(stateName);
+            }
+            return user;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.userWithCompanyNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), userId);
             throw new ServiceException(mess, e);
         }
     }
@@ -60,14 +71,34 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getUserList() throws ServiceException {
         try {
-            List<User> users = userDao.getList(currentUser.getUser().getCompanyId());
+            List<User> users;
+            if (currentUser.isSuperRole()) {
+                users = userDao.getSuperList();
+            } else {
+                users = userDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
+
             for (User user : users) {
-                setLocalizedStateName(user);
+                String stateName = dictionaryService.getLocalizedStateName(user.getState(), localeBean.getLocale());
+                if (stateName != null) {
+                    user.setStateName(stateName);
+                }
             }
             return users;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
+    public List<User> getUsersInGroup(int groupId) throws ServiceException {
+        try {
+            return userDao.getInGroup(groupId, currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.user.usersInGroupNotLoaded", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage(), groupId);
             throw new ServiceException(mess, e);
         }
     }
@@ -84,84 +115,191 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getNewUser() {
         User user = new User();
+        user.setCreateOwnGroup(true);
+        user.setLinkGroups(new ArrayList<>());
         user.setCreateFlag(true);
         return user;
     }
 
     @Override
-    public User getUser(int userId) throws ServiceException {
+    public User getUser(User selectedUser) throws ServiceException {
+        if (selectedUser == null) {
+            String mess = messageSource.getMessage("error.user.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            User user = setLocalizedStateName(userDao.get(userId, currentUser.getUser().getCompanyId()));
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedUser.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            User user = userDao.get(selectedUser.getId(), companyId);
+            String stateName = dictionaryService.getLocalizedStateName(user.getState(), localeBean.getLocale());
+            if (stateName != null) {
+                user.setStateName(stateName);
+            }
             user.setCreateFlag(false);
+            eventService.logEvent(Event.Type.USER_GETED, selectedUser.getId());
             return user;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.NotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), selectedUser.getId());
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
+    public User getUserById(int userId) throws ServiceException {
+        User user = new User();
+        user.setId(userId);
+        return getUser(user);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveUser(User user) throws ServiceException {
         try {
+            user.setLogin(user.getLogin().trim());
+            user.setEmail(user.getEmail().trim());
+
             if (user.isCreateFlag()) {
                 int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
                 int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
-
                 if (currentUserCount >= maxUserCount) {
-                    String mess = messageSource.getMessage("error.user.maxUserLimit", null, localeBean.getLocale());
-                    log.error(mess);
+                    String mess = messageSource.getMessage("error.user.maxUserLimit", new Object[]{maxUserCount}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, 0, mess);
                     throw new RestrictionException(mess);
                 }
-                userDao.create(user, currentUser.getUser().getCompanyId());
+
+                if (userDao.getCountByLogin(user.getLogin()) > 0) {
+                    String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                    throw new RestrictionException(mess);
+                }
+
+                if (userDao.getCountByEmail(user.getEmail()) > 0) {
+                    String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                    throw new RestrictionException(mess);
+                }
+
+                int userId = userDao.create(user, currentUser.getUser().getCompanyId());
+                // TODO: 22.10.2017 Сделать логирование событий в той же транзакции, а логирование ошибок - в отдельной транзакции
+                eventService.logEvent(Event.Type.USER_CREATED, userId);
+
+                if (user.isCreateOwnGroup()) {
+                    groupService.createGroupWithUser(user.getName(), Role.Id.CREATE, userId, currentUser.getUser().getCompanyId());
+                }
             } else {
                 userDao.update(user, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.USER_CHANGED, user.getId());
             }
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), user.getId());
+            throw new ServiceException(mess, e);
+        } catch (ServiceException e) {
+            String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
+            eventService.logError(mess + ": " + e.getMessage(), null);
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void lockUser(int userId) throws ServiceException {
+    public void lockUser(User user) throws ServiceException {
+        if (user == null) {
+            String mess = messageSource.getMessage("error.user.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (user.getState() == User.State.SYSTEM) {
+            String mess = messageSource.getMessage("error.operation.NotAllowed", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (user.getState() == User.State.LOCKED) {
+            return;
+        }
+
         try {
-            userDao.setState(User.State.LOCKED, userId, currentUser.getUser().getCompanyId());
-            sessionListener.invalidateUserSessions(userId);
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = user.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+            userDao.setState(User.State.LOCKED, user.getId(), companyId);
+            eventService.logEvent(Event.Type.USER_LOCKED, user.getId());
+            sessionListener.invalidateUserSessions(user.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.NotLocked", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), user.getId());
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void unlockUser(int userId) throws ServiceException {
+    public void unlockUser(User user) throws ServiceException {
+        if (user == null) {
+            String mess = messageSource.getMessage("error.user.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (user.getState() == User.State.SYSTEM) {
+            String mess = messageSource.getMessage("error.operation.NotAllowed", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (user.getState() == User.State.ACTIVE) {
+            return;
+        }
+
         try {
-            int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
-            int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = user.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            int currentUserCount = userDao.getCount(companyId, User.State.ACTIVE);
+            int maxUserCount = companyDao.getMaxUserCount(companyId);
 
             if (currentUserCount >= maxUserCount) {
-                String mess = messageSource.getMessage("error.user.maxUserLimit", null, localeBean.getLocale());
-                log.error(mess);
+                String mess = messageSource.getMessage("error.user.maxUserLimit", new Object[]{maxUserCount}, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
                 throw new RestrictionException(mess);
             }
-            userDao.setState(User.State.ACTIVE, userId, currentUser.getUser().getCompanyId());
+            userDao.setState(User.State.ACTIVE, user.getId(), companyId);
+            eventService.logEvent(Event.Type.USER_UNLOCKED, user.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.NotUnlocked", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), user.getId());
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void setUserPass(int userId, String newPass) throws ServiceException {
+    public void setUserPass(User user, String newPass) throws ServiceException {
+        if (user == null) {
+            String mess = messageSource.getMessage("error.user.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (user.getId() == 0) {
+            String mess = messageSource.getMessage("error.operation.NotAllowed", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            userDao.savePass(userId, toHash(userId, newPass));
+            userDao.savePass(user.getId(), toHash(user.getId(), newPass));
+            eventService.logEvent(Event.Type.USER_PASS_SETUP, user.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.passNotSetup", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), user.getId());
             throw new ServiceException(mess, e);
         }
     }
@@ -169,15 +307,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeUserPass(String login, String oldPass, String newPass) throws ServiceException {
         try {
-            int loginId = checkLoginAndPass(login, oldPass);
-            userDao.savePass(loginId, toHash(loginId, newPass));
-        } catch (PasswordException e) {
-            String mess = messageSource.getMessage("error.user.oldPassNotValid", null, localeBean.getLocale());
-            log.error(mess, e);
-            throw new PasswordException(mess);
+            int userId = checkLoginAndPass(login, oldPass);
+            userDao.savePass(userId, toHash(userId, newPass));
+            eventService.logEvent(Event.Type.USER_PASS_CHANGED, userId);
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.passNotChanged", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
+        } catch (PasswordException e) {
+            String mess = messageSource.getMessage("error.oldPass.not.valid", null, localeBean.getLocale());
+            eventService.logError(mess, null);
+            throw new PasswordException(mess);
+        } catch (ServiceException e) {
+            String mess = messageSource.getMessage("error.user.passNotChanged", null, localeBean.getLocale());
+            eventService.logError(mess + ": " + e.getMessage(), null);
             throw new ServiceException(mess, e);
         }
     }
@@ -187,39 +330,45 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> userIdAndPass;
         try {
             userIdAndPass = userDao.getUserIdAndPass(login);
-        } catch (DataAccessException e) {
-            String mess = messageSource.getMessage("error.user.userNameAndPassNotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+        } catch (NotFoundDaoException e) {
+            String mess = messageSource.getMessage("error.user.userNameOrPassNotValid", null, localeBean.getLocale());
+//            eventService.logError(mess, null);
             throw new PasswordException(mess);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.loginAndPass.not.checked", null, localeBean.getLocale());
+//            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
         }
 
-        int loginId = (int) userIdAndPass.get(UserDaoImpl.USER_ID);
+        int userId = (int) userIdAndPass.get(UserDaoImpl.USER_ID);
         String storedPass = (String) userIdAndPass.get(UserDaoImpl.PASS);
 
-        if (toHash(loginId, pass).equals(storedPass)) {
-            return loginId;
+        if (toHash(userId, pass).equals(storedPass)) {
+            return userId;
         } else {
             String mess = messageSource.getMessage("error.user.userNameOrPassNotValid", null, localeBean.getLocale());
-            log.error(mess);
+//            eventService.logError(mess, null);
             throw new PasswordException(mess);
         }
-    }
-
-    private User setLocalizedStateName(User user) {
-        switch (user.getState()) {
-            case User.State.LOCKED:
-                user.setStateName(messageSource.getMessage("status.locked", null, localeBean.getLocale()));
-                break;
-            case User.State.ACTIVE:
-                user.setStateName(messageSource.getMessage("status.active", null, localeBean.getLocale()));
-                break;
-            default:
-                user.setStateName("Unknown");
-        }
-        return user;
     }
 
     private String toHash(int userId, String pass) {
         return DigestUtils.sha256Hex(userId + "Вся#соль" + pass + "И%сахара$чуть-чуть");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createAdminUser(String userName, String userLogin, String userEmail, int companyId) throws ServiceException {
+        try {
+            User user = getNewUser();
+            user.setName(userName);
+            user.setLogin(userLogin);
+            user.setEmail(userEmail);
+            return userDao.create(user, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.user.adminNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
+        }
     }
 }

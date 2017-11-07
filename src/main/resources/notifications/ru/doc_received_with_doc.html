@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Пионер 2</title>
+		<meta charset="UTF-8">
+	</head>
+
+	<body>
+		<table border=1 cellpadding=0 width='100%' style='background:aliceblue'>
+			<tr>
+				<td colspan=2 style='padding:10px'>
+					<p align=center style='text-align:center;margin:auto'>От: <b>${notice.docGroupName}</b>
+						<br/>Документ: <b>${notice.docName}</b> (ид. ${notice.docId})</p>
+				</td>
+			</tr>
+
+			<#list fields as field>
+				<tr>
+					<#switch field.typeId>
+						<#case 5>
+							<td style='background:#E0EEE0;padding:10px'><b>${field.name}</b></td>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'>${field.valueTextField}</p></td>
+							<#break>
+						<#case 6>
+							<td style='background:#E0EEE0;padding:10px'><b>${field.name}</b></td>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'>${field.valueChoiceList}</p></td>
+							<#break>
+						<#case 7>
+							<td style='background:#E0EEE0;padding:10px'><b>${field.name}</b></td>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'>${field.valueCalendar?string["dd.MM.yyyy"]}</p></td>
+							<#break>
+						<#case 8>
+							<td style='background:#E0EEE0;padding:10px'><b>${field.name}</b></td>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'>${field.valueCheckBox?string("Да", "Нет")}</p></td>
+							<#break>
+						<#case 9>
+							<td style='background:#E0EEE0;padding:10px'><b>${field.name}</b></td>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'>${field.valueTextArea}</p></td>
+							<#break>
+						<#case 10>
+							<td style='background:#E0EEE0;padding:10px'><b>${field.name}</b></td>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'>${field.fileName}</p></td>
+							<#break>
+						<#case 20>
+							<td colspan="2" style='padding:10px'>
+								<hr/></td>
+							<#break>
+						<#case 21>
+							<td colspan="2" style='padding:10px'>
+								<br/></td>
+							<#break>
+						<#case 22>
+							<td colspan="2" style='padding:10px'>
+								<p align=center style='margin:auto'>${field.name}</p></td>
+							<#break>
+						<#default>
+							<td style='padding:10px'>
+								<p align=center style='margin:auto'></p></td>
+					</#switch>
+				</tr>
+			</#list>
+
+			<tr>
+				<td colspan=2>
+					<table border=0 cellpadding=0 width='100%' style='font-size:18.0pt;text-align:center'>
+						<tr>
+							<td width='50%' style='background:palegreen;padding:10px'>
+								<p style="margin:auto"><a href="mailto:${emailForCommandProcessing}?subject=${notice.docId}-ACCEPT-${notice.docStatusId}&amp;body=Тут можно написать комментарий...">Подтвердить</a></p></td>
+							<td width='50%' style='background:lightsalmon;padding:10px'>
+								<p style="margin:auto"><a href="mailto:${emailForCommandProcessing}?subject=${notice.docId}-REJECT-${notice.docStatusId}&amp;body=Тут можно написать комментарий...">Отклонить</a></p></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+
+		<p><span style='font-size:10.0pt'>
+			<a href="${serverBackRef}?currMenuId=${notice.menuId}&currDocId=${notice.docId}">
+				Ссылка</a> на документ в системе Пионер 2</span></p>
+	</body>
+</html>

@@ -1,16 +1,19 @@
 package ru.pioneersystem.pioneer2.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.RoleDao;
+import ru.pioneersystem.pioneer2.model.Event;
 import ru.pioneersystem.pioneer2.model.Role;
+import ru.pioneersystem.pioneer2.service.DictionaryService;
+import ru.pioneersystem.pioneer2.service.EventService;
 import ru.pioneersystem.pioneer2.service.RoleService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
-import ru.pioneersystem.pioneer2.view.CurrentUser;
+import ru.pioneersystem.pioneer2.service.CurrentUser;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import java.util.LinkedHashMap;
@@ -19,16 +22,19 @@ import java.util.Map;
 
 @Service("roleService")
 public class RoleServiceImpl implements RoleService {
-    private Logger log = LoggerFactory.getLogger(RoleServiceImpl.class);
-
+    private EventService eventService;
     private RoleDao roleDao;
+    private DictionaryService dictionaryService;
     private CurrentUser currentUser;
     private LocaleBean localeBean;
     private MessageSource messageSource;
 
     @Autowired
-    public RoleServiceImpl(RoleDao roleDao, CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource) {
+    public RoleServiceImpl(EventService eventService, RoleDao roleDao, DictionaryService dictionaryService,
+                           CurrentUser currentUser, LocaleBean localeBean, MessageSource messageSource) {
+        this.eventService = eventService;
         this.roleDao = roleDao;
+        this.dictionaryService = dictionaryService;
         this.currentUser = currentUser;
         this.localeBean = localeBean;
         this.messageSource = messageSource;
@@ -37,14 +43,23 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> getRoleList() throws ServiceException {
         try {
-            List<Role> roles = roleDao.getList(currentUser.getUser().getCompanyId());
+            List<Role> roles;
+            if (currentUser.isSuperRole()) {
+                roles = roleDao.getSuperList();
+            } else {
+                roles = roleDao.getAdminList(currentUser.getUser().getCompanyId());
+            }
+
             for (Role role : roles) {
-                setLocalizedRoleName(role);
+                String roleName = dictionaryService.getLocalizedRoleName(role.getId(), localeBean.getLocale());
+                if (roleName != null) {
+                    role.setName(roleName);
+                }
             }
             return roles;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotLoadedList", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
     }
@@ -59,6 +74,17 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public Map<Integer, Role> getUserRoleMap() throws ServiceException {
+        try {
+            return roleDao.getUserRole(currentUser.getUser().getId(), currentUser.getUser().getCompanyId());
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.role.userRoleNotLoaded", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
+        }
+    }
+
+    @Override
     public Role getNewRole() {
         Role role = new Role();
         role.setCreateFlag(true);
@@ -66,89 +92,113 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Role getRole(int roleId) throws ServiceException {
+    public Role getRole(Role selectedRole) throws ServiceException {
+        if (selectedRole == null) {
+            String mess = messageSource.getMessage("error.role.NotSelected", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
+        if (selectedRole.getState() == Role.State.SYSTEM) {
+            String mess = messageSource.getMessage("warn.system.edit.restriction", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            Role role = setLocalizedRoleName(roleDao.get(roleId, currentUser.getUser().getCompanyId()));
+            int companyId;
+            if (currentUser.isSuperRole()) {
+                companyId = selectedRole.getCompanyId();
+            } else {
+                companyId = currentUser.getUser().getCompanyId();
+            }
+
+            Role role = roleDao.get(selectedRole.getId(), companyId);
+            String roleName = dictionaryService.getLocalizedRoleName(role.getId(), localeBean.getLocale());
+            if (roleName != null) {
+                role.setName(roleName);
+            }
             role.setCreateFlag(false);
+            eventService.logEvent(Event.Type.ROLE_GETED, selectedRole.getId());
             return role;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotLoaded", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), selectedRole.getId());
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
     public void saveRole(Role role) throws ServiceException {
+        if (role.getState() == Role.State.SYSTEM) {
+            String mess = messageSource.getMessage("warn.system.edit.restriction", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
             if (role.isCreateFlag()) {
-                roleDao.create(role, currentUser.getUser().getCompanyId());
+                int roleId = roleDao.create(role, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.ROLE_CREATED, roleId);
             } else {
                 roleDao.update(role, currentUser.getUser().getCompanyId());
+                eventService.logEvent(Event.Type.ROLE_CHANGED, role.getId());
             }
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotSaved", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), role.getId());
             throw new ServiceException(mess, e);
         }
     }
 
     @Override
-    public void deleteRole(int roleId) throws ServiceException {
-        // TODO: 28.02.2017 Проверка на удаление системной роли плюс еще какая-нибудь проверка
-        // пример:
-        // установить @Transactional(rollbackForClassName = DaoException.class)
-        // после проверки выбрасывать RestrictionException("Нельзя удалять, пока используется в шаблоне")
-        // в ManagedBean проверять, если DaoException - то выдавать сообщение из DaoException
+    public void deleteRole(Role role) throws ServiceException {
+        if (role.getState() == Role.State.SYSTEM) {
+            String mess = messageSource.getMessage("warn.system.edit.restriction", null, localeBean.getLocale());
+            throw new RestrictionException(mess);
+        }
+
         try {
-            roleDao.delete(roleId, currentUser.getUser().getCompanyId());
+            roleDao.delete(role.getId(), currentUser.getUser().getCompanyId());
+            eventService.logEvent(Event.Type.ROLE_DELETED, role.getId());
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.role.NotDeleted", null, localeBean.getLocale());
-            log.error(mess, e);
+            eventService.logError(mess, e.getMessage(), role.getId());
             throw new ServiceException(mess, e);
         }
     }
 
-    private Role setLocalizedRoleName(Role role) {
-        if (role.getState() == Role.State.SYSTEM) {
-            switch (role.getId()) {
-                case Role.Id.SUPER:
-                    role.setName(messageSource.getMessage("role.name.super", null, localeBean.getLocale()));
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int createExampleRole(int roleExample, int companyId) throws ServiceException {
+        try {
+            Role role = getNewRole();
+
+            switch (roleExample) {
+                case Role.Example.COORDINATOR:
+                    role.setName(messageSource.getMessage("role.coord.name", null, localeBean.getLocale()));
+                    role.setAcceptButton(messageSource.getMessage("role.coord.accept", null, localeBean.getLocale()));
+                    role.setRejectButton(messageSource.getMessage("role.coord.reject", null, localeBean.getLocale()));
+                    role.setStatusName(messageSource.getMessage("role.coord.status", null, localeBean.getLocale()));
+                    role.setMenuName(messageSource.getMessage("role.coord.menu", null, localeBean.getLocale()));
+                    role.setCanComment(true);
                     break;
-                case Role.Id.ADMIN:
-                    role.setName(messageSource.getMessage("role.name.admin", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.USER:
-                    role.setName(messageSource.getMessage("role.name.user", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.REZ1:
-                    role.setName(messageSource.getMessage("role.name.rez1", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.PUBLIC:
-                    role.setName(messageSource.getMessage("role.name.public", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.COMMENT:
-                    role.setName(messageSource.getMessage("role.name.comment", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.EDIT:
-                    role.setName(messageSource.getMessage("role.name.edit", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.REZ2:
-                    role.setName(messageSource.getMessage("role.name.rez2", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.CREATE:
-                    role.setName(messageSource.getMessage("role.name.create", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.ON_COORDINATION:
-                    role.setName(messageSource.getMessage("role.name.coordinate", null, localeBean.getLocale()));
-                    break;
-                case Role.Id.ON_EXECUTION:
-                    role.setName(messageSource.getMessage("role.name.execute", null, localeBean.getLocale()));
+                case Role.Example.EXECUTOR:
+                    role.setName(messageSource.getMessage("role.exec.name", null, localeBean.getLocale()));
+                    role.setAcceptButton(messageSource.getMessage("role.exec.accept", null, localeBean.getLocale()));
+                    role.setRejectButton(messageSource.getMessage("role.exec.reject", null, localeBean.getLocale()));
+                    role.setStatusName(messageSource.getMessage("role.exec.status", null, localeBean.getLocale()));
+                    role.setMenuName(messageSource.getMessage("role.exec.menu", null, localeBean.getLocale()));
+                    role.setCanComment(true);
                     break;
                 default:
-                    role.setName("Unknown");
+                    String mess = messageSource.getMessage("error.role.exampleUnknown", null, localeBean.getLocale());
+                    eventService.logError(mess, null);
+                    throw new ServiceException(mess, null);
             }
+
+            return roleDao.create(role, companyId);
+        } catch (DataAccessException e) {
+            String mess = messageSource.getMessage("error.role.exampleNotCreated", null, localeBean.getLocale());
+            eventService.logError(mess, e.getMessage());
+            throw new ServiceException(mess, e);
         }
-        return role;
     }
 }

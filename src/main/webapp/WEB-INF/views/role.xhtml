@@ -3,8 +3,18 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
-	
-	<h2 align="center"><h:outputLabel value="#{text['role.title']}"/></h2>
+
+	#{roleView.refreshList()}
+
+	<h2 align="center">
+		<h:outputLabel value="#{text['role.title']}"/>
+		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+						 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
+						showEffect="clip" hideEffect="clip">
+			<ui:include src="/WEB-INF/helps/role_list.xhtml"/>
+		</p:overlayPanel>
+	</h2>
 
 	<p:panel>
 		<p:dataTable id="roleTable" value="#{roleView.roleList}" var="role" rows="20"
@@ -15,23 +25,25 @@
 					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
 					 rowStyleClass="#{role.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{roleView.editDialog}" update=":editDialog"
-					oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+			<p:ajax event="rowDblselect" listener="#{roleView.editDialog}" update=":editDialog" resetValues="true"/>
 
 			<p:column headerText="#{text['role.col.name']}" filterBy="#{role.name}" filterMatchMode="contains">
                 <h:outputText value="#{role.name}"/>
 	        </p:column>
+
+			<p:column headerText="#{text['role.col.company']}" filterBy="#{role.companyName}" filterMatchMode="contains"
+					  rendered="#{currentUser.superRole}">
+				<h:outputText value="#{role.companyName}"/>
+			</p:column>
 		</p:dataTable>
 
 		<f:facet name="footer">
 			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{roleView.newDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{roleView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
 			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{roleView.editDialog}"
-							 oncomplete="$('.ui-state-error').removeClass('ui-state-error');"/>
+                             actionListener="#{roleView.editDialog}" resetValues="true"/>
 			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-							 actionListener="#{roleView.deleteDialog}"/>
+							 actionListener="#{roleView.deleteDialog}" disabled="#{currentUser.superRole}"/>
 		</f:facet>
 	</p:panel>
 </ui:composition>

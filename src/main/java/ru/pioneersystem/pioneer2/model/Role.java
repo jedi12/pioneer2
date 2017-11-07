@@ -5,8 +5,13 @@ public class Role {
     private String name;
     private int state;
     private int type;
+    private int companyId;
+    private String companyName;
     private String acceptButton;
     private String rejectButton;
+    private boolean canRouteChange;
+    private boolean canEdit;
+    private boolean canComment;
     private String statusName;
     private String menuName;
 
@@ -22,27 +27,30 @@ public class Role {
         public static final int SUPER = 1;
         public static final int ADMIN = 2;
         public static final int USER = 3;
-        public static final int REZ1 = 4;
-        public static final int PUBLIC = 5;
-        public static final int COMMENT = 6;
-        public static final int EDIT = 7;
-        public static final int REZ2 = 8;
+        public static final int PUBLIC = 4;
+        public static final int REZ1 = 5;
+        public static final int REZ2 = 6;
+        public static final int REZ3 = 7;
+        public static final int REZ4 = 8;
         public static final int CREATE = 9;
-        public static final int ROUTE = 10;
+        public static final int ON_ROUTE = 10;
     }
 
     public static class Id {
         public static final int SUPER = 1;
         public static final int ADMIN = 2;
         public static final int USER = 3;
-        public static final int REZ1 = 4;
-        public static final int PUBLIC = 5;
-        public static final int COMMENT = 6;
-        public static final int EDIT = 7;
-        public static final int REZ2 = 8;
+        public static final int PUBLIC = 4;
+        public static final int REZ1 = 5;
+        public static final int REZ2 = 6;
+        public static final int REZ3 = 7;
+        public static final int REZ4 = 8;
         public static final int CREATE = 9;
-        public static final int ON_COORDINATION = 10;
-        public static final int ON_EXECUTION = 11;
+    }
+
+    public static class Example {
+        public static final int COORDINATOR = 1;
+        public static final int EXECUTOR = 2;
     }
 
     public int getId() {
@@ -77,6 +85,22 @@ public class Role {
         this.type = type;
     }
 
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
     public String getAcceptButton() {
         return acceptButton;
     }
@@ -91,6 +115,30 @@ public class Role {
 
     public void setRejectButton(String rejectButton) {
         this.rejectButton = rejectButton;
+    }
+
+    public boolean isCanRouteChange() {
+        return canRouteChange;
+    }
+
+    public void setCanRouteChange(boolean canRouteChange) {
+        this.canRouteChange = canRouteChange;
+    }
+
+    public boolean isCanEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(boolean canEdit) {
+        this.canEdit = canEdit;
+    }
+
+    public boolean isCanComment() {
+        return canComment;
+    }
+
+    public void setCanComment(boolean canComment) {
+        this.canComment = canComment;
     }
 
     public String getStatusName() {

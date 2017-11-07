@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.pioneersystem.pioneer2.dao.TemplateDao;
 import ru.pioneersystem.pioneer2.dao.exception.NotFoundDaoException;
 import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.model.Template;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Repository(value = "templateDao")
 public class TemplateDaoImpl implements TemplateDao {
@@ -41,13 +41,33 @@ public class TemplateDaoImpl implements TemplateDao {
                     "FROM DOC.TEMPLATES_COND TC LEFT JOIN DOC.ROUTES R ON TC.ROUTE = R.ID " +
                     "LEFT JOIN DOC.TEMPLATES_FIELD TF ON TC.ID = TF.ID AND TF.FIELD_NUM = TC.FIELD_NUM " +
                     "WHERE TC.ID = ? ORDER BY FIELD_NUM ASC";
-    private static final String SELECT_TEMPLATE_LIST =
+    private static final String SELECT_SUPER_TEMPLATE_LIST =
             "SELECT T.ID AS ID, T.NAME AS NAME, T.STATE AS STATE, R.ID AS ROUTE_ID, R.NAME AS ROUTE_NAME, " +
-                    "P.ID AS PART_ID, P.NAME AS PART_NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.ROUTES R " +
-                    "ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID WHERE T.STATE > 0 AND T.COMPANY = ? " +
-                    "ORDER BY STATE DESC, NAME ASC";
+                    "P.ID AS PART_ID, P.NAME AS PART_NAME, T.COMPANY, C.NAME AS COMPANY_NAME FROM DOC.TEMPLATES T " +
+                    "LEFT JOIN DOC.ROUTES R ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID " +
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = T.COMPANY WHERE T.STATE > 0 ORDER BY T.COMPANY ASC, NAME ASC";
+    private static final String SELECT_ADMIN_TEMPLATE_LIST =
+            "SELECT T.ID AS ID, T.NAME AS NAME, T.STATE AS STATE, R.ID AS ROUTE_ID, R.NAME AS ROUTE_NAME, " +
+                    "P.ID AS PART_ID, P.NAME AS PART_NAME, T.COMPANY, NULL AS COMPANY_NAME FROM DOC.TEMPLATES T " +
+                    "LEFT JOIN DOC.ROUTES R ON T.ROUTE = R.ID LEFT JOIN DOC.PARTS P ON T.PART = P.ID " +
+                    "WHERE T.STATE > 0 AND T.COMPANY = ? ORDER BY STATE DESC, NAME ASC";
     private static final String SELECT_TEMPLATE_LIST_BY_PART =
             "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND PART = ? AND COMPANY = ? ORDER BY NAME ASC";
+    private static final String SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST =
+            "SELECT DISTINCT NAME FROM DOC.TEMPLATES T, DOC.TEMPLATES_FIELD TF WHERE T.ID = TF.ID AND STATE > 0 " +
+                    "AND FIELD_LIST = ? AND COMPANY = ? ORDER BY NAME";
+    private static final String UPDATE_TEMPLATE_PARTS =
+            "UPDATE DOC.TEMPLATES SET PART = 0 WHERE STATE > 0 AND PART = ? AND COMPANY = ?";
+    private static final String SELECT_TEMPLATE_LIST_CONTAINING_ROUTE =
+            "SELECT DISTINCT NAME FROM DOC.TEMPLATES T LEFT JOIN DOC.TEMPLATES_COND TC ON T.ID = TC.ID " +
+                    "WHERE T.STATE = 1 AND (T.ROUTE = ? OR TC.ROUTE = ?) AND COMPANY = ?";
+    private static final String SELECT_USER_TEMPLATE_MAP =
+            "SELECT DISTINCT T.ID AS ID, T.NAME AS NANE FROM DOC.TEMPLATES T LEFT JOIN DOC.PARTS P ON P.ID = T.PART " +
+                    "LEFT JOIN DOC.PARTS_GROUP PG ON P.ID = PG.ID LEFT JOIN DOC.GROUPS_USER GU ON PG.GROUP_ID = GU.ID " +
+                    "WHERE TYPE = 1 AND T.STATE > 0 AND (GU.USER_ID = ? OR GU.USER_ID IS NULL) AND T.COMPANY = ? " +
+                    "ORDER BY T.NAME ASC";
+    private static final String SELECT_TEMPLATE_MAP =
+            "SELECT ID, NAME FROM DOC.TEMPLATES WHERE STATE > 0 AND COMPANY = ? ORDER BY NAME ASC";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -96,7 +116,7 @@ public class TemplateDaoImpl implements TemplateDao {
         List<Document.Condition> resultConditions = jdbcTemplate.query(SELECT_TEMPLATE_CONDITION,
                 new Object[]{templateId},
                 rs -> {
-                    List<Document.Condition> conditions = new LinkedList<>();
+                    List<Document.Condition> conditions = new ArrayList<>();
                     while(rs.next()){
                         Document.Condition condition = new Document.Condition();
                         condition.setCondNum(rs.getInt("COND_NUM"));
@@ -119,19 +139,36 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
-    public List<Template> getList(int companyId) throws DataAccessException {
-        return jdbcTemplate.query(SELECT_TEMPLATE_LIST,
-                new Object[]{companyId},
-                (rs, rowNum) -> {
-                    Template template = new Template();
-                    template.setId(rs.getInt("ID"));
-                    template.setName(rs.getString("NAME"));
-                    template.setState(rs.getInt("STATE"));
-                    template.setRouteId(rs.getInt("ROUTE_ID"));
-                    template.setRouteName(rs.getString("ROUTE_NAME"));
-                    template.setPartId(rs.getInt("PART_ID"));
-                    template.setPartName(rs.getString("PART_NAME"));
-                    return template;
+    public List<Template> getSuperList() throws DataAccessException {
+        Object[] params = new Object[]{};
+        return getList(SELECT_SUPER_TEMPLATE_LIST, params);
+    }
+
+    @Override
+    public List<Template> getAdminList(int companyId) throws DataAccessException {
+        Object[] params = new Object[]{companyId};
+        return getList(SELECT_ADMIN_TEMPLATE_LIST, params);
+    }
+
+    private List<Template> getList(String query, Object[] params) throws DataAccessException {
+        return jdbcTemplate.query(query, params,
+                (rs) -> {
+                    List<Template> templates = new ArrayList<>();
+                    while(rs.next()){
+                        Template template = new Template();
+                        template.setId(rs.getInt("ID"));
+                        template.setName(rs.getString("NAME"));
+                        template.setState(rs.getInt("STATE"));
+                        template.setRouteId(rs.getInt("ROUTE_ID"));
+                        template.setRouteName(rs.getString("ROUTE_NAME"));
+                        template.setPartId(rs.getInt("PART_ID"));
+                        template.setPartName(rs.getString("PART_NAME"));
+                        template.setCompanyId(rs.getInt("COMPANY"));
+                        template.setCompanyName(rs.getString("COMPANY_NAME"));
+
+                        templates.add(template);
+                    }
+                    return templates;
                 }
         );
     }
@@ -150,8 +187,68 @@ public class TemplateDaoImpl implements TemplateDao {
     }
 
     @Override
+    public List<String> getListContainingChoiceList(int choiceListId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_CHOICE_LIST,
+                new Object[]{choiceListId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    public List<String> getListContainingRoute(int routeId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_LIST_CONTAINING_ROUTE,
+                new Object[]{routeId, routeId, companyId},
+                (rs, rowNum) -> rs.getString("NAME")
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getTemplateMap(int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_TEMPLATE_MAP,
+                new Object[]{companyId},
+                (rs) -> {
+                    Map<String, Integer> routes = new LinkedHashMap<>();
+                    while(rs.next()){
+                        routes.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return routes;
+                }
+        );
+    }
+
+    @Override
+    public Map<String, Integer> getUserTemplateMap(int userId, int companyId) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_USER_TEMPLATE_MAP,
+                new Object[]{userId, companyId},
+                (rs) -> {
+                    Map<String, Integer> routes = new LinkedHashMap<>();
+                    while(rs.next()){
+                        routes.put(rs.getString("NAME"), rs.getInt("ID"));
+                    }
+                    return routes;
+                }
+        );
+    }
+
+    @Override
     @Transactional
-    public void create(Template template, int companyId) throws DataAccessException {
+    public void removeFromParts(List<Part> parts, int companyId) throws DataAccessException {
+        jdbcTemplate.batchUpdate(UPDATE_TEMPLATE_PARTS,
+                new BatchPreparedStatementSetter() {
+                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
+                        pstmt.setInt(1, parts.get(i).getId());
+                        pstmt.setObject(2, companyId);
+                    }
+                    public int getBatchSize() {
+                        return parts.size();
+                    }
+                }
+        );
+    }
+
+    @Override
+    @Transactional
+    public int create(Template template, int companyId) throws DataAccessException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(
                 connection -> {
@@ -199,6 +296,7 @@ public class TemplateDaoImpl implements TemplateDao {
                     }
                 }
         );
+        return keyHolder.getKey().intValue();
     }
 
     @Override

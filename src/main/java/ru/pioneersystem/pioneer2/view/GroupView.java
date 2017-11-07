@@ -2,9 +2,9 @@ package ru.pioneersystem.pioneer2.view;
 
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Group;
-import ru.pioneersystem.pioneer2.service.GroupService;
-import ru.pioneersystem.pioneer2.service.RoleService;
-import ru.pioneersystem.pioneer2.service.UserService;
+import ru.pioneersystem.pioneer2.service.*;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -13,10 +13,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -34,13 +31,27 @@ public class GroupView implements Serializable {
     private Map<String, Integer> selectUserDefault;
     private String selectedUser;
 
+    private List<String> routesWithGroup;
+    private List<String> docToCancel;
+    private int countPartsWithRestriction;
+    private int countRoutesWithRestriction;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{groupService}")
     private GroupService groupService;
 
+    @ManagedProperty("#{partService}")
+    private PartService partService;
+
     @ManagedProperty("#{roleService}")
     private RoleService roleService;
+
+    @ManagedProperty("#{routeService}")
+    private RouteService routeService;
+
+    @ManagedProperty("#{documentService}")
+    private DocumentService documentService;
 
     @ManagedProperty("#{userService}")
     private UserService userService;
@@ -49,16 +60,14 @@ public class GroupView implements Serializable {
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
         currGroup = groupService.getNewGroup();
-        refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -72,19 +81,15 @@ public class GroupView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedGroup == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.group.NotSelected")));
-            return;
-        }
-
         try {
-            currGroup = groupService.getGroup(selectedGroup.getId());
+            currGroup = groupService.getGroup(selectedGroup);
             selectUser = getCurrSelectUser(currGroup);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -110,12 +115,25 @@ public class GroupView implements Serializable {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            routesWithGroup = routeService.getRoutesWithGroup(selectedGroup.getId());
+            docToCancel = documentService.getDocToCancelByGroup(selectedGroup.getId());
+            if (routesWithGroup.isEmpty() && docToCancel.isEmpty()) {
+                countPartsWithRestriction = partService.getCountPartsWithRestriction(selectedGroup.getId());
+                countRoutesWithRestriction = routeService.getCountRoutesWithRestriction(selectedGroup.getId());
+            }
+
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        }
+        catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
         try {
-            groupService.deleteGroup(selectedGroup.getId());
+            groupService.deleteGroup(selectedGroup);
             refreshList();
         }
         catch (Exception e) {
@@ -145,7 +163,7 @@ public class GroupView implements Serializable {
     }
 
     private List<String> getCurrSelectUser(Group currGroup) {
-        List<String> currSelectUser = new LinkedList<>();
+        List<String> currSelectUser = new ArrayList<>();
         currSelectUser.addAll(selectUserDefault.keySet());
         for (Group.LinkUser linkUser: currGroup.getLinkUsers()) {
             currSelectUser.remove(linkUser.getUserName());
@@ -157,8 +175,20 @@ public class GroupView implements Serializable {
         this.groupService = groupService;
     }
 
+    public void setPartService(PartService partService) {
+        this.partService = partService;
+    }
+
     public void setRoleService(RoleService roleService) {
         this.roleService = roleService;
+    }
+
+    public void setRouteService(RouteService routeService) {
+        this.routeService = routeService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
     }
 
     public void setUserService(UserService userService) {
@@ -207,5 +237,21 @@ public class GroupView implements Serializable {
 
     public void setSelectedUser(String selectedUser) {
         this.selectedUser = selectedUser;
+    }
+
+    public List<String> getRoutesWithGroup() {
+        return routesWithGroup;
+    }
+
+    public List<String> getDocToCancel() {
+        return docToCancel;
+    }
+
+    public int getCountPartsWithRestriction() {
+        return countPartsWithRestriction;
+    }
+
+    public int getCountRoutesWithRestriction() {
+        return countRoutesWithRestriction;
     }
 }

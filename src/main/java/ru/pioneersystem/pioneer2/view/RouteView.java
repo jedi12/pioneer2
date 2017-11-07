@@ -5,6 +5,9 @@ import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.model.Route;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RouteService;
+import ru.pioneersystem.pioneer2.service.TemplateService;
+import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
+import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -13,10 +16,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 @ManagedBean
 @ViewScoped
@@ -38,6 +38,8 @@ public class RouteView implements Serializable {
     private Map<String, Integer> selectGroupDefault;
     private String selectedGroup;
 
+    private List<String> templatesWithRoute;
+
     private ResourceBundle bundle;
 
     @ManagedProperty("#{routeService}")
@@ -46,19 +48,20 @@ public class RouteView implements Serializable {
     @ManagedProperty("#{groupService}")
     private GroupService groupService;
 
+    @ManagedProperty("#{templateService}")
+    private TemplateService templateService;
+
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-        refreshList();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         try {
             routeList = routeService.getRouteList();
             selectPointDefault = groupService.getPointMap();
             selectGroupDefault = groupService.getGroupMap();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -73,20 +76,16 @@ public class RouteView implements Serializable {
     }
 
     public void editDialog() {
-        if (selectedRoute == null) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
-                    bundle.getString("warn"), bundle.getString("error.route.NotSelected")));
-            return;
-        }
-
         try {
-            currRoute = routeService.getRoute(selectedRoute.getId());
+            currRoute = routeService.getRoute(selectedRoute);
             selectPoint = getCurrSelectPoint(currRoute);
             selectGroup = getCurrSelectGroup(currRoute);
 
             RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
-        }
-        catch (Exception e) {
+        } catch (RestrictionException e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                    bundle.getString("warn"), e.getMessage()));
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -98,8 +97,7 @@ public class RouteView implements Serializable {
 
             refreshList();
             RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -112,15 +110,20 @@ public class RouteView implements Serializable {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        try {
+            templatesWithRoute = templateService.getListContainingRoute(selectedRoute.getId());
+            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
+                    bundle.getString("fatal"), e.getMessage()));
+        }
     }
 
     public void deleteAction() {
         try {
-            routeService.deleteRoute(selectedRoute.getId());
+            routeService.deleteRoute(selectedRoute);
             refreshList();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
         }
@@ -139,6 +142,15 @@ public class RouteView implements Serializable {
         point.setGroupName(selectedPoint);
         point.setRoleId(selectPointDefault.get(selectedPoint).getRoleId());
         point.setRoleName(selectPointDefault.get(selectedPoint).getRoleName());
+
+        for (Route.Point currPoint: currRoute.getPoints()) {
+            if (currPoint.getStage() == point.getStage() && currPoint.getRoleId() != point.getRoleId()) {
+                FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        bundle.getString("warn"), bundle.getString("warn.route.badRoute")));
+                return;
+            }
+        }
+
         currRoute.getPoints().add(point);
 
         selectPoint.remove(selectedPoint);
@@ -166,7 +178,7 @@ public class RouteView implements Serializable {
     }
 
     private List<String> getCurrSelectPoint(Route currRoute) {
-        List<String> currSelectRoute = new LinkedList<>();
+        List<String> currSelectRoute = new ArrayList<>();
         currSelectRoute.addAll(selectPointDefault.keySet());
         for (Route.Point point: currRoute.getPoints()) {
             currSelectRoute.remove(point.getGroupName());
@@ -175,7 +187,7 @@ public class RouteView implements Serializable {
     }
 
     private List<String> getCurrSelectGroup(Route currRoute) {
-        List<String> currSelectGroup = new LinkedList<>();
+        List<String> currSelectGroup = new ArrayList<>();
         currSelectGroup.addAll(selectGroupDefault.keySet());
         for (Route.LinkGroup linkGroup : currRoute.getGroups()) {
             currSelectGroup.remove(linkGroup.getGroupName());
@@ -189,6 +201,10 @@ public class RouteView implements Serializable {
 
     public void setGroupService(GroupService groupService) {
         this.groupService = groupService;
+    }
+
+    public void setTemplateService(TemplateService templateService) {
+        this.templateService = templateService;
     }
 
     public List<Route> getRouteList() {
@@ -257,5 +273,9 @@ public class RouteView implements Serializable {
 
     public void setSelectedGroup(String selectedGroup) {
         this.selectedGroup = selectedGroup;
+    }
+
+    public List<String> getTemplatesWithRoute() {
+        return templatesWithRoute;
     }
 }
