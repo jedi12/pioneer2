@@ -18,9 +18,9 @@ public class Event {
 
     public static class Type {
         public static final int ERROR = 0;
-        public static final int CHANNEL_SN = 1;
-        public static final int CHANNEL_MC = 2;
-        public static final int CHANNEL_CD = 3;
+        public static final int CHANNEL_SEND_NOTICES = 1;
+        public static final int CHANNEL_MAIL_COMMAND = 2;
+        public static final int CHANNEL_CREATE_DOCS = 3;
         public static final int PROC_SYNC_COMPLETED = 16;
 
         public static final int DOC_ERROR = 20;

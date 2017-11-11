@@ -56,12 +56,12 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void logMailError(String detail1, String detail2) {
-        logEvent(Event.Type.CHANNEL_SN, 0, detail1, detail2);
+        logEvent(Event.Type.CHANNEL_SEND_NOTICES, 0, detail1, detail2);
     }
 
     @Override
     public void logMailError(String detail1, String detail2, int objectId) {
-        logEvent(Event.Type.CHANNEL_SN, objectId, detail1, detail2);
+        logEvent(Event.Type.CHANNEL_SEND_NOTICES, objectId, detail1, detail2);
     }
 
     @Override
