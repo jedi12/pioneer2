@@ -77,6 +77,7 @@ public class CurrentUser implements Serializable {
     }
 
     public void signIn(String login, String pass) throws ServiceException {
+        superRole = adminRole = userRole = publicRole = false;
         try {
             int userId = userService.checkLoginAndPass(login, pass);
             user = userService.getUserWithCompany(userId);

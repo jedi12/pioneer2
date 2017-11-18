@@ -53,7 +53,8 @@ public class SearchDaoImpl implements SearchDao {
                     "LEFT JOIN DOC.GROUPS G ON G.ID = DOCS.DOC_GROUP";
     private static final String SELECT_FOR_SUPER =
             "SELECT DISTINCT D.ID AS ID, D.NAME AS NAME, D.STATUS AS STATUS, D.DOC_GROUP AS DOC_GROUP, " +
-                    "D.U_DATE AS U_DATE, D.TEMPLATE AS TEMPLATE, D.COMPANY AS COMPANY_ID FROM DOC.DOCUMENTS D ";
+                    "D.U_DATE AS U_DATE, D.TEMPLATE AS TEMPLATE, D.COMPANY AS COMPANY_ID FROM DOC.DOCUMENTS D " +
+                    "WHERE D.COMPANY >= 0";
     private static final String SELECT_ALL_SUPER_ALLOWED_DOC_LIST =
             "SELECT DOCS.ID AS ID, DOCS.NAME AS DOC_NAME, DS.NAME AS STATUS_NAME, DOCS.STATUS AS STATUS, " +
                     "G.NAME AS GROUP_NAME, DOCS.DOC_GROUP AS DOC_GROUP, DOCS.U_DATE AS U_DATE, " +
@@ -159,6 +160,8 @@ public class SearchDaoImpl implements SearchDao {
                 params.add(searchFilter.getOwnerId());
             }
         }
+        query = query + " FETCH FIRST 1000 ROWS ONLY";
+
         return query;
     }
 }

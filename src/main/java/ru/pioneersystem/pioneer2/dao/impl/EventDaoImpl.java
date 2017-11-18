@@ -24,11 +24,11 @@ public class EventDaoImpl implements EventDao {
     private static final String SELECT_ADMIN_EVENT_LIST =
             "SELECT E_DATE, E_USER, LOGIN, E_TYPE, OBJ_ID, DETAIL1 FROM DOC.EVENTS E " +
                     "LEFT JOIN DOC.USERS U ON U.ID = E.E_USER " +
-                    "WHERE E_DATE >= ? AND E_DATE < ? AND E.COMPANY = ? ORDER BY E_DATE ASC";
+                    "WHERE E_DATE >= ? AND E_DATE < ? AND E.COMPANY = ? ORDER BY E_DATE ASC FETCH FIRST 10000 ROWS ONLY";
     private static final String SELECT_SUPER_EVENT_LIST =
             "SELECT E_DATE, E_USER, LOGIN, E_TYPE, OBJ_ID, DETAIL1 FROM DOC.EVENTS E " +
                     "LEFT JOIN DOC.USERS U ON U.ID = E.E_USER " +
-                    "WHERE E_DATE >= ? AND E_DATE < ? ORDER BY E_DATE ASC";
+                    "WHERE E_DATE >= ? AND E_DATE < ? AND E.COMPANY >= 0 ORDER BY E_DATE ASC FETCH FIRST 10000 ROWS ONLY";
     private static final String SELECT_EVENT_DETAIL =
             "SELECT DETAIL2 FROM DOC.EVENTS WHERE E_DATE = ? AND E_USER = ?";
 

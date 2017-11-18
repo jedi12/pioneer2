@@ -62,25 +62,30 @@
 					<p:tab title="#{text['company.tab2.name']}" rendered="#{companyView.currCompany.createFlag}">
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
 							<h:panelGrid id="adminGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
-								<p:outputLabel value="#{text['group.edit.name.label']}" for="adminGroupName"/>
+								<p:outputLabel value="#{text['company.edit.adminGroupName']}" for="adminGroupName"/>
 								<p:inputText id="adminGroupName" value="#{companyView.currCompany.groupName}"
 											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminGroupName" display="icon" styleClass="width38px"/>
 
-								<p:outputLabel value="#{text['user.edit.name']}" for="adminName"/>
+								<p:outputLabel value="#{text['company.edit.adminName']}" for="adminName"/>
 								<p:inputText id="adminName" value="#{companyView.currCompany.userName}"
 											 styleClass="width100" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminName" display="icon" styleClass="width38px"/>
 
-								<p:outputLabel value="#{text['user.edit.login']}" for="adminLogin"/>
+								<p:outputLabel value="#{text['company.edit.adminLogin']}" for="adminLogin"/>
 								<p:inputText id="adminLogin" value="#{companyView.currCompany.userLogin}"
 											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminLogin" display="icon"/>
 
-								<p:outputLabel value="#{text['user.edit.email']}" for="adminEmail"/>
+								<p:outputLabel value="#{text['company.edit.adminEmail']}" for="adminEmail"/>
 								<p:inputText id="adminEmail" value="#{companyView.currCompany.userEmail}"
 											 style="width: 100%" maxlength="64" validator="notEmptyString"/>
 								<p:message for="adminEmail" display="icon"/>
+
+								<p:outputLabel value="#{text['company.edit.adminPass']}" for="adminPass"/>
+								<p:inputText id="adminPass" value="#{companyView.currCompany.userPass}"
+											 style="width: 100%" maxlength="64"/>
+								<p:message for="adminPass" display="icon"/>
 							</h:panelGrid>
 						</p:panel>
 					</p:tab>

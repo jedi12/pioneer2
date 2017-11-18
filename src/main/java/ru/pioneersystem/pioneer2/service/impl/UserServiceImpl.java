@@ -187,6 +187,7 @@ public class UserServiceImpl implements UserService {
                 }
 
                 int userId = userDao.create(user, currentUser.getUser().getCompanyId());
+                user.setId(userId);
                 // TODO: 22.10.2017 Сделать логирование событий в той же транзакции, а логирование ошибок - в отдельной транзакции
                 eventService.logEvent(Event.Type.USER_CREATED, userId);
 
@@ -358,13 +359,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int createAdminUser(String userName, String userLogin, String userEmail, int companyId) throws ServiceException {
+    public int createAdminUser(String userName, String userLogin, String userEmail, String userPass, int companyId) throws ServiceException {
         try {
             User user = getNewUser();
             user.setName(userName);
             user.setLogin(userLogin);
             user.setEmail(userEmail);
-            return userDao.create(user, companyId);
+            int userId = userDao.create(user, companyId);
+            user.setId(userId);
+
+            if (userPass != null && !userPass.trim().equals(""))
+            setUserPass(user, userPass);
+            return userId;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.adminNotCreated", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());

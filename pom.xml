@@ -18,9 +18,10 @@
         <servlet.version>3.1.0</servlet.version>
         <jsf.version>2.2.8</jsf.version>
         <primefaces.version>6.1</primefaces.version>
-        <h2.version>1.4.193</h2.version>
+        <h2.version>1.4.196</h2.version>
         <java.mail.version>1.6.0</java.mail.version>
         <freemarker.version>2.3.26-incubating</freemarker.version>
+        <javamelody.version>1.70.0</javamelody.version>
     </properties>
 
     <dependencies>
@@ -123,6 +124,12 @@
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${freemarker.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-core</artifactId>
+            <version>${javamelody.version}</version>
         </dependency>
 
         <dependency>

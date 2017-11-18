@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="#{localeBean.language}"
+	  xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://java.sun.com/jsf/html"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:p="http://primefaces.org/ui">
+
+<f:view contentType="text/html" locale="#{localeBean.locale}">
+	<h:head>
+		<f:facet name="first">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+			<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+			<title>#{text['system.name']}</title>
+			<link rel="shortcut icon" type="image/x-icon" href="#{resource['images/favicon.ico']}"/>
+		</f:facet>
+
+		<h:outputStylesheet name="css/default.css"/>
+		<h:outputScript name="js/script.js"/>
+	</h:head>
+
+	<h:body>
+		<h:form>
+			<p:panel id="panel">
+				<p:outputLabel value="Начать создание объектов базы данных" style="margin-right: 10px"/>
+				<p:commandButton value="Старт" actionListener="#{testView.startCreateObjects}"
+								 rendered="#{currentUser.superRole}" update="panel"/>
+				<p:outputLabel value="#{testView.createMess}" style="margin-left: 10px"/>
+				<br/>
+				<br/>
+				<p:outputLabel value="Начать заполнение базы документами" style="margin-right: 10px"/>
+				<p:commandButton value="Старт" actionListener="#{testView.startFillDataBase}"
+								 rendered="#{currentUser.superRole}" update="panel"/>
+				<p:outputLabel value="#{testView.fillMess}" style="margin-left: 10px"/>
+			</p:panel>
+		</h:form>
+
+		<p:growl id="growl" showDetail="true" life="10000" autoUpdate="true"/>
+	</h:body>
+</f:view>
+</html>

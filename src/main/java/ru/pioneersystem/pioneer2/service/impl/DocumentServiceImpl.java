@@ -144,7 +144,7 @@ public class DocumentServiceImpl implements DocumentService {
             document.setDocumentGroupId(currentUser.getUserCreateGroups().entrySet().iterator().next().getValue());
             document.setCreateFlag(true);
             document.setEditMode(true);
-            setupViewElements(document, null);
+            setupViewElements(document, Collections.emptyList());
             return document;
         } catch (NotFoundDaoException e) {
             String mess = messageSource.getMessage("error.document.templateNotFound", null, localeBean.getLocale());

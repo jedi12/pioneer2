@@ -29,7 +29,8 @@ public class ChoiceListDaoImpl implements ChoiceListDao {
     private static final String SELECT_LIST_FIELD = "SELECT VALUE FROM DOC.LISTS_FIELD WHERE ID = ?";
     private static final String SELECT_SUPER_CHOICE_LIST_LIST =
             "SELECT L.ID AS ID, L.NAME AS NAME, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.LISTS L " +
-                    "LEFT JOIN DOC.COMPANY C ON C.ID = L.COMPANY WHERE L.STATE > 0 ORDER BY L.COMPANY ASC, L.NAME ASC";
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = L.COMPANY WHERE L.STATE > 0 AND COMPANY >= 0 " +
+                    "ORDER BY L.COMPANY ASC, L.NAME ASC";
     private static final String SELECT_ADMIN_CHOICE_LIST_LIST =
             "SELECT ID, NAME, COMPANY, NULL AS COMPANY_NAME FROM DOC.LISTS WHERE STATE > 0 AND COMPANY = ? " +
                     "ORDER BY NAME ASC";
