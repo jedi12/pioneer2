@@ -13,7 +13,6 @@ import ru.pioneersystem.pioneer2.model.Event;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 

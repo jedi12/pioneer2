@@ -73,7 +73,7 @@
 
 							<br />
 
-							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
 								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['route.edit.label.stage']}" for="addStage"/>
 									<p:spinner id="addStage" value="#{routeView.stage}" min="1" max="200" maxlength="3" size="3"
@@ -122,7 +122,7 @@
 
 							<br />
 
-							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
 								<h:panelGrid id="addGroupGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['route.edit.label.group']}" for="addGroupValue"/>
 									<p:selectOneMenu id="addGroupValue" value="#{routeView.selectedGroup}" styleClass="width100" effect="fade"

@@ -1,11 +1,10 @@
 package ru.pioneersystem.pioneer2.view;
 
 import org.primefaces.context.RequestContext;
-import ru.pioneersystem.pioneer2.model.*;
-import ru.pioneersystem.pioneer2.service.*;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
+import ru.pioneersystem.pioneer2.model.Document;
+import ru.pioneersystem.pioneer2.model.SearchFilter;
+import ru.pioneersystem.pioneer2.service.SearchService;
 import ru.pioneersystem.pioneer2.service.exception.TooManyObjectsException;
-import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -14,8 +13,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 @ManagedBean
@@ -29,10 +26,6 @@ public class SearchView implements Serializable {
 
     private SearchFilter searchFilter;
 
-    private Map<String, Integer> forSearchTemplates;
-    private Map<String, Integer> forSearchStatuses;
-    private Map<String, Integer> forSearchCreateGroups;
-
     private ResourceBundle bundle;
 
     @ManagedProperty("#{documentView}")
@@ -41,35 +34,10 @@ public class SearchView implements Serializable {
     @ManagedProperty("#{searchService}")
     private SearchService searchService;
 
-    @ManagedProperty("#{templateService}")
-    private TemplateService templateService;
-
-    @ManagedProperty("#{statusService}")
-    private StatusService statusService;
-
-    @ManagedProperty("#{groupService}")
-    private GroupService groupService;
-
-    @ManagedProperty("#{localeBean}")
-    private LocaleBean localeBean;
-
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
-
-        searchFilter = new SearchFilter();
-        ZonedDateTime currDate = LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId());
-        searchFilter.setFromDate(Date.from(currDate.toInstant()));
-        searchFilter.setToDate(Date.from(currDate.toInstant()));
-
-        try {
-            forSearchTemplates = templateService.getForSearchTemplateMap();
-            forSearchStatuses = statusService.getStatusMap();
-            forSearchCreateGroups = groupService.getForSearchGroupMap();
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
-                    bundle.getString("fatal"), e.getMessage()));
-        }
+        searchFilter = searchService.getNewFilter();
     }
 
     public void findAction() {
@@ -115,22 +83,6 @@ public class SearchView implements Serializable {
         this.searchService = searchService;
     }
 
-    public void setTemplateService(TemplateService templateService) {
-        this.templateService = templateService;
-    }
-
-    public void setStatusService(StatusService statusService) {
-        this.statusService = statusService;
-    }
-
-    public void setGroupService(GroupService groupService) {
-        this.groupService = groupService;
-    }
-
-    public void setLocaleBean(LocaleBean localeBean) {
-        this.localeBean = localeBean;
-    }
-
     public List<Document> getDocumentList() {
         return documentList;
     }
@@ -157,17 +109,5 @@ public class SearchView implements Serializable {
 
     public void setSearchFilter(SearchFilter searchFilter) {
         this.searchFilter = searchFilter;
-    }
-
-    public Map<String, Integer> getForSearchTemplates() {
-        return forSearchTemplates;
-    }
-
-    public Map<String, Integer> getForSearchStatuses() {
-        return forSearchStatuses;
-    }
-
-    public Map<String, Integer> getForSearchCreateGroups() {
-        return forSearchCreateGroups;
     }
 }

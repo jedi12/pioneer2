@@ -91,6 +91,7 @@ public class TestView implements Serializable {
             createMess = "Завершено за " + elapsedTime;
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_INFO, "Информация", createMess));
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Ошибка", e.getMessage()));
         }
     }
@@ -145,6 +146,7 @@ public class TestView implements Serializable {
             fillMess = "Завершено за " + elapsedTime;
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_INFO, "Информация", fillMess));
         } catch (Exception e) {
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL, "Ошибка", e.getMessage()));
         }
     }

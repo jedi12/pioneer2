@@ -49,11 +49,6 @@
 								<p:inputText id="position" value="#{userView.currUser.position}" style="width: 100%" maxlength="64"/>
 								<p:message for="position" display="icon"/>
 
-								<p:outputLabel value="#{text['user.edit.company']}" for="company"/>
-								<p:inputText id="company" value="#{userView.currUser.companyName}" style="width: 100%" maxlength="64"
-											 disabled="true"/>
-								<p:message for="company" display="icon"/>
-
 								<p:outputLabel value="#{text['user.edit.comment']}" for="comment"/>
 								<p:inputTextarea id="comment" value="#{userView.currUser.comment}" rows="4" autoResize="true"
 												 maxlength="256" style="width: 100%;max-height: 64px"/>
@@ -106,7 +101,7 @@
 
 							<br />
 
-							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
 								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['user.edit.add.label']}" for="addValue"/>
 									<p:selectOneMenu id="addValue" value="#{userView.selectedGroup}" styleClass="width100" effect="fade"
