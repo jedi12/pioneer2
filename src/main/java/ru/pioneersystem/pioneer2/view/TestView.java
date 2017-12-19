@@ -35,8 +35,8 @@ public class TestView implements Serializable {
             "0 ", "1 ", "22 ", "333 ", "4444 ", "55555 ", "666666 ", "7777777 ", "88888888 ", "999999999 ", "0000000000 "
     };
 
-    String createMess;
-    String fillMess;
+    private String createMess;
+    private String fillMess;
 
     @ManagedProperty("#{currentUser}")
     private CurrentUser currentUser;

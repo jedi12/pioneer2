@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='Windows-1251'?>
+<Context>
+  <Manager pathname="" />
+
+  <!--  H2 database   -->
+  <Resource name="jdbc/database"
+            auth="Container"
+            type="javax.sql.DataSource"
+            factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+            defaultAutoCommit="false"
+            initialSize="10"
+            maxActive="20"
+            maxIdle="20"
+            minIdle="10"
+            maxWait="20000"
+            validationQuery="SELECT 1 FROM DUAL"
+            testWhileIdle="true"
+            timeBetweenEvictionRunsMillis="60000"
+            removeAbandoned="true"
+            removeAbandonedTimeout="60"
+            logAbandoned="true"
+            driverClassName="org.h2.Driver"
+            url="jdbc:h2:tcp://185.16.41.23/database2;IFEXISTS=TRUE;MVCC=TRUE;MULTI_THREADED=TRUE;LOCK_TIMEOUT=10000"
+            username="doc"
+            password="PioneerDoc#7740"/>
+
+</Context>

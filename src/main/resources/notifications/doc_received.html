@@ -6,10 +6,10 @@
 	</head>
 
 	<body>
-		<p align=left>Вам поступил новый документ: <b>${notice.docName}</b> (ид. ${notice.docId})</p>
+		<p align=left>Вам поступил новый документ: <b>${notice.docName}</b> (ид. ${notice.docId?c})</p>
 
 		<p><span style='font-size:10.0pt'>
-			<a href="${serverBackRef}?currMenuId=${notice.menuId}&currDocId=${notice.docId}">
+			<a href="${serverBackRef}?currMenuId=${notice.menuId?c}&currDocId=${notice.docId?c}">
 				Ссылка</a> на документ в системе Пионер 2</span></p>
 	</body>
 </html>

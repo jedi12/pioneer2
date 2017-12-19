@@ -458,6 +458,12 @@ public class DocumentView implements Serializable {
     public void handleFileUpload(FileUploadEvent event) {
         try {
             UploadedFile uploadedFile = event.getFile();
+            if (uploadedFile.getFileName().length() > 64) {
+                FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        bundle.getString("warn"), bundle.getString("error.document.FileNameTooLong")));
+                return;
+            }
+
             int fieldRowNum = (int) event.getComponent().getAttributes().get("fieldRowNum");
             for (Document.Field field: currDoc.getFields()) {
                 if (field.getNum() == fieldRowNum) {

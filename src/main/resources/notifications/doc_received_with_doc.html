@@ -10,7 +10,7 @@
 			<tr>
 				<td colspan=2 style='padding:10px'>
 					<p align=center style='text-align:center;margin:auto'>От: <b>${notice.docGroupName}</b>
-						<br/>Документ: <b>${notice.docName}</b> (ид. ${notice.docId})</p>
+						<br/>Документ: <b>${notice.docName}</b> (ид. ${notice.docId?c})</p>
 				</td>
 			</tr>
 
@@ -71,9 +71,9 @@
 					<table border=0 cellpadding=0 width='100%' style='font-size:18.0pt;text-align:center'>
 						<tr>
 							<td width='50%' style='background:palegreen;padding:10px'>
-								<p style="margin:auto"><a href="mailto:${emailForCommandProcessing}?subject=${notice.docId}-ACCEPT-${notice.docStatusId}&amp;body=Тут можно написать комментарий...">Подтвердить</a></p></td>
+								<p style="margin:auto"><a href="mailto:${emailForCommandProcessing}?subject=${notice.docId?c}-ACCEPT-${notice.docStatusId?c}&amp;body=Тут можно написать комментарий...">Подтвердить</a></p></td>
 							<td width='50%' style='background:lightsalmon;padding:10px'>
-								<p style="margin:auto"><a href="mailto:${emailForCommandProcessing}?subject=${notice.docId}-REJECT-${notice.docStatusId}&amp;body=Тут можно написать комментарий...">Отклонить</a></p></td>
+								<p style="margin:auto"><a href="mailto:${emailForCommandProcessing}?subject=${notice.docId?c}-REJECT-${notice.docStatusId?c}&amp;body=Тут можно написать комментарий...">Отклонить</a></p></td>
 						</tr>
 					</table>
 				</td>
@@ -81,7 +81,7 @@
 		</table>
 
 		<p><span style='font-size:10.0pt'>
-			<a href="${serverBackRef}?currMenuId=${notice.menuId}&currDocId=${notice.docId}">
+			<a href="${serverBackRef}?currMenuId=${notice.menuId?c}&currDocId=${notice.docId?c}">
 				Ссылка</a> на документ в системе Пионер 2</span></p>
 	</body>
 </html>

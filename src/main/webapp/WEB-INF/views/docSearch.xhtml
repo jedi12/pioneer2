@@ -48,11 +48,11 @@
 										 rendered="#{currentUser.superRole}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
-				<p:selectOneMenu value="#{searchView.searchFilter.companyId}" filter="true"
-								 filterMatchMode="contains" height="200" rendered="#{searchView.searchFilter.byCompany}">
+				<p:selectOneMenu value="#{searchView.searchFilter.companyId}" filter="true" filterMatchMode="contains"
+								 height="200" rendered="#{currentUser.superRole &amp;&amp; searchView.searchFilter.byCompany}">
 					<f:selectItems value="#{searchView.searchFilter.companies}"/>
 				</p:selectOneMenu>
-				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byCompany}"/>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{currentUser.superRole &amp;&amp; !searchView.searchFilter.byCompany}"/>
 
 				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byName}" itemLabel="#{text['search.filter.byName']}">
 					<p:ajax update="grid"/>

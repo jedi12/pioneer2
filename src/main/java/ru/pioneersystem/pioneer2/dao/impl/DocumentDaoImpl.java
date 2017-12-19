@@ -499,23 +499,21 @@ public class DocumentDaoImpl implements DocumentDao {
                     " and companyId = " + companyId);
         }
 
-        jdbcTemplate.batchUpdate(UPDATE_FILE,
-                new BatchPreparedStatementSetter() {
-                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
-                        Document.Field field = document.getFields().get(i);
-                        if (field.getTypeId() == FieldType.Id.FILE && field.getFile() != null) {
+        for (Document.Field field: document.getFields()) {
+            if (field.getTypeId() == FieldType.Id.FILE && field.getFile() != null) {
+                jdbcTemplate.update(
+                        connection -> {
+                            PreparedStatement pstmt = connection.prepareStatement(UPDATE_FILE);
                             pstmt.setString(1, field.getFile().getName());
                             pstmt.setString(2, field.getFile().getMimeType());
                             pstmt.setLong(3, field.getFile().getLength());
                             pstmt.setBinaryStream(4, new ByteArrayInputStream(field.getFile().getContent()), field.getFile().getLength());
                             pstmt.setInt(5, field.getFileId());
+                            return pstmt;
                         }
-                    }
-                    public int getBatchSize() {
-                        return document.getFields().size();
-                    }
-                }
-        );
+                );
+            }
+        }
 
         jdbcTemplate.update(DELETE_DOCUMENT_FIELD,
                 document.getId()

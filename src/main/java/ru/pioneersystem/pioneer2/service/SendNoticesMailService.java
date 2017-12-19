@@ -215,7 +215,7 @@ public class SendNoticesMailService {
             root.put("emailForCommandProcessing", appProps.processMailCommandMailUsername);
 
             // TODO: 15.09.2017 для локализации (выбора) шаблонов уведомлений нужно хранить локаль по умолчанию для каждого пользователя
-            Template mailTemplate = freemarkerConfiguration.getTemplate("ru/doc_received_with_doc.html");
+            Template mailTemplate = freemarkerConfiguration.getTemplate("notifications/doc_received_with_doc.html");
 //            Writer out = new OutputStreamWriter(new FileOutputStream("D:\\Temp\\Temp\\template.html"), StandardCharsets.UTF_8);
             StringWriter out = new StringWriter();
             mailTemplate.process(root, out);
@@ -237,7 +237,7 @@ public class SendNoticesMailService {
             root.put("serverBackRef", appProps.serverBackRef);
 
             // TODO: 15.09.2017 для локализации (выбора) шаблонов уведомлений нужно хранить локаль по умолчанию для каждого пользователя
-            Template mailTemplate = freemarkerConfiguration.getTemplate("ru/doc_received.html");
+            Template mailTemplate = freemarkerConfiguration.getTemplate("notifications/doc_received.html");
 //            Writer out = new OutputStreamWriter(new FileOutputStream("D:\\Temp\\Temp\\template.html"), StandardCharsets.UTF_8);
             StringWriter out = new StringWriter();
             mailTemplate.process(root, out);
@@ -264,7 +264,7 @@ public class SendNoticesMailService {
             root.put("serverBackRef", appProps.serverBackRef);
 
             // TODO: 15.09.2017 для локализации (выбора) шаблонов уведомлений нужно хранить локаль по умолчанию для каждого пользователя
-            Template mailTemplate = freemarkerConfiguration.getTemplate("ru/doc_status_changed.html");
+            Template mailTemplate = freemarkerConfiguration.getTemplate("notifications/doc_status_changed.html");
 //            Writer out = new OutputStreamWriter(new FileOutputStream("D:\\Temp\\Temp\\template.html"), StandardCharsets.UTF_8);
             StringWriter out = new StringWriter();
             mailTemplate.process(root, out);

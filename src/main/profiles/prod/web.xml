@@ -5,17 +5,6 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-    <!-- консоль H2 -->
-    <servlet>
-        <servlet-name>H2Console</servlet-name>
-        <servlet-class>org.h2.server.web.WebServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>H2Console</servlet-name>
-        <url-pattern>/console/*</url-pattern>
-    </servlet-mapping>
-
     <!-- JavaMelody -->
     <filter>
         <filter-name>monitoring</filter-name>
@@ -30,7 +19,7 @@
     </listener>
 
     <session-config>
-        <session-timeout>120</session-timeout>
+        <session-timeout>20</session-timeout>
     </session-config>
 
     <welcome-file-list>
