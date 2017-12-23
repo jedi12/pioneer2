@@ -16,15 +16,12 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 @Service("currentUser")
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class CurrentUser implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class CurrentUser {
     private int screenHeight;
     private int screenWidth;
 
