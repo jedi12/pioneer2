@@ -5,7 +5,6 @@ import ru.pioneersystem.pioneer2.model.ChoiceList;
 import ru.pioneersystem.pioneer2.service.ChoiceListService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -15,15 +14,12 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class ChoiceListView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class ChoiceListView {
     private List<ChoiceList> choiceListList;
     private List<ChoiceList> filteredChoiceList;
     private ChoiceList selectedChoiceList;

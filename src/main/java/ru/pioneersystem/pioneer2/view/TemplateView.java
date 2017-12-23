@@ -13,7 +13,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -21,9 +20,7 @@ import java.util.*;
 
 @ManagedBean
 @ViewScoped
-public class TemplateView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class TemplateView {
     private List<Template> templateList;
     private List<Template> filteredTemplate;
     private Template selectedTemplate;

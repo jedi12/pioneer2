@@ -12,14 +12,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.*;
 
 @ManagedBean
 @ViewScoped
-public class SearchView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class SearchView {
     private List<Document> documentList;
     private List<Document> filteredDocumentList;
     private Document selectedDocument;

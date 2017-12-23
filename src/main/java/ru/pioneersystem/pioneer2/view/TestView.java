@@ -9,15 +9,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @ManagedBean
 @ViewScoped
-public class TestView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class TestView {
     private static Random randomGenerator = new Random();
     private static final String[] words = new String[] {"русским ", "беспредельною ", "свойствами ", "наклонностей ",
             "бронзовые ", "закована ", "слепым ", "благородством ", "подшитое ", "обвила ", "телами ", "окрестностях ",

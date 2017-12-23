@@ -5,7 +5,6 @@ import ru.pioneersystem.pioneer2.model.User;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.UserService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -13,7 +12,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +19,7 @@ import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class UserView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class UserView {
     private List<User> userList;
     private List<User> filteredUserList;
     private User selectedUser;

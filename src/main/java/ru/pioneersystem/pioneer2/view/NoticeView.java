@@ -3,7 +3,6 @@ package ru.pioneersystem.pioneer2.view;
 import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Notice;
 import ru.pioneersystem.pioneer2.service.NoticeService;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.TooManyObjectsException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
@@ -13,7 +12,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -22,9 +20,7 @@ import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class NoticeView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class NoticeView {
     private List<Notice> noticeList;
     private List<Notice> filteredNoticeList;
     private Notice selectedNotice;

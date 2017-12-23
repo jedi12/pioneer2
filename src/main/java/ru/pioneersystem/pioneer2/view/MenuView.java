@@ -10,15 +10,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.List;
 import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class MenuView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class MenuView {
     private List<Menu> menuList;
     private List<Menu> filteredMenuList;
     private Menu selectedMenu;

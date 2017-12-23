@@ -12,16 +12,13 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class CurrentUserView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class CurrentUserView {
     private String login;
     private String pass;
     private String newPass;
