@@ -97,21 +97,14 @@ public class EventServiceImpl implements EventService {
             }
 
             if (detail2 != null && detail2.length() > 512) {
+                logToFile(userId, companyId, eventType, objectId, detail1, detail2, null);
                 detail2 = detail2.substring(0, 512);
             }
 
             Event event = new Event(new Date(), userId, eventType, objectId, detail1, detail2);
             eventDao.create(event, companyId);
         } catch (DataAccessException e) {
-            Locale locale;
-            try {
-                locale = localeBean.getLocale();
-            } catch (Exception ex) {
-                locale = systemLocale;
-            }
-            String mess = messageSource.getMessage("error.event.NotSaved",
-                    new Object[]{userId, eventType, objectId, detail1, detail2}, locale);
-            log.error(mess, e);
+            logToFile(userId, companyId, eventType, objectId, detail1, detail2, e);
         }
     }
 
@@ -150,6 +143,18 @@ public class EventServiceImpl implements EventService {
             logError(mess, e.getMessage());
             throw new ServiceException(mess, e);
         }
+    }
+
+    private void logToFile(int userId, int companyId, int eventType, int objectId, String detail1, String detail2, Throwable t) {
+        Locale locale;
+        try {
+            locale = localeBean.getLocale();
+        } catch (Exception ex) {
+            locale = systemLocale;
+        }
+        String mess = messageSource.getMessage("error.event.NotSaved",
+                new Object[]{userId, companyId, eventType, objectId, detail1, detail2}, locale);
+        log.error(mess, t);
     }
 
     private void processEvents(List<Event> events) {
