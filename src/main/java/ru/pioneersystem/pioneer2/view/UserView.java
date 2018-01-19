@@ -50,6 +50,8 @@ public class UserView {
         try {
             userList = userService.getUserList();
             selectGroupDefault = groupService.getGroupMap();
+
+            RequestContext.getCurrentInstance().execute("PF('usersTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

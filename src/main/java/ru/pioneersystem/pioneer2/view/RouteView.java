@@ -57,6 +57,8 @@ public class RouteView {
             routeList = routeService.getRouteList();
             selectPointDefault = groupService.getPointMap();
             selectGroupDefault = groupService.getGroupMap();
+
+            RequestContext.getCurrentInstance().execute("PF('routeTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

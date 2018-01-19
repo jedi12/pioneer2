@@ -17,7 +17,7 @@
 	</h2>
 
 	<p:panel>
-		<p:dataTable id="usersTable" value="#{userView.userList}" var="user" rows="20"
+		<p:dataTable id="usersTable" widgetVar="usersTable" value="#{userView.userList}" var="user" rows="20"
 					 selectionMode="single" selection="#{userView.selectedUser}" rowKey="#{user.id}"
 					 filteredValue="#{userView.filteredUserList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

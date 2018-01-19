@@ -47,6 +47,8 @@ public class RoleView {
     public void refreshList() {
         try {
             roleList = roleService.getRoleList();
+
+            RequestContext.getCurrentInstance().execute("PF('roleTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

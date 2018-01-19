@@ -45,6 +45,8 @@ public class ChoiceListView {
     public void refreshList() {
         try {
             choiceListList = choiceListService.getChoiceListList();
+
+            RequestContext.getCurrentInstance().execute("PF('listsTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

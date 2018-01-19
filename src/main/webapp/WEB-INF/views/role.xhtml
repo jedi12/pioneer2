@@ -17,7 +17,7 @@
 	</h2>
 
 	<p:panel>
-		<p:dataTable id="roleTable" value="#{roleView.roleList}" var="role" rows="20"
+		<p:dataTable id="roleTable" widgetVar="roleTable" value="#{roleView.roleList}" var="role" rows="20"
 					 selectionMode="single" selection="#{roleView.selectedRole}" rowKey="#{role.id}"
 					 filteredValue="#{roleView.filteredRoleList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

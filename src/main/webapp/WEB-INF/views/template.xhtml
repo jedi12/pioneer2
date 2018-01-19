@@ -17,7 +17,7 @@
 	</h2>
 
 	<p:panel>
-		<p:dataTable id="templateTable" value="#{templateView.templateList}" var="template" rows="20"
+		<p:dataTable id="templateTable" widgetVar="templateTable" value="#{templateView.templateList}" var="template" rows="20"
 					 selectionMode="single" selection="#{templateView.selectedTemplate}" rowKey="#{template.id}"
 					 filteredValue="#{templateView.filteredTemplate}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

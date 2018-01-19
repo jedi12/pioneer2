@@ -17,7 +17,7 @@
 	</h2>
 
 	<p:panel>
-		<p:dataTable id="groupTable" value="#{groupView.groupList}" var="group" rows="20"
+		<p:dataTable id="groupTable" widgetVar="groupTable" value="#{groupView.groupList}" var="group" rows="20"
 					 selectionMode="single" selection="#{groupView.selectedGroup}" rowKey="#{group.id}"
 					 filteredValue="#{groupView.filteredGroup}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

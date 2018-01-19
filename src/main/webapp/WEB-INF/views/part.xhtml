@@ -38,7 +38,7 @@
 			</p:treeNode>
 		</p:tree>
 
-		<p:dataTable id="partTable" value="#{partView.partList}" var="part" rows="20"
+		<p:dataTable id="partTable" widgetVar="partTable" value="#{partView.partList}" var="part" rows="20"
 					 selectionMode="single" selection="#{partView.selectedPart}" rowKey="#{part.id}"
 					 filteredValue="#{partView.filteredPart}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

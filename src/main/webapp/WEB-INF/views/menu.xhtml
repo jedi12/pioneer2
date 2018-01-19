@@ -9,7 +9,7 @@
 	<h2 align="center"><h:outputLabel value="#{text['menu.title']}"/></h2>
 
 	<p:panel>
-		<p:dataTable id="menuTable" value="#{menuView.menuList}" var="menu" rows="20"
+		<p:dataTable id="menuTable" widgetVar="menuTable" value="#{menuView.menuList}" var="menu" rows="20"
 					 selectionMode="single" selection="#{menuView.selectedMenu}" rowKey="#{menu.id}"
 					 filteredValue="#{menuView.filteredMenuList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

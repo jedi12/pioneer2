@@ -35,6 +35,8 @@ public class MenuView {
     public void refreshList() {
         try {
             menuList = menuService.getMenuList();
+
+            RequestContext.getCurrentInstance().execute("PF('menuTable').clearFilters()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,

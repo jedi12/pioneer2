@@ -63,6 +63,8 @@ public class GroupView {
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
+
+            RequestContext.getCurrentInstance().execute("PF('groupTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

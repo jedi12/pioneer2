@@ -36,6 +36,8 @@ public class CompanyView {
     public void refreshList() {
         try {
             companyList = companyService.getCompanyList();
+
+            RequestContext.getCurrentInstance().execute("PF('companiesTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

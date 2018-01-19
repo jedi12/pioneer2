@@ -88,6 +88,8 @@ public class TemplateView {
             selectChoiceListDefault = choiceListService.getChoiceListMap();
             selectChoiceList = new ArrayList<>(selectChoiceListDefault.keySet());
             selectCond = Document.Condition.Operation.LIST;
+
+            RequestContext.getCurrentInstance().execute("PF('templateTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
