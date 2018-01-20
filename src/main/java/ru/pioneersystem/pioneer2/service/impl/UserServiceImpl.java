@@ -165,24 +165,24 @@ public class UserServiceImpl implements UserService {
             user.setLogin(user.getLogin().trim());
             user.setEmail(user.getEmail().trim());
 
+            if (userDao.getCountByLogin(user.getLogin()) > 0) {
+                String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                throw new RestrictionException(mess);
+            }
+
+            if (userDao.getCountByEmail(user.getEmail()) > 0) {
+                String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                throw new RestrictionException(mess);
+            }
+
             if (user.isCreateFlag()) {
                 int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
                 int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
                 if (currentUserCount >= maxUserCount) {
                     String mess = messageSource.getMessage("error.user.maxUserLimit", new Object[]{maxUserCount}, localeBean.getLocale());
                     eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, 0, mess);
-                    throw new RestrictionException(mess);
-                }
-
-                if (userDao.getCountByLogin(user.getLogin()) > 0) {
-                    String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
-                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
-                    throw new RestrictionException(mess);
-                }
-
-                if (userDao.getCountByEmail(user.getEmail()) > 0) {
-                    String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
-                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
                     throw new RestrictionException(mess);
                 }
 
@@ -202,6 +202,8 @@ public class UserServiceImpl implements UserService {
             String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), user.getId());
             throw new ServiceException(mess, e);
+        } catch (RestrictionException e) {
+            throw new RestrictionException(e.getMessage());
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
             eventService.logError(mess + ": " + e.getMessage(), null);
