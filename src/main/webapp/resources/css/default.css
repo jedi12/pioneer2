@@ -13,6 +13,7 @@ textarea {resize:none;}
 table {border-collapse: collapse;}
 .ui-dialog .ui-dialog-content {background-color: aliceblue !important;}
 .ui-widget-header, .ui-menu {background: #E9E9E9 url("#{resource['images/bg_gradient.png']}"); background-size: contain;}
+.ui-growl-item-container {opacity:1 !important;}
 
 .columnRight {text-align: right}
 .columnCenter {text-align: center}

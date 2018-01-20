@@ -9,8 +9,9 @@
 		<p:commandLink onclick="PF('about').show()">
 			<h:graphicImage value="#{resource['images/logo64x64.png']}"/>
 		</p:commandLink>
-		<h:panelGrid columns="1" style="width:100%;line-height:1px">
-			<h1 style="text-align:center;font-weight:normal;">#{text['system.name']}</h1>
+		<h:panelGrid columns="1" style="width:100%;text-align:center;line-height:1px">
+			<h1 style="font-weight:normal;">#{text['system.name']}</h1>
+			<h:outputLabel rendered="true" style="font-weight:normal;font-size:large;">#{currentUser.user.company.name}</h:outputLabel>
 		</h:panelGrid>
 		<h:panelGroup>
 			<p:selectOneMenu value="#{localeBean.language}" style="min-width: 0px;font-size: small;" onchange="submit()">
