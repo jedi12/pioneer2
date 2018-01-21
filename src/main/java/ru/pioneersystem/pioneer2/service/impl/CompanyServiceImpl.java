@@ -12,7 +12,9 @@ import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
 import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("companyService")
 public class CompanyServiceImpl implements CompanyService {
@@ -70,6 +72,15 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    public Map<String, Integer> getForSearchCompanyMap() throws ServiceException {
+        Map<String, Integer> companyMap = new LinkedHashMap<>();
+        for (Company company : getCompanyList()) {
+            companyMap.put(company.getName(), company.getId());
+        }
+        return companyMap;
+    }
+
+    @Override
     public Company getNewCompany() {
         Company company = new Company();
         company.setCreateFlag(true);
@@ -105,7 +116,7 @@ public class CompanyServiceImpl implements CompanyService {
         try {
             if (company.isCreateFlag()) {
                 int companyId = companyDao.create(company);
-                int adminUserId = userService.createAdminUser(company.getUserName(), company.getUserLogin(), company.getUserEmail(), companyId);
+                int adminUserId = userService.createAdminUser(company.getUserName(), company.getUserLogin(), company.getUserEmail(), company.getUserPass(), companyId);
                 int adminGroupId = groupService.createGroupWithUser(company.getGroupName(), Role.Id.ADMIN, adminUserId, companyId);
                 int exampleCoordinatorRoleId = roleService.createExampleRole(Role.Example.COORDINATOR, companyId);
                 int exampleExecutorRoleId = roleService.createExampleRole(Role.Example.EXECUTOR, companyId);

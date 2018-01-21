@@ -49,7 +49,7 @@ public class RoleDaoImpl implements RoleDao {
     private static final String SELECT_SUPER_ROLE_LIST =
             "SELECT R.ID AS ID, R.NAME AS NAME, R.STATE AS STATE, TYPE, COMPANY, C.NAME AS COMPANY_NAME " +
                     "FROM DOC.ROLES R LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY " +
-                    "WHERE R.STATE > 0 ORDER BY R.COMPANY ASC, R.NAME ASC";
+                    "WHERE R.STATE > 0 AND COMPANY >= 0 ORDER BY R.COMPANY ASC, R.NAME ASC";
     private static final String SELECT_ADMIN_ROLE_LIST =
             "SELECT ID, NAME, STATE, TYPE, COMPANY, NULL AS COMPANY_NAME FROM DOC.ROLES WHERE STATE > 0 " +
                     "AND COMPANY = ? OR STATE = ? ORDER BY STATE DESC, NAME ASC";

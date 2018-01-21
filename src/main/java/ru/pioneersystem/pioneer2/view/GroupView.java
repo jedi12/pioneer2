@@ -4,7 +4,6 @@ import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Group;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -12,14 +11,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.*;
 
 @ManagedBean
 @ViewScoped
-public class GroupView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class GroupView {
     private List<Group> groupList;
     private List<Group> filteredGroup;
     private Group selectedGroup;
@@ -67,6 +63,8 @@ public class GroupView implements Serializable {
             groupList = groupService.getGroupList();
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
+
+            RequestContext.getCurrentInstance().execute("PF('groupTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

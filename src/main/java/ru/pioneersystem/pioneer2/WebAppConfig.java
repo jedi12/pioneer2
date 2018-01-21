@@ -80,7 +80,7 @@ public class WebAppConfig extends WebMvcConfigurerAdapter {
         freemarker.template.Configuration cfg =
                 new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_26);
         try {
-            Resource templatePath = new ClassPathResource("/notifications/");
+            Resource templatePath = new ClassPathResource("/");
             cfg.setDirectoryForTemplateLoading(templatePath.getFile());
             cfg.setDefaultEncoding("UTF-8");
             cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);

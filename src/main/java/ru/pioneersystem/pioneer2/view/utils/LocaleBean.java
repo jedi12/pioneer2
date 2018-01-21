@@ -9,7 +9,6 @@ import org.springframework.web.servlet.LocaleResolver;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.Serializable;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -17,8 +16,7 @@ import java.util.Locale;
 
 @Component
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class LocaleBean implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class LocaleBean {
     private Locale locale;
     private ZoneId zoneId;
     private String datePattern;

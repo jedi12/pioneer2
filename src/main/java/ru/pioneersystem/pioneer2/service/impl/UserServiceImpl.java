@@ -165,6 +165,18 @@ public class UserServiceImpl implements UserService {
             user.setLogin(user.getLogin().trim());
             user.setEmail(user.getEmail().trim());
 
+            if (userDao.getCountByLogin(user.getLogin()) > 0) {
+                String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                throw new RestrictionException(mess);
+            }
+
+            if (userDao.getCountByEmail(user.getEmail()) > 0) {
+                String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
+                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                throw new RestrictionException(mess);
+            }
+
             if (user.isCreateFlag()) {
                 int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
                 int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
@@ -174,19 +186,8 @@ public class UserServiceImpl implements UserService {
                     throw new RestrictionException(mess);
                 }
 
-                if (userDao.getCountByLogin(user.getLogin()) > 0) {
-                    String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
-                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
-                    throw new RestrictionException(mess);
-                }
-
-                if (userDao.getCountByEmail(user.getEmail()) > 0) {
-                    String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
-                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
-                    throw new RestrictionException(mess);
-                }
-
                 int userId = userDao.create(user, currentUser.getUser().getCompanyId());
+                user.setId(userId);
                 // TODO: 22.10.2017 Сделать логирование событий в той же транзакции, а логирование ошибок - в отдельной транзакции
                 eventService.logEvent(Event.Type.USER_CREATED, userId);
 
@@ -201,6 +202,8 @@ public class UserServiceImpl implements UserService {
             String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage(), user.getId());
             throw new ServiceException(mess, e);
+        } catch (RestrictionException e) {
+            throw new RestrictionException(e.getMessage());
         } catch (ServiceException e) {
             String mess = messageSource.getMessage("error.user.NotSaved", null, localeBean.getLocale());
             eventService.logError(mess + ": " + e.getMessage(), null);
@@ -358,13 +361,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int createAdminUser(String userName, String userLogin, String userEmail, int companyId) throws ServiceException {
+    public int createAdminUser(String userName, String userLogin, String userEmail, String userPass, int companyId) throws ServiceException {
         try {
             User user = getNewUser();
             user.setName(userName);
             user.setLogin(userLogin);
             user.setEmail(userEmail);
-            return userDao.create(user, companyId);
+            int userId = userDao.create(user, companyId);
+            user.setId(userId);
+
+            if (userPass != null && !userPass.trim().equals(""))
+            setUserPass(user, userPass);
+            return userId;
         } catch (DataAccessException e) {
             String mess = messageSource.getMessage("error.user.adminNotCreated", null, localeBean.getLocale());
             eventService.logError(mess, e.getMessage());

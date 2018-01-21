@@ -28,6 +28,11 @@ function formatMenuTabs() {
     })
 }
 
+function shiftDialog() {
+    var dialog = getTopVisibleDialog();
+    dialog.css('left', dialog.offset().left + 40 + "px");
+}
+
 function formatDialog() {
     var dialog = getTopVisibleDialog();
     var tabs = dialog.find('.ui-tabs-panel');

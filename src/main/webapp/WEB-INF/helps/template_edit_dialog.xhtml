@@ -17,7 +17,9 @@
 			<li><h:outputText value="#{text['help.templateEditDialog.text4']}" escape="false"/></li>
 			<li><h:outputText value="#{text['help.templateEditDialog.text5']}" escape="false"/></li>
 			<li><h:outputText value="#{text['help.templateEditDialog.text6']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.templateEditDialog.text7']}" escape="false"/></li>
+			<h:panelGroup rendered="#{appProps.fieldTypeFileAllowed}">
+				<li><h:outputText value="#{text['help.templateEditDialog.text7']}" escape="false"/></li>
+			</h:panelGroup>
 			<li><h:outputText value="#{text['help.templateEditDialog.text8']}" escape="false"/></li>
 			<li><h:outputText value="#{text['help.templateEditDialog.text9']}" escape="false"/></li>
 			<li><h:outputText value="#{text['help.templateEditDialog.text10']}" escape="false"/></li>

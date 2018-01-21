@@ -43,7 +43,8 @@ public class RouteDaoImpl implements RouteDao {
                     "LEFT JOIN DOC.GROUPS G ON RG.GROUP_ID = G.ID WHERE RG.ID = ? ORDER BY NAME ASC";
     private static final String SELECT_SUPER_ROUTE_LIST =
             "SELECT R.ID AS ID, R.NAME AS NAME, R.STATE AS STATE, COMPANY, C.NAME AS COMPANY_NAME FROM DOC.ROUTES R " +
-                    "LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY WHERE R.STATE > 0 ORDER BY R.COMPANY ASC, R.NAME ASC";
+                    "LEFT JOIN DOC.COMPANY C ON C.ID = R.COMPANY WHERE R.STATE > 0 AND COMPANY >=0 " +
+                    "ORDER BY R.COMPANY ASC, R.NAME ASC";
     private static final String SELECT_ADMIN_ROUTE_LIST =
             "SELECT ID, NAME, STATE, COMPANY, NULL AS COMPANY_NAME FROM DOC.ROUTES WHERE STATE > 0 " +
                     "AND COMPANY = ? ORDER BY STATE DESC, NAME ASC";
@@ -53,7 +54,7 @@ public class RouteDaoImpl implements RouteDao {
                     "WHERE (GROUP_ID IS NULL OR USER_ID = ?) AND (COMPANY = 0 OR COMPANY = ?) AND STATE > 0 ORDER BY NAME ASC";
     private static final String SELECT_ROUTE_LIST_CONTAIN_GROUP =
             "SELECT DISTINCT NAME FROM DOC.ROUTES R, DOC.ROUTES_POINT RP WHERE R.ID = RP.ID AND STATE > 0 " +
-                    "AND GROUP_ID = ? AND COMPANY = ?  ORDER BY NAME ASC";
+                    "AND GROUP_ID = ? AND COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_ROUTES_WITH_GROUP_COUNT =
             "SELECT DISTINCT COUNT(R.ID) FROM DOC.ROUTES R, DOC.ROUTES_GROUP RG WHERE R.ID = RG.ID AND STATE > 0 " +
                     "AND RG.GROUP_ID = ? AND COMPANY = ?";

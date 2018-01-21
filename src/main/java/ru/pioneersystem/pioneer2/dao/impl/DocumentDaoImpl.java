@@ -61,10 +61,9 @@ public class DocumentDaoImpl implements DocumentDao {
     private static final String SELECT_DOCUMENT_CONDITION = "SELECT COND_NUM, FIELD_NUM, COND, VALUE, ROUTE " +
             "FROM DOC.DOCUMENTS_COND WHERE ID = ? ORDER BY COND_NUM ASC";
     private static final String SELECT_ON_ROUTE_DOCUMENT_LIST =
-            "SELECT D.ID AS ID, D.NAME AS NAME, U_DATE FROM DOC.DOCUMENTS D, DOC.GROUPS G " +
-                    "WHERE D.DOC_GROUP = G.ID AND D.ID IN (SELECT ID FROM DOC.DOCUMENTS_SIGN  WHERE ACTIVE = 1 " +
-                    "AND ROLE_ID = ? AND SIGNED = 0 AND GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER " +
-                    "WHERE USER_ID = ?)) AND D.COMPANY = ? ORDER BY U_DATE";
+            "SELECT D.ID AS ID, D.NAME AS NAME, U_DATE FROM DOC.DOCUMENTS D LEFT JOIN DOC.DOCUMENTS_SIGN DS ON DS.ID = D.ID " +
+                    "LEFT JOIN DOC.GROUPS G ON G.ID = D.DOC_GROUP WHERE DS.ACTIVE = 1 AND DS.ROLE_ID = ? AND DS.SIGNED = 0 " +
+                    "AND DS.GROUP_ID IN (SELECT ID FROM DOC.GROUPS_USER WHERE USER_ID = ?) AND D.COMPANY = ? ORDER BY U_DATE";
     private static final String SELECT_DOCUMENT_LIST_BY_PART =
             "SELECT ID, NAME FROM DOC.DOCUMENTS WHERE PUB_PART = ? AND STATUS = ? AND COMPANY = ? ORDER BY NAME ASC";
     private static final String SELECT_MY_ON_DATE_DOCUMENT_LIST =
@@ -500,23 +499,21 @@ public class DocumentDaoImpl implements DocumentDao {
                     " and companyId = " + companyId);
         }
 
-        jdbcTemplate.batchUpdate(UPDATE_FILE,
-                new BatchPreparedStatementSetter() {
-                    public void setValues(PreparedStatement pstmt, int i) throws SQLException {
-                        Document.Field field = document.getFields().get(i);
-                        if (field.getTypeId() == FieldType.Id.FILE && field.getFile() != null) {
+        for (Document.Field field: document.getFields()) {
+            if (field.getTypeId() == FieldType.Id.FILE && field.getFile() != null) {
+                jdbcTemplate.update(
+                        connection -> {
+                            PreparedStatement pstmt = connection.prepareStatement(UPDATE_FILE);
                             pstmt.setString(1, field.getFile().getName());
                             pstmt.setString(2, field.getFile().getMimeType());
                             pstmt.setLong(3, field.getFile().getLength());
                             pstmt.setBinaryStream(4, new ByteArrayInputStream(field.getFile().getContent()), field.getFile().getLength());
                             pstmt.setInt(5, field.getFileId());
+                            return pstmt;
                         }
-                    }
-                    public int getBatchSize() {
-                        return document.getFields().size();
-                    }
-                }
-        );
+                );
+            }
+        }
 
         jdbcTemplate.update(DELETE_DOCUMENT_FIELD,
                 document.getId()

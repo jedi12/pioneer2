@@ -7,7 +7,6 @@ import ru.pioneersystem.pioneer2.model.Part;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.PartService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.view.utils.TreeNodeUtil;
 
 import javax.annotation.PostConstruct;
@@ -16,9 +15,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +23,7 @@ import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class PartView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class PartView {
     private List<Part> partList;
     private TreeNode partTree;
     private TreeNode selectedNode;

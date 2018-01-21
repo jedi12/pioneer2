@@ -9,7 +9,6 @@ import org.primefaces.model.UploadedFile;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.*;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import ru.pioneersystem.pioneer2.service.exception.LockException;
 import ru.pioneersystem.pioneer2.view.utils.LocaleBean;
 import ru.pioneersystem.pioneer2.view.utils.TreeNodeUtil;
@@ -22,16 +21,13 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.*;
 
 @ManagedBean
 @ViewScoped
-public class DocumentView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class DocumentView {
     private TreeNode partTempTree;
     private TreeNode partDocTree;
     private TreeNode selectedNode;
@@ -458,6 +454,12 @@ public class DocumentView implements Serializable {
     public void handleFileUpload(FileUploadEvent event) {
         try {
             UploadedFile uploadedFile = event.getFile();
+            if (uploadedFile.getFileName().length() > 64) {
+                FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        bundle.getString("warn"), bundle.getString("error.document.FileNameTooLong")));
+                return;
+            }
+
             int fieldRowNum = (int) event.getComponent().getAttributes().get("fieldRowNum");
             for (Document.Field field: currDoc.getFields()) {
                 if (field.getNum() == fieldRowNum) {

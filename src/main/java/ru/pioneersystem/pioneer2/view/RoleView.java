@@ -6,7 +6,6 @@ import ru.pioneersystem.pioneer2.service.DocumentService;
 import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RoleService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -14,15 +13,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.List;
 import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class RoleView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class RoleView {
     private List<Role> roleList;
     private List<Role> filteredRoleList;
     private Role selectedRole;
@@ -51,6 +47,8 @@ public class RoleView implements Serializable {
     public void refreshList() {
         try {
             roleList = roleService.getRoleList();
+
+            RequestContext.getCurrentInstance().execute("PF('roleTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

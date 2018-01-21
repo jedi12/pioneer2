@@ -6,8 +6,11 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.time.format.DateTimeFormatter;
 
-@Component
+@Component("appProps")
 public class AppProps {
+
+    @Value("${fieldTypeFileAllowed: true}")
+    public boolean fieldTypeFileAllowed;
 
     @Value("${sendNotices.enabled: false}")
     public boolean sendNoticesEnabled;
@@ -113,7 +116,7 @@ public class AppProps {
     public int createDocumentsFromMailPeriod;
 
 
-    @Value("${serverBackRef: http://localhost:8080/main.jsf}")
+    @Value("${serverBackRef: http://localhost:8080/pioneer2/main.xhtml}")
     public String serverBackRef;
 
 
@@ -130,5 +133,9 @@ public class AppProps {
 
     public DateTimeFormatter getDefaultDateTimeFormatter() {
         return defaultDateTimeFormatter;
+    }
+
+    public boolean isFieldTypeFileAllowed() {
+        return fieldTypeFileAllowed;
     }
 }

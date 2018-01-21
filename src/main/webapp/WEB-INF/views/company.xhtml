@@ -9,7 +9,7 @@
 	<h2 align="center"><h:outputLabel value="#{text['company.title']}"/></h2>
 
 	<p:panel>
-		<p:dataTable id="companiesTable" value="#{companyView.companyList}" var="company" rows="20"
+		<p:dataTable id="companiesTable" widgetVar="companiesTable" value="#{companyView.companyList}" var="company" rows="20"
 					 selectionMode="single" selection="#{companyView.selectedCompany}" rowKey="#{company.id}"
 					 filteredValue="#{companyView.filteredCompanyList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

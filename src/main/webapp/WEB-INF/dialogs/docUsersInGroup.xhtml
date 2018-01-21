@@ -5,7 +5,7 @@
 				xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="docUsersInGroupDialog" target="_blank">
-		<p:dialog widgetVar="docUsersInGroupDialog" resizable="false" width="1024" modal="true" onShow="formatDialog()">
+		<p:dialog widgetVar="docUsersInGroupDialog" resizable="false" width="1024" modal="true" onShow="formatDialog();shiftDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-users" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['groupsActiveUsers.title']}"/>

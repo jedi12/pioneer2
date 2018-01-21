@@ -13,7 +13,6 @@ import ru.pioneersystem.pioneer2.model.Event;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -24,11 +23,11 @@ public class MailProcessDaoImpl implements MailProcessDao {
     private static final String SELECT_ADMIN_EMAIL_SEND_LIST =
             "SELECT ES.ID AS ID, EMAIL, STATUS, DOC, TRY, U_DATE, DOC_STATUS_ID, NAME AS DOC_STATUS_NAME, EVENT " +
                     "FROM DOC.EMAIL_SENDED ES LEFT JOIN DOC.DOCUMENTS_STATUS DS ON DS.ID = ES.DOC_STATUS_ID " +
-                    "WHERE U_DATE >= ? AND U_DATE < ? AND ES.COMPANY = ? ORDER BY U_DATE ASC";
+                    "WHERE U_DATE >= ? AND U_DATE < ? AND ES.COMPANY = ? ORDER BY U_DATE ASC FETCH FIRST 10000 ROWS ONLY";
     private static final String SELECT_SUPER_EMAIL_SEND_LIST =
             "SELECT ES.ID AS ID, EMAIL, STATUS, DOC, TRY, U_DATE, DOC_STATUS_ID, NAME AS DOC_STATUS_NAME, EVENT " +
                     "FROM DOC.EMAIL_SENDED ES LEFT JOIN DOC.DOCUMENTS_STATUS DS ON DS.ID = ES.DOC_STATUS_ID " +
-                    "WHERE U_DATE >= ? AND U_DATE < ? ORDER BY U_DATE ASC";
+                    "WHERE U_DATE >= ? AND U_DATE < ? AND ES.COMPANY >= 0 ORDER BY U_DATE ASC FETCH FIRST 10000 ROWS ONLY";
     private static final String INSERT_NOTICE_DOCUMENT_IN =
             "INSERT INTO DOC.EMAIL_SENDED (EMAIL, STATUS, DOC, TRY, U_DATE, DOC_STATUS_ID, EVENT, COMPANY) (" +
                     "SELECT EMAIL, ?, DS.ID, 0, ?, ROLE_ID, ?, ? FROM DOC.DOCUMENTS_SIGN DS " +

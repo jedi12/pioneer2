@@ -44,6 +44,16 @@
 			</h:panelGrid>
 
 			<h:panelGrid id="grid" columns="2" cellpadding="0" style="margin-left: 25px;" rendered="#{!searchView.searchFilter.byId}">
+				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byCompany}" itemLabel="#{text['search.filter.byCompany']}"
+										 rendered="#{currentUser.superRole}">
+					<p:ajax update="grid"/>
+				</p:selectBooleanCheckbox>
+				<p:selectOneMenu value="#{searchView.searchFilter.companyId}" filter="true" filterMatchMode="contains"
+								 height="200" rendered="#{currentUser.superRole &amp;&amp; searchView.searchFilter.byCompany}">
+					<f:selectItems value="#{searchView.searchFilter.companies}"/>
+				</p:selectOneMenu>
+				<p:selectOneMenu style="visibility: hidden;" rendered="#{currentUser.superRole &amp;&amp; !searchView.searchFilter.byCompany}"/>
+
 				<p:selectBooleanCheckbox value="#{searchView.searchFilter.byName}" itemLabel="#{text['search.filter.byName']}">
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
@@ -61,7 +71,7 @@
 				</p:selectBooleanCheckbox>
 				<p:selectOneMenu value="#{searchView.searchFilter.templateId}" filter="true"
                                  filterMatchMode="contains" height="200" rendered="#{searchView.searchFilter.byTemplate}">
-					<f:selectItems value="#{searchView.forSearchTemplates}"/>
+					<f:selectItems value="#{searchView.searchFilter.templates}"/>
 				</p:selectOneMenu>
 				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byTemplate}"/>
 
@@ -69,7 +79,7 @@
 					<p:ajax update="grid"/>
 				</p:selectBooleanCheckbox>
 				<p:selectOneMenu value="#{searchView.searchFilter.statusId}" rendered="#{searchView.searchFilter.byStatus}">
-					<f:selectItems value="#{searchView.forSearchStatuses}"/>
+					<f:selectItems value="#{searchView.searchFilter.statuses}"/>
 				</p:selectOneMenu>
 				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byStatus}"/>
 
@@ -78,7 +88,7 @@
 				</p:selectBooleanCheckbox>
 				<p:selectOneMenu value="#{searchView.searchFilter.ownerId}" filter="true"
                                  filterMatchMode="contains" height="200" rendered="#{searchView.searchFilter.byOwner}">
-					<f:selectItems value="#{searchView.forSearchCreateGroups}"/>
+					<f:selectItems value="#{searchView.searchFilter.createGroups}"/>
 				</p:selectOneMenu>
 				<p:selectOneMenu style="visibility: hidden;" rendered="#{!searchView.searchFilter.byOwner}"/>
 			</h:panelGrid>

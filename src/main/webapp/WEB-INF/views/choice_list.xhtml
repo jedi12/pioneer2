@@ -17,7 +17,7 @@
 	</h2>
 
 	<p:panel>
-		<p:dataTable id="listsTable" value="#{choiceListView.choiceListList}" var="choiceList" rows="20"
+		<p:dataTable id="listsTable" widgetVar="listsTable" value="#{choiceListView.choiceListList}" var="choiceList" rows="20"
 					 selectionMode="single" selection="#{choiceListView.selectedChoiceList}" rowKey="#{choiceList.id}"
 					 filteredValue="#{choiceListView.filteredChoiceList}" emptyMessage="#{text['table.empty']}"
 					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}

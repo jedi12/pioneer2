@@ -7,7 +7,6 @@ import ru.pioneersystem.pioneer2.service.GroupService;
 import ru.pioneersystem.pioneer2.service.RouteService;
 import ru.pioneersystem.pioneer2.service.TemplateService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -15,14 +14,11 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.*;
 
 @ManagedBean
 @ViewScoped
-public class RouteView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class RouteView {
     private List<Route> routeList;
     private List<Route> filteredRoute;
     private Route selectedRoute;
@@ -61,6 +57,8 @@ public class RouteView implements Serializable {
             routeList = routeService.getRouteList();
             selectPointDefault = groupService.getPointMap();
             selectGroupDefault = groupService.getGroupMap();
+
+            RequestContext.getCurrentInstance().execute("PF('routeTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

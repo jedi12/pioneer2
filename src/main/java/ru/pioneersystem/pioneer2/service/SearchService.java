@@ -7,6 +7,7 @@ import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 import java.util.List;
 
 public interface SearchService {
+    SearchFilter getNewFilter();
 
     List<Document> findList(SearchFilter searchFilter) throws ServiceException;
 }

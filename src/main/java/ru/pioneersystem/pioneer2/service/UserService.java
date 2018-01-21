@@ -35,5 +35,5 @@ public interface UserService {
 
     int checkLoginAndPass(String login, String pass) throws ServiceException;
 
-    int createAdminUser(String userName, String userLogin, String userEmail, int companyId) throws ServiceException;
+    int createAdminUser(String userName, String userLogin, String userEmail, String userPass, int companyId) throws ServiceException;
 }

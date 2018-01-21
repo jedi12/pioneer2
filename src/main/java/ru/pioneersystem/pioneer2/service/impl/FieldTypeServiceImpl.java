@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import ru.pioneersystem.pioneer2.AppProps;
 import ru.pioneersystem.pioneer2.dao.FieldTypeDao;
 import ru.pioneersystem.pioneer2.model.FieldType;
 import ru.pioneersystem.pioneer2.service.DictionaryService;
@@ -23,16 +24,18 @@ public class FieldTypeServiceImpl implements FieldTypeService {
     private DictionaryService dictionaryService;
     private LocaleBean localeBean;
     private MessageSource messageSource;
+    private AppProps appProps;
 
     @Autowired
     public FieldTypeServiceImpl(EventService eventService, FieldTypeDao fieldTypeDao,
                                 DictionaryService dictionaryService, LocaleBean localeBean,
-                                MessageSource messageSource) {
+                                MessageSource messageSource, AppProps appProps) {
         this.eventService = eventService;
         this.fieldTypeDao = fieldTypeDao;
         this.dictionaryService = dictionaryService;
         this.messageSource = messageSource;
         this.localeBean = localeBean;
+        this.appProps = appProps;
     }
 
     @Override
@@ -59,6 +62,10 @@ public class FieldTypeServiceImpl implements FieldTypeService {
     public List<FieldType> getFieldTypeList() throws ServiceException {
         try {
             List<FieldType> fieldTypes = fieldTypeDao.getList();
+            if (!appProps.fieldTypeFileAllowed) {
+                removeFieldTypeFile(fieldTypes);
+            }
+
             for (FieldType fieldType : fieldTypes) {
                 String fieldTypeName = dictionaryService.getLocalizedFieldTypeName(fieldType.getId(), localeBean.getLocale());
                 if (fieldTypeName != null) {
@@ -84,5 +91,16 @@ public class FieldTypeServiceImpl implements FieldTypeService {
             fieldTypeMap.put(fieldType.getId(), fieldType);
         }
         return fieldTypeMap;
+    }
+
+    private void removeFieldTypeFile(List<FieldType> fieldTypes) {
+        int index = -1;
+        for (FieldType fieldType : fieldTypes) {
+            index = index + 1;
+            if (fieldType.getId() == FieldType.Id.FILE) {
+                fieldTypes.remove(index);
+                break;
+            }
+        }
     }
 }

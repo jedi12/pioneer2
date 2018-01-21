@@ -4,7 +4,6 @@ import org.primefaces.context.RequestContext;
 import ru.pioneersystem.pioneer2.model.Company;
 import ru.pioneersystem.pioneer2.service.CompanyService;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
-import ru.pioneersystem.pioneer2.service.exception.ServiceException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -12,15 +11,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
 import java.util.List;
 import java.util.ResourceBundle;
 
 @ManagedBean
 @ViewScoped
-public class CompanyView implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class CompanyView {
     private List<Company> companyList;
     private List<Company> filteredCompanyList;
     private Company selectedCompany;
@@ -40,6 +36,8 @@ public class CompanyView implements Serializable {
     public void refreshList() {
         try {
             companyList = companyService.getCompanyList();
+
+            RequestContext.getCurrentInstance().execute("PF('companiesTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

@@ -155,12 +155,12 @@ public class DictionaryService {
 		switch (eventTypeId) {
 			case Event.Type.ERROR:
 				return messageSource.getMessage("event.name.error", null, locale);
-			case Event.Type.CHANNEL_SN:
-				return messageSource.getMessage("event.name.channelSN", null, locale);
-			case Event.Type.CHANNEL_MC:
-				return messageSource.getMessage("event.name.channelMC", null, locale);
-			case Event.Type.CHANNEL_CD:
-				return messageSource.getMessage("event.name.channelCD", null, locale);
+			case Event.Type.CHANNEL_SEND_NOTICES:
+				return messageSource.getMessage("event.name.channelSendNotices", null, locale);
+			case Event.Type.CHANNEL_MAIL_COMMAND:
+				return messageSource.getMessage("event.name.channelMailCommand", null, locale);
+			case Event.Type.CHANNEL_CREATE_DOCS:
+				return messageSource.getMessage("event.name.channelCreateDocs", null, locale);
 			case Event.Type.PROC_SYNC_COMPLETED:
 				return messageSource.getMessage("event.name.procSyncCompleted", null, locale);
 

@@ -73,7 +73,7 @@
 
 							<br />
 
-							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em">
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
 								<h:panelGrid id="addGroupGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['part.edit.label.group']}" for="addGroupValue"/>
 									<p:selectOneMenu id="addGroupValue" value="#{partView.selectedGroup}" styleClass="width100" effect="fade"

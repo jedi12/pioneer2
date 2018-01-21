@@ -16,12 +16,31 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>4.3.2.RELEASE</spring.version>
         <servlet.version>3.1.0</servlet.version>
-        <jsf.version>2.2.8</jsf.version>
+        <jsf.version>2.2.8-24</jsf.version>
         <primefaces.version>6.1</primefaces.version>
-        <h2.version>1.4.193</h2.version>
+        <h2.version>1.4.196</h2.version>
         <java.mail.version>1.6.0</java.mail.version>
         <freemarker.version>2.3.26-incubating</freemarker.version>
+        <javamelody.version>1.70.0</javamelody.version>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <profile.name>dev</profile.name>
+                <javamelody.scope>provided</javamelody.scope>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>prod</id>
+            <properties>
+                <profile.name>prod</profile.name>
+                <javamelody.scope>compile</javamelody.scope>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -39,6 +58,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -120,15 +145,50 @@
         </dependency>
 
         <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-core</artifactId>
+            <version>${javamelody.version}</version>
+            <scope>${javamelody.scope}</scope>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>Pioneer 2</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>Copy ${profile.name} profile</echo>
+                                <copy file="src/main/profiles/${profile.name}/config.properties"
+                                      tofile="${project.build.outputDirectory}/config.properties"/>
+
+                                <copy file="src/main/profiles/${profile.name}/context.xml"
+                                      tofile="${project.build.directory}/${project.build.finalName}/META-INF/context.xml"/>
+
+                                <copy file="src/main/profiles/${profile.name}/web.xml"
+                                      tofile="${project.build.directory}/${project.build.finalName}/WEB-INF/web.xml"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -146,7 +206,7 @@
                     <version>2.4</version>
                     <configuration>
                         <warSourceDirectory>src/main/webapp</warSourceDirectory>
-                        <warName>Pioneer2</warName>
+                        <warName>pioneer2</warName>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                     </configuration>
                 </plugin>

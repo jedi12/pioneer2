@@ -1,6 +1,7 @@
 package ru.pioneersystem.pioneer2.model;
 
 import java.util.Date;
+import java.util.Map;
 
 public class SearchFilter {
     private boolean byId;
@@ -9,6 +10,7 @@ public class SearchFilter {
     private boolean byTemplate;
     private boolean byStatus;
     private boolean byOwner;
+    private boolean byCompany;
 
     private Date fromDate;
     private Date toDate;
@@ -18,6 +20,12 @@ public class SearchFilter {
     private int templateId;
     private int statusId;
     private int ownerId;
+    private int companyId;
+
+    private Map<String, Integer> templates;
+    private Map<String, Integer> statuses;
+    private Map<String, Integer> createGroups;
+    private Map<String, Integer> companies;
 
     public boolean isById() {
         return byId;
@@ -65,6 +73,14 @@ public class SearchFilter {
 
     public void setByOwner(boolean byOwner) {
         this.byOwner = byOwner;
+    }
+
+    public boolean isByCompany() {
+        return byCompany;
+    }
+
+    public void setByCompany(boolean byCompany) {
+        this.byCompany = byCompany;
     }
 
     public Date getFromDate() {
@@ -129,5 +145,45 @@ public class SearchFilter {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public int getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public Map<String, Integer> getTemplates() {
+        return templates;
+    }
+
+    public void setTemplates(Map<String, Integer> templates) {
+        this.templates = templates;
+    }
+
+    public Map<String, Integer> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(Map<String, Integer> statuses) {
+        this.statuses = statuses;
+    }
+
+    public Map<String, Integer> getCreateGroups() {
+        return createGroups;
+    }
+
+    public void setCreateGroups(Map<String, Integer> createGroups) {
+        this.createGroups = createGroups;
+    }
+
+    public Map<String, Integer> getCompanies() {
+        return companies;
+    }
+
+    public void setCompanies(Map<String, Integer> companies) {
+        this.companies = companies;
     }
 }

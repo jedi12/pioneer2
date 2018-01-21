@@ -55,7 +55,7 @@ public class UserDaoImpl implements UserDao {
     private static final String SELECT_SUPER_USER_LIST =
             "SELECT U.ID AS ID, U.NAME AS NAME, LOGIN, U.EMAIL AS EMAIL, U.STATE AS STATE, COMPANY, " +
                     "C.NAME AS COMPANY_NAME FROM DOC.USERS U LEFT JOIN DOC.COMPANY C ON C.ID = U.COMPANY " +
-                    "ORDER BY COMPANY ASC, NAME ASC";
+                    "WHERE COMPANY >= 0 ORDER BY COMPANY ASC, NAME ASC";
     private static final String SELECT_ADMIN_USER_LIST =
             "SELECT ID, NAME, LOGIN, EMAIL, STATE, COMPANY, NULL AS COMPANY_NAME FROM DOC.USERS WHERE COMPANY = ? " +
                     "ORDER BY NAME ASC";

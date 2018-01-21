@@ -16,6 +16,7 @@ public class Company {
     private String userName;
     private String userLogin;
     private String userEmail;
+    private String userPass;
     private String groupName;
 
     private boolean createFlag;
@@ -144,6 +145,14 @@ public class Company {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public String getUserPass() {
+        return userPass;
+    }
+
+    public void setUserPass(String userPass) {
+        this.userPass = userPass;
     }
 
     public String getGroupName() {
