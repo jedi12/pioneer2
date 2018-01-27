@@ -165,13 +165,13 @@ public class UserServiceImpl implements UserService {
             user.setLogin(user.getLogin().trim());
             user.setEmail(user.getEmail().trim());
 
-            if (userDao.getCountByLogin(user.getLogin()) > 0) {
+            if (userDao.getCountByLogin(user.getLogin()) > 0 && !currentUser.getUser().getLogin().equals(user.getLogin())) {
                 String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
                 eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
                 throw new RestrictionException(mess);
             }
 
-            if (userDao.getCountByEmail(user.getEmail()) > 0) {
+            if (userDao.getCountByEmail(user.getEmail()) > 0 && !currentUser.getUser().getEmail().equals(user.getEmail())) {
                 String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
                 eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
                 throw new RestrictionException(mess);
