@@ -30,7 +30,7 @@ public interface UserDao {
 
     int getCount(int companyId, int state) throws DataAccessException;
 
-    int getCountByLogin(String login) throws DataAccessException;
+    int getUserIdByLogin(String login) throws DataAccessException;
 
-    int getCountByEmail(String email) throws DataAccessException;
+    int getUserIdByEmail(String email) throws DataAccessException;
 }
