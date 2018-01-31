@@ -64,8 +64,8 @@ public class UserDaoImpl implements UserDao {
                     "AND GU.ID = ? AND ACTOR_TYPE = 1 AND STATE = 1 AND COMPANY = ? ORDER BY NAME";
     private static final String SELECT_ID_AND_PASS = "SELECT ID, PASS FROM DOC.USERS WHERE LOGIN = ?";
     private static final String SELECT_COUNT = "SELECT COUNT(*) FROM DOC.USERS WHERE COMPANY = ? AND STATE = ?";
-    private static final String SELECT_COUNT_BY_LOGIN = "SELECT COUNT(*) FROM DOC.USERS WHERE LOGIN = ?";
-    private static final String SELECT_COUNT_BY_EMAIL = "SELECT COUNT(*) FROM DOC.USERS WHERE EMAIL = ?";
+    private static final String SELECT_COUNT_BY_LOGIN = "SELECT ID FROM DOC.USERS WHERE LOGIN = ?";
+    private static final String SELECT_COUNT_BY_EMAIL = "SELECT ID FROM DOC.USERS WHERE EMAIL = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -321,7 +321,8 @@ public class UserDaoImpl implements UserDao {
                     } else {
                         throw new NotFoundDaoException("User not found by login = " + login);
                     }
-                });
+                }
+        );
     }
 
     @Override
@@ -333,18 +334,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int getCountByLogin(String login) throws DataAccessException {
-        return jdbcTemplate.queryForObject(SELECT_COUNT_BY_LOGIN,
+    public int getUserIdByLogin(String login) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_COUNT_BY_LOGIN,
                 new Object[]{login},
-                (rs, rowNum) -> rs.getInt(1)
+                (rs) -> rs.next() ? rs.getInt(1) : -1
         );
     }
 
     @Override
-    public int getCountByEmail(String email) throws DataAccessException {
-        return jdbcTemplate.queryForObject(SELECT_COUNT_BY_EMAIL,
+    public int getUserIdByEmail(String email) throws DataAccessException {
+        return jdbcTemplate.query(SELECT_COUNT_BY_EMAIL,
                 new Object[]{email},
-                (rs, rowNum) -> rs.getInt(1)
+                (rs) -> rs.next() ? rs.getInt(1) : -1
         );
     }
 }

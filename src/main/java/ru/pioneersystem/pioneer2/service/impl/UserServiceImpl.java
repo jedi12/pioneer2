@@ -165,19 +165,19 @@ public class UserServiceImpl implements UserService {
             user.setLogin(user.getLogin().trim());
             user.setEmail(user.getEmail().trim());
 
-            if (userDao.getCountByLogin(user.getLogin()) > 0) {
-                String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
-                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
-                throw new RestrictionException(mess);
-            }
-
-            if (userDao.getCountByEmail(user.getEmail()) > 0) {
-                String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
-                eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
-                throw new RestrictionException(mess);
-            }
-
             if (user.isCreateFlag()) {
+                if (userDao.getUserIdByLogin(user.getLogin()) != -1) {
+                    String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                    throw new RestrictionException(mess);
+                }
+
+                if (userDao.getUserIdByEmail(user.getEmail()) != -1) {
+                    String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                    throw new RestrictionException(mess);
+                }
+
                 int currentUserCount = userDao.getCount(currentUser.getUser().getCompanyId(), User.State.ACTIVE);
                 int maxUserCount = companyDao.getMaxUserCount(currentUser.getUser().getCompanyId());
                 if (currentUserCount >= maxUserCount) {
@@ -195,6 +195,18 @@ public class UserServiceImpl implements UserService {
                     groupService.createGroupWithUser(user.getName(), Role.Id.CREATE, userId, currentUser.getUser().getCompanyId());
                 }
             } else {
+                if (userDao.getUserIdByLogin(user.getLogin()) != user.getId()) {
+                    String mess = messageSource.getMessage("error.user.loginAlreadyExists", new Object[]{user.getLogin()}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                    throw new RestrictionException(mess);
+                }
+
+                if (userDao.getUserIdByEmail(user.getEmail()) != user.getId()) {
+                    String mess = messageSource.getMessage("error.user.emailAlreadyExists", new Object[]{user.getEmail()}, localeBean.getLocale());
+                    eventService.logEvent(Event.Type.USER_RESTRICTION_ACHIEVED, user.getId(), mess);
+                    throw new RestrictionException(mess);
+                }
+
                 userDao.update(user, currentUser.getUser().getCompanyId());
                 eventService.logEvent(Event.Type.USER_CHANGED, user.getId());
             }
