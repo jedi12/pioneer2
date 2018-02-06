@@ -23,10 +23,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
+import javax.faces.annotation.FacesConfig;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Locale;
 
+@FacesConfig
 @Configuration
 @EnableWebMvc
 @EnableTransactionManagement

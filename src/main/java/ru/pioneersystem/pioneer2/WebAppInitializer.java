@@ -32,6 +32,8 @@ public class WebAppInitializer extends FacesInitializer implements WebApplicatio
 //        fr.addMappingForUrlPatterns(null, true, "/*");
 
         servletContext.setInitParameter("javax.faces.DEFAULT_SUFFIX", ".xhtml");
+        servletContext.setInitParameter("javax.faces.ENABLE_CDI_RESOLVER_CHAIN", "true");
+        servletContext.setInitParameter("javax.faces.ENABLE_WEBSOCKET_ENDPOINT", "true");
         servletContext.setInitParameter("primefaces.FONT_AWESOME", "true");
         servletContext.setInitParameter("javax.faces.VALIDATE_EMPTY_FIELDS", "true");
 //        servletContext.setInitParameter("javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE", "true");
