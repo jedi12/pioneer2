@@ -13,6 +13,12 @@ function closeLoadingDialog() {
     PF('loading').hide();
 }
 
+function handleMessage(facesmessage) {
+    facesmessage.severity = 'info';
+    facesmessage.rendered = true;
+    PF('growl').show([facesmessage]);
+}
+
 function initClientProp() {
     document.getElementById("initProp:screenHeight").value = screen.height;
     document.getElementById("initProp:screenWidth").value = screen.width;

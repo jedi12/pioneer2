@@ -109,6 +109,16 @@
             <artifactId>primefaces</artifactId>
             <version>${primefaces.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime</artifactId>
+            <version>2.4.20</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>
