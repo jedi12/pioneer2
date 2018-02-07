@@ -41,7 +41,9 @@ public class EventView {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
+    }
 
+    public void refreshList() {
         ZonedDateTime currDate = LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId());
         fromDate = Date.from(currDate.toInstant());
         toDate = Date.from(currDate.toInstant());

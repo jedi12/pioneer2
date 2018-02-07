@@ -4,6 +4,8 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui">
 
+	#{noticeView.refreshList()}
+
 	<h2 align="center">
 		<h:outputLabel value="#{text['notice.title']}"/>
 		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
@@ -73,9 +75,9 @@
 				</p:column>
 			</p:dataTable>
 
-			<f:facet name="footer">
+			<f:facet name="#{currentUser.superRole ? 'footer' : 'none'}">
 				<p:commandButton value="#{text['notice.btn.info']}" icon="fa fa-fw fa-info" update=":infoDialog"
-								 actionListener="#{noticeView.infoDialog}" rendered="#{currentUser.superRole}"/>
+								 actionListener="#{noticeView.infoDialog}"/>
 			</f:facet>
 		</p:panel>
 	</p:panel>

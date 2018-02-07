@@ -4,7 +4,7 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 		
-	<p:dialog header="#{text['system.about']}" widgetVar="about" resizable="false" modal="true" width="400">
+	<p:dialog header="#{text['system.about']}" widgetVar="about" resizable="false" modal="true" closeOnEscape="true" width="400">
 		<p:panel style="text-align: center">
 			<i><b><p:outputLabel value="#{text['system.name']}"/></b></i>
 			<br/>

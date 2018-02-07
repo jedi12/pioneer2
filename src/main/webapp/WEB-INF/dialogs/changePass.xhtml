@@ -5,7 +5,7 @@
 	xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="changePassDialog" target="_blank">
-		<p:dialog widgetVar="changePassDialog" resizable="false" width="400" modal="true">
+		<p:dialog widgetVar="changePassDialog" resizable="false" width="400" closeOnEscape="true" modal="true">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-key"/>
 				<p:outputLabel value=" #{text['changePass.header']}"/>
