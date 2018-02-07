@@ -13,12 +13,8 @@
 
 			<h2 align="center">
 				<h:outputLabel value="#{choiceListView.currChoiceList.createFlag ? text['choiceList.edit.create'] : text['choiceList.edit.change']}"/>
-				<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
-								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
-				<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-								showEffect="clip" hideEffect="clip">
-					<ui:include src="/WEB-INF/helps/choice_list_edit_dialog.xhtml"/>
-				</p:overlayPanel>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_choice_list_edit_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
 			</h2>
 
 			<p:panel>
@@ -82,7 +78,7 @@
 	</h:form>
 
 	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" onShow="formatDialog()">
+		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" closeOnEscape="true" onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-list"/>
 				<p:outputLabel value=" #{text['choiceList.del.header']} (ID: #{choiceListView.selectedChoiceList.id})"/>
@@ -92,10 +88,8 @@
 				<h:outputLabel value="#{text['choiceList.del.delete']}"/>
 				<p:commandButton id="helpDelete" type="button" value="?" styleClass="helpButton"
 								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
-				<p:overlayPanel for="helpDelete" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-								showEffect="clip" hideEffect="clip">
-					<ui:include src="/WEB-INF/helps/choice_list_delete_dialog.xhtml"/>
-				</p:overlayPanel>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_choice_list_delete_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
 			</h2>
 
 			<p:panel>

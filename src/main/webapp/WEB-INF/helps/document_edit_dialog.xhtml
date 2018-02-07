@@ -4,36 +4,39 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	<p:panel>
-		<h4><i><u><h:outputText value="#{text['help.documentDialog.header1']}" escape="false"/></u></i></h4>
+	<p:dialog header="#{text['help']}" widgetVar="help_document_edit_dialog" resizable="false" modal="true" dynamic="true"
+			  draggable="false" closeOnEscape="true" width="50vw" showEffect="clip" hideEffect="clip" appendTo="@(body)">
+		<p:panel>
+			<h4><i><u><h:outputText value="#{text['help.documentDialog.header1']}" escape="false"/></u></i></h4>
 
-		<h:outputText value="#{text['help.documentDialog.text1']}" escape="false"/>
+			<h:outputText value="#{text['help.documentDialog.text1']}" escape="false"/>
 
-		<h4><i><u><h:outputText value="#{text['help.documentDialog.header2']}" escape="false"/></u></i></h4>
+			<h4><i><u><h:outputText value="#{text['help.documentDialog.header2']}" escape="false"/></u></i></h4>
 
-		<h:outputText value="#{text['help.documentDialog.text2']}" escape="false"/>
+			<h:outputText value="#{text['help.documentDialog.text2']}" escape="false"/>
 
-		<h4><i><u><h:outputText value="#{text['help.documentDialog.header3']}" escape="false"/></u></i></h4>
+			<h4><i><u><h:outputText value="#{text['help.documentDialog.header3']}" escape="false"/></u></i></h4>
 
-		<h:outputText value="#{text['help.documentDialog.text3']}" escape="false"/>
-		<ul>
-			<li><h:outputText value="#{text['help.documentDialog.text4']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text5']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text6']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text7']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text8']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text9']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text10']}" escape="false"/></li>
-		</ul>
+			<h:outputText value="#{text['help.documentDialog.text3']}" escape="false"/>
+			<ul>
+				<li><h:outputText value="#{text['help.documentDialog.text4']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text5']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text6']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text7']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text8']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text9']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text10']}" escape="false"/></li>
+			</ul>
 
-		<h4><i><u><h:outputText value="#{text['help.documentDialog.header4']}" escape="false"/></u></i></h4>
+			<h4><i><u><h:outputText value="#{text['help.documentDialog.header4']}" escape="false"/></u></i></h4>
 
-		<h:outputText value="#{text['help.documentDialog.text11']}" escape="false"/>
-		<ul>
-			<li><h:outputText value="#{text['help.documentDialog.text12']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text13']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text14']}" escape="false"/></li>
-			<li><h:outputText value="#{text['help.documentDialog.text15']}" escape="false"/></li>
-		</ul>
-	</p:panel>
+			<h:outputText value="#{text['help.documentDialog.text11']}" escape="false"/>
+			<ul>
+				<li><h:outputText value="#{text['help.documentDialog.text12']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text13']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text14']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.documentDialog.text15']}" escape="false"/></li>
+			</ul>
+		</p:panel>
+	</p:dialog>
 </ui:composition>

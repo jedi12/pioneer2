@@ -4,9 +4,12 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	<p:panel>
-		<h4><i><u><h:outputText value="#{text['help.choiceListDeleteDialog.header1']}" escape="false"/></u></i></h4>
+	<p:dialog header="#{text['help']}" widgetVar="help_choice_list_delete_dialog" resizable="false" modal="true" dynamic="true"
+			  draggable="false" closeOnEscape="true" width="50vw" showEffect="clip" hideEffect="clip" appendTo="@(body)">
+		<p:panel>
+			<h4><i><u><h:outputText value="#{text['help.choiceListDeleteDialog.header1']}" escape="false"/></u></i></h4>
 
-		<h:outputText value="#{text['help.choiceListDeleteDialog.text1']}" escape="false"/>
-	</p:panel>
+			<h:outputText value="#{text['help.choiceListDeleteDialog.text1']}" escape="false"/>
+		</p:panel>
+	</p:dialog>
 </ui:composition>

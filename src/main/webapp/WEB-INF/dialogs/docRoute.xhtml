@@ -13,12 +13,8 @@
 
 			<h2 align="center">
 				<p:outputLabel value="#{text['docRoute.header']}"/>
-				<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
-								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
-				<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-								showEffect="clip" hideEffect="clip">
-					<ui:include src="/WEB-INF/helps/docRoute_dialog.xhtml"/>
-				</p:overlayPanel>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_docRoute_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
 			</h2>
 
 			<p:panel style="word-wrap:break-word">
@@ -35,7 +31,7 @@
 											 rendered="#{routePoint.signed == 2 || routePoint.signed == 3}"/>
 						</p:column>
 
-						<p:column headerText="#{text['docRoute.col.usersGroup']}">
+						<p:column headerText="#{text['docRoute.col.routePoint']}">
 							<p:commandLink action="#{documentView.openDocUsersInGroupDialog(routePoint.groupId)}"
 										   update=":docUsersInGroupDialog" style="color:blue">
 								<h:outputText value="#{routePoint.groupName}" style="color:blue"/>

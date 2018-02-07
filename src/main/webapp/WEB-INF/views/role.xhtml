@@ -8,12 +8,8 @@
 
 	<h2 align="center">
 		<h:outputLabel value="#{text['role.title']}"/>
-		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
+		<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_role_list').show()"
 						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-						showEffect="clip" hideEffect="clip">
-			<ui:include src="/WEB-INF/helps/role_list.xhtml"/>
-		</p:overlayPanel>
 	</h2>
 
 	<p:panel>
