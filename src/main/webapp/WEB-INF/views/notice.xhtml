@@ -4,77 +4,81 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui">
 
-	#{noticeView.refreshList()}
+	<h:form>
+		#{noticeView.refreshList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{text['notice.title']}"/>
-		<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_notice_list').show()"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{text['notice.title']}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_notice_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-		<p:panel id="searchCond" width="100%">
-			<h:panelGrid columns="2" style="margin: auto">
-				<h:panelGroup>
-					<p:outputLabel value="#{text['notice.search.byDate']}" style="margin: 5px"/>
-					<p:calendar value="#{noticeView.fromDate}" size="10" pattern="#{localeBean.datePattern}"
-								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
-					<p:outputLabel value="-" style="margin: 5px"/>
-					<p:calendar value="#{noticeView.toDate}" size="10" pattern="#{localeBean.datePattern}"
-								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
-				</h:panelGroup>
-				<p:commandButton value="#{text['notice.btn.search']}" icon="fa fa-fw fa-search"
-								 actionListener="#{noticeView.findAction}"/>
-			</h:panelGrid>
-		</p:panel>
 		<p:panel>
-			<p:dataTable id="noticeTable" widgetVar="noticeTable" value="#{noticeView.noticeList}" var="notice" rows="20"
-						 selectionMode="single" selection="#{noticeView.selectedNotice}" rowKey="#{notice.id}"
-						 filteredValue="#{noticeView.filteredNoticeList}" emptyMessage="#{text['table.empty']}"
-						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-						 rowStyleClass="#{notice.sendStatusId == 3 ? 'lightPink' :
-						 (notice.sendStatusId == 1 || notice.sendStatusId == 2 ? 'lightYellow' :
-						 (notice.sendStatusId == 4 ? 'lightGreen' : 'default'))}">
+			<p:panel id="searchCond" width="100%">
+				<h:panelGrid columns="2" style="margin: auto">
+					<h:panelGroup>
+						<p:outputLabel value="#{text['notice.search.byDate']}" style="margin: 5px"/>
+						<p:calendar value="#{noticeView.fromDate}" size="10" pattern="#{localeBean.datePattern}"
+									locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+						<p:outputLabel value="-" style="margin: 5px"/>
+						<p:calendar value="#{noticeView.toDate}" size="10" pattern="#{localeBean.datePattern}"
+									locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}" readonlyInput="true"/>
+					</h:panelGroup>
+					<p:commandButton value="#{text['notice.btn.search']}" icon="fa fa-fw fa-search"
+									 actionListener="#{noticeView.findAction}"/>
+				</h:panelGrid>
+			</p:panel>
+			<p:panel>
+				<p:dataTable id="noticesTable" widgetVar="noticesTable" value="#{noticeView.noticeList}" var="notice" rows="20"
+							 selectionMode="single" selection="#{noticeView.selectedNotice}" rowKey="#{notice.id}"
+							 filteredValue="#{noticeView.filteredNoticeList}" emptyMessage="#{text['table.empty']}"
+							 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+							 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+							 rowStyleClass="#{notice.sendStatusId == 3 ? 'lightPink' :
+							 (notice.sendStatusId == 1 || notice.sendStatusId == 2 ? 'lightYellow' :
+							 (notice.sendStatusId == 4 ? 'lightGreen' : 'default'))}">
 
-				<p:ajax event="filter" ignoreAutoUpdate="true"/>
-				<p:ajax event="rowDblselect" listener="#{noticeView.infoDialog}" disabled="#{!currentUser.superRole}"
-						update=":infoDialog" resetValues="true"/>
+					<p:ajax event="filter" ignoreAutoUpdate="true"/>
+					<p:ajax event="rowDblselect" listener="#{noticeView.editDialog}" disabled="#{!currentUser.superRole}"
+							update="noticeEditDialog" resetValues="true"/>
 
-				<p:column headerText="#{text['notice.col.changeDate']}" filterBy="#{notice.changeDateFormatted}" filterMatchMode="contains">
-					<h:outputText value="#{notice.changeDateFormatted}"/>
-				</p:column>
+					<p:column headerText="#{text['notice.col.changeDate']}" filterBy="#{notice.changeDateFormatted}" filterMatchMode="contains">
+						<h:outputText value="#{notice.changeDateFormatted}"/>
+					</p:column>
 
-				<p:column headerText="#{text['notice.col.email']}" filterBy="#{notice.email}" filterMatchMode="contains">
-					<h:outputText value="#{notice.email}"/>
-				</p:column>
+					<p:column headerText="#{text['notice.col.email']}" filterBy="#{notice.email}" filterMatchMode="contains">
+						<h:outputText value="#{notice.email}"/>
+					</p:column>
 
-				<p:column headerText="#{text['notice.col.eventName']}" filterBy="#{notice.eventName}" filterMatchMode="contains">
-					<h:outputText value="#{notice.eventName}"/>
-				</p:column>
+					<p:column headerText="#{text['notice.col.eventName']}" filterBy="#{notice.eventName}" filterMatchMode="contains">
+						<h:outputText value="#{notice.eventName}"/>
+					</p:column>
 
-				<p:column headerText="#{text['notice.col.sendStatusName']}" filterBy="#{notice.sendStatusName}" filterMatchMode="contains">
-					<h:outputText value="#{notice.sendStatusName}"/>
-				</p:column>
+					<p:column headerText="#{text['notice.col.sendStatusName']}" filterBy="#{notice.sendStatusName}" filterMatchMode="contains">
+						<h:outputText value="#{notice.sendStatusName}"/>
+					</p:column>
 
-				<p:column headerText="#{text['notice.col.attempt']}" filterBy="#{notice.attempt}" filterMatchMode="contains">
-					<h:outputText value="#{notice.attempt}"/>
-				</p:column>
+					<p:column headerText="#{text['notice.col.attempt']}" filterBy="#{notice.attempt}" filterMatchMode="contains">
+						<h:outputText value="#{notice.attempt}"/>
+					</p:column>
 
-				<p:column headerText="#{text['notice.col.docId']}" filterBy="#{notice.docId}" filterMatchMode="contains">
-					<h:outputText value="#{notice.docId}"/>
-				</p:column>
+					<p:column headerText="#{text['notice.col.docId']}" filterBy="#{notice.docId}" filterMatchMode="contains">
+						<h:outputText value="#{notice.docId}"/>
+					</p:column>
 
-				<p:column headerText="#{text['notice.col.docStatusName']}" filterBy="#{notice.docStatusName}" filterMatchMode="contains">
-					<h:outputText value="#{notice.docStatusName}"/>
-				</p:column>
-			</p:dataTable>
+					<p:column headerText="#{text['notice.col.docStatusName']}" filterBy="#{notice.docStatusName}" filterMatchMode="contains">
+						<h:outputText value="#{notice.docStatusName}"/>
+					</p:column>
+				</p:dataTable>
 
-			<f:facet name="#{currentUser.superRole ? 'footer' : 'none'}">
-				<p:commandButton value="#{text['notice.btn.info']}" icon="fa fa-fw fa-info" update=":infoDialog"
-								 actionListener="#{noticeView.infoDialog}"/>
-			</f:facet>
+				<f:facet name="#{currentUser.superRole ? 'footer' : 'none'}">
+					<p:commandButton value="#{text['notice.btn.info']}" icon="fa fa-fw fa-info" update="noticeEditDialog"
+									 actionListener="#{noticeView.editDialog}"/>
+				</f:facet>
+			</p:panel>
 		</p:panel>
-	</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/notice_edit_dialog.xhtml"/>
 </ui:composition>

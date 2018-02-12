@@ -36,7 +36,7 @@ public class MenuView {
         try {
             menuList = menuService.getMenuList();
 
-            RequestContext.getCurrentInstance().execute("PF('menuTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('menusTable').clearFilters()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
@@ -47,7 +47,7 @@ public class MenuView {
     public void newDialog() {
         currMenu = menuService.getNewMenu();
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('menuEditDialog').show()");
     }
 
     public void editDialog() {
@@ -65,7 +65,7 @@ public class MenuView {
 
         try {
             currMenu = menuService.getMenu(selectedMenu.getId());
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('menuEditDialog').show()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
@@ -78,7 +78,7 @@ public class MenuView {
             menuService.saveMenu(currMenu);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('menuEditDialog').hide();");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
@@ -99,7 +99,7 @@ public class MenuView {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('menuDeleteDialog').show()");
     }
 
     public void deleteAction() {
@@ -112,7 +112,7 @@ public class MenuView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('menuDeleteDialog').hide();");
     }
 
     public void setMenuService(MenuService menuService) {

@@ -5,7 +5,8 @@
 				xmlns:p="http://primefaces.org/ui">
 
 	<h:form id="docRouteDialog" target="_blank">
-		<p:dialog widgetVar="docRouteDialog" resizable="false" width="1024" modal="true" closeOnEscape="true" onShow="formatDialog()">
+		<p:dialog widgetVar="docRouteDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+				  onShow="formatDialog()">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-share-alt" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['docRoute.header']} (#{text['label.id']} #{documentView.selectedDocument.id})"/>
@@ -33,7 +34,7 @@
 
 						<p:column headerText="#{text['docRoute.col.routePoint']}">
 							<p:commandLink action="#{documentView.openDocUsersInGroupDialog(routePoint.groupId)}"
-										   update=":docUsersInGroupDialog" style="color:blue">
+										   update=":docUsersInGroupDialog" process="@this" style="color:blue">
 								<h:outputText value="#{routePoint.groupName}" style="color:blue"/>
 							</p:commandLink>
 						</p:column>

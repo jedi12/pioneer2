@@ -4,8 +4,9 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui">
 
-	<h:form id="infoDialog" target="_blank">
-		<p:dialog widgetVar="infoDialog" resizable="false" width="1024" modal="true" closeOnEscape="true" onShow="formatDialog()">
+	<p:dialog widgetVar="noticeEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="noticeEditDialog" target="_blank">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-info" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['notice.detail.header']}"/>
@@ -24,10 +25,10 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses="columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('infoDialog').hide();"/>
+										 onclick="PF('noticeEditDialog').hide();"/>
 					</h:panelGrid>
 				</f:facet>
 			</p:panel>
-		</p:dialog>
-	</h:form>
+		</h:form>
+	</p:dialog>
 </ui:composition>

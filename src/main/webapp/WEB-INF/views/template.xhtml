@@ -4,53 +4,58 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	#{templateView.refreshList()}
+	<h:form id="templates">
+		#{templateView.refreshList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{text['template.title']}"/>
-		<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_template_list').show()"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{text['template.title']}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_template_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-		<p:dataTable id="templateTable" widgetVar="templateTable" value="#{templateView.templateList}" var="template" rows="20"
-					 selectionMode="single" selection="#{templateView.selectedTemplate}" rowKey="#{template.id}"
-					 filteredValue="#{templateView.filteredTemplate}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-					 rowStyleClass="#{template.state == 2 ? 'lightGrey' : 'default'}">
+		<p:panel>
+			<p:dataTable id="templatesTable" widgetVar="templatesTable" value="#{templateView.templateList}" var="template" rows="20"
+						 selectionMode="single" selection="#{templateView.selectedTemplate}" rowKey="#{template.id}"
+						 filteredValue="#{templateView.filteredTemplate}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{template.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{templateView.editDialog}" update=":editDialog" resetValues="true"
-					oncomplete="PF('tabView').select(0);"/>
+				<p:ajax event="rowDblselect" listener="#{templateView.editDialog}" update="templateEditDialog" resetValues="true"
+						oncomplete="PF('tabView').select(0);"/>
 
-			<p:column headerText="#{text['template.col.name']}" filterBy="#{template.name}" filterMatchMode="contains">
-                <h:outputText value="#{template.name}"/>
-	        </p:column>
+				<p:column headerText="#{text['template.col.name']}" filterBy="#{template.name}" filterMatchMode="contains">
+					<h:outputText value="#{template.name}"/>
+				</p:column>
 
-			<p:column headerText="#{text['template.col.part']}" filterBy="#{template.partName}" filterMatchMode="contains">
-				<h:outputText value="#{template.partName}"/>
-			</p:column>
+				<p:column headerText="#{text['template.col.part']}" filterBy="#{template.partName}" filterMatchMode="contains">
+					<h:outputText value="#{template.partName}"/>
+				</p:column>
 
-			<p:column headerText="#{text['template.col.route']}" filterBy="#{template.routeName}" filterMatchMode="contains">
-				<h:outputText value="#{template.routeName}"/>
-			</p:column>
+				<p:column headerText="#{text['template.col.route']}" filterBy="#{template.routeName}" filterMatchMode="contains">
+					<h:outputText value="#{template.routeName}"/>
+				</p:column>
 
-			<p:column headerText="#{text['template.col.company']}" filterBy="#{template.companyName}" filterMatchMode="contains"
-					  rendered="#{currentUser.superRole}">
-				<h:outputText value="#{template.companyName}"/>
-			</p:column>
-		</p:dataTable>
+				<p:column headerText="#{text['template.col.company']}" filterBy="#{template.companyName}" filterMatchMode="contains"
+						  rendered="#{currentUser.superRole}">
+					<h:outputText value="#{template.companyName}"/>
+				</p:column>
+			</p:dataTable>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{templateView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"
-							 oncomplete="PF('tabView').select(0);"/>
-			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{templateView.editDialog}" resetValues="true"
-							 oncomplete="PF('tabView').select(0);"/>
-			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-                             actionListener="#{templateView.deleteDialog}" disabled="#{currentUser.superRole}"/>
-		</f:facet>
-	</p:panel>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update="templateEditDialog"
+								 actionListener="#{templateView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"
+								 oncomplete="PF('tabView').select(0);"/>
+				<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update="templateEditDialog"
+								 actionListener="#{templateView.editDialog}" resetValues="true"
+								 oncomplete="PF('tabView').select(0);"/>
+				<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update="templateDeleteDialog"
+								 actionListener="#{templateView.deleteDialog}" disabled="#{currentUser.superRole}"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/template_delete_dialog.xhtml"/>
+	<ui:include src="/WEB-INF/admin_dialogs/template_edit_dialog.xhtml"/>
 </ui:composition>

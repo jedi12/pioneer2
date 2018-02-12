@@ -55,12 +55,12 @@ public class EventView {
         try {
             eventList = eventService.getEventList(fromDate, toDate);
 
-            RequestContext.getCurrentInstance().execute("PF('eventTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('eventsTable').clearFilters()");
         }
         catch (TooManyObjectsException e) {
             eventList = e.getObjects();
 
-            RequestContext.getCurrentInstance().execute("PF('eventTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('eventsTable').clearFilters()");
 
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -71,7 +71,7 @@ public class EventView {
         }
     }
 
-    public void detailDialog() {
+    public void editDialog() {
         if (selectedEvent == null) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), bundle.getString("error.event.NotSelected")));
@@ -81,7 +81,7 @@ public class EventView {
         try {
             eventDetail = eventService.getEventDetail(selectedEvent.getDate(), selectedEvent.getUserId());
 
-            RequestContext.getCurrentInstance().execute("PF('detailDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('eventEditDialog').show()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,

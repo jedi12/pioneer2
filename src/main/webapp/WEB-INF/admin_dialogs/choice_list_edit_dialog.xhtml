@@ -4,8 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true" closeOnEscape="true" onShow="formatDialog()">
+	<p:dialog widgetVar="choiceListEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="choiceListEditDialog" target="_blank">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-list" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['choiceList.edit.header']} (#{text['label.id']} #{choiceListView.currChoiceList.id})"/>
@@ -28,7 +29,7 @@
 				<p:tabView id="tabView">
 					<p:tab title="#{text['choiceList.tab1.name']}">
 						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
-							<p:dataTable id="listsTable" value="#{choiceListView.currChoiceList.values}" var="collectedList" rows="10"
+							<p:dataTable id="choiceListEditTable" value="#{choiceListView.currChoiceList.values}" var="collectedList" rows="10"
 										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList}"
 										 paginator="true" paginatorPosition="bottom"
 										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
@@ -44,7 +45,7 @@
 									<f:facet name="header">
 										<h:outputText value="#{text['operation.name']}"/>
 									</f:facet>
-									<p:commandLink value="#{text['operation.delete']}" update="listsTable" process="@this">
+									<p:commandLink value="#{text['operation.delete']}" update="choiceListEditTable" process="@this">
 										<p:collector value="#{collectedList}" removeFrom="#{choiceListView.currChoiceList.values}" unique="true"/>
 									</p:commandLink>
 								</p:column>
@@ -56,8 +57,8 @@
 								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
 									<p:outputLabel value="#{text['choiceList.edit.add.label']}" for="addValue"/>
 									<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="96"/>
-									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="listsTable addValueGrid"
-													 process="listsTable addValueGrid" actionListener="#{choiceListView.addValue}"/>
+									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="choiceListEditTable addValueGrid"
+													 process="choiceListEditTable addValueGrid" actionListener="#{choiceListView.addValue}"/>
 								</h:panelGrid>
 							</p:panel>
 						</p:panel>
@@ -67,58 +68,13 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:listsTable listNameGrid" disabled="#{currentUser.superRole}"
+										 update="choiceLists:choiceListsTable listNameGrid" disabled="#{currentUser.superRole}"
 										 actionListener="#{choiceListView.saveAction}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('editDialog').hide();"/>
+										 onclick="PF('choiceListEditDialog').hide();"/>
 					</h:panelGrid>
 				</f:facet>
 			</p:panel>
-		</p:dialog>
-	</h:form>
-
-	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" closeOnEscape="true" onShow="formatDialog()">
-			<f:facet name="header">
-				<i class="fa fa-fw fa-list"/>
-				<p:outputLabel value=" #{text['choiceList.del.header']} (ID: #{choiceListView.selectedChoiceList.id})"/>
-			</f:facet>
-
-			<h2 align="center">
-				<h:outputLabel value="#{text['choiceList.del.delete']}"/>
-				<p:commandButton id="helpDelete" type="button" value="?" styleClass="helpButton"
-								 style="font-size: small;position: absolute; top: .5em;left: 1em;"/>
-				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_choice_list_delete_dialog').show()"
-								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
-			</h2>
-
-			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
-					<h:panelGrid columns="2" cellpadding="5">
-						<p:outputLabel value="#{text['choiceList.del.title']}"/>
-						<p:outputLabel value="#{choiceListView.selectedChoiceList.name}" style="font-weight: bold"/>
-					</h:panelGrid>
-
-					<h:panelGroup rendered="#{choiceListView.templatesContainingChoiceList.isEmpty() == false}">
-						<hr/>
-						<h4 align="center">#{text['choiceList.del.templateWithChoiceList']}</h4>
-						<p:repeat value="#{choiceListView.templatesContainingChoiceList}" var="template" >
-							<i><h:outputLabel value="#{template}"/></i>
-							<br/>
-						</p:repeat>
-					</h:panelGroup>
-				</p:panel>
-
-				<f:facet name="footer">
-					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:listsTable" actionListener="#{choiceListView.deleteAction}"
-										 disabled="#{choiceListView.templatesContainingChoiceList.isEmpty() == false}"/>
-						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('deleteDialog').hide();"/>
-					</h:panelGrid>
-				</f:facet>
-			</p:panel>
-		</p:dialog>
-	</h:form>
+		</h:form>
+	</p:dialog>
 </ui:composition>

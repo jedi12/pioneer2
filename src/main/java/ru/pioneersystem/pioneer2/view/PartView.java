@@ -81,7 +81,7 @@ public class PartView {
         }
         selectGroup = getCurrSelectPart(currPart);
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('partEditDialog').show()");
     }
 
     public void editDialog() {
@@ -98,7 +98,7 @@ public class PartView {
             currPart = partService.getPart(selectedPart);
             selectGroup = getCurrSelectPart(currPart);
 
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('partEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -113,7 +113,7 @@ public class PartView {
             partService.savePart(TreeNodeUtil.setTreeLevel(currPart, partList), partType);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('partEditDialog').hide();");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -134,7 +134,7 @@ public class PartView {
             } else if (partType == Part.Type.FOR_DOCUMENTS) {
                 docCountInPubPart = partService.getCountPubDocContainingInParts(partsForDelete);
             }
-            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('partDeleteDialog').show()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -151,7 +151,7 @@ public class PartView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('partDeleteDialog').hide();");
     }
 
     public void onDragDrop(TreeDragDropEvent event) {

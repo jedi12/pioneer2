@@ -4,37 +4,38 @@
 				xmlns:ui="http://java.sun.com/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui">
 
-	#{documentView.refreshTemplateList()}
+	<h:form>
+		#{documentView.refreshTemplateList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{currentUser.currMenu.name}"/>
-		<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_docCreate_list').show()"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{currentUser.currMenu.name}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_docCreate_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-		<p:tree id="partTempTree" value="#{documentView.partTempTree}" var="node" animate="true" selectionMode="single"
-				selection="#{documentView.selectedNode}" style="width: auto" dynamic="true" cache="true">
+		<p:panel>
+			<p:tree id="partTempTree" value="#{documentView.partTempTree}" var="node" animate="true" selectionMode="single"
+					selection="#{documentView.selectedNode}" style="width: auto" dynamic="true" cache="true">
 
-			<p:ajax event="expand" listener="#{documentView.onTempNodeExpand}" />
+				<p:ajax event="expand" listener="#{documentView.onTempNodeExpand}" />
 
-			<p:treeNode type="default" styleClass="emptyTreeNode"/>
+				<p:treeNode type="default" styleClass="emptyTreeNode"/>
 
-			<p:treeNode type="folder">
-				<h:graphicImage value="#{resource['images/folder32x32.png']}" height="24" width="24" style="padding-right: 5px;"/>
-				<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
-			</p:treeNode>
+				<p:treeNode type="folder">
+					<h:graphicImage value="#{resource['images/folder32x32.png']}" height="24" width="24" style="padding-right: 5px;"/>
+					<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
+				</p:treeNode>
 
-			<p:treeNode type="document">
-				<h:graphicImage value="#{resource['images/document32x32.png']}" height="24" width="24" style="padding-right: 5px;"/>
-				<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
-			</p:treeNode>
-		</p:tree>
+				<p:treeNode type="document">
+					<h:graphicImage value="#{resource['images/document32x32.png']}" height="24" width="24" style="padding-right: 5px;"/>
+					<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
+				</p:treeNode>
+			</p:tree>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['document.btn.create']}" icon="fa fa-fw fa-plus" update=":docDialog"
-							 actionListener="#{documentView.openNewDocDialog}"/>
-		</f:facet>
-	</p:panel>
-
+			<f:facet name="footer">
+				<p:commandButton value="#{text['document.btn.create']}" icon="fa fa-fw fa-plus" update=":docDialog"
+								 actionListener="#{documentView.openNewDocDialog}"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
 </ui:composition>

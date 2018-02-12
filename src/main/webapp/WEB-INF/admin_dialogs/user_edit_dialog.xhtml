@@ -4,8 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true" closeOnEscape="true" onShow="formatDialog()">
+	<p:dialog widgetVar="userEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="userEditDialog" target="_blank">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-user" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['user.edit.header']} (#{text['label.id']} #{userView.currUser.id})"/>
@@ -87,7 +88,7 @@
 								</p:column>
 
 								<p:column headerText="#{text['operation.name']}" width="15%" styleClass="columnCenter">
-									<p:commandLink value="#{text['operation.delete']}" update="groupsTable :editDialog:tabView:addValueGrid"
+									<p:commandLink value="#{text['operation.delete']}" update="groupsTable :userEditDialog:tabView:addValueGrid"
 												   actionListener="#{userView.removeValue(collectedList)}"	process="@this"
 												   oncomplete="formatChoiceList()">
 										<p:collector value="#{collectedList}" removeFrom="#{userView.currUser.linkGroups}" unique="true"/>
@@ -127,41 +128,13 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:usersTable editDialog:tabView:userGrid"
+										 update=":users:usersTable userEditDialog:tabView:userGrid"
 										 actionListener="#{userView.saveAction}" disabled="#{currentUser.superRole}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('editDialog').hide();"/>
+										 onclick="PF('userEditDialog').hide();"/>
 					</h:panelGrid>
 				</f:facet>
 			</p:panel>
-		</p:dialog>
-	</h:form>
-
-	<h:form id="setPassDialog" target="_blank">
-		<p:dialog widgetVar="setPassDialog" resizable="false" width="400" modal="true" closeOnEscape="true">
-			<f:facet name="header">
-				<i class="fa fa-fw fa-key"/>
-				<p:outputLabel value=" #{userView.selectedUser.name}"/>
-			</f:facet>
-
-			<p:panel>
-				<h:panelGrid id="setPassFields" columns="2" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100">
-					<p:outputLabel for="newPass" value="#{text['user.setPass.newPass']}"/>
-					<p:password id="newPass" value="#{userView.newPass}" match="newPassRepeat" style="width: 100%"
-								validator="notEmptyString"/>
-					<p:outputLabel for="newPassRepeat" value="#{text['user.setPass.confirmPass']}"/>
-					<p:password id="newPassRepeat" value="#{userView.newPass}" style="width: 100%" validator="notEmptyString"/>
-				</h:panelGrid>
-
-				<f:facet name="footer">
-					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-check" update="setPassFields"
-										 actionListener="#{userView.setPassAction}"/>
-						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('setPassDialog').hide();"/>
-					</h:panelGrid>
-				</f:facet>
-			</p:panel>
-		</p:dialog>
-	</h:form>
+		</h:form>
+	</p:dialog>
 </ui:composition>

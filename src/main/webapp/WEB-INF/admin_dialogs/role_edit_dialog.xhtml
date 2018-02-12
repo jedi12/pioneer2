@@ -4,8 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true" closeOnEscape="true" onShow="formatDialog()">
+	<p:dialog widgetVar="roleEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="roleEditDialog" target="_blank">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-cubes" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['role.edit.header']} (#{text['label.id']} #{roleView.currRole.id})"/>
@@ -68,68 +69,14 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:roleTable roleGrid tabView:valueGrid"
+										 update=":roles:rolesTable roleGrid tabView:valueGrid"
 										 actionListener="#{roleView.saveAction}"
 										 disabled="#{currentUser.superRole}"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('editDialog').hide();"/>
+										 onclick="PF('roleEditDialog').hide();"/>
 					</h:panelGrid>
 				</f:facet>
 			</p:panel>
-		</p:dialog>
-	</h:form>
-
-	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" closeOnEscape="true" onShow="formatDialog()">
-			<f:facet name="header">
-				<i class="fa fa-fw fa-share-alt"/>
-				<p:outputLabel value=" #{text['role.del.header']} (ID: #{roleView.selectedRole.id})"/>
-			</f:facet>
-
-			<h2 align="center">
-				<h:outputLabel value="#{text['role.del.delete']}"/>
-				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_role_delete_dialog').show()"
-								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
-			</h2>
-
-			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
-					<h:panelGrid columns="2" cellpadding="5">
-						<p:outputLabel value="#{text['role.del.title']}"/>
-						<p:outputLabel value="#{roleView.selectedRole.name}" style="font-weight: bold"/>
-					</h:panelGrid>
-
-					<h:panelGroup rendered="#{!roleView.groupsWithRole.isEmpty() || !roleView.docToCansel.isEmpty()}">
-						<hr/>
-					</h:panelGroup>
-
-					<h:panelGroup rendered="#{!roleView.groupsWithRole.isEmpty()}">
-						<h4 align="center">#{text['role.del.groupsWithRole']}</h4>
-						<p:repeat value="#{roleView.groupsWithRole}" var="group" >
-							<i><h:outputLabel value="#{group}"/></i>
-							<br/>
-						</p:repeat>
-					</h:panelGroup>
-
-					<h:panelGroup rendered="#{!roleView.docToCansel.isEmpty()}">
-						<h4 align="center">#{text['role.del.docToCansel']}</h4>
-						<p:repeat value="#{roleView.docToCansel}" var="document" >
-							<i><h:outputLabel value="#{document}"/></i>
-							<br/>
-						</p:repeat>
-					</h:panelGroup>
-				</p:panel>
-
-				<f:facet name="footer">
-					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:roleTable" actionListener="#{roleView.deleteAction}"
-										 disabled="#{!roleView.groupsWithRole.isEmpty() || !roleView.docToCansel.isEmpty()}"/>
-						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('deleteDialog').hide();"/>
-					</h:panelGrid>
-				</f:facet>
-			</p:panel>
-		</p:dialog>
-	</h:form>
+		</h:form>
+	</p:dialog>
 </ui:composition>

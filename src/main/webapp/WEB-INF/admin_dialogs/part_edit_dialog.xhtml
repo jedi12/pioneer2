@@ -4,8 +4,9 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	<h:form id="editDialog" target="_blank">
-		<p:dialog widgetVar="editDialog" resizable="false" width="1024" modal="true" closeOnEscape="true" onShow="formatDialog()">
+	<p:dialog widgetVar="partEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="partEditDialog" target="_blank">
 			<f:facet name="header">
 				<i class="fa fa-fw fa-folder-open" style="margin-right:10px"/>
 				<p:outputLabel value="#{text['part.edit.header']} (#{text['label.id']} #{partView.currPart.id})"/>
@@ -59,7 +60,7 @@
 									<f:facet name="header">
 										<h:outputText value="#{text['operation.name']}"/>
 									</f:facet>
-									<p:commandLink value="#{text['operation.delete']}" update="resTable :editDialog:tabView:addGroupGrid"
+									<p:commandLink value="#{text['operation.delete']}" update="resTable :partEditDialog:tabView:addGroupGrid"
 												   actionListener="#{partView.removeGroup(collectedGroup)}" process="@this"
 												   oncomplete="formatChoiceList()">
 										<p:collector value="#{collectedGroup}" removeFrom="#{partView.currPart.linkGroups}" unique="true"/>
@@ -89,67 +90,13 @@
 				<f:facet name="footer">
 					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
 						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:partTree partNameGrid" disabled="#{currentUser.superRole}"
+										 update=":parts:partsTree partNameGrid" disabled="#{currentUser.superRole}"
 										 actionListener="#{partView.saveAction}" process="@this partNameGrid"/>
 						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('editDialog').hide();"/>
-						</h:panelGrid>
-				</f:facet>
-			</p:panel>
-		</p:dialog>
-	</h:form>
-
-	<h:form id="deleteDialog" target="_blank">
-		<p:dialog widgetVar="deleteDialog" resizable="false" modal="true" width="1024" closeOnEscape="true" onShow="formatDialog()">
-			<f:facet name="header">
-				<i class="fa fa-fw fa-folder-open"/>
-				<p:outputLabel value=" #{text['part.del.header']} (ID: #{partView.selectedNode.data.id})"/>
-			</f:facet>
-
-			<h2 align="center">
-				<h:outputLabel value="#{text['part.del.delete']}"/>
-				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_part_delete_dialog').show()"
-								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
-			</h2>
-
-			<p:panel>
-				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
-					<h:panelGrid columns="2" cellpadding="5">
-						<p:outputLabel value="#{text['part.del.title']}"/>
-						<p:outputLabel value="#{partView.selectedNode.data.name}" style="font-weight: bold"/>
-					</h:panelGrid>
-
-					<h:panelGroup rendered="#{partView.partType == 1}">
-						<h:panelGroup rendered="#{partView.notSelectableTemplateList.isEmpty() == false}">
-							<hr/>
-							<h4 align="center">#{text['part.del.notSelectableTemplate']}</h4>
-							<p:repeat value="#{partView.notSelectableTemplateList}" var="template" >
-								<i><h:outputLabel value="#{template}"/></i>
-								<br/>
-							</p:repeat>
-						</h:panelGroup>
-					</h:panelGroup>
-
-					<h:panelGroup rendered="#{partView.partType == 2}">
-						<h:panelGroup rendered="#{partView.docCountInPubPart > 0}">
-							<hr/>
-							<br/>
-							<i><h:outputLabel value="#{text['part.del.docCountInPubPart']} #{partView.docCountInPubPart}"/></i>
-							<br/>
-							<br/>
-						</h:panelGroup>
-					</h:panelGroup>
-				</p:panel>
-
-				<f:facet name="footer">
-					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
-						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
-										 update=":centerPanel:partTree" actionListener="#{partView.deleteAction}"/>
-						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
-										 onclick="PF('deleteDialog').hide();"/>
+										 onclick="PF('partEditDialog').hide();"/>
 					</h:panelGrid>
 				</f:facet>
 			</p:panel>
-		</p:dialog>
-	</h:form>
+		</h:form>
+	</p:dialog>
 </ui:composition>

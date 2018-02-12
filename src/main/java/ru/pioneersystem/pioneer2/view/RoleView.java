@@ -48,7 +48,7 @@ public class RoleView {
         try {
             roleList = roleService.getRoleList();
 
-            RequestContext.getCurrentInstance().execute("PF('roleTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('rolesTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -58,13 +58,13 @@ public class RoleView {
     public void newDialog() {
         currRole = roleService.getNewRole();
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('roleEditDialog').show()");
     }
 
     public void editDialog() {
         try {
             currRole = roleService.getRole(selectedRole);
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('roleEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -79,7 +79,7 @@ public class RoleView {
             roleService.saveRole(currRole);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('roleEditDialog').hide();");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -103,7 +103,7 @@ public class RoleView {
             groupsWithRole = groupService.groupsWithRole(selectedRole.getId());
             docToCansel = documentService.getDocToCancelByRole(selectedRole.getId());
 
-            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('roleDeleteDialog').show()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -119,7 +119,7 @@ public class RoleView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('roleDeleteDialog').hide();");
     }
 
     public void setRoleService(RoleService roleService) {

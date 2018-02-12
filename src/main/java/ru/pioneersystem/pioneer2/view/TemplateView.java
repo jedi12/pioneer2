@@ -89,7 +89,7 @@ public class TemplateView {
             selectChoiceList = new ArrayList<>(selectChoiceListDefault.keySet());
             selectCond = Document.Condition.Operation.LIST;
 
-            RequestContext.getCurrentInstance().execute("PF('templateTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('templatesTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -99,14 +99,14 @@ public class TemplateView {
     public void newDialog() {
         currTemplate = templateService.getNewTemplate();
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('templateEditDialog').show()");
     }
 
     public void editDialog() {
         try {
             currTemplate = templateService.getTemplate(selectedTemplate);
 
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('templateEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -121,7 +121,7 @@ public class TemplateView {
             templateService.saveTemplate(currTemplate);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('templateEditDialog').hide();");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -135,7 +135,7 @@ public class TemplateView {
             return;
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('templateDeleteDialog').show()");
     }
 
     public void deleteAction() {
@@ -147,7 +147,7 @@ public class TemplateView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('templateDeleteDialog').hide();");
     }
 
     public void addField() {

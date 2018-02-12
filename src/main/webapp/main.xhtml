@@ -37,9 +37,9 @@
 
 			<p:layout id="layout" fullPage="true">
 				<p:layoutUnit position="north">
-					<h:form id="northPanel">
+					<h:panelGroup id="northPanel">
 						<ui:include src="WEB-INF/views/north.xhtml" />
-					</h:form>
+					</h:panelGroup>
 				</p:layoutUnit>
 
 				<p:layoutUnit position="west" size="300" styleClass="columnCenter">
@@ -47,13 +47,13 @@
 						<p:accordionPanel widgetVar="menuAccordion" value="#{currentUser.userMenu}" var="menu"
 										  activeIndex="#{currentUser.currMenuIndex}">
 							<p:ajax event="tabChange" listener="#{currentUser.setCurrPage(menu)}"
-									update="centerPanel dialogsPanel"/>
+									update="centerPanel"/>
 
 							<p:tab title="#{menu.name}" disabled="#{menu.name.startsWith('_')}">
 								<p:repeat value="#{menu.subMenu}" var="subMenu">
 									<p:commandLink value="#{subMenu.name}"
 												   actionListener="#{currentUser.setCurrPage(subMenu)}"
-												   update="centerPanel dialogsPanel"/>
+												   update="centerPanel"/>
 									<br/>
 									<br/>
 								</p:repeat>
@@ -64,22 +64,16 @@
 				</p:layoutUnit>
 
 				<p:layoutUnit position="center">
-					<h:form id="centerPanel">
+					<h:panelGroup id="centerPanel">
 						<ui:include src="WEB-INF/views/#{currentUser.currPage}"/>
-					</h:form>
+					</h:panelGroup>
 				</p:layoutUnit>
 			</p:layout>
 
-			<h:panelGroup id="dialogsPanel">
-				<ui:include src="WEB-INF/dialogs/#{currentUser.currPage}"/>
-			</h:panelGroup>
-
-			<ui:include src="WEB-INF/dialogs/login.xhtml"/>
-			<ui:include src="WEB-INF/dialogs/changePass.xhtml"/>
-
 			<h:form id="autoOpen">
-				<p:remoteCommand id="openLogin" oncomplete="PF('loginDialog').show()" autoRun="true" rendered="#{!currentUser.logged}"/>
-				<p:remoteCommand id="openDoc" autoRun="true" rendered="#{currentUser.logged}" update="dialogsPanel"
+				<p:remoteCommand id="openLogin" oncomplete="PF('loginDialog').show()" autoRun="true"
+								 rendered="#{!currentUser.logged}"/>
+				<p:remoteCommand id="openDoc" autoRun="true" rendered="#{currentUser.logged}" update="docDialog docRouteDialog"
 								 actionListener="#{documentView.autoOpenDocument(currentUserView.currDocId, currentUserView.showRoute)}"/>
 			</h:form>
 
@@ -92,8 +86,8 @@
                 <p:graphicImage value="#{resource['images/ajax-loader.gif']}"/>
             </p:dialog>
 
-			<ui:include src="WEB-INF/dialogs/about.xhtml"/>
-			<ui:include src="WEB-INF/helps/_help_dialogs.xhtml"/>
+			<ui:include src="WEB-INF/common_dialogs/_common_dialogs.xhtml"/>
+			<ui:include src="WEB-INF/help_dialogs/_help_dialogs.xhtml"/>
 
 			<p:growl id="growl" showDetail="true" life="10000" autoUpdate="true"/>
 		</h:body>

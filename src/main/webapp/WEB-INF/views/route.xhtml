@@ -4,41 +4,46 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui">
 
-	#{routeView.refreshList()}
+	<h:form id="routes">
+		#{routeView.refreshList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{text['route.title']}"/>
-		<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_route_list').show()"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{text['route.title']}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_route_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-		<p:dataTable id="routeTable" widgetVar="routeTable" value="#{routeView.routeList}" var="route" rows="20"
-					 selectionMode="single" selection="#{routeView.selectedRoute}" rowKey="#{route.id}"
-					 filteredValue="#{routeView.filteredRoute}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
+		<p:panel>
+			<p:dataTable id="routesTable" widgetVar="routesTable" value="#{routeView.routeList}" var="route" rows="20"
+						 selectionMode="single" selection="#{routeView.selectedRoute}" rowKey="#{route.id}"
+						 filteredValue="#{routeView.filteredRoute}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}">
 
-			<p:ajax event="rowDblselect" listener="#{routeView.editDialog}" update=":editDialog" resetValues="true"/>
+				<p:ajax event="rowDblselect" listener="#{routeView.editDialog}" update="routeEditDialog" resetValues="true"/>
 
-			<p:column headerText="#{text['route.col.name']}" filterBy="#{route.name}" filterMatchMode="contains">
-                <h:outputText value="#{route.name}"/>
-	        </p:column>
+				<p:column headerText="#{text['route.col.name']}" filterBy="#{route.name}" filterMatchMode="contains">
+					<h:outputText value="#{route.name}"/>
+				</p:column>
 
-			<p:column headerText="#{text['user.col.company']}" filterBy="#{route.companyName}" filterMatchMode="contains"
-					  rendered="#{currentUser.superRole}">
-				<h:outputText value="#{route.companyName}"/>
-			</p:column>
-		</p:dataTable>
+				<p:column headerText="#{text['user.col.company']}" filterBy="#{route.companyName}" filterMatchMode="contains"
+						  rendered="#{currentUser.superRole}">
+					<h:outputText value="#{route.companyName}"/>
+				</p:column>
+			</p:dataTable>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{routeView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
-			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{routeView.editDialog}" resetValues="true"/>
-			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-                             actionListener="#{routeView.deleteDialog}" disabled="#{currentUser.superRole}"/>
-		</f:facet>
-	</p:panel>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update="routeEditDialog"
+								 actionListener="#{routeView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
+				<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update="routeEditDialog"
+								 actionListener="#{routeView.editDialog}" resetValues="true"/>
+				<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update="routeDeleteDialog"
+								 actionListener="#{routeView.deleteDialog}" disabled="#{currentUser.superRole}"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/route_delete_dialog.xhtml"/>
+	<ui:include src="/WEB-INF/admin_dialogs/route_edit_dialog.xhtml"/>
 </ui:composition>

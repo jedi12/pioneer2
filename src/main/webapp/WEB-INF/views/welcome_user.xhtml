@@ -5,21 +5,23 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:p="http://primefaces.org/ui">
 
-	<h2 align="center">
-		<h:outputText value="#{text['welcome.user.header']}"/>
-	</h2>
+	<h:form>
+		<h2 align="center">
+			<h:outputText value="#{text['welcome.user.header']}"/>
+		</h2>
 
-	<p:panel>
-		<h:outputText value="#{text['welcome.user.text1']}" escape="false"/>
-		<br/>
-		<br/>
-		<h:outputText value="#{text['welcome.user.text2']}" escape="false"/>
-		<ul>
-			<li><h:outputText value="#{text['welcome.user.text3']}" escape="false"/></li>
-			<li><h:outputText value="#{text['welcome.user.text4']}" escape="false"/></li>
-			<li><h:outputText value="#{text['welcome.user.text5']}" escape="false"/></li>
-			<li><h:outputText value="#{text['welcome.user.text6']}" escape="false"/></li>
-			<li><h:outputText value="#{text['welcome.user.text7']}" escape="false"/></li>
-		</ul>
-	</p:panel>
+		<p:panel>
+			<h:outputText value="#{text['welcome.user.text1']}" escape="false"/>
+			<br/>
+			<br/>
+			<h:outputText value="#{text['welcome.user.text2']}" escape="false"/>
+			<ul>
+				<li><h:outputText value="#{text['welcome.user.text3']}" escape="false"/></li>
+				<li><h:outputText value="#{text['welcome.user.text4']}" escape="false"/></li>
+				<li><h:outputText value="#{text['welcome.user.text5']}" escape="false"/></li>
+				<li><h:outputText value="#{text['welcome.user.text6']}" escape="false"/></li>
+				<li><h:outputText value="#{text['welcome.user.text7']}" escape="false"/></li>
+			</ul>
+		</p:panel>
+	</h:form>
 </ui:composition>

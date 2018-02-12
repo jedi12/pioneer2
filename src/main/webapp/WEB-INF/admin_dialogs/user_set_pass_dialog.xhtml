@@ -1,0 +1,35 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog widgetVar="setPassDialog" resizable="false" width="400" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="setPassDialog" target="_blank">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-key"/>
+				<p:outputLabel value=" #{userView.selectedUser.name}"/>
+			</f:facet>
+
+			<p:panel>
+				<h:panelGrid id="setPassFields" columns="2" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100">
+					<p:outputLabel for="newPass" value="#{text['user.setPass.newPass']}"/>
+					<p:password id="newPass" value="#{userView.newPass}" match="newPassRepeat" style="width: 100%"
+								validator="notEmptyString"/>
+					<p:outputLabel for="newPassRepeat" value="#{text['user.setPass.confirmPass']}"/>
+					<p:password id="newPassRepeat" value="#{userView.newPass}" style="width: 100%" validator="notEmptyString"/>
+				</h:panelGrid>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-check" update="setPassFields"
+										 actionListener="#{userView.setPassAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('setPassDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

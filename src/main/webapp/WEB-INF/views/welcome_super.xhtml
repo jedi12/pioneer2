@@ -5,11 +5,13 @@
 		xmlns:ui="http://java.sun.com/jsf/facelets"
 		xmlns:p="http://primefaces.org/ui">
 
-	<h2 align="center">
-		<h:outputText value="#{text['welcome.super.header']}"/>
-	</h2>
+	<h:form>
+		<h2 align="center">
+			<h:outputText value="#{text['welcome.super.header']}"/>
+		</h2>
 
-	<p:panel>
-		<h:outputText value="#{text['welcome.super.text1']}" escape="false"/>
-	</p:panel>
+		<p:panel>
+			<h:outputText value="#{text['welcome.super.text1']}" escape="false"/>
+		</p:panel>
+	</h:form>
 </ui:composition>
