@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html lang="#{localeBean.language}"
 	  xmlns="http://www.w3.org/1999/xhtml"
-	  xmlns:h="http://java.sun.com/jsf/html"
-	  xmlns:f="http://java.sun.com/jsf/core"
-	  xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 	  xmlns:p="http://primefaces.org/ui">
 
 <f:view contentType="text/html" locale="#{localeBean.locale}">
@@ -21,21 +21,21 @@
 	</h:head>
 
 	<h:body>
-		<p:dialog header="#{text['login.signOut.name']}" resizable="false" widgetVar="idleDialog" modal="true">
+		<p:dialog header="#{text['login.signOut.name']}" resizable="false" widgetVar="idleDialog" modal="true" closable="false" draggable="false">
 			<h:form>
 				<f:facet name="header">
 					<i class="fa fa-fw fa-sign-out" style="margin-right:10px"/>
 					<p:outputLabel value="#{text['document.header']} (#{text['label.id']} #{documentView.currDoc.id})"/>
 				</f:facet>
 				<p:panel styleClass="columnCenter">
-					<h4><i><h:outputText value="#{currentUser.user.name} #{text['user.signOut']}" style=""/></i></h4>
+					<h4><i><h:outputText value="#{text['user']} #{currentUser.user.name} #{text['user.signOut']}" style=""/></i></h4>
 					<p:link href="main.xhtml" value="#{text['back.to.main.page']}"/>
 				</p:panel>
 			</h:form>
 		</p:dialog>
 
 		<h:form>
-			<p:remoteCommand oncomplete="PF('idleDialog').show()" autoRun="#{currentUser.user != null}"/>
+			<p:remoteCommand oncomplete="PF('idleDialog').show()" autoRun="true"/>
 		</h:form>
 	</h:body>
 </f:view>

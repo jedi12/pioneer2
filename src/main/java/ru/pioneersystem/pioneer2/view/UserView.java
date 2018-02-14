@@ -62,7 +62,7 @@ public class UserView {
         currUser = userService.getNewUser();
         selectGroup = getCurrSelectGroup(currUser);
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('userEditDialog').show()");
     }
 
     public void editDialog() {
@@ -70,7 +70,7 @@ public class UserView {
             currUser = userService.getUser(selectedUser);
             selectGroup = getCurrSelectGroup(currUser);
 
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('userEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -85,7 +85,7 @@ public class UserView {
             userService.saveUser(currUser);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('userEditDialog').hide();");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));

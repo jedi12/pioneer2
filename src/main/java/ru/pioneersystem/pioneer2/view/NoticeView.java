@@ -41,7 +41,9 @@ public class NoticeView {
     @PostConstruct
     public void init() {
         bundle = ResourceBundle.getBundle("text", FacesContext.getCurrentInstance().getViewRoot().getLocale());
+    }
 
+    public void refreshList() {
         ZonedDateTime currDate = LocalDate.now(localeBean.getZoneId()).atStartOfDay(localeBean.getZoneId());
         fromDate = Date.from(currDate.toInstant());
         toDate = Date.from(currDate.toInstant());
@@ -53,12 +55,12 @@ public class NoticeView {
         try {
             noticeList = noticeService.getNoticeList(fromDate, toDate);
 
-            RequestContext.getCurrentInstance().execute("PF('noticeTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('noticesTable').clearFilters()");
         }
         catch (TooManyObjectsException e) {
             noticeList = e.getObjects();
 
-            RequestContext.getCurrentInstance().execute("PF('noticeTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('noticesTable').clearFilters()");
 
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -69,7 +71,7 @@ public class NoticeView {
         }
     }
 
-    public void infoDialog() {
+    public void editDialog() {
         if (selectedNotice == null) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), bundle.getString("error.notice.NotSelected")));
@@ -79,7 +81,7 @@ public class NoticeView {
         try {
             info = noticeService.getNoticeInfo(selectedNotice.getId());
 
-            RequestContext.getCurrentInstance().execute("PF('infoDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('noticeEditDialog').show()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,

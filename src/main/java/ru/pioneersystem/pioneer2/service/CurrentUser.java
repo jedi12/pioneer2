@@ -1,10 +1,11 @@
 package ru.pioneersystem.pioneer2.service;
 
+import org.primefaces.context.RequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import ru.pioneersystem.pioneer2.model.*;
 import ru.pioneersystem.pioneer2.service.exception.PasswordException;
 import ru.pioneersystem.pioneer2.service.exception.RestrictionException;
@@ -16,10 +17,12 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Service("currentUser")
+@Component
 @Scope(value="session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class CurrentUser {
     private int screenHeight;
@@ -215,6 +218,8 @@ public class CurrentUser {
         this.currMenuId = menu.getId();
         this.currPage = menu.getPage();
         this.currRole = userRoles.get(menu.getRoleId());
+
+        RequestContext.getCurrentInstance().update(new ArrayList<>(Arrays.asList(new String[] {"centerPanel"})));
     }
 
     public int getScreenHeight() {

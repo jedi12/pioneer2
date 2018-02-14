@@ -46,7 +46,7 @@ public class ChoiceListView {
         try {
             choiceListList = choiceListService.getChoiceListList();
 
-            RequestContext.getCurrentInstance().execute("PF('listsTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('choiceListsTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -57,7 +57,7 @@ public class ChoiceListView {
         addElement = null;
         currChoiceList = choiceListService.getNewChoiceList();
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('choiceListEditDialog').show()");
     }
 
     public void editDialog() {
@@ -65,7 +65,7 @@ public class ChoiceListView {
 
         try {
             currChoiceList = choiceListService.getChoiceList(selectedChoiceList);
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('choiceListEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -89,7 +89,7 @@ public class ChoiceListView {
             choiceListService.saveChoiceList(currChoiceList);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('choiceListEditDialog').hide();");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -105,7 +105,7 @@ public class ChoiceListView {
 
         try {
             templatesContainingChoiceList = templateService.getListContainingChoiceList(selectedChoiceList.getId());
-            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('choiceListDeleteDialog').show()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -121,7 +121,7 @@ public class ChoiceListView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('choiceListDeleteDialog').hide();");
     }
 
     public void setChoiceListService(ChoiceListService choiceListService) {

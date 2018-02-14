@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog widgetVar="partDeleteDialog" resizable="false" modal="true" width="1024" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="partDeleteDialog" target="_blank">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-folder-open"/>
+				<p:outputLabel value=" #{text['part.del.header']} (ID: #{partView.selectedNode.data.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{text['part.del.delete']}"/>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_part_delete_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
+			</h2>
+
+			<p:panel>
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+					<h:panelGrid columns="2" cellpadding="5">
+						<p:outputLabel value="#{text['part.del.title']}"/>
+						<p:outputLabel value="#{partView.selectedNode.data.name}" style="font-weight: bold"/>
+					</h:panelGrid>
+
+					<h:panelGroup rendered="#{partView.partType == 1}">
+						<h:panelGroup rendered="#{partView.notSelectableTemplateList.isEmpty() == false}">
+							<hr/>
+							<h4 align="center">#{text['part.del.notSelectableTemplate']}</h4>
+							<p:repeat value="#{partView.notSelectableTemplateList}" var="template" >
+								<i><h:outputLabel value="#{template}"/></i>
+								<br/>
+							</p:repeat>
+						</h:panelGroup>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{partView.partType == 2}">
+						<h:panelGroup rendered="#{partView.docCountInPubPart > 0}">
+							<hr/>
+							<br/>
+							<i><h:outputLabel value="#{text['part.del.docCountInPubPart']} #{partView.docCountInPubPart}"/></i>
+							<br/>
+							<br/>
+						</h:panelGroup>
+					</h:panelGroup>
+				</p:panel>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
+										 update=":parts:partsTree" actionListener="#{partView.deleteAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('partDeleteDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

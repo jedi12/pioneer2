@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog header="#{text['help']}" widgetVar="help_docRoute_dialog" resizable="false" modal="true" dynamic="true"
+			  draggable="false" closeOnEscape="true" width="50vw" showEffect="clip" hideEffect="clip" appendTo="@(body)">
+		<p:panel>
+			<h4><i><u><h:outputText value="#{text['help.docRouteDialog.header1']}" escape="false"/></u></i></h4>
+
+			<h:outputText value="#{text['help.docRouteDialog.text1']}" escape="false"/>
+			<ul>
+				<li><p:commandButton icon="ui-icon-triangle-1-e" style="font-size: 60% !important" type="button"/>
+					<h:outputText value="#{text['help.docRouteDialog.text2']}" escape="false" style="margin-left: 5px"/></li>
+				<li><p:commandButton icon="ui-icon-check" style="font-size: 60% !important" type="button"/>
+					<h:outputText value="#{text['help.docRouteDialog.text3']}" escape="false" style="margin-left: 5px"/></li>
+				<li><p:commandButton icon="ui-icon-closethick" style="font-size: 60% !important" type="button"/>
+					<h:outputText value="#{text['help.docRouteDialog.text4']}" escape="false" style="margin-left: 5px"/></li>
+				<li><h:outputText value="#{text['help.docRouteDialog.text5']}" escape="false"/></li>
+			</ul>
+			<h:outputText value="#{text['help.docRouteDialog.text6']}" escape="false"/>
+		</p:panel>
+	</p:dialog>
+</ui:composition>

@@ -1,69 +1,70 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui">
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
 
-	#{partView.refreshList()}
+	<h:form id="parts">
+		#{partView.refreshList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{text['part.title']}"/>
-		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-						showEffect="clip" hideEffect="clip">
-			<ui:include src="/WEB-INF/helps/part_list.xhtml"/>
-		</p:overlayPanel>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{text['part.title']}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_part_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-        <p:panel>
-            <p:selectOneRadio value="#{partView.partType}" layout="pageDirection" style="margin: auto;">
-                <p:ajax listener="#{partView.refreshList}" update="centerPanel"/>
-                <f:selectItem itemLabel="#{text['part.select.template']}" itemValue="1"/>
-                <f:selectItem itemLabel="#{text['part.select.document']}" itemValue="2"/>
-            </p:selectOneRadio>
-        </p:panel>
+		<p:panel>
+			<p:panel>
+				<p:selectOneRadio value="#{partView.partType}" layout="pageDirection" style="margin: auto;">
+					<p:ajax listener="#{partView.refreshList}" update="centerPanel"/>
+					<f:selectItem itemLabel="#{text['part.select.template']}" itemValue="1"/>
+					<f:selectItem itemLabel="#{text['part.select.document']}" itemValue="2"/>
+				</p:selectOneRadio>
+			</p:panel>
 
-		<p:tree id="partTree" value="#{partView.partTree}" var="node" animate="true" selectionMode="single"
-				selection="#{partView.selectedNode}" style="width: auto"
-                draggable="true" droppable="true" rendered="#{!currentUser.superRole}">
+			<p:tree id="partsTree" value="#{partView.partTree}" var="node" animate="true" selectionMode="single"
+					selection="#{partView.selectedNode}" style="width: auto"
+					draggable="true" droppable="true" rendered="#{!currentUser.superRole}">
 
-			<p:ajax event="dragdrop" listener="#{partView.onDragDrop}"/>
+				<p:ajax event="dragdrop" listener="#{partView.onDragDrop}"/>
 
-			<p:treeNode type="folder">
-				<h:graphicImage value="#{resource['images/folder32x32.png']}" height="24" width="24"
-								style="padding-right: 5px;"/>
-				<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
-			</p:treeNode>
-		</p:tree>
+				<p:treeNode type="folder">
+					<h:graphicImage value="#{resource['images/folder32x32.png']}" height="24" width="24"
+									style="padding-right: 5px;"/>
+					<h:outputText value="#{node.name}" style="font-weight: bold;vertical-align: super;"/>
+				</p:treeNode>
+			</p:tree>
 
-		<p:dataTable id="partTable" widgetVar="partTable" value="#{partView.partList}" var="part" rows="20"
-					 selectionMode="single" selection="#{partView.selectedPart}" rowKey="#{part.id}"
-					 filteredValue="#{partView.filteredPart}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-					 rowStyleClass="#{part.state == 2 ? 'lightGrey' : 'default'}" rendered="#{currentUser.superRole}">
+			<p:dataTable id="partsTable" widgetVar="partsTable" value="#{partView.partList}" var="part" rows="20"
+						 selectionMode="single" selection="#{partView.selectedPart}" rowKey="#{part.id}"
+						 filteredValue="#{partView.filteredPart}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{part.state == 2 ? 'lightGrey' : 'default'}" rendered="#{currentUser.superRole}">
 
-			<p:ajax event="rowDblselect" listener="#{partView.editDialog}" update=":editDialog" resetValues="true"/>
+				<p:ajax event="rowDblselect" listener="#{partView.editDialog}" update="partEditDialog" resetValues="true"/>
 
-			<p:column headerText="#{text['part.col.name']}" filterBy="#{part.name}" filterMatchMode="contains">
-				<h:outputText value="#{part.name}"/>
-			</p:column>
+				<p:column headerText="#{text['part.col.name']}" filterBy="#{part.name}" filterMatchMode="contains">
+					<h:outputText value="#{part.name}"/>
+				</p:column>
 
-			<p:column headerText="#{text['part.col.company']}" filterBy="#{part.companyName}" filterMatchMode="contains">
-				<h:outputText value="#{part.companyName}"/>
-			</p:column>
-		</p:dataTable>
+				<p:column headerText="#{text['part.col.company']}" filterBy="#{part.companyName}" filterMatchMode="contains">
+					<h:outputText value="#{part.companyName}"/>
+				</p:column>
+			</p:dataTable>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{partView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
-			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{partView.editDialog}" resetValues="true"/>
-			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-                             actionListener="#{partView.deleteDialog}" disabled="#{currentUser.superRole}"/>
-		</f:facet>
-	</p:panel>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update="partEditDialog"
+								 actionListener="#{partView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
+				<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update="partEditDialog"
+								 actionListener="#{partView.editDialog}" resetValues="true"/>
+				<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update="partDeleteDialog"
+								 actionListener="#{partView.deleteDialog}" disabled="#{currentUser.superRole}"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/part_delete_dialog.xhtml"/>
+	<ui:include src="/WEB-INF/admin_dialogs/part_edit_dialog.xhtml"/>
 </ui:composition>

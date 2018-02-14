@@ -1,0 +1,69 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="docRouteDialog" target="_blank">
+		<p:dialog widgetVar="docRouteDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+				  onShow="formatDialog()">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-share-alt" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['docRoute.header']} (#{text['label.id']} #{documentView.selectedDocument.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<p:outputLabel value="#{text['docRoute.header']}"/>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_docRoute_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
+			</h2>
+
+			<p:panel style="word-wrap:break-word">
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+					<p:dataTable var="routePoint" value="#{documentView.routePoints}" emptyMessage="#{text['table.empty']}">
+
+						<p:column styleClass="#{(routePoint.signed == 2 || routePoint.signed == 3) ? 'lightPink' :
+								(routePoint.signed == 1 ? 'lightGreen' : 'default')}" style="text-align: center">
+							<p:commandButton icon="ui-icon-triangle-1-e" style="font-size: 60% !important" type="button"
+											 rendered="#{routePoint.receiptDate != null and routePoint.signDate == null}"/>
+							<p:commandButton icon="ui-icon-check" style="font-size: 60% !important" type="button"
+											 rendered="#{routePoint.signed == 1}"/>
+							<p:commandButton icon="ui-icon-closethick" style="font-size: 60% !important" type="button"
+											 rendered="#{routePoint.signed == 2 || routePoint.signed == 3}"/>
+						</p:column>
+
+						<p:column headerText="#{text['docRoute.col.routePoint']}">
+							<p:commandLink action="#{documentView.openDocUsersInGroupDialog(routePoint.groupId)}"
+										   update=":docUsersInGroupDialog" process="@this" style="color:blue">
+								<h:outputText value="#{routePoint.groupName}" style="color:blue"/>
+							</p:commandLink>
+						</p:column>
+
+						<p:column headerText="#{text['docRoute.col.signUser']}">
+							<h:outputText value="#{routePoint.signUserName}"/>
+						</p:column>
+
+						<p:column headerText="#{text['docRoute.col.receiptDate']}">
+							<h:outputText value="#{routePoint.receiptDateFormatted}"/>
+						</p:column>
+
+						<p:column headerText="#{text['docRoute.col.signDate']}">
+							<h:outputText value="#{routePoint.signDateFormatted}"/>
+						</p:column>
+
+						<p:column headerText="#{text['docRoute.col.signMessage']}">
+							<h:outputText value="#{routePoint.signMessage}"/>
+						</p:column>
+					</p:dataTable>
+				</p:panel>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="1" columnClasses="columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.close']}" icon="fa fa-fw fa-close"
+										 onclick="PF('docRouteDialog').hide()" type="button"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</p:dialog>
+	</h:form>
+</ui:composition>

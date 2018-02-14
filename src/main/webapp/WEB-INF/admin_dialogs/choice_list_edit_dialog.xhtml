@@ -1,0 +1,80 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog widgetVar="choiceListEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="choiceListEditDialog" target="_blank">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-list" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['choiceList.edit.header']} (#{text['label.id']} #{choiceListView.currChoiceList.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{choiceListView.currChoiceList.createFlag ? text['choiceList.edit.create'] : text['choiceList.edit.change']}"/>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_choice_list_edit_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
+			</h2>
+
+			<p:panel>
+				<h:panelGrid id="listNameGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<p:outputLabel value="#{text['choiceList.edit.header.label']}" for="listName"/>
+					<p:inputText id="listName" value="#{choiceListView.currChoiceList.name}" styleClass="width100" maxlength="64"
+								 validator="notEmptyString"/>
+					<p:message for="listName" display="icon" styleClass="width38px"/>
+				</h:panelGrid>
+
+				<p:tabView id="tabView">
+					<p:tab title="#{text['choiceList.tab1.name']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<p:dataTable id="choiceListEditTable" value="#{choiceListView.currChoiceList.values}" var="collectedList" rows="10"
+										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList}"
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['choiceList.edit.col.name']}"/>
+									</f:facet>
+									<h:outputText value="#{collectedList}"/>
+								</p:column>
+
+								<p:column width="15%" styleClass="columnCenter">
+									<f:facet name="header">
+										<h:outputText value="#{text['operation.name']}"/>
+									</f:facet>
+									<p:commandLink value="#{text['operation.delete']}" update="choiceListEditTable" process="@this">
+										<p:collector value="#{collectedList}" removeFrom="#{choiceListView.currChoiceList.values}" unique="true"/>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+
+							<br/>
+
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
+								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
+									<p:outputLabel value="#{text['choiceList.edit.add.label']}" for="addValue"/>
+									<p:inputText id="addValue" value="#{choiceListView.addElement}" styleClass="width100" maxlength="96"/>
+									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="choiceListEditTable addValueGrid"
+													 process="choiceListEditTable addValueGrid" actionListener="#{choiceListView.addValue}"/>
+								</h:panelGrid>
+							</p:panel>
+						</p:panel>
+					</p:tab>
+				</p:tabView>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
+										 update="choiceLists:choiceListsTable listNameGrid" disabled="#{currentUser.superRole}"
+										 actionListener="#{choiceListView.saveAction}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('choiceListEditDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

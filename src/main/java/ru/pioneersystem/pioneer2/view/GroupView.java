@@ -64,7 +64,7 @@ public class GroupView {
             selectRole = roleService.getRoleMap();
             selectUserDefault = userService.getUserMap();
 
-            RequestContext.getCurrentInstance().execute("PF('groupTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('groupsTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -75,7 +75,7 @@ public class GroupView {
         currGroup = groupService.getNewGroup();
         selectUser = getCurrSelectUser(currGroup);
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('groupEditDialog').show()");
     }
 
     public void editDialog() {
@@ -83,7 +83,7 @@ public class GroupView {
             currGroup = groupService.getGroup(selectedGroup);
             selectUser = getCurrSelectUser(currGroup);
 
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('groupEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -98,7 +98,7 @@ public class GroupView {
             groupService.saveGroup(currGroup);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('groupEditDialog').hide();");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
@@ -121,7 +121,7 @@ public class GroupView {
                 countRoutesWithRestriction = routeService.getCountRoutesWithRestriction(selectedGroup.getId());
             }
 
-            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('groupDeleteDialog').show()");
         }
         catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
@@ -139,7 +139,7 @@ public class GroupView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('groupDeleteDialog').hide();");
     }
 
     public void addValue() {

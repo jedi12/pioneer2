@@ -1,0 +1,75 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog widgetVar="groupDeleteDialog" resizable="false" modal="true" width="1024" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="groupDeleteDialog" target="_blank">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-users"/>
+				<p:outputLabel value=" #{text['group.del.header']} (ID: #{groupView.selectedGroup.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{text['group.del.delete']}"/>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_group_delete_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
+			</h2>
+			<p:panel>
+				<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+					<h:panelGrid columns="2" cellpadding="5">
+						<p:outputLabel value="#{text['group.del.title']}"/>
+						<p:outputLabel value="#{groupView.selectedGroup.name}" style="font-weight: bold"/>
+					</h:panelGrid>
+
+					<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty() || !groupView.docToCancel.isEmpty()}">
+						<hr/>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{!groupView.routesWithGroup.isEmpty()}">
+						<h4 align="center">#{text['group.del.routesWithGroup']}</h4>
+						<p:repeat value="#{groupView.routesWithGroup}" var="template" >
+							<i><h:outputLabel value="#{template}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{!groupView.docToCancel.isEmpty()}">
+						<h4 align="center">#{text['group.del.docToCansel']}</h4>
+						<p:repeat value="#{groupView.docToCancel}" var="document" >
+							<i><h:outputLabel value="#{document}"/></i>
+							<br/>
+						</p:repeat>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{groupView.routesWithGroup.isEmpty() &amp;&amp; groupView.docToCancel.isEmpty()}">
+						<hr/>
+						<h:panelGroup rendered="#{groupView.countPartsWithRestriction > 0}">
+							<br/>
+							<i><h:outputLabel value="#{text['group.del.countPartsWithRestriction']} #{groupView.countPartsWithRestriction}"/></i>
+							<br/>
+						</h:panelGroup>
+
+						<h:panelGroup rendered="#{groupView.countRoutesWithRestriction > 0}">
+							<br/>
+							<i><h:outputLabel value="#{text['group.del.countRoutesWithRestriction']} #{groupView.countRoutesWithRestriction}"/></i>
+							<br/>
+						</h:panelGroup>
+					</h:panelGroup>
+				</p:panel>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-check"
+										 update=":groups:groupsTable" actionListener="#{groupView.deleteAction}"
+										 disabled="#{!groupView.routesWithGroup.isEmpty() || !groupView.docToCancel.isEmpty()}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('groupDeleteDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

@@ -47,13 +47,13 @@ public class CompanyView {
     public void newDialog() {
         currCompany = companyService.getNewCompany();
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('companyEditDialog').show()");
     }
 
     public void editDialog() {
         try {
             currCompany = companyService.getCompany(selectedCompany);
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('companyEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -68,7 +68,7 @@ public class CompanyView {
             companyService.saveCompany(currCompany);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('companyEditDialog').hide();");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));

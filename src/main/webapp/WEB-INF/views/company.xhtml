@@ -1,45 +1,49 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui">
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
 
-	#{companyView.refreshList()}
+	<h:form id="companies">
+		#{companyView.refreshList()}
 
-	<h2 align="center"><h:outputLabel value="#{text['company.title']}"/></h2>
+		<h2 align="center"><h:outputLabel value="#{text['company.title']}"/></h2>
 
-	<p:panel>
-		<p:dataTable id="companiesTable" widgetVar="companiesTable" value="#{companyView.companyList}" var="company" rows="20"
-					 selectionMode="single" selection="#{companyView.selectedCompany}" rowKey="#{company.id}"
-					 filteredValue="#{companyView.filteredCompanyList}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-					 rowStyleClass="#{company.state == 2 ? 'lightGrey' : 'default'}">
+		<p:panel>
+			<p:dataTable id="companiesTable" widgetVar="companiesTable" value="#{companyView.companyList}" var="company" rows="20"
+						 selectionMode="single" selection="#{companyView.selectedCompany}" rowKey="#{company.id}"
+						 filteredValue="#{companyView.filteredCompanyList}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{company.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{companyView.editDialog}" update=":editDialog" resetValues="true"
-					oncomplete="PF('tabView').select(0); formatDialog();"/>
+				<p:ajax event="rowDblselect" listener="#{companyView.editDialog}" update="companyEditDialog" resetValues="true"
+						oncomplete="PF('tabView').select(0); formatDialog();"/>
 
-			<p:column headerText="#{text['company.col.name']}" filterBy="#{company.name}" filterMatchMode="contains">
-                <h:outputText value="#{company.name}"/>
-	        </p:column>
+				<p:column headerText="#{text['company.col.name']}" filterBy="#{company.name}" filterMatchMode="contains">
+					<h:outputText value="#{company.name}"/>
+				</p:column>
 
-			<p:column headerText="#{text['company.col.activity']}" filterBy="#{company.stateName}" filterMatchMode="contains">
-				<h:outputText value="#{company.stateName}"/>
-			</p:column>
-		</p:dataTable>
+				<p:column headerText="#{text['company.col.activity']}" filterBy="#{company.stateName}" filterMatchMode="contains">
+					<h:outputText value="#{company.stateName}"/>
+				</p:column>
+			</p:dataTable>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{companyView.newDialog}" resetValues="true"
-							 oncomplete="PF('tabView').select(0); formatDialog();"/>
-			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{companyView.editDialog}" resetValues="true"
-							 oncomplete="PF('tabView').select(0); formatDialog();"/>
-			<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="companiesTable"
-							 actionListener="#{companyView.lockAction}"/>
-			<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="companiesTable"
-							 actionListener="#{companyView.unlockAction}"/>
-		</f:facet>
-	</p:panel>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update="companyEditDialog"
+								 actionListener="#{companyView.newDialog}" resetValues="true"
+								 oncomplete="PF('tabView').select(0); formatDialog();"/>
+				<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update="companyEditDialog"
+								 actionListener="#{companyView.editDialog}" resetValues="true"
+								 oncomplete="PF('tabView').select(0); formatDialog();"/>
+				<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="companiesTable"
+								 actionListener="#{companyView.lockAction}"/>
+				<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="companiesTable"
+								 actionListener="#{companyView.unlockAction}"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/company_edit_dialog.xhtml"/>
 </ui:composition>
