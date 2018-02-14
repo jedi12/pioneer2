@@ -1,0 +1,226 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog widgetVar="templateEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="templateEditDialog" target="_blank">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-files-o" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['template.edit.header']} (#{text['label.id']} #{templateView.currTemplate.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{templateView.currTemplate.createFlag ? text['template.edit.create'] : text['template.edit.change']}"/>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_template_edit_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
+			</h2>
+
+			<p:panel>
+				<h:panelGrid id="templateGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+					<p:outputLabel value="#{text['template.edit.name.label']}" for="templateName"/>
+					<p:inputText id="templateName" value="#{templateView.currTemplate.name}" styleClass="width100" maxlength="64"
+								 validator="notEmptyString"/>
+					<p:message for="templateName" display="icon" styleClass="width38px"/>
+
+					<h:outputLabel value="#{text['template.edit.route.label']}" for="routeName"/>
+					<p:selectOneMenu id="routeName" value="#{templateView.currTemplate.routeId}">
+						<f:selectItems value="#{templateView.selectRoute}"/>
+					</p:selectOneMenu>
+					<h:outputLabel/>
+
+					<h:outputLabel value="#{text['template.edit.part.label']}" for="partName"/>
+					<p:selectOneMenu id="partName" value="#{templateView.currTemplate.partId}">
+						<f:selectItems value="#{templateView.selectPart}"/>
+					</p:selectOneMenu>
+					<h:outputLabel/>
+				</h:panelGrid>
+
+				<p:tabView id="tabView" widgetVar="tabView">
+					<p:ajax event="tabChange" listener="#{templateView.tabChanged}" update="addConditionGrid"
+							oncomplete="formatChoiceList()" ignoreAutoUpdate="true"/>
+					<p:tab title="#{text['template.edit.fields.tab']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<p:dataTable id="fieldsTable" value="#{templateView.currTemplate.fields}" var="collectedField" rows="10"
+										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedField.num}"
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.fields.col.num']}" />
+									</f:facet>
+									<h:outputText value="#{collectedField.num}" />
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.fields.col.name']}" />
+									</f:facet>
+									<h:outputText value="#{collectedField.name}" />
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.fields.col.type']}" />
+									</f:facet>
+									<h:outputText value="#{collectedField.typeName}" />
+								</p:column>
+
+								<p:column width="10%" styleClass="columnCenter">
+									<f:facet name="header">
+										<h:outputText value="#{text['operation.name']}" />
+									</f:facet>
+									<p:commandLink value="#{text['operation.delete']}" process="@this"
+												   update="fieldsTable :templateEditDialog:tabView:addFieldGrid"
+												   oncomplete="formatChoiceList()">
+										<p:collector value="#{collectedField}" removeFrom="#{templateView.currTemplate.fields}" unique="true"/>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+
+							<br />
+
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
+								<h:panelGrid id="addFieldGrid" columns="3" width="100%" columnClasses="labelNoWrap,width100,width38px">
+									<p:outputLabel value="#{text['template.edit.fields.add.type.label']}" for="addFieldType"/>
+									<h:panelGroup>
+										<p:selectOneMenu id="addFieldType" value="#{templateView.selectedFieldType}"
+														 style="margin-right: 10px" styleClass="width100" effect="fade">
+											<p:ajax listener="#{templateView.fieldTypeChanged}" process="@this"
+													update="addFieldGrid" oncomplete="formatChoiceList()"/>
+											<f:selectItems value="#{templateView.selectFieldType}" />
+										</p:selectOneMenu>
+										<p:selectOneMenu value="#{templateView.selectedChoiceList}" rendered="#{templateView.addChoiceListRendered}">
+											<f:selectItems value="#{templateView.selectChoiceList}"/>
+										</p:selectOneMenu>
+									</h:panelGroup>
+									<p:outputLabel/>
+
+									<p:outputLabel value="#{text['template.edit.fields.add.name.label']}" for="addFieldName"/>
+									<p:inputText id="addFieldName" value="#{templateView.fieldName}" styleClass="width100"
+												 maxlength="96" disabled="#{templateView.addFieldNameRendered}"/>
+									<p:message for="addFieldName" display="icon" styleClass="width38px"/>
+
+									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus"
+													 update="fieldsTable addFieldGrid" oncomplete="formatChoiceList()"
+													 process="fieldsTable addFieldGrid" actionListener="#{templateView.addField}"/>
+								</h:panelGrid>
+							</p:panel>
+						</p:panel>
+					</p:tab>
+
+					<p:tab title="#{text['template.edit.conditions.tab']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<p:dataTable id="conditionsTable" value="#{templateView.currTemplate.conditions}" var="collectedCond" rows="10"
+										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedCond.condNum}"
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})">
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.conditions.col.num']}" />
+									</f:facet>
+									<h:outputText value="#{collectedCond.condNum}" />
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.conditions.col.name']}" />
+									</f:facet>
+									<h:outputText value="#{collectedCond.fieldName}" />
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.conditions.col.cond']}" />
+									</f:facet>
+									<h:outputText value="#{collectedCond.cond}" />
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.conditions.col.value']}" />
+									</f:facet>
+									<h:outputText value="#{collectedCond.value}" />
+								</p:column>
+
+								<p:column>
+									<f:facet name="header">
+										<h:outputText value="#{text['template.edit.conditions.col.route']}" />
+									</f:facet>
+									<h:outputText value="#{collectedCond.routeName}" />
+								</p:column>
+
+								<p:column width="10%" styleClass="columnCenter">
+									<f:facet name="header">
+										<h:outputText value="#{text['operation.name']}" />
+									</f:facet>
+									<p:commandLink value="#{text['operation.delete']}" process="@this"
+												   update="conditionsTable :templateEditDialog:tabView:addConditionGrid"
+												   oncomplete="formatChoiceList()">
+										<p:collector value="#{collectedCond}" removeFrom="#{templateView.currTemplate.conditions}" unique="true"/>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+
+							<br />
+
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
+								<h:panelGrid id="addConditionGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
+									<p:outputLabel value="#{text['template.edit.conditions.add.num.label']}" for="addCondNum"/>
+									<p:spinner id="addCondNum" value="#{templateView.condNum}" min="1" max="99" maxlength="2" size="2"
+											   validator="notEmptyString"/>
+
+									<p:outputLabel value="#{text['template.edit.conditions.add.name.label']}" for="addCondName"/>
+									<p:selectOneMenu id="addCondName" value="#{templateView.selectedFieldName}" styleClass="width100" effect="fade">
+										<p:ajax listener="#{templateView.fieldNameListChanged}" process="@this" update="addConditionGrid"
+												oncomplete="formatChoiceList()"/>
+										<f:selectItems value="#{templateView.selectFieldName}"/>
+									</p:selectOneMenu>
+
+									<p:outputLabel value="#{text['template.edit.conditions.add.cond.label']}" for="addCond"/>
+									<p:selectOneMenu id="addCond" value="#{templateView.selectedCond}" styleClass="width100" effect="fade">
+										<f:selectItems value="#{templateView.selectCond}"/>
+									</p:selectOneMenu>
+
+									<p:outputLabel value="#{text['template.edit.conditions.add.value.label']}" for="addCondValue"/>
+									<p:inputText id="addCondValue" value="#{templateView.condValue}" styleClass="width100"
+												 maxlength="96" rendered="#{!templateView.condCheckBoxValueRendered
+													 &amp;&amp; !templateView.condCalendarValueRendered}"/>
+									<p:selectBooleanCheckbox value="#{templateView.condCheckBoxValue}" style="padding:2px 0px;"
+															 rendered="#{templateView.condCheckBoxValueRendered}"/>
+									<p:calendar value="#{templateView.condCalendarValue}" size="10" pattern="#{localeBean.datePattern}"
+												locale="#{localeBean.locale}" rendered="#{templateView.condCalendarValueRendered}"/>
+
+									<p:outputLabel value="#{text['template.edit.conditions.add.route.label']}" for="addCondRoute"/>
+									<p:selectOneMenu id="addCondRoute" value="#{templateView.selectedCondRoute}" styleClass="width100" effect="fade">
+										<f:selectItems value="#{templateView.selectRouteList}"/>
+									</p:selectOneMenu>
+
+									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="conditionsTable addConditionGrid"
+													 process="conditionsTable addConditionGrid" actionListener="#{templateView.addCond}"
+													 oncomplete="formatChoiceList()"/>
+								</h:panelGrid>
+							</p:panel>
+						</p:panel>
+					</p:tab>
+				</p:tabView>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
+										 update=":templates:templatesTable templateGrid" disabled="#{currentUser.superRole}"
+										 actionListener="#{templateView.saveAction}" process="@this templateGrid"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('templateEditDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

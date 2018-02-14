@@ -1,53 +1,54 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui">
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
 
-	#{groupView.refreshList()}
+	<h:form id="groups">
+		#{groupView.refreshList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{text['group.title']}"/>
-		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-						showEffect="clip" hideEffect="clip">
-			<ui:include src="/WEB-INF/helps/group_list.xhtml"/>
-		</p:overlayPanel>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{text['group.title']}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_group_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-		<p:dataTable id="groupTable" widgetVar="groupTable" value="#{groupView.groupList}" var="group" rows="20"
-					 selectionMode="single" selection="#{groupView.selectedGroup}" rowKey="#{group.id}"
-					 filteredValue="#{groupView.filteredGroup}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-					 rowStyleClass="#{group.state == 2 ? 'lightGrey' : 'default'}">
+		<p:panel>
+			<p:dataTable id="groupsTable" widgetVar="groupsTable" value="#{groupView.groupList}" var="group" rows="20"
+						 selectionMode="single" selection="#{groupView.selectedGroup}" rowKey="#{group.id}"
+						 filteredValue="#{groupView.filteredGroup}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{group.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{groupView.editDialog}" update=":editDialog" resetValues="true"/>
+				<p:ajax event="rowDblselect" listener="#{groupView.editDialog}" update="groupEditDialog" resetValues="true"/>
 
-			<p:column headerText="#{text['group.col.name']}" filterBy="#{group.name}" filterMatchMode="contains">
-                <h:outputText value="#{group.name}"/>
-	        </p:column>
+				<p:column headerText="#{text['group.col.name']}" filterBy="#{group.name}" filterMatchMode="contains">
+					<h:outputText value="#{group.name}"/>
+				</p:column>
 
-			<p:column headerText="#{text['group.col.roleName']}" filterBy="#{group.roleName}" filterMatchMode="contains">
-				<h:outputText value="#{group.roleName}"/>
-			</p:column>
+				<p:column headerText="#{text['group.col.roleName']}" filterBy="#{group.roleName}" filterMatchMode="contains">
+					<h:outputText value="#{group.roleName}"/>
+				</p:column>
 
-			<p:column headerText="#{text['group.col.company']}" filterBy="#{group.companyName}" filterMatchMode="contains"
-					  rendered="#{currentUser.superRole}">
-				<h:outputText value="#{group.companyName}"/>
-			</p:column>
-		</p:dataTable>
+				<p:column headerText="#{text['group.col.company']}" filterBy="#{group.companyName}" filterMatchMode="contains"
+						  rendered="#{currentUser.superRole}">
+					<h:outputText value="#{group.companyName}"/>
+				</p:column>
+			</p:dataTable>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{groupView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
-			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{groupView.editDialog}" resetValues="true"/>
-			<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update=":deleteDialog"
-                             actionListener="#{groupView.deleteDialog}" disabled="#{currentUser.superRole}"/>
-		</f:facet>
-	</p:panel>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update="groupEditDialog"
+								 actionListener="#{groupView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"/>
+				<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update="groupEditDialog"
+								 actionListener="#{groupView.editDialog}" resetValues="true"/>
+				<p:commandButton value="#{text['button.delete']}" icon="fa fa-fw fa-minus" update="groupDeleteDialog"
+								 actionListener="#{groupView.deleteDialog}" disabled="#{currentUser.superRole}"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/group_delete_dialog.xhtml"/>
+	<ui:include src="/WEB-INF/admin_dialogs/group_edit_dialog.xhtml"/>
 </ui:composition>

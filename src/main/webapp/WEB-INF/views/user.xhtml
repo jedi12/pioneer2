@@ -1,68 +1,69 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui">
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
 
-	#{userView.refreshList()}
+	<h:form id="users">
+		#{userView.refreshList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{text['user.title']}"/>
-		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-						showEffect="clip" hideEffect="clip">
-			<ui:include src="/WEB-INF/helps/user_list.xhtml"/>
-		</p:overlayPanel>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{text['user.title']}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_user_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
-		<p:dataTable id="usersTable" widgetVar="usersTable" value="#{userView.userList}" var="user" rows="20"
-					 selectionMode="single" selection="#{userView.selectedUser}" rowKey="#{user.id}"
-					 filteredValue="#{userView.filteredUserList}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
-					 rowStyleClass="#{user.state == 2 ? 'lightGrey' : 'default'}">
+		<p:panel>
+			<p:dataTable id="usersTable" widgetVar="usersTable" value="#{userView.userList}" var="user" rows="20"
+						 selectionMode="single" selection="#{userView.selectedUser}" rowKey="#{user.id}"
+						 filteredValue="#{userView.filteredUserList}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}"
+						 rowStyleClass="#{user.state == 2 ? 'lightGrey' : 'default'}">
 
-			<p:ajax event="rowDblselect" listener="#{userView.editDialog}" update=":editDialog" resetValues="true"
-					oncomplete="PF('tabView').select(0);"/>
+				<p:ajax event="rowDblselect" listener="#{userView.editDialog}" update="userEditDialog" resetValues="true"
+						oncomplete="PF('tabView').select(0);"/>
 
-			<p:column headerText="#{text['user.col.name']}" filterBy="#{user.name}" filterMatchMode="contains">
-                <h:outputText value="#{user.name}"/>
-	        </p:column>
+				<p:column headerText="#{text['user.col.name']}" filterBy="#{user.name}" filterMatchMode="contains">
+					<h:outputText value="#{user.name}"/>
+				</p:column>
 
-			<p:column headerText="#{text['user.col.login']}" filterBy="#{user.login}" filterMatchMode="contains">
-				<h:outputText value="#{user.login}"/>
-			</p:column>
+				<p:column headerText="#{text['user.col.login']}" filterBy="#{user.login}" filterMatchMode="contains">
+					<h:outputText value="#{user.login}"/>
+				</p:column>
 
-			<p:column headerText="#{text['user.col.email']}" filterBy="#{user.email}" filterMatchMode="contains">
-				<h:outputText value="#{user.email}"/>
-			</p:column>
+				<p:column headerText="#{text['user.col.email']}" filterBy="#{user.email}" filterMatchMode="contains">
+					<h:outputText value="#{user.email}"/>
+				</p:column>
 
-			<p:column headerText="#{text['user.col.activity']}" filterBy="#{user.stateName}" filterMatchMode="contains">
-				<h:outputText value="#{user.stateName}"/>
-			</p:column>
+				<p:column headerText="#{text['user.col.activity']}" filterBy="#{user.stateName}" filterMatchMode="contains">
+					<h:outputText value="#{user.stateName}"/>
+				</p:column>
 
-			<p:column headerText="#{text['user.col.company']}" filterBy="#{user.companyName}" filterMatchMode="contains"
-					  rendered="#{currentUser.superRole}">
-				<h:outputText value="#{user.companyName}"/>
-			</p:column>
-		</p:dataTable>
+				<p:column headerText="#{text['user.col.company']}" filterBy="#{user.companyName}" filterMatchMode="contains"
+						  rendered="#{currentUser.superRole}">
+					<h:outputText value="#{user.companyName}"/>
+				</p:column>
+			</p:dataTable>
 
-		<f:facet name="footer">
-			<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update=":editDialog"
-                             actionListener="#{userView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"
-							 oncomplete="PF('tabView').select(0);"/>
-			<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update=":editDialog"
-                             actionListener="#{userView.editDialog}" resetValues="true"
-							 oncomplete="PF('tabView').select(0);"/>
-			<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="usersTable"
-							 actionListener="#{userView.lockAction}"/>
-			<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="usersTable"
-							 actionListener="#{userView.unlockAction}"/>
-			<p:commandButton value="#{text['button.set.pass']}" icon="fa fa-fw fa-key" update=":setPassDialog"
-							 actionListener="#{userView.setPassDialog}" resetValues="true"/>
-		</f:facet>
-	</p:panel>
+			<f:facet name="footer">
+				<p:commandButton value="#{text['button.create']}" icon="fa fa-fw fa-plus" update="userEditDialog"
+								 actionListener="#{userView.newDialog}" disabled="#{currentUser.superRole}" resetValues="true"
+								 oncomplete="PF('tabView').select(0);"/>
+				<p:commandButton value="#{text['button.edit']}" icon="fa fa-fw fa-edit" update="userEditDialog"
+								 actionListener="#{userView.editDialog}" resetValues="true"
+								 oncomplete="PF('tabView').select(0);"/>
+				<p:commandButton value="#{text['button.lock']}" icon="fa fa-fw fa-lock" update="usersTable"
+								 actionListener="#{userView.lockAction}"/>
+				<p:commandButton value="#{text['button.unlock']}" icon="fa fa-fw fa-unlock" update="usersTable"
+								 actionListener="#{userView.unlockAction}"/>
+				<p:commandButton value="#{text['button.set.pass']}" icon="fa fa-fw fa-key" update="setPassDialog"
+								 actionListener="#{userView.setPassDialog}" resetValues="true"/>
+			</f:facet>
+		</p:panel>
+	</h:form>
+
+	<ui:include src="/WEB-INF/admin_dialogs/user_edit_dialog.xhtml"/>
+	<ui:include src="/WEB-INF/admin_dialogs/user_set_pass_dialog.xhtml"/>
 </ui:composition>

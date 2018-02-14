@@ -1,0 +1,24 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog header="#{text['help']}" widgetVar="help_role_edit_dialog" resizable="false" modal="true" dynamic="true"
+			  draggable="false" closeOnEscape="true" width="50vw" showEffect="clip" hideEffect="clip" appendTo="@(body)">
+		<p:panel>
+			<h4><i><u><h:outputText value="#{text['help.roleEditDialog.header1']}" escape="false"/></u></i></h4>
+
+			<h:outputText value="#{text['help.roleEditDialog.text1']}" escape="false"/>
+			<ul>
+				<li><h:outputText value="#{text['help.roleEditDialog.text2']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.roleEditDialog.text3']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.roleEditDialog.text4']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.roleEditDialog.text5']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.roleEditDialog.text6']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.roleEditDialog.text7']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.roleEditDialog.text8']}" escape="false"/></li>
+			</ul>
+		</p:panel>
+	</p:dialog>
+</ui:composition>

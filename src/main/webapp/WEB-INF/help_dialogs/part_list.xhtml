@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog header="#{text['help']}" widgetVar="help_part_list" resizable="false" modal="true" dynamic="true"
+			  draggable="false" closeOnEscape="true" width="50vw" showEffect="clip" hideEffect="clip" appendTo="@(body)">
+		<p:panel>
+			<h4><i><u><h:outputText value="#{text['help.partList.header1']}" escape="false"/></u></i></h4>
+
+			<h:outputText value="#{text['help.partList.text1']}" escape="false"/>
+
+			<h4><i><u><h:outputText value="#{text['help.partList.header2']}" escape="false"/></u></i></h4>
+
+			<h:outputText value="#{text['help.partList.text2']}" escape="false"/>
+			<ul>
+				<li><h:outputText value="#{text['help.partList.text3']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.partList.text4']}" escape="false"/></li>
+				<li><h:outputText value="#{text['help.partList.text5']}" escape="false"/></li>
+			</ul>
+			<h:outputText value="#{text['help.partList.text6']}" escape="false"/>
+		</p:panel>
+	</p:dialog>
+</ui:composition>

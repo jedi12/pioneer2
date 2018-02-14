@@ -58,7 +58,7 @@ public class RouteView {
             selectPointDefault = groupService.getPointMap();
             selectGroupDefault = groupService.getGroupMap();
 
-            RequestContext.getCurrentInstance().execute("PF('routeTable').clearFilters()");
+            RequestContext.getCurrentInstance().execute("PF('routesTable').clearFilters()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -70,7 +70,7 @@ public class RouteView {
         selectPoint = getCurrSelectPoint(currRoute);
         selectGroup = getCurrSelectGroup(currRoute);
 
-        RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+        RequestContext.getCurrentInstance().execute("PF('routeEditDialog').show()");
     }
 
     public void editDialog() {
@@ -79,7 +79,7 @@ public class RouteView {
             selectPoint = getCurrSelectPoint(currRoute);
             selectGroup = getCurrSelectGroup(currRoute);
 
-            RequestContext.getCurrentInstance().execute("PF('editDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('routeEditDialog').show()");
         } catch (RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
                     bundle.getString("warn"), e.getMessage()));
@@ -94,7 +94,7 @@ public class RouteView {
             routeService.saveRoute(currRoute);
 
             refreshList();
-            RequestContext.getCurrentInstance().execute("PF('editDialog').hide();");
+            RequestContext.getCurrentInstance().execute("PF('routeEditDialog').hide();");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -110,7 +110,7 @@ public class RouteView {
 
         try {
             templatesWithRoute = templateService.getListContainingRoute(selectedRoute.getId());
-            RequestContext.getCurrentInstance().execute("PF('deleteDialog').show()");
+            RequestContext.getCurrentInstance().execute("PF('routeDeleteDialog').show()");
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_FATAL,
                     bundle.getString("fatal"), e.getMessage()));
@@ -126,7 +126,7 @@ public class RouteView {
                     bundle.getString("fatal"), e.getMessage()));
         }
 
-        RequestContext.getCurrentInstance().execute("PF('deleteDialog').hide();");
+        RequestContext.getCurrentInstance().execute("PF('routeDeleteDialog').hide();");
     }
 
     public void addValue() {

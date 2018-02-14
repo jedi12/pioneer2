@@ -1,76 +1,74 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-				xmlns:h="http://java.sun.com/jsf/html"
-				xmlns:f="http://java.sun.com/jsf/core"
-				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 				xmlns:p="http://primefaces.org/ui">
 
-	#{documentView.refreshMyDocList()}
+	<h:form>
+		#{documentView.refreshMyDocList()}
 
-	<h2 align="center">
-		<h:outputLabel value="#{currentUser.currMenu.name}"/>
-		<p:commandButton id="help" type="button" value="?" styleClass="helpButton"
-						 style="font-size: small;position: absolute; top: 0;left: 0"/>
-		<p:overlayPanel for="help" style="width: 50vw" modal="true" showCloseIcon="true" appendToBody="true"
-						showEffect="clip" hideEffect="clip">
-			<ui:include src="/WEB-INF/helps/docMy_list.xhtml"/>
-		</p:overlayPanel>
-	</h2>
+		<h2 align="center">
+			<h:outputLabel value="#{currentUser.currMenu.name}"/>
+			<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_myDoc_list').show()"
+							 style="font-size: small;position: absolute; top: 0;left: 0"/>
+		</h2>
 
-	<p:panel>
 		<p:panel>
-			<p:selectOneRadio id="customRadio" value="#{documentView.radioSelect}" layout="custom">
-				<p:ajax listener="#{documentView.refreshMyDocListFilter}" update="calendar"/>
-				<f:selectItem itemLabel="Документы с датой изменения" itemValue="date"/>
-				<f:selectItem itemLabel="Документы в работе" itemValue="working"/>
-			</p:selectOneRadio>
-			<h:panelGrid columns="3" style="margin: auto;">
-				<p:radioButton for="customRadio" itemIndex="0"/>
-				<h:outputLabel value="Документы с датой изменения:"/>
-				<p:calendar id="calendar" value="#{documentView.dateIn}" size="10" pattern="#{localeBean.datePattern}"
-							locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}"
-							disabled="#{documentView.radioSelect == 'date' ? 'false' : 'true'}" readonlyInput="true">
-					<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="@this"/>
-				</p:calendar>
-				<p:radioButton for="customRadio" itemIndex="1"/>
-				<h:outputLabel value="Документы в работе"/>
-				<p:calendar style="visibility: hidden;"/>
-			</h:panelGrid>
+			<p:panel>
+				<p:selectOneRadio id="customRadio" value="#{documentView.radioSelect}" layout="custom">
+					<p:ajax listener="#{documentView.refreshMyDocListFilter}" update="calendar"/>
+					<f:selectItem itemLabel="Документы с датой изменения" itemValue="date"/>
+					<f:selectItem itemLabel="Документы в работе" itemValue="working"/>
+				</p:selectOneRadio>
+				<h:panelGrid columns="3" style="margin: auto;">
+					<p:radioButton for="customRadio" itemIndex="0"/>
+					<h:outputLabel value="Документы с датой изменения:"/>
+					<p:calendar id="calendar" value="#{documentView.dateIn}" size="10" pattern="#{localeBean.datePattern}"
+								locale="#{localeBean.locale}" timeZone="#{localeBean.zoneId.toString()}"
+								disabled="#{documentView.radioSelect == 'date' ? 'false' : 'true'}" readonlyInput="true">
+						<p:ajax event="dateSelect" listener="#{documentView.handleDateSelect}" update="@this"/>
+					</p:calendar>
+					<p:radioButton for="customRadio" itemIndex="1"/>
+					<h:outputLabel value="Документы в работе"/>
+					<p:calendar style="visibility: hidden;"/>
+				</h:panelGrid>
+			</p:panel>
+
+			<p:dataTable id="docTable" widgetVar="docTable" value="#{documentView.documentList}" var="doc" rows="20"
+						 selectionMode="single" selection="#{documentView.selectedDocument}" rowKey="#{doc.id}"
+						 filteredValue="#{documentView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
+						 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
+						 {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{doc.changeDate}"
+						 rowStyleClass="#{doc.statusId == 6 ? 'lightPink' : (doc.statusId == 7 ? 'lightGreen' :
+						 (doc.statusId == 8 ? 'lightBlue' : 'default'))}">
+
+				<p:ajax event="filter" ignoreAutoUpdate="true"/>
+				<p:ajax event="rowDblselect" listener="#{documentView.openDocFromListDialog}" update=":docDialog"/>
+
+				<p:column headerText="#{text['document.col.id']}" filterBy="#{doc.id}" filterMatchMode="contains">
+					<h:outputText value="#{doc.id}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.name']}" filterBy="#{doc.name}" filterMatchMode="contains">
+					<h:outputText value="#{doc.name}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.status']}" filterBy="#{doc.statusName}" filterMatchMode="contains">
+					<h:outputText value="#{doc.statusName}"/>
+				</p:column>
+
+				<p:column headerText="#{text['document.col.group']}" filterBy="#{doc.documentGroupName}" filterMatchMode="contains">
+					<h:outputText value="#{doc.documentGroupName}"/>
+				</p:column>
+			</p:dataTable>
+
+			<f:facet name="footer">
+				<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o"
+								 actionListener="#{documentView.openDocFromListDialog}" update=":docDialog"/>
+				<p:commandButton value="#{text['document.btn.openDocRoute']}" icon="fa fa-fw fa-share-alt"
+								 actionListener="#{documentView.openDocRouteFromListDialog}" update=":docRouteDialog"/>
+			</f:facet>
 		</p:panel>
-
-		<p:dataTable id="docTable" widgetVar="docTable" value="#{documentView.documentList}" var="doc" rows="20"
-					 selectionMode="single" selection="#{documentView.selectedDocument}" rowKey="#{doc.id}"
-					 filteredValue="#{documentView.filteredDocumentList}" emptyMessage="#{text['table.empty']}"
-					 paginator="true" paginatorPosition="bottom" paginatorTemplate="{CurrentPageReport} {FirstPageLink}
-                     {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					 currentPageReportTemplate="#{text['table.total']} {totalRecords}" sortBy="#{doc.changeDate}"
-					 rowStyleClass="#{doc.statusId == 6 ? 'lightPink' : (doc.statusId == 7 ? 'lightGreen' :
-					 (doc.statusId == 8 ? 'lightBlue' : 'default'))}">
-
-			<p:ajax event="filter" ignoreAutoUpdate="true"/>
-			<p:ajax event="rowDblselect" listener="#{documentView.openDocFromListDialog}" update=":docDialog"/>
-
-			<p:column headerText="#{text['document.col.id']}" filterBy="#{doc.id}" filterMatchMode="contains">
-				<h:outputText value="#{doc.id}"/>
-			</p:column>
-
-			<p:column headerText="#{text['document.col.name']}" filterBy="#{doc.name}" filterMatchMode="contains">
-				<h:outputText value="#{doc.name}"/>
-			</p:column>
-
-			<p:column headerText="#{text['document.col.status']}" filterBy="#{doc.statusName}" filterMatchMode="contains">
-				<h:outputText value="#{doc.statusName}"/>
-			</p:column>
-
-			<p:column headerText="#{text['document.col.group']}" filterBy="#{doc.documentGroupName}" filterMatchMode="contains">
-				<h:outputText value="#{doc.documentGroupName}"/>
-			</p:column>
-		</p:dataTable>
-
-		<f:facet name="footer">
-			<p:commandButton value="#{text['document.btn.open']}" icon="fa fa-fw fa-pencil-square-o"
-							 actionListener="#{documentView.openDocFromListDialog}" update=":docDialog"/>
-			<p:commandButton value="#{text['document.btn.openDocRoute']}" icon="fa fa-fw fa-share-alt"
-							 actionListener="#{documentView.openDocRouteFromListDialog}" update=":docRouteDialog"/>
-		</f:facet>
-	</p:panel>
+	</h:form>
 </ui:composition>

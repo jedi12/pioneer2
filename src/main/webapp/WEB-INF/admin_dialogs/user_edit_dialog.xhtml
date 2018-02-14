@@ -1,0 +1,140 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://xmlns.jcp.org/jsf/html"
+				xmlns:f="http://xmlns.jcp.org/jsf/core"
+				xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+				xmlns:p="http://primefaces.org/ui">
+
+	<p:dialog widgetVar="userEditDialog" resizable="false" width="1024" modal="true" closeOnEscape="true"
+			  onShow="formatDialog()" appendTo="@(body)">
+		<h:form id="userEditDialog" target="_blank">
+			<f:facet name="header">
+				<i class="fa fa-fw fa-user" style="margin-right:10px"/>
+				<p:outputLabel value="#{text['user.edit.header']} (#{text['label.id']} #{userView.currUser.id})"/>
+			</f:facet>
+
+			<h2 align="center">
+				<h:outputLabel value="#{userView.currUser.createFlag ? text['user.edit.create'] : text['user.edit.change']}"/>
+				<p:commandButton type="button" value="?" styleClass="helpButton" onclick="PF('help_user_edit_dialog').show()"
+								 style="font-size: small;position: absolute; top: .5em;left: 1em"/>
+			</h2>
+
+			<p:panel>
+				<p:tabView id="tabView" widgetVar="tabView" onTabShow="formatChoiceList()">
+					<p:tab title="#{text['user.tab1.name']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<h:panelGrid id="userGrid" columns="3" cellpadding="5" width="100%" columnClasses="labelNoWrap,width100,width38px">
+								<p:outputLabel value="#{text['user.edit.name']}" for="name"/>
+								<p:inputText id="name" value="#{userView.currUser.name}" styleClass="width100" maxlength="64"
+											 validator="notEmptyString"/>
+								<p:message for="name" display="icon" styleClass="width38px"/>
+
+								<p:outputLabel value="#{text['user.edit.login']}" for="login"/>
+								<p:inputText id="login" value="#{userView.currUser.login}" style="width: 100%" maxlength="64"
+											 validator="notEmptyString"/>
+								<p:message for="login" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.email']}" for="email"/>
+								<p:inputText id="email" value="#{userView.currUser.email}" style="width: 100%" maxlength="64"
+											 validator="notEmptyString"/>
+								<p:message for="email" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.phone']}" for="phone"/>
+								<p:inputText id="phone" value="#{userView.currUser.phone}" style="width: 100%" maxlength="64"/>
+								<p:message for="phone" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.position']}" for="position"/>
+								<p:inputText id="position" value="#{userView.currUser.position}" style="width: 100%" maxlength="64"/>
+								<p:message for="position" display="icon"/>
+
+								<p:outputLabel value="#{text['user.edit.comment']}" for="comment"/>
+								<p:inputTextarea id="comment" value="#{userView.currUser.comment}" rows="4" autoResize="true"
+												 maxlength="256" style="width: 100%;max-height: 64px"/>
+								<p:message for="comment" display="icon"/>
+							</h:panelGrid>
+
+							<h:panelGroup rendered="#{userView.currUser.createFlag}">
+								<hr/>
+								<p:outputLabel value="#{text['user.edit.createOwnGroup']}" for="createOwnGroup"/>
+								<p:selectBooleanCheckbox id="createOwnGroup" value="#{userView.currUser.createOwnGroup}"
+														 style="margin-left:10px"/>
+							</h:panelGroup>
+						</p:panel>
+					</p:tab>
+
+					<p:tab title="#{text['user.tab2.name']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<p:dataTable id="groupsTable" value="#{userView.currUser.linkGroups}" var="collectedList" rows="10"
+										 emptyMessage="#{text['table.empty']}" styleClass="collectedTable" sortBy="#{collectedList.groupName}"
+										 paginator="true" paginatorPosition="bottom"
+										 paginatorTemplate="{PreviousPageLink} {CurrentPageReport} {NextPageLink}"
+										 currentPageReportTemplate="#{text['table.pages']} ({currentPage} #{text['table.of']} {totalPages})"
+										 editable="true" editMode="cell">
+
+								<p:column headerText="#{text['user.edit.col.name']}">
+									<h:outputText value="#{collectedList.groupName}" />
+								</p:column>
+
+								<p:column headerText="#{text['user.edit.col.actorType']}" width="15%" styleClass="columnCenter">
+									<p:cellEditor>
+										<f:facet name="output">
+											<p:selectBooleanCheckbox value="#{collectedList.participant}" disabled="true"/>
+										</f:facet>
+										<f:facet name="input">
+											<h:inputHidden value="#{collectedList.participant}"/>
+											<h:selectBooleanCheckbox value="#{collectedList.participant}"
+																	 onclick="$(this).prev().val(this.checked)"/>
+										</f:facet>
+									</p:cellEditor>
+								</p:column>
+
+								<p:column headerText="#{text['operation.name']}" width="15%" styleClass="columnCenter">
+									<p:commandLink value="#{text['operation.delete']}" update="groupsTable :userEditDialog:tabView:addValueGrid"
+												   actionListener="#{userView.removeValue(collectedList)}"	process="@this"
+												   oncomplete="formatChoiceList()">
+										<p:collector value="#{collectedList}" removeFrom="#{userView.currUser.linkGroups}" unique="true"/>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+
+							<br />
+
+							<p:panel styleClass="ui-widget-header" style="padding: .5em 1em" rendered="#{!currentUser.superRole}">
+								<h:panelGrid id="addValueGrid" columns="2" width="100%" columnClasses="labelNoWrap,width100,width38px">
+									<p:outputLabel value="#{text['user.edit.add.label']}" for="addValue"/>
+									<p:selectOneMenu id="addValue" value="#{userView.selectedGroup}" styleClass="width100" effect="fade"
+													 filter="true" filterMatchMode="contains">
+										<f:selectItems value="#{userView.selectGroup}" />
+									</p:selectOneMenu>
+									<p:commandButton value="#{text['operation.add']}" icon="fa fa-fw fa-plus" update="groupsTable addValueGrid"
+													 process="groupsTable addValueGrid" actionListener="#{userView.addValue}"
+													 oncomplete="formatChoiceList()"/>
+								</h:panelGrid>
+							</p:panel>
+						</p:panel>
+					</p:tab>
+
+					<p:tab title="#{text['user.tab3.name']}">
+						<p:panel styleClass="scrollPanel" style="border: 0;padding: 0;overflow: hidden;height: inherit">
+							<h:panelGrid columns="2" cellpadding="5">
+								<h:outputLabel value="#{text['user.edit.noticeDocIncoming']}"/>
+								<p:selectBooleanCheckbox value="#{userView.currUser.noticeDocIncoming}"/>
+								<h:outputLabel value="#{text['user.edit.noticeStatusChanged']}"/>
+								<p:selectBooleanCheckbox value="#{userView.currUser.noticeStatusChanged}"/>
+							</h:panelGrid>
+						</p:panel>
+					</p:tab>
+				</p:tabView>
+
+				<f:facet name="footer">
+					<h:panelGrid columns="2" columnClasses=",columnRight" style="width: 100%">
+						<p:commandButton value="#{text['button.save']}" icon="fa fa-fw fa-check"
+										 update=":users:usersTable userEditDialog:tabView:userGrid"
+										 actionListener="#{userView.saveAction}" disabled="#{currentUser.superRole}"/>
+						<p:commandButton value="#{text['button.cancel']}" icon="fa fa-fw fa-close" type="button"
+										 onclick="PF('userEditDialog').hide();"/>
+					</h:panelGrid>
+				</f:facet>
+			</p:panel>
+		</h:form>
+	</p:dialog>
+</ui:composition>

@@ -46,7 +46,7 @@ public class CurrentUserView {
 
             RequestContext.getCurrentInstance().execute("PF('loginDialog').hide();formatMenuTabs()");
             RequestContext.getCurrentInstance().update(
-                    new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "dialogsPanel", "autoOpen"})));
+                    new ArrayList<>(Arrays.asList(new String[] {"northPanel", "leftPanel", "centerPanel", "autoOpen"})));
         }
         catch (PasswordException | RestrictionException e) {
             FacesContext.getCurrentInstance().addMessage("growl", new FacesMessage(FacesMessage.SEVERITY_WARN,
